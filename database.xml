@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+
+    <global>
+
+        <table name="invoice">
+            <field type="INT(11) NOT NULL">id</field>
+            <field type="INT(11) NOT NULL">customer_id</field>
+            <field type="int(11) NULL">order_id</field> <!-- wird normal nicht gebraucht, muss in data -->
+            <!--<field type="int(11) NOT NULL">contract_id</field>--> <!-- wird normal nicht gebraucht, muss in data -->
+            <field type="varchar(250) NOT NULL">hash</field>
+            <field type="timestamp NULL DEFAULT CURRENT_TIMESTAMP">date</field>
+
+            <field type="varchar(200) NOT NULL">payment</field>
+            <field type="text NULL">payment_data</field> <!-- muss verschlüsselt sein -->
+            <field type="datetime NULL">payment_time</field>
+            <field type="text NULL">payment_address</field>
+            <field type="text NULL">delivery_address</field>
+            <field type="int(3) NULL">time_for_payment</field>
+
+            <field type="int(2) NOT NULL">paid_status</field>
+            <field type="int(11) NULL">paid_date</field>
+            <field type="text NULL">paid_data</field>
+
+            <field type="int(1) DEFAULT 0">canceled</field> <!-- storno -->
+            <field type="int(11) NOT NULL">c_user</field>
+            <field type="text NULL">data</field>
+            <field type="text NOT NULL">products</field>
+            <!--<field type="text NULL">comments</field>--> <!-- als Modul auslagern -->
+            <field type="text NULL">history</field>
+            <field type="text NULL">customer_data</field>
+            <field type="float NOT NULL">isbrutto</field>
+
+            <field type="text NOT NULL">currency_data</field>
+
+            <field type="float NOT NULL">nettosum</field>
+            <field type="float NOT NULL">subsum</field>
+            <field type="float NOT NULL">sum</field>
+            <field type="text NOT NULL">vat_data</field>
+
+            <!--<field type="text NOT NULL">shipping</field>--> <!-- auslagern -> eigenes modul -->
+
+            <!--<field type="int(2) NOT NULL">dunning_level</field>--> <!-- eigenes modul -->
+            <!--<field type="int(11) NOT NULL">dunning_time</field>--> <!-- eigenes modul -->
+
+            <primary>id</primary>
+            <index>uid</index>
+            <index>payment</index>
+            <index>date</index>
+            <index>hash</index>
+            <auto_increment>id</auto_increment>
+        </table>
+
+
+        <table name="invoice_temporary">
+            <field type="INT(11) NOT NULL">id</field>
+            <field type="INT(11) NOT NULL">customer_id</field>
+            <field type="int(11) NULL">order_id</field>
+            <field type="varchar(250) NOT NULL">hash</field>
+
+            <field type="varchar(200) NOT NULL">payment</field>
+            <field type="text NULL">payment_data</field> <!-- muss verschlüsselt sein -->
+            <field type="datetime NULL">payment_time</field>
+            <field type="text NULL">payment_address</field>
+            <field type="text NULL">delivery_address</field>
+            <field type="int(3) NULL">time_for_payment</field>
+
+            <field type="int(2) NOT NULL">paid_status</field>
+            <field type="int(11) NULL">paid_date</field>
+            <field type="text NULL">paid_data</field>
+
+            <field type="int(1) DEFAULT 0">canceled</field> <!-- storno -->
+            <field type="timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP">date</field>
+            <field type="int(11) NOT NULL">c_user</field>
+            <field type="text NULL">data</field>
+            <field type="text NOT NULL">products</field>
+            <field type="text NULL">history</field>
+            <field type="text NULL">customer_data</field>
+            <field type="float NOT NULL">isbrutto</field>
+            <field type="text NOT NULL">currency_data</field>
+
+            <field type="float NOT NULL">nettosum</field>
+            <field type="float NOT NULL">subsum</field>
+            <field type="float NOT NULL">sum</field>
+            <field type="text NOT NULL">vat_data</field>
+
+            <field type="int(5) NOT NULL">processing_status</field> <!-- variable machen, prozess status verwaltung -->
+        </table>
+
+    </global>
+</database>

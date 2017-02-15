@@ -1,0 +1,17 @@
+<quiqqer>
+    <package>
+
+        <title>
+            <locale group="quiqqer/invoice" var="package.title"/>
+        </title>
+
+        <description>
+            <locale group="quiqqer/invoice" var="package.title"/>
+        </description>
+
+        <provider>
+            <erp src="\QUI\ERP\Accounting\Invoice\ErpProvider"/>
+        </provider>
+
+    </package>
+</quiqqer>
