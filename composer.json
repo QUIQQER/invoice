@@ -1,1 +1,29 @@
-{"name":"quiqqer\/bill","type":"quiqqer-module","description":"","version":"dev-dev","license":"","authors":[{"name":"Henning Leutz","email":"leutz@pcsg.de","homepage":"http:\/\/www.pcsg.de","role":"Developer"}],"support":{"email":"support@pcsg.de","url":"http:\/\/www.pcsg.de"},"require":{"php":">=5.6","quiqqer\/quiqqer":"1.*|dev-master|dev-dev"},"autoload":{"psr-4":{"QUI\\ERP\\":"src\/QUI\/ERP"}}}
+{
+  "name": "quiqqer\/invoice",
+  "type": "quiqqer-module",
+  "description": "",
+  "version": "dev-dev",
+  "license": "",
+  "authors": [
+    {
+      "name": "Henning Leutz",
+      "email": "leutz@pcsg.de",
+      "homepage": "http:\/\/www.pcsg.de",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "email": "support@pcsg.de",
+    "url": "http:\/\/www.pcsg.de"
+  },
+  "require": {
+    "php": ">=5.6",
+    "quiqqer\/quiqqer": "1.*|dev-master|dev-dev",
+    "quiqqer\/erp": "1.*|dev-master|dev-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "QUI\\ERP\\": "src\/QUI\/ERP"
+    }
+  }
+}

@@ -19,7 +19,7 @@
             <field type="int(3) NULL">time_for_payment</field>
 
             <field type="int(2) NOT NULL">paid_status</field>
-            <field type="timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'">paid_date</field>
+            <field type="int(11) NULL">paid_date</field>
             <field type="text NULL">paid_data</field>
 
             <field type="int(1) DEFAULT 0">canceled</field> <!-- storno -->
@@ -66,7 +66,7 @@
             <field type="int(3) NULL">time_for_payment</field>
 
             <field type="int(2) NOT NULL">paid_status</field>
-            <field type="timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'">paid_date</field>
+            <field type="int(11) NULL">paid_date</field>
             <field type="text NULL">paid_data</field>
 
             <field type="int(1) DEFAULT 0">canceled</field> <!-- storno -->

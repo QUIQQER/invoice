@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locales>
+
+    <groups name="quiqqer/invoice" datatype="php,js">
+        <locale name="package.title">
+            <de><![CDATA[QUIQQER - Shop - Rechnungssystem]]></de>
+            <en><![CDATA[QUIQQER - Shop - Invoice]]></en>
+        </locale>
+
+        <locale name="erp.panel.bills.text">
+            <de><![CDATA[Rechnungen (Journal)]]></de>
+            <en><![CDATA[Invoices (Journal)]]></en>
+        </locale>
+        <locale name="erp.panel.bills.create.text">
+            <de><![CDATA[Rechnungen erstellen]]></de>
+            <en><![CDATA[Create Invoices]]></en>
+        </locale>
+    </groups>
+
+</locales>
