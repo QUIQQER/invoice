@@ -6,7 +6,7 @@ use QUI;
 
 /**
  * Class Invoice
- * - Bill class
+ * - Invoice class
  *
  * @package QUI\ERP\Accounting\Invoice
  */
@@ -30,5 +30,18 @@ class Invoice extends QUI\QDOM
     {
         // @todo wenn umgesetzt wird, vorher mor fragen
         // -> Gutschrift erzeugen
+    }
+
+    public function copy()
+    {
+
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->getAttributes();
     }
 }

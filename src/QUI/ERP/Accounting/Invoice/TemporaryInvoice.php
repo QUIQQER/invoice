@@ -6,14 +6,19 @@ use QUI;
 
 /**
  * Class TemporaryInvoice
- * - Temporary Bill / Invoice class
- * - A temporary invoice is a non posted bill, it is not a real invoice
+ * - Temporary Invoice / Invoice class
+ * - A temporary invoice is a non posted invoice, it is not a real invoice
  * - To create a correct invoice from the temporary invoice, the post method must be used
  *
  * @package QUI\ERP\Accounting\Invoice
  */
 class TemporaryInvoice extends QUI\QDOM
 {
+    /**
+     * @var string
+     */
+    protected $id;
+
     /**
      * Invoice constructor.
      *
@@ -26,7 +31,24 @@ class TemporaryInvoice extends QUI\QDOM
     }
 
     /**
-     * Creates a bill from the temporary invoice
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * SAve te current temporary invoice data to the database
+     */
+    public function save()
+    {
+
+    }
+
+    /**
+     * Creates an invoice from the temporary invoice
+     * Its post the invoice
      *
      * @throws Exception
      */
@@ -36,10 +58,10 @@ class TemporaryInvoice extends QUI\QDOM
     }
 
     /**
-     * SAve te current temporary invoice data to the database
+     * @return array
      */
-    public function save()
+    public function toArray()
     {
-
+        return $this->getAttributes();
     }
 }

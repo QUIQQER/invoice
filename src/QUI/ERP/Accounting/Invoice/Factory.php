@@ -8,7 +8,7 @@ use QUI;
  * Class Factory
  * - Creates Temporary invoices
  *
- * @package QUI\ERP\Accounting\Bill
+ * @package QUI\ERP\Accounting\Invoice
  */
 class Factory
 {
@@ -34,7 +34,7 @@ class Factory
      *
      * @return TemporaryInvoice
      */
-    public function createTemporaryBill()
+    public function createInvoice()
     {
         $Handler  = Handler::getInstance();
         $Database = QUI::getDataBase();

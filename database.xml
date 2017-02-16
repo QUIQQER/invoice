@@ -53,7 +53,7 @@
 
 
         <table name="invoice_temporary">
-            <field type="INT(11) NOT NULL">id</field>
+            <field type="varchar(40) NOT NULL">id</field>
             <field type="INT(11) NOT NULL">customer_id</field>
             <field type="int(11) NULL">order_id</field>
             <field type="varchar(250) NOT NULL">hash</field>

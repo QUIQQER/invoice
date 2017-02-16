@@ -5,14 +5,14 @@
  */
 namespace QUI\ERP\Accounting\Invoice;
 
-use QUI\ERP\Api\AbstractFactory;
+use QUI\ERP\Api\AbstractErpProvider;
 
 /**
  * Class ErpProvider
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class ErpProvider extends AbstractFactory
+class ErpProvider extends AbstractErpProvider
 {
     /**
      * @return array
@@ -22,19 +22,15 @@ class ErpProvider extends AbstractFactory
         $menu = array();
 
         $menu[] = array(
-            'icon'   => 'fa fa-money',
-            'text'   => array('quiqqer/invoice', 'erp.panel.bills.text'),
-            'events' => array(
-                'onClick' => ''
-            )
+            'icon'  => 'fa fa-money',
+            'text'  => array('quiqqer/invoice', 'erp.panel.invoice.text'),
+            'panel' => 'package/quiqqer/invoice/bin/backend/controls/panels/Journal'
         );
 
         $menu[] = array(
-            'icon'   => 'fa fa-money',
-            'text'   => array('quiqqer/invoice', 'erp.panel.bills.create.text'),
-            'events' => array(
-                'onClick' => ''
-            )
+            'icon'  => 'fa fa-money',
+            'text'  => array('quiqqer/invoice', 'erp.panel.invoice.create.text'),
+            'panel' => 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices'
         );
 
         return $menu;

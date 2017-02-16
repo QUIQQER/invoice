@@ -4,14 +4,17 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+
 /**
  * Class Handler
  * - Maintains invoices
  * - Returns invoices
  *
- * @package QUI\ERP\Accounting\Bill
+ * @package QUI\ERP\Accounting\Invoice
  */
-class Handler
+class Handler extends QUI\Utils\Singleton
 {
     /**
      * @var string
@@ -22,23 +25,6 @@ class Handler
      * @var string
      */
     const TABLE_TEMPORARY_INVOICE = 'invoice_temporary';
-
-    /**
-     * @var null
-     */
-    protected static $Instance = null;
-
-    /**
-     * @return null|Handler
-     */
-    public static function getInstance()
-    {
-        if (self::$Instance === null) {
-            self::$Instance = new self();
-        }
-
-        return self::$Instance;
-    }
 
     /**
      * Tables
@@ -62,6 +48,33 @@ class Handler
     public function temporaryInvoiceTable()
     {
         return QUI::getDBTableName(self::TABLE_TEMPORARY_INVOICE);
+    }
+
+    /**
+     * Creates a new temporary invoice
+     *
+     * @return TemporaryInvoice
+     */
+    public function create($User = null)
+    {
+        if ($User === null) {
+            $User = QUI::getUserBySession();
+        }
+
+        // @todo create permissions
+
+        $uuid1 = Uuid::uuid1();
+        $newId = 'ti-' . $uuid1->toString();
+
+        QUI::getDataBase()->insert(
+            $this->temporaryInvoiceTable(),
+            array(
+                'id'     => $newId,
+                'c_user' => $User->getId()
+            )
+        );
+
+        return $this->getTemporaryInvoice($newId);
     }
 
     /**
@@ -247,7 +260,7 @@ class Handler
 
         if (!isset($result[0])) {
             throw new Exception(
-                array('quiqqer/bill', 'exception.invoice.not.found'),
+                array('quiqqer/invoice', 'exception.invoice.not.found'),
                 404
             );
         }
@@ -287,7 +300,7 @@ class Handler
 
         if (!isset($result[0])) {
             throw new Exception(
-                array('quiqqer/bill', 'exception.temporary.invoice.not.found'),
+                array('quiqqer/invoice', 'exception.temporary.invoice.not.found'),
                 404
             );
         }

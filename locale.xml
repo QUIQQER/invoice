@@ -7,13 +7,177 @@
             <en><![CDATA[QUIQQER - Shop - Invoice]]></en>
         </locale>
 
-        <locale name="erp.panel.bills.text">
+        <locale name="erp.panel.invoice.text">
             <de><![CDATA[Rechnungen (Journal)]]></de>
             <en><![CDATA[Invoices (Journal)]]></en>
         </locale>
-        <locale name="erp.panel.bills.create.text">
+        <locale name="erp.panel.invoice.create.text">
             <de><![CDATA[Rechnungen erstellen]]></de>
             <en><![CDATA[Create Invoices]]></en>
+        </locale>
+
+        <locale name="paidstatus.open">
+            <de><![CDATA[offen]]></de>
+            <en><![CDATA[open]]></en>
+        </locale>
+        <locale name="paidstatus.paid">
+            <de><![CDATA[bezahlt]]></de>
+            <en><![CDATA[paid]]></en>
+        </locale>
+        <locale name="paidstatus.partial">
+            <de><![CDATA[Teilzahlung]]></de>
+            <en><![CDATA[Partial payment]]></en>
+        </locale>
+        <locale name="paidstatus.canceled">
+            <de><![CDATA[storniert]]></de>
+            <en><![CDATA[canceled]]></en>
+        </locale>
+        <locale name="paidstatus.debit">
+            <de><![CDATA[Lastschrift]]></de>
+            <en><![CDATA[Direct debit]]></en>
+        </locale>
+    </groups>
+
+    <groups name="quiqqer/invoice" datatype="js">
+        <locale name="journal.btn.paymentBook">
+            <de><![CDATA[Zahlung buchen]]></de>
+            <en><![CDATA[Payment book]]></en>
+        </locale>
+        <locale name="journal.btn.pdf">
+            <de><![CDATA[PDF Rechnung]]></de>
+            <en><![CDATA[PDF Invoice]]></en>
+        </locale>
+        <locale name="journal.btn.cancelInvoice">
+            <de><![CDATA[Rechnung stornieren]]></de>
+            <en><![CDATA[Cancel Invoice]]></en>
+        </locale>
+        <locale name="journal.btn.copyInvoice">
+            <de><![CDATA[Rechnung kopieren]]></de>
+            <en><![CDATA[Copy Invoice]]></en>
+        </locale>
+        <locale name="journal.btn.createCredit">
+            <de><![CDATA[Gutschrift erstellen]]></de>
+            <en><![CDATA[Create credit memo]]></en>
+        </locale>
+
+        <locale name="temporary.btn.deleteInvoice">
+            <de><![CDATA[Rechnung löschen]]></de>
+            <en><![CDATA[Delete invoice]]></en>
+        </locale>
+        <locale name="temporary.btn.createInvoice">
+            <de><![CDATA[Neue Rechnung]]></de>
+            <en><![CDATA[Create invoice]]></en>
+        </locale>
+
+        <locale name="journal.grid.invoiceNo">
+            <de><![CDATA[Rech.-Nr]]></de>
+            <en><![CDATA[Invoice no]]></en>
+        </locale>
+        <locale name="journal.grid.orderNo">
+            <de><![CDATA[Bestell-Nr]]></de>
+            <en><![CDATA[Order no]]></en>
+        </locale>
+        <locale name="journal.grid.customerNo">
+            <de><![CDATA[Kunden-Nr]]></de>
+            <en><![CDATA[Custome no]]></en>
+        </locale>
+        <locale name="journal.grid.status">
+            <de><![CDATA[Rechnungsstatus]]></de>
+            <en><![CDATA[Accounting Status]]></en>
+        </locale>
+        <locale name="journal.grid.vat">
+            <de><![CDATA[MwSt]]></de>
+            <en><![CDATA[VAT]]></en>
+        </locale>
+        <locale name="journal.grid.sum">
+            <de><![CDATA[Summe]]></de>
+            <en><![CDATA[Total]]></en>
+        </locale>
+        <locale name="journal.grid.paymentMethod">
+            <de><![CDATA[Zahlungsart]]></de>
+            <en><![CDATA[Payment method]]></en>
+        </locale>
+        <locale name="journal.grid.paymentDate">
+            <de><![CDATA[Zahlungsdatum]]></de>
+            <en><![CDATA[Payment date]]></en>
+        </locale>
+        <locale name="journal.grid.paymentTerm">
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Term of payment]]></en>
+        </locale>
+        <locale name="journal.grid.paid">
+            <de><![CDATA[bezahlt]]></de>
+            <en><![CDATA[paid]]></en>
+        </locale>
+        <locale name="journal.grid.open">
+            <de><![CDATA[offen]]></de>
+            <en><![CDATA[open]]></en>
+        </locale>
+        <locale name="journal.grid.brutto">
+            <de><![CDATA[Brutto]]></de>
+            <en><![CDATA[Gross]]></en>
+        </locale>
+        <locale name="journal.grid.netto">
+            <de><![CDATA[Netto]]></de>
+            <en><![CDATA[Net]]></en>
+        </locale>
+        <locale name="journal.grid.taxid">
+            <de><![CDATA[Umsatzsteuer ID]]></de>
+            <en><![CDATA[Tax ID]]></en>
+        </locale>
+        <locale name="journal.grid.orderDate">
+            <de><![CDATA[Bestelldatum]]></de>
+            <en><![CDATA[Order date]]></en>
+        </locale>
+        <locale name="journal.grid.dunning">
+            <de><![CDATA[Mahnstufe]]></de>
+            <en><![CDATA[Dunning level]]></en>
+        </locale>
+        <locale name="journal.grid.processing">
+            <de><![CDATA[Bearbeitung]]></de>
+            <en><![CDATA[Processing]]></en>
+        </locale>
+        <locale name="journal.grid.comments">
+            <de><![CDATA[Bemerkungen]]></de>
+            <en><![CDATA[Comments]]></en>
+        </locale>
+        <locale name="journal.grid.paymentData">
+            <de><![CDATA[Zahlungsdaten]]></de>
+            <en><![CDATA[Payment data]]></en>
+        </locale>
+        <locale name="journal.grid.hash">
+            <de><![CDATA[Hash]]></de>
+            <en><![CDATA[Hash]]></en>
+        </locale>
+
+        <locale name="journal.paidstatus.all">
+            <de><![CDATA[Status: Alle]]></de>
+            <en><![CDATA[Status: all]]></en>
+        </locale>
+        <locale name="journal.paidstatus.open">
+            <de><![CDATA[Status: Offen]]></de>
+            <en><![CDATA[Status: open]]></en>
+        </locale>
+        <locale name="journal.paidstatus.paid">
+            <de><![CDATA[Status: Bezahlt]]></de>
+            <en><![CDATA[Status: paid]]></en>
+        </locale>
+        <locale name="journal.paidstatus.partial">
+            <de><![CDATA[Status: Teilzahlung]]></de>
+            <en><![CDATA[Status: partial payment]]></en>
+        </locale>
+        <locale name="journal.paidstatus.canceled">
+            <de><![CDATA[Status: Storniert]]></de>
+            <en><![CDATA[Status: canceled]]></en>
+        </locale>
+        <locale name="journal.paidstatus.debit">
+            <de><![CDATA[Status: Lastschrift]]></de>
+            <en><![CDATA[Status: direct debit]]></en>
+        </locale>
+
+        <locale name="erp.panel.temporary.invoice.text">
+            <de><![CDATA[Rechnung erstellen - Ungebuchte Rechnungen]]></de>
+            <en><![CDATA[Create Invoice - Unposted Invoices]]></en>
         </locale>
     </groups>
 

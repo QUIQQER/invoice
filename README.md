@@ -5,7 +5,7 @@ Erstellen Sie Ihre Rechnungen.
 
 Paketname:
 
-    quiqqer/bill
+    quiqqer/invoice
 
 
 ERP Stack
@@ -23,18 +23,18 @@ Wir empfehlen weitere Pakete zu installieren:
 Installation
 ------------
 
-Der Paketname ist: quiqqer/bill
+Der Paketname ist: quiqqer/invoice
 
 Benötigte Server:
 
 - git@dev.quiqqer.com:quiqqer/erp.git
-- git@dev.quiqqer.com:quiqqer/bill.git
+- git@dev.quiqqer.com:quiqqer/invoice.git
 
 Mitwirken
 ----------
 
-- Issue Tracker: https://dev.quiqqer.com/quiqqer/bill/issues
-- Source Code: https://dev.quiqqer.com/quiqqer/bill/tree/master
+- Issue Tracker: https://dev.quiqqer.com/quiqqer/invoice/issues
+- Source Code: https://dev.quiqqer.com/quiqqer/invoice/tree/master
 
 
 Support
