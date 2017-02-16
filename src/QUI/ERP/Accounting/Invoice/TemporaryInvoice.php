@@ -28,6 +28,8 @@ class TemporaryInvoice extends QUI\QDOM
     public function __construct($id, Handler $Handler)
     {
         $this->setAttributes($Handler->getTemporaryInvoiceData($id));
+
+        $this->id = $id;
     }
 
     /**
@@ -39,20 +41,139 @@ class TemporaryInvoice extends QUI\QDOM
     }
 
     /**
-     * SAve te current temporary invoice data to the database
+     * Save the current temporary invoice data to the database
+     *
+     * @param QUI\Interfaces\Users\User|null $User
      */
-    public function save()
+    public function save($User = null)
     {
 
+//            customer_id
+//            order_id
+//            hash
+//
+//            payment_method
+//            payment_data
+//            payment_time
+//            payment_address
+//            delivery_address
+//            time_for_payment
+//
+//            paid_status
+//            paid_date
+//            paid_data
+//
+//            canceled
+//            date
+//            c_user
+//            data
+//            products
+//            history
+//            customer_data
+//            isbrutto
+//            currency_data
+//
+//            nettosum
+//            subsum
+//            sum
+//            vat_data
+//            processing_status
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->temporaryInvoiceTable(),
+            array(
+                'customer_id'       => '',
+                'order_id'          => '',
+                'hash'              => '',
+                'payment_method'    => '',
+                'payment_data'      => '',
+                'payment_time'      => '',
+                'payment_address'   => '',
+                'delivery_address'  => '',
+                'time_for_payment'  => '',
+                'paid_status'       => '',
+                'paid_date'         => '',
+                'paid_data'         => '',
+                'canceled'          => '',
+                'date'              => '',
+                'data'              => '',
+                'products'          => '',
+                'history'           => '',
+                'customer_data'     => '',
+                'isbrutto'          => '',
+                'currency_data'     => '',
+                'nettosum'          => '',
+                'subsum'            => '',
+                'sum'               => '',
+                'vat_data'          => '',
+                'processing_status' => ''
+
+            ),
+            array(
+                'id' => $this->getId()
+            )
+        );
+    }
+
+    /**
+     * Delete the temporary invoice
+     *
+     * @param QUI\Interfaces\Users\User|null $User
+     */
+    public function delete($User = null)
+    {
+        // @todo delete invoice
+
+        QUI::getDataBase()->delete(
+            Handler::getInstance()->temporaryInvoiceTable(),
+            array(
+                'id' => $this->getId()
+            )
+        );
+    }
+
+    /**
+     * Copy the temporary invoice
+     *
+     * @param null $User
+     * @return TemporaryInvoice
+     */
+    public function copy($User = null)
+    {
+        $Handler = Handler::getInstance();
+        $New     = $Handler->create($User);
+
+        $currentData = QUI::getDataBase()->fetch(array(
+            'from'  => $Handler->temporaryInvoiceTable(),
+            'where' => array(
+                'id' => $this->getId()
+            ),
+            'limit' => 1
+        ));
+
+        $currentData = $currentData[0];
+
+        unset($currentData['id']);
+        unset($currentData['c_user']);
+        unset($currentData['date']);
+
+        QUI::getDataBase()->update(
+            $Handler->temporaryInvoiceTable(),
+            $currentData,
+            array('id' => $New->getId())
+        );
+
+        return $Handler->getTemporaryInvoice($New->getId());
     }
 
     /**
      * Creates an invoice from the temporary invoice
      * Its post the invoice
      *
+     * @param QUI\Interfaces\Users\User|null $User
      * @throws Exception
      */
-    public function post()
+    public function post($User = null)
     {
 
     }

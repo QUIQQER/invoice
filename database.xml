@@ -6,12 +6,12 @@
         <table name="invoice">
             <field type="INT(11) NOT NULL">id</field>
             <field type="INT(11) NOT NULL">customer_id</field>
-            <field type="int(11) NULL">order_id</field> <!-- wird normal nicht gebraucht, muss in data -->
+            <field type="int(11) NULL">order_id</field>
             <!--<field type="int(11) NOT NULL">contract_id</field>--> <!-- wird normal nicht gebraucht, muss in data -->
             <field type="varchar(250) NOT NULL">hash</field>
             <field type="timestamp NULL DEFAULT CURRENT_TIMESTAMP">date</field>
 
-            <field type="varchar(200) NOT NULL">payment</field>
+            <field type="varchar(200) NOT NULL">payment_method</field>
             <field type="text NULL">payment_data</field> <!-- muss verschlüsselt sein -->
             <field type="datetime NULL">payment_time</field>
             <field type="text NULL">payment_address</field>
@@ -44,8 +44,9 @@
             <!--<field type="int(11) NOT NULL">dunning_time</field>--> <!-- eigenes modul -->
 
             <primary>id</primary>
-            <index>uid</index>
-            <index>payment</index>
+            <index>customer_id</index>
+            <index>order_id</index>
+            <index>payment_method</index>
             <index>date</index>
             <index>hash</index>
             <auto_increment>id</auto_increment>
@@ -58,7 +59,7 @@
             <field type="int(11) NULL">order_id</field>
             <field type="varchar(250) NOT NULL">hash</field>
 
-            <field type="varchar(200) NOT NULL">payment</field>
+            <field type="varchar(200) NOT NULL">payment_method</field>
             <field type="text NULL">payment_data</field> <!-- muss verschlüsselt sein -->
             <field type="datetime NULL">payment_time</field>
             <field type="text NULL">payment_address</field>
@@ -85,6 +86,13 @@
             <field type="text NOT NULL">vat_data</field>
 
             <field type="int(5) NOT NULL">processing_status</field> <!-- variable machen, prozess status verwaltung -->
+
+            <primary>id</primary>
+            <index>customer_id</index>
+            <index>order_id</index>
+            <index>payment_method</index>
+            <index>date</index>
+            <index>hash</index>
         </table>
 
     </global>

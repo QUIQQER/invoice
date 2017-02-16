@@ -13,12 +13,12 @@
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_get',
-    function ($id) {
+    function ($invoiceId) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice  = $Invoices->get($id);
+        $Invoice  = $Invoices->get($invoiceId);
 
         return $Invoice->toArray();
     },
-    array('ud'),
+    array('invoiceId'),
     'Permission::checkAdminUser'
 );

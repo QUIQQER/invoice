@@ -53,6 +53,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Creates a new temporary invoice
      *
+     * @param QUI\Interfaces\Users\User|null $User
      * @return TemporaryInvoice
      */
     public function create($User = null)
@@ -75,6 +76,17 @@ class Handler extends QUI\Utils\Singleton
         );
 
         return $this->getTemporaryInvoice($newId);
+    }
+
+    /**
+     * Delete a temporary invoice
+     *
+     * @param string $invoiceId - ID of a temporary Invoice
+     * @param QUI\Interfaces\Users\User|null $User
+     */
+    public function delete($invoiceId, $User = null)
+    {
+        $this->getTemporaryInvoice($invoiceId)->delete($User);
     }
 
     /**

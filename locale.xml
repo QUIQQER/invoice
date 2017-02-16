@@ -179,6 +179,37 @@
             <de><![CDATA[Rechnung erstellen - Ungebuchte Rechnungen]]></de>
             <en><![CDATA[Create Invoice - Unposted Invoices]]></en>
         </locale>
+
+        <locale name="dialog.ti.delete.title">
+            <de><![CDATA[Rechnung löschen]]></de>
+            <en><![CDATA[Delete invoice]]></en>
+        </locale>
+        <locale name="dialog.ti.delete.text">
+            <de><![CDATA[Möchten Sie die Rechnung wirklich löschen?]]></de>
+            <en><![CDATA[Are you sure you want to delete the invoice?]]></en>
+        </locale>
+        <locale name="dialog.ti.delete.information" html="true">
+            <de><![CDATA[Die Rechnung <b>[id]</b> wird unwiderruflich gelöscht.]]></de>
+            <en><![CDATA[The invoice <b>[id]</b> will be irrevocably deleted.]]></en>
+        </locale>
+        <locale name="dialog.ti.copy.title">
+            <de><![CDATA[Rechnung kopieren]]></de>
+            <en><![CDATA[Copy invoice]]></en>
+        </locale>
+        <locale name="dialog.ti.copy.text">
+            <de><![CDATA[Möchten Sie die Rechnung wirklich kopieren?]]></de>
+            <en><![CDATA[Are you sure you want to copy the invoice?]]></en>
+        </locale>
+        <locale name="dialog.ti.copy.information" html="true">
+            <de><![CDATA[
+            Es wird eine neue Rechnung erstellt und
+            die Daten der Rechnung <b>[id]</b> werden in diese kopiert.
+            ]]></de>
+            <en><![CDATA[
+            A new invoice is created and
+            the data of the invoice <b> [id] </ b> will be copied to it.
+            ]]></en>
+        </locale>
     </groups>
 
 </locales>

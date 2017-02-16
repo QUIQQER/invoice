@@ -7,15 +7,23 @@
  * @require qui/controls/desktop/Panel
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
+
     'qui/QUI',
-    'qui/controls/desktop/Panel'
-], function (QUI, QUIPanel) {
+    'qui/controls/desktop/Panel',
+    'package/quiqqer/invoice/bin/Invoices'
+
+], function (QUI, QUIPanel, Invoices) {
     "use strict";
 
     return new Class({
 
         Extends: QUIPanel,
-        Type: '',
+        Type: 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
+
+        Binds: [
+            '$onCreate',
+            '$onInject'
+        ],
 
         options: {
             invoiceId: false
@@ -27,6 +35,44 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             });
 
             this.parent(options);
+
+            this.addEvents({
+                onCreate: this.$onCreate,
+                onInject: this.$onInject
+            });
+        },
+
+        /**
+         * event: on create
+         */
+        $onCreate: function () {
+
+        },
+
+        /**
+         * event: on inject
+         */
+        $onInject: function () {
+            this.Loader.show();
+
+            if (!this.getAttribute('invoiceId')) {
+                this.destroy();
+                return;
+            }
+
+            Invoices.get(this.getAttribute('invoiceId')).then(function (data) {
+
+                console.warn(data);
+
+                this.Loader.hide();
+
+            }.bind(this)).catch(function (Exception) {
+                QUI.getMessageHandler().then(function (MH) {
+                    MH.addError(Exception.getMessage());
+                });
+
+                this.destroy();
+            }.bind(this));
         }
     });
 });
