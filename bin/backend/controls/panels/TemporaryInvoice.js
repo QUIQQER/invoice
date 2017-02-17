@@ -10,10 +10,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
     'qui/QUI',
     'qui/controls/desktop/Panel',
-    'package/quiqqer/invoice/bin/Invoices'
+    'qui/controls/windows/Confirm',
+    'package/quiqqer/invoice/bin/Invoices',
+    'Locale'
 
-], function (QUI, QUIPanel, Invoices) {
+], function (QUI, QUIPanel, QUIConfirm, Invoices, QUILocale) {
     "use strict";
+
+    var lg = 'quiqqer/invoice';
 
     return new Class({
 
@@ -22,7 +26,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
         Binds: [
             '$onCreate',
-            '$onInject'
+            '$onInject',
+            '$onDestroy',
+            '$onDeleteInvoice',
+            '$clickDelete'
         ],
 
         options: {
@@ -38,14 +45,40 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.addEvents({
                 onCreate: this.$onCreate,
-                onInject: this.$onInject
+                onInject: this.$onInject,
+                onDestroy: this.$onDestroy
+            });
+
+            Invoices.addEvents({
+                onDeleteInvoice: this.$onDeleteInvoice
             });
         },
+
+        /**
+         *
+         */
+        addArticle: function () {
+
+        },
+
+        /**
+         * Event Handling
+         */
 
         /**
          * event: on create
          */
         $onCreate: function () {
+            this.addButton({
+                icon: 'fa fa-trash',
+                styles: {
+                    'float': 'right'
+                },
+                events: {
+                    onClick: this.$clickDelete
+                }
+            });
+
             this.addCategory({
                 text: 'Rechnungsdaten',
                 events: {
@@ -98,8 +131,55 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }.bind(this));
         },
 
-        addArticle: function () {
+        /**
+         * event: on panel destroy
+         */
+        $onDestroy: function () {
+            Invoices.removeEvents({
+                onDeleteInvoice: this.$onDeleteInvoice
+            });
+        },
 
+        /**
+         * opens the delete dialog
+         */
+        $clickDelete: function () {
+            var self = this;
+
+            new QUIConfirm({
+                title: QUILocale.get(lg, 'dialog.ti.delete.title'),
+                text: QUILocale.get(lg, 'dialog.ti.delete.text'),
+                information: QUILocale.get(lg, 'dialog.ti.delete.information', {
+                    id: this.getAttribute('invoiceId')
+                }),
+                icon: 'fa fa-trash',
+                texticon: 'fa fa-trash',
+                maxHeight: 400,
+                maxWidth: 600,
+                autoclose: false,
+                ok_button: {
+                    text: QUILocale.get('quiqqer/system', 'delete'),
+                    textimage: 'fa fa-trash'
+                },
+                events: {
+                    onSubmit: function (Win) {
+                        Win.Loader.show();
+
+                        Invoices.deleteInvoice(self.getAttribute('invoiceId')).then(function () {
+                            Win.close();
+                        }).then(function () {
+                            Win.Loader.show();
+                        });
+                    }
+                }
+            }).open();
+        },
+
+        /**
+         * event : on invoice deletion
+         */
+        $onDeleteInvoice: function () {
+            this.destroy();
         }
     });
 });

@@ -32,9 +32,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             '$onCreate',
             '$onResize',
             '$onInject',
+            '$onDestroy',
             '$clickCreateInvoice',
             '$clickDeleteInvoice',
-            '$clickCopyInvoice'
+            '$clickCopyInvoice',
+            '$onInvoicesChange'
         ],
 
         initialize: function (options) {
@@ -50,7 +52,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             this.addEvents({
                 onCreate: this.$onCreate,
                 onResize: this.$onResize,
-                onInject: this.$onInject
+                onInject: this.$onInject,
+                onDestroy: this.$onDestroy
+            });
+
+            Invoices.addEvents({
+                onDeleteInvoice: this.$onInvoicesChange,
+                onCreateInvoice: this.$onInvoicesChange,
+                onCopyInvoice: this.$onInvoicesChange
             });
         },
 
@@ -84,7 +93,33 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
         },
 
         /**
-         * event : on create
+         * Opens a TemporaryInvoice Panel
+         *
+         * @param {String} invoiceId
+         * @return {Promise}
+         */
+        openInvoice: function (invoiceId) {
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
+                    'utils/Panels'
+                ], function (TemporaryInvoice, PanelUtils) {
+                    var Panel = new TemporaryInvoice({
+                        invoiceId: invoiceId
+                    });
+
+                    PanelUtils.openPanelInTasks(Panel);
+                    resolve();
+                });
+            });
+        },
+
+        /**
+         * Event Handling
+         */
+
+        /**
+         * event : on panel create
          */
         $onCreate: function () {
             var self = this;
@@ -295,7 +330,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
         },
 
         /**
-         * event : on resize
+         * event : on panel resize
          */
         $onResize: function () {
             if (!this.$Grid) {
@@ -315,10 +350,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
         },
 
         /**
-         * event: on inject
+         * event: on panel inject
          */
         $onInject: function () {
             this.refresh();
+        },
+
+        /**
+         * event: on panel destroy
+         */
+        $onDestroy: function () {
+            Invoices.removeEvents({
+                onDeleteInvoice: this.$onInvoicesChange,
+                onCreateInvoice: this.$onInvoicesChange,
+                onCopyInvoice: this.$onInvoicesChange
+            });
         },
 
         /**
@@ -338,8 +384,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * opens the delete dialog
          */
         $clickDeleteInvoice: function () {
-            var self = this,
-                selected = this.$Grid.getSelectedData();
+            var selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
                 return;
@@ -366,8 +411,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                         Invoices.deleteInvoice(selected[0].id).then(function () {
                             Win.close();
-
-                            return self.refresh();
                         }).then(function () {
                             Win.Loader.show();
                         });
@@ -410,8 +453,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                             Win.close();
                             return self.openInvoice(newId);
                         }).then(function () {
-                            return self.refresh();
-                        }).then(function () {
                             Win.Loader.show();
                         });
                     }
@@ -420,25 +461,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
         },
 
         /**
-         * Opens a TemporaryInvoice Panel
-         *
-         * @param {String} invoiceId
-         * @return {Promise}
+         * event: invoices changed something
+         * create, delete, save, copy
          */
-        openInvoice: function (invoiceId) {
-            return new Promise(function (resolve) {
-                require([
-                    'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
-                    'utils/Panels'
-                ], function (TemporaryInvoice, PanelUtils) {
-                    var Panel = new TemporaryInvoice({
-                        invoiceId: invoiceId
-                    });
-
-                    PanelUtils.openPanelInTasks(Panel);
-                    resolve();
-                });
-            });
+        $onInvoicesChange: function () {
+            this.refresh();
         }
     });
 });

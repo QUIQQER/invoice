@@ -4,6 +4,10 @@
  * @require qui/QUI
  * @require qui/classes/DOM
  * @require Ajax
+ *
+ * @event onCreateInvoice [self, invoiceId]
+ * @event onDeleteInvoice [self, invoiceId]
+ * @event onCopyInvoice [self, invoiceId, newId]
  */
 define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
 
@@ -99,8 +103,12 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @returns {Promise}
          */
         createInvoice: function () {
+            var self = this;
             return new Promise(function (resolve, reject) {
-                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_create', resolve, {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_create', function (newId) {
+                    self.fireEvent('copyInvoice', [self, newId]);
+                    resolve(newId);
+                }, {
                     'package': 'quiqqer/invoice',
                     onError: reject,
                     showError: false
@@ -115,8 +123,12 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @returns {Promise}
          */
         deleteInvoice: function (invoiceId) {
+            var self = this;
             return new Promise(function (resolve, reject) {
-                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_delete', resolve, {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_delete', function () {
+                    self.fireEvent('deleteInvoice', [self, invoiceId]);
+                    resolve();
+                }, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
                     onError: reject,
@@ -132,8 +144,12 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @returns {Promise}
          */
         copyTemporaryInvoice: function (invoiceId) {
+            var self = this;
             return new Promise(function (resolve, reject) {
-                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_copy', resolve, {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_copy', function (newId) {
+                    self.fireEvent('copyInvoice', [self, invoiceId, newId]);
+                    resolve(newId);
+                }, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
                     onError: reject,
