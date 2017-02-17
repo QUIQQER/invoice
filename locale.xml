@@ -36,6 +36,15 @@
             <de><![CDATA[Lastschrift]]></de>
             <en><![CDATA[Direct debit]]></en>
         </locale>
+
+        <locale name="invoice.numberrange.title">
+            <de><![CDATA[Rechnungen]]></de>
+            <en><![CDATA[Invoices]]></en>
+        </locale>
+        <locale name="invoice.temporary.numberrange.title">
+            <de><![CDATA[Rechnungsentwürfe]]></de>
+            <en><![CDATA[Invoice drafts]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -176,8 +185,8 @@
         </locale>
 
         <locale name="erp.panel.temporary.invoice.text">
-            <de><![CDATA[Rechnung erstellen - Ungebuchte Rechnungen]]></de>
-            <en><![CDATA[Create Invoice - Unposted Invoices]]></en>
+            <de><![CDATA[Rechnungsentwürfe - Rechnung erstellen - Ungebuchte Rechnungen]]></de>
+            <en><![CDATA[Invoice drafts - Create Invoice - Unposted Invoices]]></en>
         </locale>
 
         <locale name="dialog.ti.delete.title">

@@ -4,9 +4,6 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-
 /**
  * Class Handler
  * - Maintains invoices
@@ -62,18 +59,16 @@ class Handler extends QUI\Utils\Singleton
             $User = QUI::getUserBySession();
         }
 
-        // @todo create permissions
-
-        $uuid1 = Uuid::uuid1();
-        $newId = 'ti-' . $uuid1->toString();
+        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.create', $User);
 
         QUI::getDataBase()->insert(
             $this->temporaryInvoiceTable(),
             array(
-                'id'     => $newId,
                 'c_user' => $User->getId()
             )
         );
+
+        $newId = QUI::getDataBase()->getPDO()->lastInsertId();
 
         return $this->getTemporaryInvoice($newId);
     }
@@ -224,7 +219,8 @@ class Handler extends QUI\Utils\Singleton
     }
 
     /**
-     * Return an Invoice or an TemporaryInvoice
+     * Return an Invoice
+     * Alias for getInvoice()
      *
      * @param string $id - ID of the Invoice or TemporaryInvoice
      * @return TemporaryInvoice|Invoice
@@ -233,10 +229,6 @@ class Handler extends QUI\Utils\Singleton
      */
     public function get($id)
     {
-        if (strpos($id, 'ti-') === 0) {
-            return $this->getTemporaryInvoice($id);
-        }
-
         return $this->getInvoice($id);
     }
 
@@ -265,7 +257,7 @@ class Handler extends QUI\Utils\Singleton
         $result = QUI::getDataBase()->fetch(array(
             'from'  => self::invoiceTable(),
             'where' => array(
-                'id' => $id
+                'id' => (int)str_replace(Invoice::ID_PREFIX, '', $id)
             ),
             'limit' => 1
         ));
@@ -305,7 +297,7 @@ class Handler extends QUI\Utils\Singleton
         $result = QUI::getDataBase()->fetch(array(
             'from'  => self::temporaryInvoiceTable(),
             'where' => array(
-                'id' => $id
+                'id' => (int)str_replace(TemporaryInvoice::ID_PREFIX, '', $id)
             ),
             'limit' => 1
         ));

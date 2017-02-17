@@ -3,6 +3,7 @@
  *
  * @require qui/QUI
  * @require qui/controls/desktop/Panel
+ * @require qui/controls/windows/Confirm
  * @require controls/grid/Grid
  * @require package/quiqqer/invoice/bin/Invoices
  * @require Locale
@@ -265,6 +266,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             });
 
             this.$Grid.addEvents({
+                onRefresh: this.refresh,
+
                 onClick: function () {
                     var Copy = self.$Grid.getButtons().filter(function (Btn) {
                         return Btn.getAttribute('name') == 'copy';
@@ -403,7 +406,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     onSubmit: function (Win) {
                         Win.Loader.show();
 
-                        Invoices.copyInvoice(selected[0].id).then(function (newId) {
+                        Invoices.copyTemporaryInvoice(selected[0].id).then(function (newId) {
                             Win.close();
                             return self.openInvoice(newId);
                         }).then(function () {
@@ -423,7 +426,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * @return {Promise}
          */
         openInvoice: function (invoiceId) {
-            console.log(invoiceId);
             return new Promise(function (resolve) {
                 require([
                     'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',

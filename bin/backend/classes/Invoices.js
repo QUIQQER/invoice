@@ -58,6 +58,23 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Return the data from a temporary invoice
+         *
+         * @param {Number|String} invoiceId
+         * @returns {Promise}
+         */
+        getTemporaryInvoice: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_get', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError: reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Return invoices for a grid
          *
          * @param {Object} [params] - Grid params
@@ -114,7 +131,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @param {String} invoiceId
          * @returns {Promise}
          */
-        copyInvoice: function (invoiceId) {
+        copyTemporaryInvoice: function (invoiceId) {
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_copy', resolve, {
                     'package': 'quiqqer/invoice',

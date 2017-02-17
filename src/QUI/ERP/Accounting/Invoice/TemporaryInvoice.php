@@ -17,6 +17,11 @@ class TemporaryInvoice extends QUI\QDOM
     /**
      * @var string
      */
+    const ID_PREFIX = 'EDIT-';
+
+    /**
+     * @var string
+     */
     protected $id;
 
     /**
@@ -29,7 +34,7 @@ class TemporaryInvoice extends QUI\QDOM
     {
         $this->setAttributes($Handler->getTemporaryInvoiceData($id));
 
-        $this->id = $id;
+        $this->id = (int)str_replace(self::ID_PREFIX, '', $id);
     }
 
     /**
@@ -37,17 +42,28 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function getId()
     {
-        return $this->id;
+        return self::ID_PREFIX . $this->id;
+    }
+
+    /**
+     * Returns only the integer id
+     *
+     * @return int
+     */
+    public function getCleanId()
+    {
+        return (int)str_replace(self::ID_PREFIX, '', $this->getId());
     }
 
     /**
      * Save the current temporary invoice data to the database
      *
      * @param QUI\Interfaces\Users\User|null $User
+     * @throws QUI\Permissions\Exception
      */
     public function save($User = null)
     {
-
+        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.edit', $User);
 //            customer_id
 //            order_id
 //            hash
@@ -82,10 +98,10 @@ class TemporaryInvoice extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
-                'customer_id'       => '',
-                'order_id'          => '',
+                'customer_id'       => $this->getAttribute('customer_id'),
+                'order_id'          => $this->getAttribute('order_id'),
                 'hash'              => '',
-                'payment_method'    => '',
+                'payment_method'    => $this->getAttribute('payment_method'),
                 'payment_data'      => '',
                 'payment_time'      => '',
                 'payment_address'   => '',
@@ -110,7 +126,7 @@ class TemporaryInvoice extends QUI\QDOM
 
             ),
             array(
-                'id' => $this->getId()
+                'id' => $this->getCleanId()
             )
         );
     }
@@ -119,15 +135,17 @@ class TemporaryInvoice extends QUI\QDOM
      * Delete the temporary invoice
      *
      * @param QUI\Interfaces\Users\User|null $User
+     * @throws QUI\Permissions\Exception
      */
     public function delete($User = null)
     {
-        // @todo delete invoice
+        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.delete', $User);
+
 
         QUI::getDataBase()->delete(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
-                'id' => $this->getId()
+                'id' => $this->getCleanId()
             )
         );
     }
@@ -146,7 +164,7 @@ class TemporaryInvoice extends QUI\QDOM
         $currentData = QUI::getDataBase()->fetch(array(
             'from'  => $Handler->temporaryInvoiceTable(),
             'where' => array(
-                'id' => $this->getId()
+                'id' => $this->getCleanId()
             ),
             'limit' => 1
         ));
@@ -160,7 +178,7 @@ class TemporaryInvoice extends QUI\QDOM
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
             $currentData,
-            array('id' => $New->getId())
+            array('id' => $New->getCleanId())
         );
 
         return $Handler->getTemporaryInvoice($New->getId());
@@ -171,18 +189,28 @@ class TemporaryInvoice extends QUI\QDOM
      * Its post the invoice
      *
      * @param QUI\Interfaces\Users\User|null $User
-     * @throws Exception
+     * @return Invoice
+     * @throws Exception|QUI\Permissions\Exception
      */
     public function post($User = null)
     {
+        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.post', $User);
+
+        // check all current data
+
 
     }
 
     /**
+     * Parse the Temporary invoice to an array
+     *
      * @return array
      */
     public function toArray()
     {
-        return $this->getAttributes();
+        $attributes       = $this->getAttributes();
+        $attributes['id'] = $this->getId();
+
+        return $attributes;
     }
 }

@@ -46,7 +46,30 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * event: on create
          */
         $onCreate: function () {
+            this.addCategory({
+                text: 'Rechnungsdaten',
+                events: {
+                    onClick: function () {
+                    }
+                }
+            });
 
+            this.addCategory({
+                text: 'Positionen (Produkte)',
+                events: {
+                    onClick: function () {
+                    }
+                }
+            });
+
+            this.addCategory({
+                icon: 'fa fa-check',
+                text: 'Überprüfung',
+                events: {
+                    onClick: function () {
+                    }
+                }
+            });
         },
 
         /**
@@ -60,10 +83,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return;
             }
 
-            Invoices.get(this.getAttribute('invoiceId')).then(function (data) {
+            Invoices.getTemporaryInvoice(this.getAttribute('invoiceId')).then(function (data) {
+                this.setAttribute('title', data.id);
 
-                console.warn(data);
-
+                this.refresh();
                 this.Loader.hide();
 
             }.bind(this)).catch(function (Exception) {
@@ -73,6 +96,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 this.destroy();
             }.bind(this));
+        },
+
+        addArticle: function () {
+
         }
     });
 });
