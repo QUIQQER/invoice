@@ -375,8 +375,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
         $clickCreateInvoice: function () {
             return Invoices.createInvoice().then(function (invoiceId) {
                 return this.openInvoice(invoiceId);
-            }.bind(this)).then(function () {
-                return this.refresh();
             }.bind(this));
         },
 

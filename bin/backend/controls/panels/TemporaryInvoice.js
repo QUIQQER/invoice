@@ -80,6 +80,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             });
 
             this.addCategory({
+                icon: 'fa fa-info',
                 text: 'Rechnungsdaten',
                 events: {
                     onClick: function () {
@@ -88,6 +89,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             });
 
             this.addCategory({
+                icon: 'fa fa-list',
                 text: 'Positionen (Produkte)',
                 events: {
                     onClick: function () {
