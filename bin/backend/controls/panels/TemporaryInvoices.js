@@ -42,7 +42,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
         initialize: function (options) {
             this.setAttributes({
                 icon: 'fa fa-money',
-                title: QUILocale.get(lg, 'erp.panel.temporary.invoice.text')
+                title: QUILocale.get(lg, 'erp.panel.temporary.invoice.title')
             });
 
             this.parent(options);

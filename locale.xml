@@ -45,6 +45,32 @@
             <de><![CDATA[Rechnungsentwürfe]]></de>
             <en><![CDATA[Invoice drafts]]></en>
         </locale>
+
+        <locale name="invoice.products.description">
+            <de><![CDATA[Produkt Beschreibung]]></de>
+            <en><![CDATA[Product description]]></en>
+        </locale>
+        <locale name="invoice.products.quantity">
+            <de><![CDATA[Menge]]></de>
+            <en><![CDATA[Quantity]]></en>
+        </locale>
+        <locale name="invoice.products.unitPrice">
+            <de><![CDATA[Einzelpreis]]></de>
+            <en><![CDATA[Unit price]]></en>
+        </locale>
+        <locale name="invoice.products.price">
+            <de><![CDATA[Preis]]></de>
+            <en><![CDATA[Price]]></en>
+        </locale>
+        <locale name="invoice.products.vat">
+            <de><![CDATA[MwSt.]]></de>
+            <en><![CDATA[VAT]]></en>
+        </locale>
+        <locale name="invoice.products.sum">
+            <de><![CDATA[Summe]]></de>
+            <en><![CDATA[Total]]></en>
+        </locale>
+
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -184,9 +210,9 @@
             <en><![CDATA[Status: direct debit]]></en>
         </locale>
 
-        <locale name="erp.panel.temporary.invoice.text">
-            <de><![CDATA[Rechnungsentwürfe - Rechnung erstellen - Ungebuchte Rechnungen]]></de>
-            <en><![CDATA[Invoice drafts - Create Invoice - Unposted Invoices]]></en>
+        <locale name="erp.panel.temporary.invoice.title">
+            <de><![CDATA[Rechnungsentwürfe]]></de>
+            <en><![CDATA[Invoice drafts]]></en>
         </locale>
 
         <locale name="dialog.ti.delete.title">
