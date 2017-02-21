@@ -1,0 +1,59 @@
+<div data-qui="package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData"></div>
+
+<table class="data-table data-table-flexbox invoice-data">
+    <thead>
+    <tr>
+        <th>Rechnungsdaten</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr>
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="Rechnungsdatum">
+                    Rechnungsdatum
+                </span>
+                <input class="field-container-field" type="datetime" name="date"/>
+            </label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="Zahlungsziel">
+                    Zahlungsziel
+                </span>
+                <span class="field-container-field"></span>
+            </label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="Projektname">
+                    Projektname
+                </span>
+                <input class="field-container-field" type="text" name="projectName"/>
+            </label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="Bestellt durch">
+                    Bestellt durch
+                </span>
+                <span class="field-container-field field-container-field-no-padding">
+                    <input type="hidden"
+                           name="orderedBy"
+                           data-qui="controls/users/Select"
+                           data-qui-options-max="1"
+                           data-qui-options-multiple="0"
+                    />
+                </span>
+            </label>
+        </td>
+    </tr>
+    </tbody>
+</table>

@@ -14,10 +14,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'qui/controls/buttons/ButtonMultiple',
     'qui/controls/buttons/Seperator',
     'qui/controls/windows/Confirm',
+    'controls/users/address/Select',
     'package/quiqqer/invoice/bin/Invoices',
-    'Locale'
+    'Locale',
+    'Mustache',
+    'Users',
 
-], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, Invoices, QUILocale) {
+    'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Data.html',
+    'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
+
+], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm,
+             AddressSelect, Invoices, QUILocale, Mustache, Users, templateData) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -67,6 +74,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         },
 
         /**
+         * Set the customer to the invoice
+         *
+         * @param {String|Integer} userId - ID of the user
+         */
+        setCustomer: function (userId) {
+            return new Promise(function (resolve) {
+
+
+                resolve();
+            });
+        },
+
+        /**
+         * Categories
+         */
+
+        /**
          * Open the data category
          *
          * @returns {Promise}
@@ -77,10 +101,73 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.Loader.show();
 
             return this.$closeCategory().then(function () {
+                var Container = self.getContent().getElement('.container');
 
+                Container.set({
+                    html: Mustache.render(templateData)
+                });
+
+                return QUI.parse(Container);
+            }).then(function () {
+                var Container = self.getContent().getElement('.customer');
+
+                //require([
+                //    'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect'
+                //], function (UserSelect) {
+                //    new UserSelect({
+                //        userId: false,
+                //        addressId: false
+                //    }).inject(Container);
+                //});
+
+                //
+                //// customer setting
+                //var Customer = QUI.Controls.getById(
+                //    Content.getElement('[name="customer"]').get('data-quiid')
+                //);
+                //
+                //// address fields
+                //var Company = Content.getElement('[name="company"]'),
+                //    Street = Content.getElement('[name="street"]'),
+                //    Zip = Content.getElement('[name="zip"]'),
+                //    City = Content.getElement('[name="city"]');
+                //
+                //
+                //Customer.addEvent('change', function (Control) {
+                //    var userId = Control.getValue();
+                //
+                //    if (userId === '' || !userId) {
+                //        Company.set('value', '');
+                //        Street.set('value', '');
+                //        Zip.set('value', '');
+                //        City.set('value', '');
+                //        return;
+                //    }
+                //
+                //    var User = Users.get(userId);
+                //
+                //    User.load().then(function (User) {
+                //        return User.getAddressList();
+                //    }).then(function (addresses) {
+                //        if (!addresses.length) {
+                //            return;
+                //        }
+                //
+                //        if (addresses.length == 1) {
+                //            console.log(addresses[0]);
+                //
+                //            Company.set('value', addresses[0].company);
+                //            Street.set('value', addresses[0].street_no);
+                //            Zip.set('value', addresses[0].zip);
+                //            City.set('value', addresses[0].city);
+                //            return;
+                //        }
+                //
+                //        // address Auswahl
+                //    });
+                //});
 
                 self.Loader.hide();
-            }).then(function () {
                 return self.$openCategory();
             });
         },
@@ -241,7 +328,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.$AddProduct = new QUIButtonMultiple({
                 textimage: 'fa fa-plus',
-                text: 'Produkt hinzufügen',
+                text: 'Artikel hinzufügen',
                 events: {
                     onClick: function () {
                         if (self.$ProductList) {
@@ -254,7 +341,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.$AddProduct.hide();
 
             this.$AddProduct.appendChild({
-                text: 'Freies Produkt',
+                text: 'Freier Artikel',
                 events: {
                     onClick: function () {
                         if (self.$ProductList) {
@@ -311,7 +398,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.addCategory({
                 icon: 'fa fa-list',
-                text: 'Positionen (Produkte)',
+                text: 'Positionen (Artikel)',
                 events: {
                     onClick: this.openProducts
                 }

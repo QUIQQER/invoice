@@ -1,0 +1,13 @@
+/** Data
+ ========================================== */
+
+.quiqqer-invoice-backend-temporaryInvoice-data-address-opener {
+    background: #dedede;
+    border-radius: 5px 0 0 0;
+    bottom: 0;
+    cursor: pointer;
+    float: right;
+    padding: 5px 10px;
+    position: absolute;
+    right: 0;
+}

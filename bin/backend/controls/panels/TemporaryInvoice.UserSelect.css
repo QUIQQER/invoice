@@ -1,0 +1,36 @@
+.quiqqer-invoice-ti-userSelect {
+    float: left;
+    min-height: 100px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.quiqqer-invoice-ti-userSelect-container {
+    height: 100%;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.quiqqer-invoice-ti-userSelect-user {
+    cursor: pointer;
+    padding-top: 30px;
+    text-align: center;
+}
+
+.quiqqer-invoice-ti-userSelect-user .fa {
+    font-size: 30px;
+}
+
+.quiqqer-invoice-ti-userSelect-addresses {
+    text-align: center;
+}
+
+.quiqqer-invoice-ti-userSelect-addresses select {
+    display: block;
+    margin: 0 auto 10px;
+    max-width: 300px;
+    width: 100%;
+}
