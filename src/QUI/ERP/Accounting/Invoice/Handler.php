@@ -53,32 +53,6 @@ class Handler extends QUI\Utils\Singleton
     }
 
     /**
-     * Creates a new temporary invoice
-     *
-     * @param QUI\Interfaces\Users\User|null $User
-     * @return TemporaryInvoice
-     */
-    public function create($User = null)
-    {
-        if ($User === null) {
-            $User = QUI::getUserBySession();
-        }
-
-        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.create', $User);
-
-        QUI::getDataBase()->insert(
-            $this->temporaryInvoiceTable(),
-            array(
-                'c_user' => $User->getId()
-            )
-        );
-
-        $newId = QUI::getDataBase()->getPDO()->lastInsertId();
-
-        return $this->getTemporaryInvoice($newId);
-    }
-
-    /**
      * Delete a temporary invoice
      *
      * @param string $invoiceId - ID of a temporary Invoice

@@ -12,11 +12,11 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_create',
     function () {
-        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice  = $Invoices->create();
+        $Factory = QUI\ERP\Accounting\Invoice\Factory::getInstance();
+        $Invoice = $Factory->createInvoice();
 
         return $Invoice->getId();
     },
-    array(),
+    false,
     'Permission::checkAdminUser'
 );

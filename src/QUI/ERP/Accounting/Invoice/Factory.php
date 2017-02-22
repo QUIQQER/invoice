@@ -11,45 +11,32 @@ use Ramsey\Uuid\Uuid;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class Factory
+class Factory extends QUI\Utils\Singleton
 {
     /**
-     * @var null
-     */
-    protected static $Instance = null;
-
-    /**
-     * @return null|Factory
-     */
-    public static function getInstance()
-    {
-        if (self::$Instance === null) {
-            self::$Instance = new self();
-        }
-
-        return self::$Instance;
-    }
-
-    /**
-     * Create a non posted invoice
+     * Creates a new temporary invoice
      *
+     * @param QUI\Interfaces\Users\User|null $User
      * @return TemporaryInvoice
      */
-    public function createInvoice()
+    public function createInvoice($User = null)
     {
-        $Handler  = Handler::getInstance();
-        $Database = QUI::getDataBase();
-        $Hash     = Uuid::uuid1();
+        if ($User === null) {
+            $User = QUI::getUserBySession();
+        }
 
-        $Database->insert(
-            $Handler->temporaryInvoiceTable(),
+        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.create', $User);
+
+        QUI::getDataBase()->insert(
+            Handler::getInstance()->temporaryInvoiceTable(),
             array(
-                'hash' => $Hash->toString()
+                'c_user' => $User->getId(),
+                'hash'   => Uuid::uuid1()->toString()
             )
         );
 
-        $newId = $Database->getPDO()->lastInsertId();
+        $newId = QUI::getDataBase()->getPDO()->lastInsertId();
 
-        return $Handler->getTemporaryInvoice($newId);
+        return Handler::getInstance()->getTemporaryInvoice($newId);
     }
 }

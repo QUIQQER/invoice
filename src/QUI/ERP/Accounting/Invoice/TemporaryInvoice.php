@@ -123,7 +123,6 @@ class TemporaryInvoice extends QUI\QDOM
                 'sum'               => '',
                 'vat_data'          => '',
                 'processing_status' => ''
-
             ),
             array(
                 'id' => $this->getCleanId()
@@ -159,7 +158,8 @@ class TemporaryInvoice extends QUI\QDOM
     public function copy($User = null)
     {
         $Handler = Handler::getInstance();
-        $New     = $Handler->create($User);
+        $Factory = Factory::getInstance();
+        $New     = $Factory->createInvoice($User);
 
         $currentData = QUI::getDataBase()->fetch(array(
             'from'  => $Handler->temporaryInvoiceTable(),

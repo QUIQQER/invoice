@@ -157,6 +157,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             }
 
             return this.$getUser().then(function (User) {
+                if (!User) {
+                    return [];
+                }
+
                 return User.getAddressList();
 
             }).then(function (addresses) {
