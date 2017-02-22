@@ -1,7 +1,16 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData
  *
- *
+ * @require qui/QUI
+ * @require qui/controls/Control
+ * @require qui/controls/buttons/Button
+ * @require controls/users/address/Display
+ * @require controls/users/search/Window
+ * @require Users
+ * @require Locale
+ * @require Ajax
+ * @require Mustache
+ * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData.html
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData', [
 
@@ -21,10 +30,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
              Mustache, template) {
     "use strict";
 
+    var lg = 'quiqqer/invoice';
+
     return new Class({
 
         Extends: QUIControl,
-        Type: 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData',
+        Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData',
 
         Binds: [
             'toggleExtras',
@@ -32,7 +43,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
         ],
 
         options: {
-            userId: false,
+            userId   : false,
             addressId: false
         },
 
@@ -45,16 +56,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
             this.$CustomerSelect = null;
 
-            this.$Extras = null;
-            this.$Company = null;
-            this.$Street = null;
-            this.$Zip = null;
-            this.$City = null;
-            this.$Table = null;
-            this.$AddressRow = null;
+            this.$Extras        = null;
+            this.$Company       = null;
+            this.$Street        = null;
+            this.$Zip           = null;
+            this.$City          = null;
+            this.$Table         = null;
+            this.$AddressRow    = null;
             this.$AddressSelect = null;
 
-            this.$rows = [];
+            this.$rows          = [];
             this.$extrasAreOpen = false;
 
         },
@@ -67,20 +78,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             var self = this;
 
             this.$Elm = new Element('div', {
-                html: Mustache.render(template)
+                html: Mustache.render(template, {
+                    textTitle   : QUILocale.get(lg, 'cutomerData'),
+                    textCustomer: QUILocale.get(lg, 'customer'),
+                    textAddress : QUILocale.get(lg, 'address'),
+                    textCompany : QUILocale.get(lg, 'company'),
+                    textStreet  : QUILocale.get(lg, 'street'),
+                    textZip     : QUILocale.get(lg, 'zip'),
+                    textCity    : QUILocale.get(lg, 'city'),
+                    textExtra   : QUILocale.get(lg, 'invoice.temporary.extend.view.open')
+                })
             });
 
             this.$Extras = this.$Elm.getElement('.quiqqer-invoice-backend-temporaryInvoice-data-address-opener');
             this.$Extras.addEvent('click', this.toggleExtras);
 
             this.$Company = this.$Elm.getElement('[name="company"]');
-            this.$Street = this.$Elm.getElement('[name="street"]');
-            this.$Zip = this.$Elm.getElement('[name="zip"]');
-            this.$City = this.$Elm.getElement('[name="city"]');
+            this.$Street  = this.$Elm.getElement('[name="street"]');
+            this.$Zip     = this.$Elm.getElement('[name="zip"]');
+            this.$City    = this.$Elm.getElement('[name="city"]');
 
-            this.$Table = this.$Elm.getElement('.invoice-data-customer');
-            this.$rows = this.$Table.getElements('.closable');
-            this.$AddressRow = this.$Table.getElement('.address-row');
+            this.$Table         = this.$Elm.getElement('.invoice-data-customer');
+            this.$rows          = this.$Table.getElements('.closable');
+            this.$AddressRow    = this.$Table.getElement('.address-row');
             this.$AddressSelect = this.$Table.getElement('[name="address"]');
 
             this.$AddressSelect.addEvent('change', function () {
@@ -91,46 +111,95 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
         },
 
         /**
-         * Set the user id
+         * Return the data value
          *
-         * @param userId
+         * @returns {{userId: *, addressId: *}}
          */
-        setUserId: function (userId) {
-            this.setAttribute('userId', userId);
+        getValue: function () {
+            return {
+                userId   : this.getAttribute('userId'),
+                addressId: this.getAttribute('addressId')
+            };
+        },
 
+        /**
+         * Set the complete data values
+         *
+         * @param {String|Number} userId
+         * @param {String|Number} addressId
+         */
+        setValue: function (userId, addressId) {
+            this.setAttribute('userId', userId);
+            this.setAttribute('addressId', addressId);
+
+            return this.refresh();
+        },
+
+        /**
+         * Refresh the display
+         */
+        refresh: function () {
             if (!this.$Elm) {
-                return;
+                return Promise.resolve();
             }
 
-            if (userId === '' || !userId) {
+            var userId = this.getAttribute('userId');
+
+            if (!userId || userId === '') {
                 this.$Company.set('value', '');
                 this.$Street.set('value', '');
                 this.$Zip.set('value', '');
                 this.$City.set('value', '');
-                return;
+
+                this.$AddressRow.setStyle('display', 'none');
+
+                return Promise.resolve();
             }
 
-            var User = Users.get(userId);
-
-            User.load().then(function (User) {
+            return this.$getUser().then(function (User) {
                 return User.getAddressList();
+
             }).then(function (addresses) {
+                this.$AddressSelect.set('html', '');
+
                 if (!addresses.length) {
                     this.$AddressRow.setStyle('display', 'none');
                     return;
                 }
 
-                // @todo rechnungsadresse auswählen
+                // @todo rechnungsadresse auswählen wenn keine value gesetzt ist
+
                 this.$AddressRow.setStyle('display', null);
 
                 for (var i = 0, len = addresses.length; i < len; i++) {
                     new Element('option', {
                         value: addresses[i].id,
-                        html: addresses[i].text
+                        html : addresses[i].text
                     }).inject(this.$AddressSelect);
                 }
 
-                this.$AddressSelect.value = addresses[0].id;
+                var addressId = this.getAttribute('addressId');
+
+                this.$AddressSelect.value = addressId || addresses[0].id;
+            }.bind(this));
+        },
+
+        /**
+         * Set the user id
+         *
+         * @param userId
+         * @return {Promise}
+         */
+        setUserId: function (userId) {
+            this.setAttribute('userId', userId);
+
+            if (!this.$Elm) {
+                return Promise.resolve();
+            }
+
+            this.fireEvent('change', [this]);
+
+            return this.refresh().then(function () {
                 this.$AddressSelect.fireEvent('change');
             }.bind(this));
         },
@@ -139,6 +208,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          * Set a address to the user data
          *
          * @param {String|Number} addressId
+         * @return {Promise}
          */
         setAddressId: function (addressId) {
             var self = this;
@@ -151,6 +221,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     self.$City.set('value', address.city);
 
                     self.setAttribute('addressId', addressId);
+                    self.fireEvent('change', [self]);
 
                     resolve(address);
                 }, {
@@ -158,6 +229,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     aid: addressId
                 });
             });
+        },
+
+        /**
+         * Return the loaded user object
+         *
+         * @returns {Promise}
+         */
+        $getUser: function () {
+            var userId = this.getAttribute('userId');
+
+            if (!userId || userId === '') {
+                return Promise.reject();
+            }
+
+            var User = Users.get(userId);
+
+            if (!User.isLoaded()) {
+                return Promise.resolve(User);
+            }
+
+            return User.load();
         },
 
         /**
@@ -182,7 +274,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 });
 
                 if (this.getAttribute('userId')) {
-                    this.$CustomerSelect.setValue(this.getAttribute('userId'));
+                    this.$CustomerSelect.addItem(this.getAttribute('userId'));
                 }
             }.bind(this));
         },
@@ -214,8 +306,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
             return new Promise(function (resolve) {
                 self.$rows.setStyles({
-                    height: 0,
-                    opacity: 0,
+                    height  : 0,
+                    opacity : 0,
                     overflow: 'hidden',
                     position: 'relative'
                 });
@@ -230,8 +322,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     duration: 250,
                     callback: function () {
                         self.$rows.setStyles({
-                            display: null,
-                            height: null,
+                            display : null,
+                            height  : null,
                             overflow: null,
                             position: null
                         });
@@ -242,7 +334,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                             duration: 250,
                             callback: function () {
                                 self.$Extras.set({
-                                    html: '<span class="fa fa-chevron-up"></span> Erweiterte Ansicht schließen'
+                                    html: '<span class="fa fa-chevron-up"></span> ' +
+                                    QUILocale.get(lg, 'invoice.temporary.extend.view.close')
                                 });
 
                                 self.$extrasAreOpen = true;
@@ -272,7 +365,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                         self.$extrasAreOpen = false;
 
                         self.$Extras.set({
-                            html: '<span class="fa fa-chevron-right"></span> Erweiterte Ansicht öffnen'
+                            html: '<span class="fa fa-chevron-right"></span> ' +
+                            QUILocale.get(lg, 'invoice.temporary.extend.view.open')
                         });
 
                         resolve();

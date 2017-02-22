@@ -21,7 +21,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
     return new Class({
 
         Extends: QUIDOM,
-        Type: 'package/quiqqer/invoice/bin/backend/classes/Invoices',
+        Type   : 'package/quiqqer/invoice/bin/backend/classes/Invoices',
 
         initialize: function (options) {
             this.parent(options);
@@ -38,7 +38,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_get', resolve, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
-                    onError: reject,
+                    onError  : reject,
                     showError: false
                 });
             });
@@ -54,8 +54,8 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
             return new Promise(function (resolve, reject) {
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_list', resolve, {
                     'package': 'quiqqer/invoice',
-                    params: JSON.encode(params),
-                    onError: reject,
+                    params   : JSON.encode(params),
+                    onError  : reject,
                     showError: false
                 });
             });
@@ -72,7 +72,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_get', resolve, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
-                    onError: reject,
+                    onError  : reject,
                     showError: false
                 });
             });
@@ -90,8 +90,8 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
             return new Promise(function (resolve, reject) {
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_list', resolve, {
                     'package': 'quiqqer/invoice',
-                    params: JSON.encode(params),
-                    onError: reject,
+                    params   : JSON.encode(params),
+                    onError  : reject,
                     showError: false
                 });
             });
@@ -110,7 +110,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                     resolve(newId);
                 }, {
                     'package': 'quiqqer/invoice',
-                    onError: reject,
+                    onError  : reject,
                     showError: false
                 });
             });
@@ -131,7 +131,31 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                 }, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
-                    onError: reject,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Delete a temporary invoice
+         *
+         * @param {String} invoiceId
+         * @param {Object} data
+         * @returns {Promise}
+         */
+        saveInvoice: function (invoiceId, data) {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_save', function () {
+                    self.fireEvent('saveInvoice', [self, invoiceId, data]);
+                    resolve();
+                }, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    data     : JSON.encode(data),
+                    onError  : reject,
                     showError: false
                 });
             });
@@ -152,7 +176,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                 }, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
-                    onError: reject,
+                    onError  : reject,
                     showError: false
                 });
             });

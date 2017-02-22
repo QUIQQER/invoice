@@ -98,9 +98,9 @@ class TemporaryInvoice extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
-                'customer_id'       => $this->getAttribute('customer_id'),
-                'order_id'          => $this->getAttribute('order_id'),
-                'hash'              => '',
+                'customer_id'       => (int)$this->getAttribute('customer_id'),
+                'address_id'        => (int)$this->getAttribute('address_id'),
+                'order_id'          => (int)$this->getAttribute('order_id') || '',
                 'payment_method'    => $this->getAttribute('payment_method'),
                 'payment_data'      => '',
                 'payment_time'      => '',
@@ -190,7 +190,7 @@ class TemporaryInvoice extends QUI\QDOM
      *
      * @param QUI\Interfaces\Users\User|null $User
      * @return Invoice
-     * @throws Exception|QUI\Permissions\Exception
+     * @throws Exception|QUI\Permissions\Exception|QUI\Exception
      */
     public function post($User = null)
     {
@@ -198,7 +198,15 @@ class TemporaryInvoice extends QUI\QDOM
 
         // check all current data
 
+        // user and user-address check
+        $customerId = $this->getAttribute('customer_id');
+        $addressId  = $this->getAttribute('address_id');
 
+        $Customer = QUI::getUsers()->get($customerId);
+        $Address  = $Customer->getAddress($addressId);
+
+
+        // create invoice
     }
 
     /**

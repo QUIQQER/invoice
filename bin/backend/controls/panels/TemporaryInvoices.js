@@ -1,6 +1,8 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices
  *
+ * Zeigt alle Rechnungsentwürfe an
+ *
  * @require qui/QUI
  * @require qui/controls/desktop/Panel
  * @require qui/controls/windows/Confirm
@@ -25,7 +27,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
     return new Class({
 
         Extends: QUIPanel,
-        Type: 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices',
+        Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices',
 
         Binds: [
             'refresh',
@@ -41,7 +43,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
         initialize: function (options) {
             this.setAttributes({
-                icon: 'fa fa-money',
+                icon : 'fa fa-money',
                 title: QUILocale.get(lg, 'erp.panel.temporary.invoice.title')
             });
 
@@ -50,16 +52,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             this.$Grid = null;
 
             this.addEvents({
-                onCreate: this.$onCreate,
-                onResize: this.$onResize,
-                onInject: this.$onInject,
+                onCreate : this.$onCreate,
+                onResize : this.$onResize,
+                onInject : this.$onInject,
                 onDestroy: this.$onDestroy
             });
 
             Invoices.addEvents({
                 onDeleteInvoice: this.$onInvoicesChange,
                 onCreateInvoice: this.$onInvoicesChange,
-                onCopyInvoice: this.$onInvoicesChange
+                onCopyInvoice  : this.$onInvoicesChange
             });
         },
 
@@ -126,7 +128,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             // Buttons
             this.addButton({
-                text: 'Summe anzeigen',
+                text     : 'Summe anzeigen',
                 textimage: 'fa fa-calculator'
             });
 
@@ -140,12 +142,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             );
 
             this.$Grid = new Grid(Container, {
-                pagination: true,
-                buttons: [{
-                    name: 'create',
-                    text: QUILocale.get(lg, 'temporary.btn.createInvoice'),
+                pagination : true,
+                buttons    : [{
+                    name     : 'create',
+                    text     : QUILocale.get(lg, 'temporary.btn.createInvoice'),
                     textimage: 'fa fa-plus',
-                    events: {
+                    events   : {
                         onClick: function (Btn) {
                             Btn.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
@@ -155,148 +157,153 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         }
                     }
                 }, {
-                    name: 'copy',
-                    disabled: true,
-                    text: QUILocale.get(lg, 'journal.btn.copyInvoice'),
+                    name     : 'copy',
+                    disabled : true,
+                    text     : QUILocale.get(lg, 'journal.btn.copyInvoice'),
                     textimage: 'fa fa-copy',
-                    events: {
+                    events   : {
                         onClick: this.$clickCopyInvoice
                     }
                 }, {
-                    name: 'delete',
-                    disabled: true,
-                    text: QUILocale.get(lg, 'temporary.btn.deleteInvoice'),
+                    name     : 'delete',
+                    disabled : true,
+                    text     : QUILocale.get(lg, 'temporary.btn.deleteInvoice'),
                     textimage: 'fa fa-trash',
-                    events: {
+                    events   : {
                         onClick: this.$clickDeleteInvoice
                     }
                 }, {
                     type: 'seperator'
                 }, {
-                    name: 'pdf',
-                    disabled: true,
-                    text: QUILocale.get(lg, 'journal.btn.pdf'),
+                    name     : 'pdf',
+                    disabled : true,
+                    text     : QUILocale.get(lg, 'journal.btn.pdf'),
                     textimage: 'fa fa-file-pdf-o',
-                    events: {
+                    events   : {
                         onClick: function () {
                         }
                     }
                 }],
                 columnModel: [{
-                    header: QUILocale.get(lg, 'journal.grid.invoiceNo'),
+                    header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
-                    dataType: 'integer',
-                    width: 100
+                    dataType : 'integer',
+                    width    : 100
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.orderNo'),
+                    header   : QUILocale.get(lg, 'journal.grid.orderNo'),
                     dataIndex: 'order_id',
-                    dataType: 'integer',
-                    width: 80
+                    dataType : 'integer',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.customerNo'),
+                    header   : QUILocale.get(lg, 'journal.grid.customerNo'),
                     dataIndex: 'customer_id',
-                    dataType: 'integer',
-                    width: 100
+                    dataType : 'integer',
+                    width    : 100
                 }, {
-                    header: QUILocale.get('quiqqer/system', 'name'),
+                    header   : QUILocale.get('quiqqer/system', 'name'),
                     dataIndex: 'customer_name',
-                    dataType: 'string',
-                    width: 130
+                    dataType : 'string',
+                    width    : 130
                 }, {
-                    header: QUILocale.get('quiqqer/system', 'date'),
+                    header   : QUILocale.get('quiqqer/system', 'date'),
                     dataIndex: 'date',
-                    dataType: 'date',
-                    width: 150
+                    dataType : 'date',
+                    width    : 150
                 }, {
-                    header: QUILocale.get('quiqqer/system', 'username'),
+                    header   : QUILocale.get('quiqqer/system', 'c_user'),
                     dataIndex: 'c_user',
-                    dataType: 'integer',
-                    width: 130
+                    dataType : 'integer',
+                    width    : 100
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.status'),
+                    header   : QUILocale.get('quiqqer/system', 'c_user'),
+                    dataIndex: 'c_username',
+                    dataType : 'integer',
+                    width    : 130
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paidstatus',
-                    dataType: 'string',
-                    width: 120
+                    dataType : 'string',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.netto'),
+                    header   : QUILocale.get(lg, 'journal.grid.netto'),
                     dataIndex: 'display_nettosum',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.vat'),
+                    header   : QUILocale.get(lg, 'journal.grid.vat'),
                     dataIndex: 'display_vatsum',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.sum'),
+                    header   : QUILocale.get(lg, 'journal.grid.sum'),
                     dataIndex: 'display_sum',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paymentMethod'),
+                    header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
                     dataIndex: 'payment_method',
-                    dataType: 'string',
-                    width: 120
+                    dataType : 'string',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paymentTerm'),
+                    header   : QUILocale.get(lg, 'journal.grid.paymentTerm'),
                     dataIndex: 'payment_time',
-                    dataType: 'string',
-                    width: 120
+                    dataType : 'string',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paymentDate'),
+                    header   : QUILocale.get(lg, 'journal.grid.paymentDate'),
                     dataIndex: 'paid_date',
-                    dataType: 'date',
-                    width: 120
+                    dataType : 'date',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paid'),
+                    header   : QUILocale.get(lg, 'journal.grid.paid'),
                     dataIndex: 'display_paid',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.open'),
+                    header   : QUILocale.get(lg, 'journal.grid.open'),
                     dataIndex: 'display_missing',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.brutto'),
+                    header   : QUILocale.get(lg, 'journal.grid.brutto'),
                     dataIndex: 'isbrutto',
-                    dataType: 'integer',
-                    width: 50
+                    dataType : 'integer',
+                    width    : 50
                 }, {
-                    header: QUILocale.get(lg, 'taxid'),
+                    header   : QUILocale.get(lg, 'taxid'),
                     dataIndex: 'taxid',
-                    dataType: 'string',
-                    width: 120
+                    dataType : 'string',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.orderDate'),
+                    header   : QUILocale.get(lg, 'journal.grid.orderDate'),
                     dataIndex: 'order_id',
-                    dataType: 'date',
-                    width: 130
+                    dataType : 'date',
+                    width    : 130
                     // }, {
                     //     header: QUILocale.get(lg, 'journal.grid.dunning'),
                     //     dataIndex: 'dunning_level',
                     //     dataType: 'integer',
                     //     width: 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.processing'),
+                    header   : QUILocale.get(lg, 'journal.grid.processing'),
                     dataIndex: 'processing_status',
-                    dataType: 'string',
-                    width: 150
+                    dataType : 'string',
+                    width    : 150
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.comments'),
+                    header   : QUILocale.get(lg, 'journal.grid.comments'),
                     dataIndex: 'comments',
-                    dataType: 'string',
-                    width: 100
+                    dataType : 'string',
+                    width    : 100
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paymentData'),
+                    header   : QUILocale.get(lg, 'journal.grid.paymentData'),
                     dataIndex: 'payment_data',
-                    dataType: 'string',
-                    width: 100
+                    dataType : 'string',
+                    width    : 100
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.hash'),
+                    header   : QUILocale.get(lg, 'journal.grid.hash'),
                     dataIndex: 'hash',
-                    dataType: 'string',
-                    width: 200
+                    dataType : 'string',
+                    width    : 200
                 }]
             });
 
@@ -363,7 +370,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             Invoices.removeEvents({
                 onDeleteInvoice: this.$onInvoicesChange,
                 onCreateInvoice: this.$onInvoicesChange,
-                onCopyInvoice: this.$onInvoicesChange
+                onCopyInvoice  : this.$onInvoicesChange
             });
         },
 
@@ -389,21 +396,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             }
 
             new QUIConfirm({
-                title: QUILocale.get(lg, 'dialog.ti.delete.title'),
-                text: QUILocale.get(lg, 'dialog.ti.delete.text'),
+                title      : QUILocale.get(lg, 'dialog.ti.delete.title'),
+                text       : QUILocale.get(lg, 'dialog.ti.delete.text'),
                 information: QUILocale.get(lg, 'dialog.ti.delete.information', {
                     id: selected[0].id
                 }),
-                icon: 'fa fa-trash',
-                texticon: 'fa fa-trash',
-                maxHeight: 400,
-                maxWidth: 600,
-                autoclose: false,
-                ok_button: {
-                    text: QUILocale.get('quiqqer/system', 'delete'),
+                icon       : 'fa fa-trash',
+                texticon   : 'fa fa-trash',
+                maxHeight  : 400,
+                maxWidth   : 600,
+                autoclose  : false,
+                ok_button  : {
+                    text     : QUILocale.get('quiqqer/system', 'delete'),
                     textimage: 'fa fa-trash'
                 },
-                events: {
+                events     : {
                     onSubmit: function (Win) {
                         Win.Loader.show();
 
@@ -421,7 +428,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * Copy the temporary invoice and opens the invoice
          */
         $clickCopyInvoice: function () {
-            var self = this,
+            var self     = this,
                 selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
@@ -429,21 +436,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             }
 
             new QUIConfirm({
-                title: QUILocale.get(lg, 'dialog.ti.copy.title'),
-                text: QUILocale.get(lg, 'dialog.ti.copy.text'),
+                title      : QUILocale.get(lg, 'dialog.ti.copy.title'),
+                text       : QUILocale.get(lg, 'dialog.ti.copy.text'),
                 information: QUILocale.get(lg, 'dialog.ti.copy.information', {
                     id: selected[0].id
                 }),
-                icon: 'fa fa-copy',
-                texticon: 'fa fa-copy',
-                maxHeight: 400,
-                maxWidth: 600,
-                autoclose: false,
-                ok_button: {
-                    text: QUILocale.get('quiqqer/system', 'copy'),
+                icon       : 'fa fa-copy',
+                texticon   : 'fa fa-copy',
+                maxHeight  : 400,
+                maxWidth   : 600,
+                autoclose  : false,
+                ok_button  : {
+                    text     : QUILocale.get('quiqqer/system', 'copy'),
                     textimage: 'fa fa-copy'
                 },
-                events: {
+                events     : {
                     onSubmit: function (Win) {
                         Win.Loader.show();
 

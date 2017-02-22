@@ -16,6 +16,11 @@ class Handler extends QUI\Utils\Singleton
     /**
      * @var string
      */
+    const EMPTY_VALUE = '---';
+
+    /**
+     * @var string
+     */
     const TABLE_INVOICE = 'invoice';
 
     /**

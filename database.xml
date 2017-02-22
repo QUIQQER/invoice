@@ -56,6 +56,7 @@
         <table name="invoice_temporary">
             <field type="INT NOT NULL">id</field>
             <field type="INT NOT NULL">customer_id</field>
+            <field type="INT NOT NULL">address_id</field>
             <field type="INT NULL">order_id</field>
             <field type="VARCHAR(250) NOT NULL">hash</field>
 

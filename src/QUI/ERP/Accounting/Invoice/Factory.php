@@ -3,6 +3,7 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class Factory
@@ -38,10 +39,13 @@ class Factory
     {
         $Handler  = Handler::getInstance();
         $Database = QUI::getDataBase();
+        $Hash     = Uuid::uuid1();
 
         $Database->insert(
             $Handler->temporaryInvoiceTable(),
-            array()
+            array(
+                'hash' => $Hash->toString()
+            )
         );
 
         $newId = $Database->getPDO()->lastInsertId();
