@@ -25,6 +25,11 @@ class TemporaryInvoice extends QUI\QDOM
     protected $id;
 
     /**
+     * @var array
+     */
+    protected $articles = array();
+
+    /**
      * Invoice constructor.
      *
      * @param $id
@@ -32,7 +37,19 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function __construct($id, Handler $Handler)
     {
-        $this->setAttributes($Handler->getTemporaryInvoiceData($id));
+        $data = $Handler->getTemporaryInvoiceData($id);
+
+        if (isset($data['articles'])) {
+            $articles = json_decode($data['articles'], true);
+
+            if (is_array($articles)) {
+                $this->importArticles($articles);
+            }
+
+            unset($data['articles']);
+        }
+
+        $this->setAttributes($data);
 
         $this->id = (int)str_replace(self::ID_PREFIX, '', $id);
     }
@@ -95,6 +112,17 @@ class TemporaryInvoice extends QUI\QDOM
 //            vat_data
 //            processing_status
 
+        // articles
+        $articles = array_map(function ($Article) {
+            /* @var $Article QUI\ERP\Accounting\Invoice\Articles\ArticleInterface */
+            $result = $Article->toArray();
+
+            $result['type'] = get_class($Article);
+
+            return $result;
+        }, $this->articles);
+
+
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
@@ -113,8 +141,8 @@ class TemporaryInvoice extends QUI\QDOM
                 'canceled'          => '',
                 'date'              => '',
                 'data'              => '',
-                'products'          => '',
-                'history'           => '',
+                'articles'          => json_encode($articles),
+//                'history'           => '',
                 'customer_data'     => '',
                 'isbrutto'          => '',
                 'currency_data'     => '',
@@ -219,6 +247,95 @@ class TemporaryInvoice extends QUI\QDOM
         $attributes       = $this->getAttributes();
         $attributes['id'] = $this->getId();
 
+        // articles
+        $attributes['articles'] = array_map(function ($Article) {
+            /* @var $Article QUI\ERP\Accounting\Invoice\Articles\ArticleInterface */
+            $result = $Article->toArray();
+
+            $result['type'] = get_class($Article);
+
+            return $result;
+        }, $this->articles);
+
         return $attributes;
+    }
+
+    /**
+     * Article
+     */
+
+    /**
+     * Add an article
+     *
+     * @param Articles\ArticleInterface $Article
+     */
+    public function addArticle(Articles\ArticleInterface $Article)
+    {
+        $this->articles[] = $Article;
+    }
+
+    /**
+     *
+     */
+    public function removeArticle()
+    {
+
+    }
+
+    /**
+     * Returns the article list
+     *
+     * @return array
+     */
+    public function getArticles()
+    {
+        return $this->articles;
+    }
+
+    /**
+     * Remove all articles from the invoice
+     */
+    public function clearArticles()
+    {
+        $this->articles = array();
+    }
+
+    /**
+     * Import an article array
+     *
+     * @param array $articles - array of articles, eq: [0] => Array
+     * (
+     *       [productId] => 5
+     *       [type] => QUI\ERP\Products\Product\Product
+     *       [position] => 1
+     *       [quantity] => 1
+     *       [unitPrice] => 0
+     *       [vat] =>
+     *       [title] => USS Enterprise NCC-1701-D
+     *       [description] => Raumschiff aus bekannter Serie
+     *       [control] => package/quiqqer/products/bin/controls/invoice/Product
+     * )
+     */
+    public function importArticles($articles = array())
+    {
+        if (!is_array($articles)) {
+            $articles = array();
+        }
+
+        foreach ($articles as $article) {
+            if (!isset($article['type'])) {
+                continue;
+            }
+
+            try {
+                $Article = new $article['type']($article);
+
+                if ($Article instanceof Articles\ArticleInterface) {
+                    $this->addArticle($Article);
+                }
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
+            }
+        }
     }
 }

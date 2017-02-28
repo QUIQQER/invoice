@@ -1,14 +1,20 @@
 /**
- * @module package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct
+ * @module package/quiqqer/invoice/bin/backend/controls/articles/Article
  *
  * Freies Produkt
  * - Dieses Produkt kann vom Benutzer komplett selbst bestimmt werden
  *
  * @require qui/QUI
  * @require qui/controls/Control
- * @require css!package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct.css
+ * @require qui/controls/buttons/Button
+ * @require Mustache
+ * @require Locale
+ * @require Ajax
+ * @require Editors
+ * @require text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html
+ * @require css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css
  */
-define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
+define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
     'qui/QUI',
     'qui/controls/Control',
@@ -18,18 +24,16 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
     'Ajax',
     'Editors',
 
-    'text!package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct.html',
-    'css!package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct.css'
+    'text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html',
+    'css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css'
 
 ], function (QUI, QUIControl, QUIButton, Mustache, QUILocale, QUIAjax, Editors, template) {
     "use strict";
 
-    var lg = 'quiqqer/invoice';
-
     return new Class({
 
         Extends: QUIControl,
-        Type: 'package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct',
+        Type   : 'package/quiqqer/invoice/bin/backend/controls/articles/Article',
 
         Binds: [
             '$onEditTitle',
@@ -39,37 +43,39 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
         ],
 
         options: {
-            position: 0,
-            title: '',
-            description: '',
-            quantity: 1,
-            unitPrice: 0,
-            price: 0,
-            vat: '',
-            type: ''
+            position   : 0,
+            title      : '---',
+            description: '---',
+            quantity   : 1,
+            unitPrice  : 0,
+            price      : 0,
+            vat        : '',
+            params     : false, // mixed value for API Articles
+            type       : 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Article'
         },
 
         initialize: function (options) {
+            this.setAttributes(this.__proto__.options); // set the default values
             this.parent(options);
 
-            this.$Position = null;
-            this.$Quantity = null;
+            this.$Position  = null;
+            this.$Quantity  = null;
             this.$UnitPrice = null;
-            this.$Price = null;
-            this.$VAT = null;
-            this.$Total = null;
+            this.$Price     = null;
+            this.$VAT       = null;
+            this.$Total     = null;
 
-            this.$Text = null;
-            this.$Title = null;
+            this.$Text        = null;
+            this.$Title       = null;
             this.$Description = null;
-            this.$Editor = null;
+            this.$Editor      = null;
 
-            this.$Loader = null;
+            this.$Loader  = null;
             this.$created = false;
 
             // admin format
             this.$Formatter = QUILocale.getNumberFormatter({
-                style: 'currency',
+                style   : 'currency',
                 currency: 'EUR'
             });
         },
@@ -82,46 +88,49 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
         create: function () {
             this.$Elm = this.parent();
 
-            this.$Elm.addClass('quiqqer-invoice-backend-invoiceItemsProduct');
+            this.$Elm.addClass('quiqqer-invoice-backend-invoiceArticle');
 
             this.$Elm.set({
                 html: Mustache.render(template)
             });
 
-            this.$Position = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceItemsProduct-pos');
-            this.$Text = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceItemsProduct-text');
-            this.$Quantity = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceItemsProduct-quantity');
-            this.$UnitPrice = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceItemsProduct-unitPrice');
-            this.$Price = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceItemsProduct-price');
-            this.$VAT = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceItemsProduct-vat');
-            this.$Total = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceItemsProduct-total');
-
-            if (this.getAttribute('position')) {
-                this.setPosition(this.getAttribute('position'));
-            }
+            this.$Position  = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-pos');
+            this.$Text      = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-text');
+            this.$Quantity  = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-quantity');
+            this.$UnitPrice = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-unitPrice');
+            this.$Price     = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-price');
+            this.$VAT       = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-vat');
+            this.$Total     = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-total');
 
             this.$Quantity.addEvent('click', this.$onEditQuantity);
             this.$UnitPrice.addEvent('click', this.$onUnitPriceQuantity);
 
             this.$Loader = new Element('div', {
-                html: '<span class="fa fa-spinner fa-spin"></span>',
+                html  : '<span class="fa fa-spinner fa-spin"></span>',
                 styles: {
                     background: '#fff',
-                    display: 'none',
-                    left: 0,
-                    padding: 10,
-                    position: 'absolute',
-                    top: 0,
-                    width: '100%'
+                    display   : 'none',
+                    left      : 0,
+                    padding   : 10,
+                    position  : 'absolute',
+                    top       : 0,
+                    width     : '100%'
                 }
             }).inject(this.$Position);
 
+            new Element('span').inject(this.$Position);
+
+            if (this.getAttribute('position')) {
+                this.setPosition(this.getAttribute('position'));
+            }
+
+
             this.$Title = new Element('div', {
-                'class': 'quiqqer-invoice-backend-invoiceItemsProduct-text-title cell-editable'
+                'class': 'quiqqer-invoice-backend-invoiceArticle-text-title cell-editable'
             }).inject(this.$Text);
 
             this.$Description = new Element('div', {
-                'class': 'quiqqer-invoice-backend-invoiceItemsProduct-text-description cell-editable'
+                'class': 'quiqqer-invoice-backend-invoiceArticle-text-description cell-editable'
             }).inject(this.$Text);
 
             this.$Title.addEvent('click', this.$onEditTitle);
@@ -130,6 +139,8 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
             this.setQuantity(this.getAttribute('quantity'));
             this.setUnitPrice(this.getAttribute('unitPrice'));
             this.setVat(this.getAttribute('vat'));
+            this.setTitle(this.getAttribute('title'));
+            this.setDescription(this.getAttribute('description'));
 
             this.$created = true;
             this.calc();
@@ -139,6 +150,8 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
 
         /**
          * Calculates the total price of the invoice and refresh the display
+         *
+         * @return {Promise}
          */
         calc: function () {
             var self = this;
@@ -152,34 +165,32 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
             return new Promise(function (resolve, reject) {
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_calc', function (product) {
 
-                    var total = self.$Formatter.format(product.calculated_sum);
+                    var total     = self.$Formatter.format(product.calculated_sum);
                     var unitPrice = self.$Formatter.format(product.calculated_basisPrice);
-                    var price = self.$Formatter.format(product.calculated_price);
+                    var price     = self.$Formatter.format(product.calculated_price);
 
                     self.$Total.set({
-                        html: total,
+                        html : total,
                         title: total
                     });
 
                     self.$UnitPrice.set({
-                        html: unitPrice,
+                        html : unitPrice,
                         title: unitPrice
                     });
 
                     self.$Price.set({
-                        html: price,
+                        html : price,
                         title: price
                     });
 
                     self.hideLoader();
 
-                    console.warn(product);
-
                     resolve(product);
                 }, {
                     'package': 'quiqqer/invoice',
-                    onError: reject,
-                    params: JSON.encode(self.getAttributes())
+                    onError  : reject,
+                    params   : JSON.encode(self.getAttributes())
                 });
             });
         },
@@ -192,6 +203,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
         setTitle: function (title) {
             this.setAttribute('title', title);
             this.$Title.set('html', title);
+
+            if (title === '') {
+                this.$Title.set('html', '&nbsp;');
+            }
         },
 
         /**
@@ -202,6 +217,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
         setDescription: function (description) {
             this.setAttribute('description', description);
             this.$Description.set('html', description);
+
+            if (description === '') {
+                this.$Description.set('html', '&nbsp;');
+            }
         },
 
         /**
@@ -213,7 +232,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
             this.setAttribute('position', parseInt(pos));
 
             if (this.$Position) {
-                this.$Position.set('html', this.getAttribute('position'));
+                this.$Position.getChildren('span').set('html', this.getAttribute('position'));
             }
         },
 
@@ -308,18 +327,18 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
             this.showLoader();
 
             var EditorContainer = new Element('div', {
-                    'class': 'quiqqer-invoice-backend-invoiceItemsProduct-text-description-edit'
+                    'class': 'quiqqer-invoice-backend-invoiceArticle-text-description-edit'
                 }).inject(this.$Description),
 
-                EditorParent = new Element('div', {
+                EditorParent    = new Element('div', {
                     styles: {
-                        height: 'calc(100% - 50px)',
+                        height : 'calc(100% - 50px)',
                         opacity: 0
                     }
                 }).inject(EditorContainer),
 
-                EditorSubmit = new Element('div', {
-                    'class': 'quiqqer-invoice-backend-invoiceItemsProduct-text-description-buttons'
+                EditorSubmit    = new Element('div', {
+                    'class': 'quiqqer-invoice-backend-invoiceArticle-text-description-buttons'
                 }).inject(EditorContainer);
 
 
@@ -339,13 +358,13 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
             };
 
             new QUIButton({
-                text: QUILocale.get('quiqqer/system', 'accept'),
+                text     : QUILocale.get('quiqqer/system', 'accept'),
                 textimage: 'fa fa-check',
-                styles: {
+                styles   : {
                     'float': 'none',
-                    margin: '10px 5px 0 5px'
+                    margin : '10px 5px 0 5px'
                 },
-                events: {
+                events   : {
                     onClick: function () {
                         this.setDescription(this.$Editor.getContent());
                         closeEditor();
@@ -354,10 +373,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
             }).inject(EditorSubmit);
 
             new QUIButton({
-                text: QUILocale.get('quiqqer/system', 'cancel'),
+                text  : QUILocale.get('quiqqer/system', 'cancel'),
                 styles: {
                     'float': 'none',
-                    margin: '10px 5px 0 5px'
+                    margin : '10px 5px 0 5px'
                 },
                 events: {
                     onClick: closeEditor
@@ -383,14 +402,36 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
                         this.$Editor.setAttribute('buttons', {
                             lines: [
                                 [[
-                                    {type: "button", button: "Bold"},
-                                    {type: "button", button: "Italic"},
-                                    {type: "button", button: "Underline"},
-                                    {type: "seperator"},
-                                    {type: "button", button: "RemoveFormat"},
-                                    {type: "seperator"},
-                                    {type: "button", button: "NumberedList"},
-                                    {type: "button", button: "BulletedList"}
+                                    {
+                                        type  : "button",
+                                        button: "Bold"
+                                    },
+                                    {
+                                        type  : "button",
+                                        button: "Italic"
+                                    },
+                                    {
+                                        type  : "button",
+                                        button: "Underline"
+                                    },
+                                    {
+                                        type: "seperator"
+                                    },
+                                    {
+                                        type  : "button",
+                                        button: "RemoveFormat"
+                                    },
+                                    {
+                                        type: "seperator"
+                                    },
+                                    {
+                                        type  : "button",
+                                        button: "NumberedList"
+                                    },
+                                    {
+                                        type  : "button",
+                                        button: "BulletedList"
+                                    }
                                 ]]
                             ]
                         });
@@ -456,17 +497,17 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct', [
 
             return new Promise(function (resolve) {
                 var Edit = new Element('input', {
-                    type: type,
-                    value: value,
+                    type  : type,
+                    value : value,
                     styles: {
-                        border: 0,
-                        left: 0,
+                        border    : 0,
+                        left      : 0,
                         lineHeight: 20,
-                        height: '100%',
-                        padding: 0,
-                        position: 'absolute',
-                        top: 0,
-                        width: '100%'
+                        height    : '100%',
+                        padding   : 0,
+                        position  : 'absolute',
+                        top       : 0,
+                        width     : '100%'
                     }
                 }).inject(Container);
 

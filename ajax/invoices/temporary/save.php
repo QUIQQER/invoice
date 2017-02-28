@@ -17,6 +17,13 @@ QUI::$Ajax->registerFunction(
         $Invoice  = $Invoices->getTemporaryInvoice($invoiceId);
         $data     = json_decode($data, true);
 
+        $Invoice->clearArticles();
+
+        if (isset($data['articles'])) {
+            $Invoice->importArticles($data['articles']);
+            unset($data['articles']);
+        }
+
         $Invoice->setAttributes($data);
         $Invoice->save();
 

@@ -25,7 +25,7 @@
             <field type="INT(1) DEFAULT 0">canceled</field> <!-- storno -->
             <field type="INT NOT NULL">c_user</field>
             <field type="TEXT NULL">data</field>
-            <field type="TEXT NOT NULL">products</field>
+            <field type="TEXT NOT NULL">articles</field>
             <!--<field type="TEXT NULL">comments</field>--> <!-- als Modul auslagern -->
             <field type="TEXT NULL">history</field>
             <field type="TEXT NULL">customer_data</field>
@@ -75,7 +75,7 @@
             <field type="timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP">date</field>
             <field type="INT(11) NOT NULL">c_user</field>
             <field type="TEXT NULL">data</field>
-            <field type="TEXT NOT NULL">products</field>
+            <field type="TEXT NOT NULL">articles</field>
             <field type="TEXT NULL">history</field>
             <field type="TEXT NULL">customer_data</field>
             <field type="FLOAT NOT NULL">isbrutto</field>

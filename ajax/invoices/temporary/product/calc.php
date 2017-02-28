@@ -19,6 +19,12 @@ QUI::$Ajax->registerFunction(
             throw new QUI\Exception('Not found');
         }
 
+        if (empty($params['type'])) {
+            $Article = new QUI\ERP\Accounting\Invoice\Articles\Article($params);
+
+            return $Article->toArray();
+        }
+
         \QUI\System\Log::writeRecursive($params);
 
         if ($params['type'] == QUI\ERP\Products\Product\Product::class) {

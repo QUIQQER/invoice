@@ -1,0 +1,84 @@
+.quiqqer-invoice-backend-invoiceArticle {
+    align-items: stretch;
+    border-bottom: 1px solid #DEDEDE;
+    clear: both;
+    display: flex;
+    flex-direction: row;
+    float: left;
+    min-height: 50px;
+    position: relative;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceArticle .cell {
+    padding: 10px;
+    position: relative;
+}
+
+.quiqqer-invoice-backend-invoiceArticle .cell-editable:hover {
+    background: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-pos {
+    width: 50px;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-text {
+    width: calc(100% - 700px);
+}
+
+.quiqqer-invoice-backend-invoiceArticle-text-title {
+    clear: both;
+    font-weight: bold;
+    margin-bottom: 5px;
+    position: relative;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-text-description {
+    clear: both;
+    position: relative;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-text-description-edit {
+    background: #EFEFEF;
+    border: 1px solid #EFEFEF;
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%
+}
+
+.quiqqer-invoice-backend-invoiceArticle-text-description-buttons {
+    height: 50px;
+    text-align: center;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-quantity {
+    text-align: right;
+    width: 100px;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-articleNo,
+.quiqqer-invoice-backend-invoiceArticle-unitPrice,
+.quiqqer-invoice-backend-invoiceArticle-price,
+.quiqqer-invoice-backend-invoiceArticle-vat,
+.quiqqer-invoice-backend-invoiceArticle-total {
+    overflow: hidden;
+    text-align: right;
+    text-overflow: ellipsis;
+    width: 100px;
+    white-space: nowrap;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-articleNo {
+    text-align: left;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-total {
+    width: 150px;
+}

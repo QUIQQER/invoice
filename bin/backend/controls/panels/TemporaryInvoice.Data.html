@@ -3,7 +3,7 @@
 <table class="data-table data-table-flexbox invoice-data">
     <thead>
     <tr>
-        <th>Rechnungsdaten</th>
+        <th>{{textInvoiceData}}</th>
     </tr>
     </thead>
 
@@ -11,8 +11,8 @@
     <tr>
         <td>
             <label class="field-container">
-                <span class="field-container-item" title="Rechnungsdatum">
-                    Rechnungsdatum
+                <span class="field-container-item" title="{{textInvoiceDate}}">
+                    {{textInvoiceDate}}
                 </span>
                 <input class="field-container-field" type="datetime" name="date"/>
             </label>
@@ -21,8 +21,8 @@
     <tr>
         <td>
             <label class="field-container">
-                <span class="field-container-item" title="Zahlungsziel">
-                    Zahlungsziel
+                <span class="field-container-item" title="{{textTermOfPayment}}">
+                    {{textTermOfPayment}}
                 </span>
                 <span class="field-container-field"></span>
             </label>
@@ -31,8 +31,8 @@
     <tr>
         <td>
             <label class="field-container">
-                <span class="field-container-item" title="Projektname">
-                    Projektname
+                <span class="field-container-item" title="{{textProjectName}}">
+                    {{textProjectName}}
                 </span>
                 <input class="field-container-field" type="text" name="projectName"/>
             </label>
@@ -41,8 +41,8 @@
     <tr>
         <td>
             <label class="field-container">
-                <span class="field-container-item" title="Bestellt durch">
-                    Bestellt durch
+                <span class="field-container-item" title="{{textOrderedBy}}">
+                    {{textOrderedBy}}
                 </span>
                 <span class="field-container-field field-container-field-no-padding">
                     <input type="hidden"

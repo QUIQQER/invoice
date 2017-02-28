@@ -1,0 +1,59 @@
+.quiqqer-invoice-backend-invoiceArticleText {
+    align-items: stretch;
+    border-bottom: 1px solid #DEDEDE;
+    clear: both;
+    display: flex;
+    flex-direction: row;
+    float: left;
+    min-height: 50px;
+    position: relative;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceArticleText .cell {
+    padding: 10px;
+    position: relative;
+}
+
+.quiqqer-invoice-backend-invoiceArticleText .cell-editable:hover {
+    background: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.quiqqer-invoice-backend-invoiceArticleText-pos {
+    width: 50px;
+}
+
+.quiqqer-invoice-backend-invoiceArticleText-text {
+    width: calc(100% - 50px);
+}
+
+.quiqqer-invoice-backend-invoiceArticleText-text-title {
+    clear: both;
+    font-weight: bold;
+    margin-bottom: 5px;
+    position: relative;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceArticleText-text-description {
+    clear: both;
+    position: relative;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceArticleText-text-description-edit {
+    background: #EFEFEF;
+    border: 1px solid #EFEFEF;
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%
+}
+
+.quiqqer-invoice-backend-invoiceArticleText-text-description-buttons {
+    height: 50px;
+    text-align: center;
+}

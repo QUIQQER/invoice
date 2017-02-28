@@ -46,6 +46,10 @@
             <en><![CDATA[Invoice drafts]]></en>
         </locale>
 
+        <locale name="invoice.products.articleNo">
+            <de><![CDATA[Artikel Nr.]]></de>
+            <en><![CDATA[Article No.]]></en>
+        </locale>
         <locale name="invoice.products.description">
             <de><![CDATA[Produkt Beschreibung]]></de>
             <en><![CDATA[Product description]]></en>
@@ -251,6 +255,50 @@
         <locale name="erp.panel.temporary.invoice.title">
             <de><![CDATA[Rechnungsentwürfe]]></de>
             <en><![CDATA[Invoice drafts]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.buttonAdd">
+            <de><![CDATA[Artikel hinzufügen]]></de>
+            <en><![CDATA[Add Article]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.buttonAdd.custom">
+            <de><![CDATA[Freier Artikel]]></de>
+            <en><![CDATA[Custom Article]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.buttonAdd.text">
+            <de><![CDATA[Text]]></de>
+            <en><![CDATA[Text]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data">
+            <de><![CDATA[Rechnungsdaten]]></de>
+            <en><![CDATA[Invoice data]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.pos">
+            <de><![CDATA[Positionen (Artikel)]]></de>
+            <en><![CDATA[Position (Article)]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.review">
+            <de><![CDATA[Überprüfung]]></de>
+            <en><![CDATA[Review]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoiceData">
+            <de><![CDATA[Rechnungsdaten]]></de>
+            <en><![CDATA[Invoice data]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoiceDate">
+            <de><![CDATA[Rechnung Datum]]></de>
+            <en><![CDATA[Invoice Date]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textTermOfPayment">
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Term of Payment]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textProjectName">
+            <de><![CDATA[Projektname]]></de>
+            <en><![CDATA[Projectname]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textOrderedBy">
+            <de><![CDATA[Bestellt durch]]></de>
+            <en><![CDATA[Ordered by]]></en>
         </locale>
 
         <locale name="dialog.ti.delete.title">

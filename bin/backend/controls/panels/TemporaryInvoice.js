@@ -27,6 +27,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'qui/controls/windows/Confirm',
     'controls/users/address/Select',
     'package/quiqqer/invoice/bin/Invoices',
+    'package/quiqqer/invoice/bin/backend/controls/articles/Text',
     'Locale',
     'Mustache',
     'Users',
@@ -35,7 +36,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm,
-             AddressSelect, Invoices, QUILocale, Mustache, Users, templateData) {
+             AddressSelect, Invoices, TextArticle, QUILocale, Mustache, Users, templateData) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -48,7 +49,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         Binds: [
             'save',
             'openData',
-            'openProducts',
+            'openArticles',
             'openVerification',
             '$openCategory',
             '$closeCategory',
@@ -63,7 +64,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             invoiceId  : false,
             data       : {},
             customer_id: false,
-            address_id : false
+            address_id : false,
+            articles   : []
         },
 
         initialize: function (options) {
@@ -73,9 +75,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.parent(options);
 
-            this.$ProductList = null;
-            this.$AddProduct = null;
+            this.$ArticleList  = null;
+            this.$AddProduct   = null;
             this.$AddSeparator = null;
+
+            this.$serializedList = {};
 
             this.addEvents({
                 onCreate : this.$onCreate,
@@ -98,7 +102,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             return Invoices.saveInvoice(this.getAttribute('invoiceId'), {
                 customer_id: this.getAttribute('customer_id'),
-                address_id : this.getAttribute('address_id')
+                address_id : this.getAttribute('address_id'),
+                articles   : this.getAttribute('articles')
             }).then(function () {
                 this.Loader.hide();
             }.bind(this)).catch(function (err) {
@@ -125,7 +130,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 var Container = self.getContent().getElement('.container');
 
                 Container.set({
-                    html: Mustache.render(templateData)
+                    html: Mustache.render(templateData, {
+                        textInvoiceData  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceData'),
+                        textInvoiceDate  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceDate'),
+                        textTermOfPayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textTermOfPayment'),
+                        textProjectName  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textProjectName'),
+                        textOrderedBy    : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textOrderedBy')
+                    })
                 });
 
                 return QUI.parse(Container);
@@ -146,7 +157,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.getAttribute('address_id')
                 );
             }).then(function () {
+                var Container = self.getContent().getElement('.container');
+
+                new QUIButton({
+                    textimage: 'fa fa-list',
+                    text     : 'Artikel verwalten',
+                    styles   : {
+                        display: 'block',
+                        'float': 'none',
+                        margin : '0 auto'
+                    },
+                    events   : {
+                        onClick: function () {
+                            self.openArticles();
+                        }
+                    }
+                }).inject(Container);
+
+                self.getCategory('data').setActive();
                 self.Loader.hide();
+
                 return self.$openCategory();
             });
         },
@@ -156,7 +186,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          *
          * @returns {Promise}
          */
-        openProducts: function () {
+        openArticles: function () {
             this.Loader.show();
 
             return this.$closeCategory().then(function (Container) {
@@ -164,13 +194,32 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     require([
                         'package/quiqqer/invoice/bin/backend/controls/InvoiceItems'
                     ], function (InvoiceItems) {
-                        this.$ProductList = new InvoiceItems({
+                        this.$ArticleList = new InvoiceItems({
                             events: {}
                         }).inject(Container);
+
+                        if (this.$serializedList) {
+                            this.$ArticleList.unserialize(this.$serializedList);
+                        }
 
                         this.$AddProduct.show();
                         this.$AddSeparator.show();
                         this.Loader.hide();
+
+                        this.getCategory('articles').setActive();
+
+                        new QUIButton({
+                            textimage: 'fa fa-check',
+                            text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review'),
+                            styles   : {
+                                display: 'block',
+                                'float': 'none',
+                                margin : '0 auto'
+                            },
+                            events   : {
+                                onClick: this.openVerification
+                            }
+                        }).inject(Container);
 
                         resolve();
                     }.bind(this));
@@ -192,6 +241,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             return this.$closeCategory().then(function () {
 
+                this.getCategory('verification').setActive();
                 this.Loader.hide();
             }.bind(this)).then(function () {
                 return self.$openCategory();
@@ -206,14 +256,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             require([
                 'package/quiqqer/products/bin/controls/products/search/Window',
-                'package/quiqqer/products/bin/controls/invoice/Product'
-            ], function (ProductSearch, Product) {
+                'package/quiqqer/products/bin/controls/invoice/Article'
+            ], function (ProductSearch, Article) {
                 new ProductSearch({
                     events: {
                         onSubmit: function (Win, products) {
                             for (var i = 0, len = products.length; i < len; i++) {
-                                this.$ProductList.addProduct(
-                                    new Product({
+                                this.$ArticleList.addArticle(
+                                    new Article({
                                         productId: products[i]
                                     })
                                 );
@@ -257,9 +307,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }, {
                     duration: 200,
                     callback: function () {
-                        if (this.$ProductList) {
-                            this.$ProductList.destroy();
-                            this.$ProductList = null;
+                        if (this.$ArticleList) {
+                            this.setAttribute('articles', this.$ArticleList.save());
+                            this.$serializedList = this.$ArticleList.serialize();
+
+                            this.$ArticleList.destroy();
+                            this.$ArticleList = null;
                         }
 
                         Container.set('html', '');
@@ -308,10 +361,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.$AddProduct = new QUIButtonMultiple({
                 textimage: 'fa fa-plus',
-                text     : 'Artikel hinzufügen',
+                text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd'),
                 events   : {
                     onClick: function () {
-                        if (self.$ProductList) {
+                        if (self.$ArticleList) {
                             self.openProductSearch();
                         }
                     }
@@ -321,22 +374,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.$AddProduct.hide();
 
             this.$AddProduct.appendChild({
-                text  : 'Freier Artikel',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd.custom'),
                 events: {
                     onClick: function () {
-                        if (self.$ProductList) {
-                            self.$ProductList.insertNewProduct();
+                        if (self.$ArticleList) {
+                            self.$ArticleList.insertNewProduct();
                         }
                     }
                 }
             });
 
             this.$AddProduct.appendChild({
-                text  : 'Text',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd.text'),
                 events: {
                     onClick: function () {
-                        if (self.$ProductList) {
-
+                        if (self.$ArticleList) {
+                            self.$ArticleList.addArticle(new TextArticle());
                         }
                     }
                 }
@@ -346,6 +399,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             // buttons
             this.addButton({
+                name     : 'save',
                 text     : QUILocale.get('quiqqer/system', 'save'),
                 textimage: 'fa fa-save',
                 events   : {
@@ -357,6 +411,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.addButton(this.$AddProduct);
 
             this.addButton({
+                name  : 'delete',
                 icon  : 'fa fa-trash',
                 styles: {
                     'float': 'right'
@@ -368,24 +423,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             // categories
             this.addCategory({
+                name  : 'data',
                 icon  : 'fa fa-info',
-                text  : 'Rechnungsdaten',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data'),
                 events: {
                     onClick: this.openData
                 }
             });
 
             this.addCategory({
+                name  : 'articles',
                 icon  : 'fa fa-list',
-                text  : 'Positionen (Artikel)',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.pos'),
                 events: {
-                    onClick: this.openProducts
+                    onClick: this.openArticles
                 }
             });
 
             this.addCategory({
+                name  : 'verification',
                 icon  : 'fa fa-check',
-                text  : 'Überprüfung',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review'),
                 events: {
                     onClick: this.openVerification
                 }
@@ -406,6 +464,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             Invoices.getTemporaryInvoice(this.getAttribute('invoiceId')).then(function (data) {
                 this.setAttribute('title', data.id);
                 this.setAttributes(data);
+
+                if (data.articles.length) {
+                    this.$serializedList = {
+                        articles: data.articles
+                    };
+                }
 
                 this.refresh();
                 this.getCategoryBar().firstChild().click();

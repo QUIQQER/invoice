@@ -17,12 +17,12 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
     'qui/controls/Control',
     'Mustache',
     'Locale',
-    'package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct',
+    'package/quiqqer/invoice/bin/backend/controls/articles/Article',
 
     'text!package/quiqqer/invoice/bin/backend/controls/InvoiceItems.html',
     'css!package/quiqqer/invoice/bin/backend/controls/InvoiceItems.css'
 
-], function (QUI, QUIControl, Mustache, QUILocale, InvoiceItemsProduct, template) {
+], function (QUI, QUIControl, Mustache, QUILocale, Article, template) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -30,14 +30,14 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
     return new Class({
 
         Extends: QUIControl,
-        Type: 'package/quiqqer/invoice/bin/backend/controls/InvoiceItems',
+        Type   : 'package/quiqqer/invoice/bin/backend/controls/InvoiceItems',
 
         options: {},
 
         initialize: function (options) {
             this.parent(options);
 
-            this.$products = [];
+            this.$articles = [];
 
             this.$Container = null;
         },
@@ -54,12 +54,13 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
 
             this.$Elm.set({
                 html: Mustache.render(template, {
+                    titleArticleNo  : QUILocale.get(lg, 'invoice.products.articleNo'),
                     titleDescription: QUILocale.get(lg, 'invoice.products.description'),
-                    titleQuantity: QUILocale.get(lg, 'invoice.products.quantity'),
-                    titleUnitPrice: QUILocale.get(lg, 'invoice.products.unitPrice'),
-                    titlePrice: QUILocale.get(lg, 'invoice.products.price'),
-                    titleVAT: QUILocale.get(lg, 'invoice.products.vat'),
-                    titleSum: QUILocale.get(lg, 'invoice.products.sum')
+                    titleQuantity   : QUILocale.get(lg, 'invoice.products.quantity'),
+                    titleUnitPrice  : QUILocale.get(lg, 'invoice.products.unitPrice'),
+                    titlePrice      : QUILocale.get(lg, 'invoice.products.price'),
+                    titleVAT        : QUILocale.get(lg, 'invoice.products.vat'),
+                    titleSum        : QUILocale.get(lg, 'invoice.products.sum')
                 })
             });
 
@@ -69,23 +70,80 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
         },
 
         /**
+         * Serialize the list
+         *
+         * @returns {Object}
+         */
+        serialize: function () {
+            var articles = this.$articles.map(function (Article) {
+                var attr     = Article.getAttributes();
+                attr.control = typeOf(Article);
+
+                return attr;
+            });
+
+            return {
+                articles: articles
+            };
+        },
+
+        /**
+         *
+         */
+        unserialize: function (list) {
+            var data = {};
+
+            if (typeOf(list) == 'string') {
+                try {
+                    data = JSON.stringify(list);
+                } catch (e) {
+                }
+            } else {
+                data = list;
+            }
+
+            if (!("articles" in data)) {
+                return;
+            }
+
+            var needles = data.articles.map(function (entry) {
+                return entry.control;
+            });
+
+            require(needles, function () {
+                var i, no, len, article, control;
+
+                for (i = 0, len = data.articles.length; i < len; i++) {
+                    article = data.articles[i];
+                    control = article.control;
+
+                    no = needles.indexOf(control);
+
+                    this.addArticle(
+                        new arguments[no](article)
+                    );
+                }
+            }.bind(this));
+        },
+
+        /**
          * Add a product to the list
          * The product must be an instance of InvoiceItemsProduc
          *
          * @param {Object} Product
          */
-        addProduct: function (Product) {
+        addArticle: function (Product) {
             if (typeof Product !== 'object') {
                 return;
             }
 
-            if (!(Product instanceof InvoiceItemsProduct)) {
+            if (!(Product instanceof Article)) {
                 return;
             }
 
-            this.$products.push(Product);
+            this.$articles.push(Product);
 
-            Product.setPosition(this.$products.length);
+            Product.setPosition(this.$articles.length);
             Product.inject(this.$Container);
         },
 
@@ -93,7 +151,23 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
          * Insert a new empty product
          */
         insertNewProduct: function () {
-            this.addProduct(new InvoiceItemsProduct());
+            this.addArticle(new Article());
+        },
+
+        /**
+         * Return the articles as an array
+         *
+         * @return {Array}
+         */
+        save: function () {
+            console.log('###');
+
+            return this.$articles.map(function (Article) {
+                console.log(typeOf(Article));
+                console.log(Article.getAttributes());
+
+                return Article.getAttributes();
+            });
         }
     });
 });
