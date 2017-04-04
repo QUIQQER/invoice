@@ -160,11 +160,11 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
          * @return {Array}
          */
         save: function () {
-            console.log('###');
+            // console.log('###');
 
             return this.$articles.map(function (Article) {
-                console.log(typeOf(Article));
-                console.log(Article.getAttributes());
+                // console.log(typeOf(Article));
+                // console.log(Article.getAttributes());
 
                 return Article.getAttributes();
             });

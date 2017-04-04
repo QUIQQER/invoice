@@ -59,6 +59,7 @@
             <field type="INT NOT NULL">address_id</field>
             <field type="INT NULL">order_id</field>
             <field type="VARCHAR(40) NOT NULL">hash</field>
+            <field type="VARCHAR(250) NULL">project_name</field>
 
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->

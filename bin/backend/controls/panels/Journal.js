@@ -26,7 +26,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     return new Class({
 
         Extends: QUIPanel,
-        Type: 'package/quiqqer/invoice/bin/backend/controls/panels/Journal',
+        Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/Journal',
 
         Binds: [
             'refresh',
@@ -37,13 +37,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
         initialize: function (options) {
             this.setAttributes({
-                icon: 'fa fa-money',
+                icon : 'fa fa-money',
                 title: QUILocale.get(lg, 'erp.panel.invoice.text')
             });
 
             this.parent(options);
 
-            this.$Grid = null;
+            this.$Grid   = null;
             this.$Status = null;
 
             this.addEvents({
@@ -71,16 +71,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         $onCreate: function () {
             // Buttons
             this.addButton({
-                text: 'Summe anzeigen',
+                text     : 'Summe anzeigen',
                 textimage: 'fa fa-calculator'
             });
 
             this.$Status = new QUISelect({
                 showIcons: false,
-                styles: {
+                styles   : {
                     'float': 'right'
                 },
-                events: {
+                events   : {
                     onChange: this.refresh
                 }
             });
@@ -110,162 +110,162 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             );
 
             this.$Grid = new Grid(Container, {
-                pagination: true,
-                buttons: [{
-                    text: QUILocale.get(lg, 'journal.btn.paymentBook'),
+                pagination : true,
+                buttons    : [{
+                    text     : QUILocale.get(lg, 'journal.btn.paymentBook'),
                     textimage: 'fa fa-money',
-                    events: {
+                    events   : {
                         onClick: function () {
                         }
                     }
                 }, {
-                    text: QUILocale.get(lg, 'journal.btn.pdf'),
+                    text     : QUILocale.get(lg, 'journal.btn.pdf'),
                     textimage: 'fa fa-file-pdf-o',
-                    events: {
+                    events   : {
                         onClick: function () {
                         }
                     }
                 }, {
-                    type: 'seperator'
+                    type: 'separator'
                 }, {
-                    text: QUILocale.get(lg, 'journal.btn.cancelInvoice'),
+                    text     : QUILocale.get(lg, 'journal.btn.cancelInvoice'),
                     textimage: 'fa fa-remove',
-                    events: {
+                    events   : {
                         onClick: function () {
                         }
                     }
                 }, {
-                    text: QUILocale.get(lg, 'journal.btn.copyInvoice'),
+                    text     : QUILocale.get(lg, 'journal.btn.copyInvoice'),
                     textimage: 'fa fa-copy',
-                    events: {
+                    events   : {
                         onClick: function () {
                         }
                     }
                 }, {
-                    type: 'seperator'
+                    type: 'separator'
                 }, {
-                    text: QUILocale.get(lg, 'journal.btn.createCredit'),
+                    text     : QUILocale.get(lg, 'journal.btn.createCredit'),
                     textimage: 'fa fa-clipboard',
-                    events: {
+                    events   : {
                         onClick: function () {
                         }
                     }
                 }],
                 columnModel: [{
-                    header: QUILocale.get(lg, 'journal.grid.invoiceNo'),
+                    header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
-                    dataType: 'integer',
-                    width: 100
+                    dataType : 'integer',
+                    width    : 100
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.orderNo'),
+                    header   : QUILocale.get(lg, 'journal.grid.orderNo'),
                     dataIndex: 'orderid',
-                    dataType: 'integer',
-                    width: 80
+                    dataType : 'integer',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.customerNo'),
+                    header   : QUILocale.get(lg, 'journal.grid.customerNo'),
                     dataIndex: 'uid',
-                    dataType: 'integer',
-                    width: 100
+                    dataType : 'integer',
+                    width    : 100
                 }, {
-                    header: QUILocale.get('quiqqer/system', 'name'),
+                    header   : QUILocale.get('quiqqer/system', 'name'),
                     dataIndex: 'customer',
-                    dataType: 'string',
-                    width: 130
+                    dataType : 'string',
+                    width    : 130
                 }, {
-                    header: QUILocale.get('quiqqer/system', 'date'),
+                    header   : QUILocale.get('quiqqer/system', 'date'),
                     dataIndex: 'date',
-                    dataType: 'date',
-                    width: 150
+                    dataType : 'date',
+                    width    : 150
                 }, {
-                    header: QUILocale.get('quiqqer/system', 'username'),
+                    header   : QUILocale.get('quiqqer/system', 'username'),
                     dataIndex: 'username',
-                    dataType: 'integer',
-                    width: 130
+                    dataType : 'integer',
+                    width    : 130
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.status'),
+                    header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paidstatus',
-                    dataType: 'string',
-                    width: 120
+                    dataType : 'string',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.netto'),
+                    header   : QUILocale.get(lg, 'journal.grid.netto'),
                     dataIndex: 'display_nettosum',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.vat'),
+                    header   : QUILocale.get(lg, 'journal.grid.vat'),
                     dataIndex: 'display_vatsum',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.sum'),
+                    header   : QUILocale.get(lg, 'journal.grid.sum'),
                     dataIndex: 'display_sum',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paymentMethod'),
+                    header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
                     dataIndex: 'payment',
-                    dataType: 'string',
-                    width: 120
+                    dataType : 'string',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paymentTerm'),
+                    header   : QUILocale.get(lg, 'journal.grid.paymentTerm'),
                     dataIndex: 'payment_time',
-                    dataType: 'string',
-                    width: 120
+                    dataType : 'string',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paymentDate'),
+                    header   : QUILocale.get(lg, 'journal.grid.paymentDate'),
                     dataIndex: 'paiddate',
-                    dataType: 'date',
-                    width: 120
+                    dataType : 'date',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paid'),
+                    header   : QUILocale.get(lg, 'journal.grid.paid'),
                     dataIndex: 'display_paid',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.open'),
+                    header   : QUILocale.get(lg, 'journal.grid.open'),
                     dataIndex: 'display_missing',
-                    dataType: 'currency',
-                    width: 80
+                    dataType : 'currency',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.brutto'),
+                    header   : QUILocale.get(lg, 'journal.grid.brutto'),
                     dataIndex: 'isbrutto',
-                    dataType: 'integer',
-                    width: 50
+                    dataType : 'integer',
+                    width    : 50
                 }, {
-                    header: QUILocale.get(lg, 'taxid'),
+                    header   : QUILocale.get(lg, 'taxid'),
                     dataIndex: 'vatid',
-                    dataType: 'string',
-                    width: 120
+                    dataType : 'string',
+                    width    : 120
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.orderDate'),
+                    header   : QUILocale.get(lg, 'journal.grid.orderDate'),
                     dataIndex: 'orderdate',
-                    dataType: 'date',
-                    width: 130
+                    dataType : 'date',
+                    width    : 130
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.dunning'),
+                    header   : QUILocale.get(lg, 'journal.grid.dunning'),
                     dataIndex: 'dunning_level',
-                    dataType: 'integer',
-                    width: 80
+                    dataType : 'integer',
+                    width    : 80
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.processing'),
+                    header   : QUILocale.get(lg, 'journal.grid.processing'),
                     dataIndex: 'processing_text',
-                    dataType: 'string',
-                    width: 150
+                    dataType : 'string',
+                    width    : 150
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.comments'),
+                    header   : QUILocale.get(lg, 'journal.grid.comments'),
                     dataIndex: 'comments',
-                    dataType: 'string',
-                    width: 100
+                    dataType : 'string',
+                    width    : 100
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.paymentData'),
+                    header   : QUILocale.get(lg, 'journal.grid.paymentData'),
                     dataIndex: 'paymentData',
-                    dataType: 'string',
-                    width: 100
+                    dataType : 'string',
+                    width    : 100
                 }, {
-                    header: QUILocale.get(lg, 'journal.grid.hash'),
+                    header   : QUILocale.get(lg, 'journal.grid.hash'),
                     dataIndex: 'hash',
-                    dataType: 'string',
-                    width: 200
+                    dataType : 'string',
+                    width    : 200
                 }]
             });
         },

@@ -289,8 +289,8 @@
             <en><![CDATA[Invoice Date]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textTermOfPayment">
-            <de><![CDATA[Zahlungsziel]]></de>
-            <en><![CDATA[Term of Payment]]></en>
+            <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
+            <en><![CDATA[Term of Payment (in days)]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textProjectName">
             <de><![CDATA[Projektname]]></de>

@@ -173,7 +173,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         onClick: this.$clickDeleteInvoice
                     }
                 }, {
-                    type: 'seperator'
+                    type: 'separator'
                 }, {
                     name     : 'pdf',
                     disabled : true,

@@ -415,14 +415,14 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                                         button: "Underline"
                                     },
                                     {
-                                        type: "seperator"
+                                        type: "separator"
                                     },
                                     {
                                         type  : "button",
                                         button: "RemoveFormat"
                                     },
                                     {
-                                        type: "seperator"
+                                        type: "separator"
                                     },
                                     {
                                         type  : "button",

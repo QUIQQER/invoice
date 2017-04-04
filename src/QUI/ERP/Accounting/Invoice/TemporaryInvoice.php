@@ -3,6 +3,7 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
+use QUI\Utils\Security\Orthos;
 
 /**
  * Class TemporaryInvoice
@@ -122,28 +123,47 @@ class TemporaryInvoice extends QUI\QDOM
             return $result;
         }, $this->articles);
 
+        // attributes
+
+        $projectName    = '';
+        $timeForPayment = '';
+        $date           = '';
+
+        if ($this->getAttribute('project_name')) {
+            $projectName = $this->getAttribute('project_name');
+        }
+
+        if ($this->getAttribute('time_for_payment')) {
+            $timeForPayment = (int)$this->getAttribute('time_for_payment');
+        }
+
+        if ($this->getAttribute('date')
+            && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('date'))
+        ) {
+            $date = $this->getAttribute('date');
+        }
 
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
                 'customer_id'       => (int)$this->getAttribute('customer_id'),
                 'address_id'        => (int)$this->getAttribute('address_id'),
-                'order_id'          => (int)$this->getAttribute('order_id') || '',
+                'order_id'          => (int)$this->getAttribute('order_id'),
+                'project_name'      => $projectName,
                 'payment_method'    => $this->getAttribute('payment_method'),
                 'payment_data'      => '',
                 'payment_time'      => '',
                 'payment_address'   => '',
                 'delivery_address'  => '',
-                'time_for_payment'  => '',
+                'time_for_payment'  => $timeForPayment,
                 'paid_status'       => '',
                 'paid_date'         => '',
                 'paid_data'         => '',
                 'canceled'          => '',
-                'date'              => '',
+                'date'              => $date,
                 'data'              => '',
                 'articles'          => json_encode($articles),
-//                'history'           => '',
-                'customer_data'     => '',
+                'customer_data'     => '', // @todo 'history'           => '',
                 'isbrutto'          => '',
                 'currency_data'     => '',
                 'nettosum'          => '',
@@ -279,7 +299,6 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function removeArticle()
     {
-
     }
 
     /**
