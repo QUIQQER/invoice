@@ -1,0 +1,64 @@
+<div data-qui="package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData"></div>
+
+<form>
+    <table class="data-table data-table-flexbox invoice-data">
+        <thead>
+        <tr>
+            <th>{{textInvoiceData}}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textInvoiceDate}}">
+                        {{textInvoiceDate}}
+                    </span>
+                    <div class="field-container-field">
+                        <input type="date" name="date_date"/>
+                        <input type="time" name="date_time"/>
+                    </div>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textTermOfPayment}}">
+                        {{textTermOfPayment}}
+                    </span>
+                    <input type="number" name="time_for_payment" min="1" max="999" class="field-container-field"/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textProjectName}}">
+                        {{textProjectName}}
+                    </span>
+                    <input class="field-container-field" type="text" name="project_name" maxlength="200"/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                <span class="field-container-item" title="{{textOrderedBy}}">
+                    {{textOrderedBy}}
+                </span>
+                    <span class="field-container-field field-container-field-no-padding">
+                    <input type="hidden"
+                           name="orderedBy"
+                           data-qui="controls/users/Select"
+                           data-qui-options-max="1"
+                           data-qui-options-multiple="0"
+                    />
+                </span>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</form>

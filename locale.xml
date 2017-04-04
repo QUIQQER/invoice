@@ -7,13 +7,336 @@
             <en><![CDATA[QUIQQER - Shop - Invoice]]></en>
         </locale>
 
-        <locale name="erp.panel.bills.text">
+        <locale name="erp.panel.invoice.text">
             <de><![CDATA[Rechnungen (Journal)]]></de>
             <en><![CDATA[Invoices (Journal)]]></en>
         </locale>
-        <locale name="erp.panel.bills.create.text">
+        <locale name="erp.panel.invoice.create.text">
             <de><![CDATA[Rechnungen erstellen]]></de>
             <en><![CDATA[Create Invoices]]></en>
+        </locale>
+
+        <locale name="paidstatus.open">
+            <de><![CDATA[offen]]></de>
+            <en><![CDATA[open]]></en>
+        </locale>
+        <locale name="paidstatus.paid">
+            <de><![CDATA[bezahlt]]></de>
+            <en><![CDATA[paid]]></en>
+        </locale>
+        <locale name="paidstatus.partial">
+            <de><![CDATA[Teilzahlung]]></de>
+            <en><![CDATA[Partial payment]]></en>
+        </locale>
+        <locale name="paidstatus.canceled">
+            <de><![CDATA[storniert]]></de>
+            <en><![CDATA[canceled]]></en>
+        </locale>
+        <locale name="paidstatus.debit">
+            <de><![CDATA[Lastschrift]]></de>
+            <en><![CDATA[Direct debit]]></en>
+        </locale>
+
+        <locale name="invoice.numberrange.title">
+            <de><![CDATA[Rechnungen]]></de>
+            <en><![CDATA[Invoices]]></en>
+        </locale>
+        <locale name="invoice.temporary.numberrange.title">
+            <de><![CDATA[Rechnungsentwürfe]]></de>
+            <en><![CDATA[Invoice drafts]]></en>
+        </locale>
+
+        <locale name="invoice.products.articleNo">
+            <de><![CDATA[Artikel Nr.]]></de>
+            <en><![CDATA[Article No.]]></en>
+        </locale>
+        <locale name="invoice.products.description">
+            <de><![CDATA[Produkt Beschreibung]]></de>
+            <en><![CDATA[Product description]]></en>
+        </locale>
+        <locale name="invoice.products.quantity">
+            <de><![CDATA[Menge]]></de>
+            <en><![CDATA[Quantity]]></en>
+        </locale>
+        <locale name="invoice.products.unitPrice">
+            <de><![CDATA[Einzelpreis]]></de>
+            <en><![CDATA[Unit price]]></en>
+        </locale>
+        <locale name="invoice.products.price">
+            <de><![CDATA[Preis]]></de>
+            <en><![CDATA[Price]]></en>
+        </locale>
+        <locale name="invoice.products.vat">
+            <de><![CDATA[MwSt.]]></de>
+            <en><![CDATA[VAT]]></en>
+        </locale>
+        <locale name="invoice.products.sum">
+            <de><![CDATA[Summe]]></de>
+            <en><![CDATA[Total]]></en>
+        </locale>
+
+        <locale name="cutomerData">
+            <de><![CDATA[Kundendaten]]></de>
+            <en><![CDATA[Customer data]]></en>
+        </locale>
+        <locale name="customer">
+            <de><![CDATA[Kunde]]></de>
+            <en><![CDATA[Customer]]></en>
+        </locale>
+        <locale name="address">
+            <de><![CDATA[Adresse]]></de>
+            <en><![CDATA[Address]]></en>
+        </locale>
+        <locale name="company">
+            <de><![CDATA[Firma]]></de>
+            <en><![CDATA[Company]]></en>
+        </locale>
+        <locale name="street">
+            <de><![CDATA[Straße]]></de>
+            <en><![CDATA[Street]]></en>
+        </locale>
+        <locale name="zip">
+            <de><![CDATA[PLZ]]></de>
+            <en><![CDATA[ZIP]]></en>
+        </locale>
+        <locale name="city">
+            <de><![CDATA[Ort]]></de>
+            <en><![CDATA[City]]></en>
+        </locale>
+
+        <locale name="invoice.temporary.extend.view.open">
+            <de><![CDATA[Erweiterte Ansicht öffnen]]></de>
+            <en><![CDATA[Open the extended view]]></en>
+        </locale>
+        <locale name="invoice.temporary.extend.view.close">
+            <de><![CDATA[Erweiterte Ansicht schließen]]></de>
+            <en><![CDATA[Close the extended view]]></en>
+        </locale>
+
+    </groups>
+
+    <groups name="quiqqer/invoice" datatype="js">
+        <locale name="journal.btn.paymentBook">
+            <de><![CDATA[Zahlung buchen]]></de>
+            <en><![CDATA[Payment book]]></en>
+        </locale>
+        <locale name="journal.btn.pdf">
+            <de><![CDATA[PDF Rechnung]]></de>
+            <en><![CDATA[PDF Invoice]]></en>
+        </locale>
+        <locale name="journal.btn.cancelInvoice">
+            <de><![CDATA[Rechnung stornieren]]></de>
+            <en><![CDATA[Cancel Invoice]]></en>
+        </locale>
+        <locale name="journal.btn.copyInvoice">
+            <de><![CDATA[Rechnung kopieren]]></de>
+            <en><![CDATA[Copy Invoice]]></en>
+        </locale>
+        <locale name="journal.btn.createCredit">
+            <de><![CDATA[Gutschrift erstellen]]></de>
+            <en><![CDATA[Create credit memo]]></en>
+        </locale>
+
+        <locale name="temporary.btn.deleteInvoice">
+            <de><![CDATA[Rechnung löschen]]></de>
+            <en><![CDATA[Delete invoice]]></en>
+        </locale>
+        <locale name="temporary.btn.createInvoice">
+            <de><![CDATA[Neue Rechnung]]></de>
+            <en><![CDATA[Create invoice]]></en>
+        </locale>
+
+        <locale name="journal.grid.invoiceNo">
+            <de><![CDATA[Rech.-Nr]]></de>
+            <en><![CDATA[Invoice no]]></en>
+        </locale>
+        <locale name="journal.grid.orderNo">
+            <de><![CDATA[Bestell-Nr]]></de>
+            <en><![CDATA[Order no]]></en>
+        </locale>
+        <locale name="journal.grid.customerNo">
+            <de><![CDATA[Kunden-Nr]]></de>
+            <en><![CDATA[Custome no]]></en>
+        </locale>
+        <locale name="journal.grid.status">
+            <de><![CDATA[Rechnungsstatus]]></de>
+            <en><![CDATA[Accounting Status]]></en>
+        </locale>
+        <locale name="journal.grid.vat">
+            <de><![CDATA[MwSt]]></de>
+            <en><![CDATA[VAT]]></en>
+        </locale>
+        <locale name="journal.grid.sum">
+            <de><![CDATA[Summe]]></de>
+            <en><![CDATA[Total]]></en>
+        </locale>
+        <locale name="journal.grid.paymentMethod">
+            <de><![CDATA[Zahlungsart]]></de>
+            <en><![CDATA[Payment method]]></en>
+        </locale>
+        <locale name="journal.grid.paymentDate">
+            <de><![CDATA[Zahlungsdatum]]></de>
+            <en><![CDATA[Payment date]]></en>
+        </locale>
+        <locale name="journal.grid.paymentTerm">
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Term of payment]]></en>
+        </locale>
+        <locale name="journal.grid.paid">
+            <de><![CDATA[bezahlt]]></de>
+            <en><![CDATA[paid]]></en>
+        </locale>
+        <locale name="journal.grid.open">
+            <de><![CDATA[offen]]></de>
+            <en><![CDATA[open]]></en>
+        </locale>
+        <locale name="journal.grid.brutto">
+            <de><![CDATA[Brutto]]></de>
+            <en><![CDATA[Gross]]></en>
+        </locale>
+        <locale name="journal.grid.netto">
+            <de><![CDATA[Netto]]></de>
+            <en><![CDATA[Net]]></en>
+        </locale>
+        <locale name="journal.grid.taxid">
+            <de><![CDATA[Umsatzsteuer ID]]></de>
+            <en><![CDATA[Tax ID]]></en>
+        </locale>
+        <locale name="journal.grid.orderDate">
+            <de><![CDATA[Bestelldatum]]></de>
+            <en><![CDATA[Order date]]></en>
+        </locale>
+        <locale name="journal.grid.dunning">
+            <de><![CDATA[Mahnstufe]]></de>
+            <en><![CDATA[Dunning level]]></en>
+        </locale>
+        <locale name="journal.grid.processing">
+            <de><![CDATA[Bearbeitung]]></de>
+            <en><![CDATA[Processing]]></en>
+        </locale>
+        <locale name="journal.grid.comments">
+            <de><![CDATA[Bemerkungen]]></de>
+            <en><![CDATA[Comments]]></en>
+        </locale>
+        <locale name="journal.grid.paymentData">
+            <de><![CDATA[Zahlungsdaten]]></de>
+            <en><![CDATA[Payment data]]></en>
+        </locale>
+        <locale name="journal.grid.hash">
+            <de><![CDATA[Hash]]></de>
+            <en><![CDATA[Hash]]></en>
+        </locale>
+
+        <locale name="journal.paidstatus.all">
+            <de><![CDATA[Status: Alle]]></de>
+            <en><![CDATA[Status: all]]></en>
+        </locale>
+        <locale name="journal.paidstatus.open">
+            <de><![CDATA[Status: Offen]]></de>
+            <en><![CDATA[Status: open]]></en>
+        </locale>
+        <locale name="journal.paidstatus.paid">
+            <de><![CDATA[Status: Bezahlt]]></de>
+            <en><![CDATA[Status: paid]]></en>
+        </locale>
+        <locale name="journal.paidstatus.partial">
+            <de><![CDATA[Status: Teilzahlung]]></de>
+            <en><![CDATA[Status: partial payment]]></en>
+        </locale>
+        <locale name="journal.paidstatus.canceled">
+            <de><![CDATA[Status: Storniert]]></de>
+            <en><![CDATA[Status: canceled]]></en>
+        </locale>
+        <locale name="journal.paidstatus.debit">
+            <de><![CDATA[Status: Lastschrift]]></de>
+            <en><![CDATA[Status: direct debit]]></en>
+        </locale>
+
+        <locale name="erp.panel.temporary.invoice.title">
+            <de><![CDATA[Rechnungsentwürfe]]></de>
+            <en><![CDATA[Invoice drafts]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.buttonAdd">
+            <de><![CDATA[Artikel hinzufügen]]></de>
+            <en><![CDATA[Add Article]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.buttonAdd.custom">
+            <de><![CDATA[Freier Artikel]]></de>
+            <en><![CDATA[Custom Article]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.buttonAdd.text">
+            <de><![CDATA[Text]]></de>
+            <en><![CDATA[Text]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data">
+            <de><![CDATA[Rechnungsdaten]]></de>
+            <en><![CDATA[Invoice data]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.pos">
+            <de><![CDATA[Positionen (Artikel)]]></de>
+            <en><![CDATA[Position (Article)]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.review">
+            <de><![CDATA[Überprüfung]]></de>
+            <en><![CDATA[Review]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoiceData">
+            <de><![CDATA[Rechnungsdaten]]></de>
+            <en><![CDATA[Invoice data]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoiceDate">
+            <de><![CDATA[Rechnung Datum]]></de>
+            <en><![CDATA[Invoice Date]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textTermOfPayment">
+            <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
+            <en><![CDATA[Term of Payment (in days)]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textProjectName">
+            <de><![CDATA[Projektname]]></de>
+            <en><![CDATA[Projectname]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textOrderedBy">
+            <de><![CDATA[Bestellt durch]]></de>
+            <en><![CDATA[Ordered by]]></en>
+        </locale>
+
+        <locale name="dialog.ti.delete.title">
+            <de><![CDATA[Rechnung löschen]]></de>
+            <en><![CDATA[Delete invoice]]></en>
+        </locale>
+        <locale name="dialog.ti.delete.text">
+            <de><![CDATA[Möchten Sie die Rechnung wirklich löschen?]]></de>
+            <en><![CDATA[Are you sure you want to delete the invoice?]]></en>
+        </locale>
+        <locale name="dialog.ti.delete.information" html="true">
+            <de><![CDATA[Die Rechnung <b>[id]</b> wird unwiderruflich gelöscht.]]></de>
+            <en><![CDATA[The invoice <b>[id]</b> will be irrevocably deleted.]]></en>
+        </locale>
+        <locale name="dialog.ti.copy.title">
+            <de><![CDATA[Rechnung kopieren]]></de>
+            <en><![CDATA[Copy invoice]]></en>
+        </locale>
+        <locale name="dialog.ti.copy.text">
+            <de><![CDATA[Möchten Sie die Rechnung wirklich kopieren?]]></de>
+            <en><![CDATA[Are you sure you want to copy the invoice?]]></en>
+        </locale>
+        <locale name="dialog.ti.copy.information" html="true">
+            <de><![CDATA[
+            Es wird eine neue Rechnung erstellt und
+            die Daten der Rechnung <b>[id]</b> werden in diese kopiert.
+            ]]></de>
+            <en><![CDATA[
+            A new invoice is created and
+            the data of the invoice <b> [id] </ b> will be copied to it.
+            ]]></en>
+        </locale>
+    </groups>
+
+    <groups name="quiqqer/invoice" datatype="php">
+        <locale name="message.invoice.save.successfully">
+            <de><![CDATA[Der Rechnungsentwurf wurde erfolgreich gespeichert.]]></de>
+            <en><![CDATA[The invoice was successfully saved.]]></en>
         </locale>
     </groups>
 

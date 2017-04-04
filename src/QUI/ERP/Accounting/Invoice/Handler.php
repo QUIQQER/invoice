@@ -9,10 +9,15 @@ use QUI;
  * - Maintains invoices
  * - Returns invoices
  *
- * @package QUI\ERP\Accounting\Bill
+ * @package QUI\ERP\Accounting\Invoice
  */
-class Handler
+class Handler extends QUI\Utils\Singleton
 {
+    /**
+     * @var string
+     */
+    const EMPTY_VALUE = '---';
+
     /**
      * @var string
      */
@@ -22,23 +27,6 @@ class Handler
      * @var string
      */
     const TABLE_TEMPORARY_INVOICE = 'invoice_temporary';
-
-    /**
-     * @var null
-     */
-    protected static $Instance = null;
-
-    /**
-     * @return null|Handler
-     */
-    public static function getInstance()
-    {
-        if (self::$Instance === null) {
-            self::$Instance = new self();
-        }
-
-        return self::$Instance;
-    }
 
     /**
      * Tables
@@ -62,6 +50,17 @@ class Handler
     public function temporaryInvoiceTable()
     {
         return QUI::getDBTableName(self::TABLE_TEMPORARY_INVOICE);
+    }
+
+    /**
+     * Delete a temporary invoice
+     *
+     * @param string $invoiceId - ID of a temporary Invoice
+     * @param QUI\Interfaces\Users\User|null $User
+     */
+    public function delete($invoiceId, $User = null)
+    {
+        $this->getTemporaryInvoice($invoiceId)->delete($User);
     }
 
     /**
@@ -199,7 +198,8 @@ class Handler
     }
 
     /**
-     * Return an Invoice or an TemporaryInvoice
+     * Return an Invoice
+     * Alias for getInvoice()
      *
      * @param string $id - ID of the Invoice or TemporaryInvoice
      * @return TemporaryInvoice|Invoice
@@ -208,10 +208,6 @@ class Handler
      */
     public function get($id)
     {
-        if (strpos($id, 'ti-') === 0) {
-            return $this->getTemporaryInvoice($id);
-        }
-
         return $this->getInvoice($id);
     }
 
@@ -240,14 +236,14 @@ class Handler
         $result = QUI::getDataBase()->fetch(array(
             'from'  => self::invoiceTable(),
             'where' => array(
-                'id' => $id
+                'id' => (int)str_replace(Invoice::ID_PREFIX, '', $id)
             ),
             'limit' => 1
         ));
 
         if (!isset($result[0])) {
             throw new Exception(
-                array('quiqqer/bill', 'exception.invoice.not.found'),
+                array('quiqqer/invoice', 'exception.invoice.not.found'),
                 404
             );
         }
@@ -280,14 +276,14 @@ class Handler
         $result = QUI::getDataBase()->fetch(array(
             'from'  => self::temporaryInvoiceTable(),
             'where' => array(
-                'id' => $id
+                'id' => (int)str_replace(TemporaryInvoice::ID_PREFIX, '', $id)
             ),
             'limit' => 1
         ));
 
         if (!isset($result[0])) {
             throw new Exception(
-                array('quiqqer/bill', 'exception.temporary.invoice.not.found'),
+                array('quiqqer/invoice', 'exception.temporary.invoice.not.found'),
                 404
             );
         }

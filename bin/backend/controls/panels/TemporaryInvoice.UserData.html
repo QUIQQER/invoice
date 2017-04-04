@@ -1,0 +1,88 @@
+<table class="data-table data-table-flexbox invoice-data-customer">
+    <thead>
+    <tr>
+        <th>{{textTitle}}</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr>
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="{{textCustomer}}">
+                    {{textCustomer}}
+                </span>
+                <span class="field-container-field field-container-field-no-padding">
+                    <input type="hidden"
+                           name="customer"
+                           data-qui="controls/users/Select"
+                           data-qui-options-max="1"
+                           data-qui-options-multiple="0"
+                    />
+                </span>
+            </label>
+        </td>
+    </tr>
+    <tr class="address-row" style="display: none;">
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="{{textAddress}}">
+                    {{textAddress}}
+                </span>
+                <select class="field-container-field" name="address">
+                </select>
+            </label>
+        </td>
+    </tr>
+    <tr class="closable" style="display: none;">
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="{{textCompany}}">
+                    {{textCompany}}
+                </span>
+                <input type="text" class="field-container-field" name="company" disabled/>
+            </label>
+        </td>
+    </tr>
+    <tr class="closable" style="display: none;">
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="{{textStreet}}">
+                    {{textStreet}}
+                </span>
+                <input type="text" class="field-container-field" name="street" disabled/>
+            </label>
+        </td>
+    </tr>
+    <tr class="closable" style="display: none;">
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="{{textZip}}">
+                    {{textZip}}
+                </span>
+                <input type="text" class="field-container-field" name="zip" disabled/>
+            </label>
+        </td>
+    </tr>
+    <tr class="closable" style="display: none;">
+        <td>
+            <label class="field-container">
+                <span class="field-container-item" title="{{textCity}}">
+                    {{textCity}}
+                </span>
+                <input type="text" class="field-container-field" name="city" disabled/>
+            </label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            &nbsp;
+            <div class="quiqqer-invoice-backend-temporaryInvoice-data-address-opener"
+                 data-open="0"
+            >
+                <span class="fa fa-chevron-right"></span> {{textExtra}}
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>

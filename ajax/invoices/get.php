@@ -12,17 +12,13 @@
  * @return array
  */
 QUI::$Ajax->registerFunction(
-    'package_quiqqer_invoice_ajax_invoices_list',
-    function ($params) {
+    'package_quiqqer_invoice_ajax_invoices_get',
+    function ($invoiceId) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Grid     = new QUI\Utils\Grid();
+        $Invoice  = $Invoices->get($invoiceId);
 
-        $data = $Invoices->search(
-            $Grid->parseDBParams(json_decode($params, true))
-        );
-
-        return $Grid->parseResult($data, $Invoices->count());
+        return $Invoice->toArray();
     },
-    array('params'),
+    array('invoiceId'),
     'Permission::checkAdminUser'
 );
