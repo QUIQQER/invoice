@@ -86,7 +86,8 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
 
                 return attr;
             });
-
+            console.log('serialize');
+            console.info(articles);
             return {
                 articles: articles
             };
@@ -100,7 +101,8 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
          */
         unserialize: function (list) {
             var data = {};
-
+            console.log('unserialize');
+            console.info(list);
             if (typeOf(list) === 'string') {
                 try {
                     data = JSON.stringify(list);

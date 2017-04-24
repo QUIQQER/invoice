@@ -438,7 +438,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }.bind(this));
 
             this.setAttribute('data', Object.merge(data, formData));
-
         },
 
         /**
@@ -556,10 +555,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             Invoices.getTemporaryInvoice(this.getAttribute('invoiceId')).then(function (data) {
                 this.setAttribute('title', data.id);
                 this.setAttributes(data);
+
                 console.log(data);
-                if (data.articles.length) {
+
+                if (data.articles.articles.length) {
                     this.$serializedList = {
-                        articles: data.articles
+                        articles: data.articles.articles
                     };
                 }
 

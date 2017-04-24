@@ -226,7 +226,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     width    : 120
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.netto'),
-                    dataIndex: 'display_nettosum',
+                    dataIndex: 'nettosum',
                     dataType : 'currency',
                     width    : 80
                 }, {
@@ -236,7 +236,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.sum'),
-                    dataIndex: 'display_sum',
+                    dataIndex: 'sum',
                     dataType : 'currency',
                     width    : 80
                 }, {

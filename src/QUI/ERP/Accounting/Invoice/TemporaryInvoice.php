@@ -4,6 +4,7 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 use QUI\Utils\Security\Orthos;
+use QUI\ERP\Accounting\ArticleList;
 
 /**
  * Class TemporaryInvoice
@@ -31,6 +32,11 @@ class TemporaryInvoice extends QUI\QDOM
     protected $articles = array();
 
     /**
+     * @var ArticleList
+     */
+    protected $Articles;
+
+    /**
      * Invoice constructor.
      *
      * @param $id
@@ -40,19 +46,18 @@ class TemporaryInvoice extends QUI\QDOM
     {
         $data = $Handler->getTemporaryInvoiceData($id);
 
-        if (isset($data['articles'])) {
-            $articles = json_decode($data['articles'], true);
+        $this->id       = (int)str_replace(self::ID_PREFIX, '', $id);
+        $this->Articles = new ArticleList();
 
-            if (is_array($articles)) {
-                $this->importArticles($articles);
-            }
+        if (isset($data['articles'])) {
+            $this->Articles = new ArticleList(
+                json_decode($data['articles'], true)
+            );
 
             unset($data['articles']);
         }
 
         $this->setAttributes($data);
-
-        $this->id = (int)str_replace(self::ID_PREFIX, '', $id);
     }
 
     /**
@@ -82,7 +87,9 @@ class TemporaryInvoice extends QUI\QDOM
     public function save($User = null)
     {
         QUI\Permissions\Permission::checkPermission('quiqqer.invoice.edit', $User);
-//            customer_id
+
+        //region list of attributes - helper
+        //            customer_id
 //            order_id
 //            hash
 //
@@ -112,12 +119,12 @@ class TemporaryInvoice extends QUI\QDOM
 //            sum
 //            vat_data
 //            processing_status
+        //endregion
 
-        // articles
-        $articles = array_map(function ($Article) {
-            /* @var $Article QUI\ERP\Accounting\Article */
-            return $Article->toArray();
-        }, $this->articles);
+        $this->Articles->calc();
+        $listCalculations = $this->Articles->getCalculations();
+
+        QUI\System\Log::writeRecursive($this->Articles->toJSON());
 
         // attributes
 
@@ -158,14 +165,14 @@ class TemporaryInvoice extends QUI\QDOM
                 'canceled'          => '',
                 'date'              => $date,
                 'data'              => '',
-                'articles'          => json_encode($articles),
+                'articles'          => $this->Articles->toJSON(),
                 'customer_data'     => '', // @todo 'history'           => '',
                 'isbrutto'          => '',
-                'currency_data'     => '',
-                'nettosum'          => '',
-                'subsum'            => '',
-                'sum'               => '',
-                'vat_data'          => '',
+                'currency_data'     => json_encode($listCalculations['currencyData']),
+                'nettosum'          => $listCalculations['nettoSum'],
+                'subsum'            => $listCalculations['subSum'],
+                'sum'               => $listCalculations['sum'],
+                'vat_data'          => json_encode($listCalculations['vatArray']),
                 'processing_status' => ''
             ),
             array(
@@ -263,15 +270,7 @@ class TemporaryInvoice extends QUI\QDOM
         $attributes       = $this->getAttributes();
         $attributes['id'] = $this->getId();
 
-        // articles
-        $attributes['articles'] = array_map(function ($Article) {
-            /* @var $Article QUI\ERP\Accounting\Article */
-            $result = $Article->toArray();
-
-            $result['type'] = get_class($Article);
-
-            return $result;
-        }, $this->articles);
+        $attributes['articles'] = $this->Articles->toArray();
 
         return $attributes;
     }
@@ -287,24 +286,25 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function addArticle(QUI\ERP\Accounting\Article $Article)
     {
-        $this->articles[] = $Article;
+        $this->Articles->addArticle($Article);
     }
 
     /**
-     *
+     * @param int $index
      */
-    public function removeArticle()
+    public function removeArticle($index)
     {
+        $this->Articles->removeArticle($index);
     }
 
     /**
      * Returns the article list
      *
-     * @return array
+     * @return ArticleList
      */
     public function getArticles()
     {
-        return $this->articles;
+        return $this->Articles;
     }
 
     /**
@@ -312,7 +312,7 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function clearArticles()
     {
-        $this->articles = array();
+        $this->Articles->clear();
     }
 
     /**

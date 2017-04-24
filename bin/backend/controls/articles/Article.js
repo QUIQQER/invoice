@@ -43,7 +43,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             '$onEditDescription',
             '$onEditQuantity',
             '$onEditArticleNo',
-            '$onUnitPriceQuantity',
+            '$onEditUnitPriceQuantity',
+            '$onEditVat',
             'openDeleteDialog',
             'drop'
         ],
@@ -62,7 +63,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
         },
 
         initialize: function (options) {
-            //this.setAttributes(this.__proto__.options); // set the default values
+            this.setAttributes(this.__proto__.options); // set the default values
             this.parent(options);
 
             this.$user = {};
@@ -81,7 +82,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             this.$Loader  = null;
             this.$created = false;
-
+            console.warn(options);
             // admin format
             this.$Formatter = QUILocale.getNumberFormatter({
                 style   : 'currency',
@@ -115,7 +116,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             this.$ArticleNo.addEvent('click', this.$onEditArticleNo);
             this.$Quantity.addEvent('click', this.$onEditQuantity);
-            this.$UnitPrice.addEvent('click', this.$onUnitPriceQuantity);
+            this.$UnitPrice.addEvent('click', this.$onEditUnitPriceQuantity);
+            this.$VAT.addEvent('click', this.$onEditVat);
 
             this.$Loader = new Element('div', {
                 html  : '<span class="fa fa-spinner fa-spin"></span>',
@@ -227,6 +229,9 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                     var unitPrice = self.$Formatter.format(product.calculated_basisPrice);
                     var price     = self.$Formatter.format(product.calculated_price);
 
+                    console.log('calc');
+                    console.log(product);
+
                     self.$Total.set({
                         html : total,
                         title: total
@@ -244,7 +249,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
                     self.hideLoader();
 
-                    console.log(product);
+                    console.info(product);
 
                     resolve(product);
                 }, {
@@ -347,19 +352,30 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * Set the product unit price
          *
          * @param {Number|String} vat
+         * @return {Promise}
          */
         setVat: function (vat) {
-            this.setAttribute('vat', parseFloat(vat));
+            vat = parseInt(vat);
+
+            if (vat > 100 || vat < 0) {
+                return;
+            }
+
+            this.setAttribute('vat', vat);
 
             if (this.$VAT) {
                 vat = this.getAttribute('vat');
 
                 if (!vat) {
                     vat = '-';
+                } else {
+                    vat = vat + '%';
                 }
 
                 this.$VAT.set('html', vat);
             }
+
+            return this.calc();
         },
 
         /**
@@ -586,13 +602,24 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
         /**
          * event : on quantity edit
          */
-        $onUnitPriceQuantity: function () {
+        $onEditUnitPriceQuantity: function () {
             this.$createEditField(
                 this.$UnitPrice,
                 this.getAttribute('unitPrice'),
                 'number'
             ).then(function (value) {
                 this.setUnitPrice(value);
+            }.bind(this));
+        },
+
+
+        $onEditVat: function () {
+            this.$createEditField(
+                this.$VAT,
+                this.getAttribute('vat'),
+                'number'
+            ).then(function (value) {
+                this.setVat(value);
             }.bind(this));
         },
 
