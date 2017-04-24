@@ -115,12 +115,8 @@ class TemporaryInvoice extends QUI\QDOM
 
         // articles
         $articles = array_map(function ($Article) {
-            /* @var $Article QUI\ERP\Accounting\Invoice\Articles\ArticleInterface */
-            $result = $Article->toArray();
-
-            $result['type'] = get_class($Article);
-
-            return $result;
+            /* @var $Article QUI\ERP\Accounting\Article */
+            return $Article->toArray();
         }, $this->articles);
 
         // attributes
@@ -269,7 +265,7 @@ class TemporaryInvoice extends QUI\QDOM
 
         // articles
         $attributes['articles'] = array_map(function ($Article) {
-            /* @var $Article QUI\ERP\Accounting\Invoice\Articles\ArticleInterface */
+            /* @var $Article QUI\ERP\Accounting\Article */
             $result = $Article->toArray();
 
             $result['type'] = get_class($Article);
@@ -287,9 +283,9 @@ class TemporaryInvoice extends QUI\QDOM
     /**
      * Add an article
      *
-     * @param Articles\ArticleInterface $Article
+     * @param QUI\ERP\Accounting\Article $Article
      */
-    public function addArticle(Articles\ArticleInterface $Article)
+    public function addArticle(QUI\ERP\Accounting\Article $Article)
     {
         $this->articles[] = $Article;
     }
@@ -342,16 +338,9 @@ class TemporaryInvoice extends QUI\QDOM
         }
 
         foreach ($articles as $article) {
-            if (!isset($article['type'])) {
-                continue;
-            }
-
             try {
-                $Article = new $article['type']($article);
-
-                if ($Article instanceof Articles\ArticleInterface) {
-                    $this->addArticle($Article);
-                }
+                $Article = new QUI\ERP\Accounting\Article($article);
+                $this->addArticle($Article);
             } catch (QUI\Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }

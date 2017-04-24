@@ -16,6 +16,27 @@
             <en><![CDATA[Create Invoices]]></en>
         </locale>
 
+        <locale name="permission.quiqqer.invoice._header">
+            <de><![CDATA[Shop - Rechnungssystem]]></de>
+            <en><![CDATA[Shop - Invoice]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.create">
+            <de><![CDATA[Darf Rechnungen erstellen.]]></de>
+            <en><![CDATA[Is allowed to create invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.edit">
+            <de><![CDATA[Darf Rechnungen editieren.]]></de>
+            <en><![CDATA[Is allowed to edit invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.delete">
+            <de><![CDATA[Darf Rechnungen löschen.]]></de>
+            <en><![CDATA[Is allowed to delete invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.post">
+            <de><![CDATA[Darf Rechnungen buchen.]]></de>
+            <en><![CDATA[Is allowed to post invoices.]]></en>
+        </locale>
+
         <locale name="paidstatus.open">
             <de><![CDATA[offen]]></de>
             <en><![CDATA[open]]></en>
@@ -330,6 +351,20 @@
             A new invoice is created and
             the data of the invoice <b> [id] </ b> will be copied to it.
             ]]></en>
+        </locale>
+
+
+        <locale name="dialog.delete.article.title">
+            <de><![CDATA[Artikel wirklich löschen?]]></de>
+            <en><![CDATA[Delete the article?]]></en>
+        </locale>
+        <locale name="dialog.delete.article.text">
+            <de><![CDATA[Möchten Sie den Artikel wirklich löschen?]]></de>
+            <en><![CDATA[Are you sure you want to delete the article?]]></en>
+        </locale>
+        <locale name="dialog.delete.article.information">
+            <de><![CDATA[Der Artikel wird unwiderruflich gelöscht.]]></de>
+            <en><![CDATA[The article is irrevocably deleted.]]></en>
         </locale>
     </groups>
 

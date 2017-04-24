@@ -75,15 +75,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 this.$Grid.setData(result);
 
                 var Copy = this.$Grid.getButtons().filter(function (Btn) {
-                    return Btn.getAttribute('name') == 'copy';
+                    return Btn.getAttribute('name') === 'copy';
                 })[0];
 
                 var Delete = this.$Grid.getButtons().filter(function (Btn) {
-                    return Btn.getAttribute('name') == 'delete';
+                    return Btn.getAttribute('name') === 'delete';
                 })[0];
 
                 var PDF = this.$Grid.getButtons().filter(function (Btn) {
-                    return Btn.getAttribute('name') == 'pdf';
+                    return Btn.getAttribute('name') === 'pdf';
                 })[0];
 
                 Copy.disable();
@@ -312,15 +312,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 onClick: function () {
                     var Copy = self.$Grid.getButtons().filter(function (Btn) {
-                        return Btn.getAttribute('name') == 'copy';
+                        return Btn.getAttribute('name') === 'copy';
                     })[0];
 
                     var Delete = self.$Grid.getButtons().filter(function (Btn) {
-                        return Btn.getAttribute('name') == 'delete';
+                        return Btn.getAttribute('name') === 'delete';
                     })[0];
 
                     var PDF = self.$Grid.getButtons().filter(function (Btn) {
-                        return Btn.getAttribute('name') == 'pdf';
+                        return Btn.getAttribute('name') === 'pdf';
                     })[0];
 
                     Copy.enable();

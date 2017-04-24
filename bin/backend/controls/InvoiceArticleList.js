@@ -1,5 +1,5 @@
 /**
- * @module package/quiqqer/invoice/bin/backend/controls/InvoiceItems
+ * @module package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList
  *
  * Invoice item list (Produkte Positionen)
  *
@@ -7,11 +7,11 @@
  * @require qui/controls/Control
  * @require Mustache
  * @require Locale
- * @require package/quiqqer/invoice/bin/backend/controls/InvoiceItemsProduct
- * @require text!package/quiqqer/invoice/bin/backend/controls/InvoiceItems.html
- * @require css!package/quiqqer/invoice/bin/backend/controls/InvoiceItems.css
+ * @require package/quiqqer/invoice/bin/backend/controls/article/Article
+ * @require text!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.html
+ * @require css!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.css
  */
-define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
+define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
 
     'qui/QUI',
     'qui/controls/Control',
@@ -19,8 +19,8 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
     'Locale',
     'package/quiqqer/invoice/bin/backend/controls/articles/Article',
 
-    'text!package/quiqqer/invoice/bin/backend/controls/InvoiceItems.html',
-    'css!package/quiqqer/invoice/bin/backend/controls/InvoiceItems.css'
+    'text!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.html',
+    'css!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.css'
 
 ], function (QUI, QUIControl, Mustache, QUILocale, Article, template) {
     "use strict";
@@ -30,7 +30,11 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
     return new Class({
 
         Extends: QUIControl,
-        Type   : 'package/quiqqer/invoice/bin/backend/controls/InvoiceItems',
+        Type   : 'package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList',
+
+        Binds: [
+            '$onArticleDelete'
+        ],
 
         options: {},
 
@@ -38,6 +42,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
             this.parent(options);
 
             this.$articles = [];
+            this.$user     = {};
 
             this.$Container = null;
         },
@@ -88,12 +93,15 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
         },
 
         /**
+         * Unserialize the list
+         * load the serialized list into list
          *
+         * @param {Object|String} list
          */
         unserialize: function (list) {
             var data = {};
 
-            if (typeOf(list) == 'string') {
+            if (typeOf(list) === 'string') {
                 try {
                     data = JSON.stringify(list);
                 } catch (e) {
@@ -106,45 +114,49 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
                 return;
             }
 
-            var needles = data.articles.map(function (entry) {
-                return entry.control;
-            });
+            var article;
 
-            require(needles, function () {
-                var i, no, len, article, control;
+            for (var i = 0, len = data.articles.length; i < len; i++) {
+                article = data.articles[i];
 
-                for (i = 0, len = data.articles.length; i < len; i++) {
-                    article = data.articles[i];
-                    control = article.control;
+                this.addArticle(new Article(article));
+            }
+        },
 
-                    no = needles.indexOf(control);
-
-                    this.addArticle(
-                        new arguments[no](article)
-                    );
-                }
-            }.bind(this));
+        /**
+         * Set user details to the list
+         *
+         * @param {Object} user
+         */
+        setUser: function (user) {
+            this.$user = user;
         },
 
         /**
          * Add a product to the list
-         * The product must be an instance of InvoiceItemsProduc
+         * The product must be an instance of Article
          *
-         * @param {Object} Product
+         * @param {Object} Child
          */
-        addArticle: function (Product) {
-            if (typeof Product !== 'object') {
+        addArticle: function (Child) {
+            if (typeof Child !== 'object') {
                 return;
             }
 
-            if (!(Product instanceof Article)) {
+            if (!(Child instanceof Article)) {
                 return;
             }
 
-            this.$articles.push(Product);
+            this.$articles.push(Child);
 
-            Product.setPosition(this.$articles.length);
-            Product.inject(this.$Container);
+            Child.setUser(this.$user);
+            Child.setPosition(this.$articles.length);
+
+            Child.addEvents({
+                onDelete: this.$onArticleDelete
+            });
+
+            Child.inject(this.$Container);
         },
 
         /**
@@ -168,6 +180,35 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceItems', [
 
                 return Article.getAttributes();
             });
+        },
+
+        /**
+         * Events
+         */
+
+
+        /**
+         * event : on article delete
+         */
+        $onArticleDelete: function (Article) {
+            var i, len, Current;
+
+            var articles = [],
+                position = 1;
+
+            for (i = 0, len = this.$articles.length; i < len; i++) {
+                if (this.$articles[i].getAttribute('position') === Article.getAttribute('position')) {
+                    continue;
+                }
+
+                Current = this.$articles[i];
+                Current.setPosition(position);
+                articles.push(Current);
+
+                position++;
+            }
+
+            this.$articles = articles;
         }
     });
 });

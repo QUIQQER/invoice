@@ -82,3 +82,25 @@
 .quiqqer-invoice-backend-invoiceArticle-total {
     width: 150px;
 }
+
+.quiqqer-invoice-backend-invoiceArticle-buttons {
+    background: #fff;
+    opacity: 0;
+    padding: 10px;
+    position: absolute;
+    right: 0;
+    text-align: right;
+    top: 0;
+    transition: opacity 0.2s;
+    width: 150px;
+    z-index: 10;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-buttons button {
+    margin-left: 5px;
+}
+
+.quiqqer-invoice-backend-invoiceArticle:hover .quiqqer-invoice-backend-invoiceArticle-buttons {
+    opacity: 1;
+    transition: opacity 0.2s;
+}

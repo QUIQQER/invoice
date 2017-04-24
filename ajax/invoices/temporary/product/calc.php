@@ -5,40 +5,28 @@
  */
 
 /**
- * Calculates the current price of the invoice product
+ * Calculates the current price of the article
  *
  * @return string
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_product_calc',
-    function ($params) {
+    function ($params, $user) {
         $params = json_decode($params, true);
-        $Calc   = QUI\ERP\Accounting\Calc::getInstance();
+        $user   = json_decode($user, true);
 
-        if (!isset($params['type'])) {
-            throw new QUI\Exception('Not found');
+        if (!empty($user)) {
+            $User = QUI\ERP\User::convertUserDataToErpUser($user);
+            $Calc = QUI\ERP\Accounting\Calc::getInstance($User);
+        } else {
+            $Calc = QUI\ERP\Accounting\Calc::getInstance();
         }
 
-        if (empty($params['type'])) {
-            $Article = new QUI\ERP\Accounting\Invoice\Articles\Article($params);
+        $Article = new QUI\ERP\Accounting\Article($params);
+        $Article->calc($Calc);
 
-            return $Article->toArray();
-        }
-
-        \QUI\System\Log::writeRecursive($params);
-
-        if ($params['type'] == QUI\ERP\Products\Product\Product::class) {
-            $Product = new QUI\ERP\Products\Product\Product($params['productId']);
-            $Unique  = $Product->createUniqueProduct();;
-
-            $Unique->setQuantity($params['quantity']);
-            $Calc->getProductPrice($Unique);
-
-            return $Unique->getAttributes();
-        }
-
-        return array();
+        return $Article->toArray();
     },
-    array('params'),
+    array('params', 'user'),
     'Permission::checkAdminUser'
 );
