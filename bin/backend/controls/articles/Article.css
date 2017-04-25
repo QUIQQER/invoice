@@ -1,6 +1,7 @@
 .quiqqer-invoice-backend-invoiceArticle {
     align-items: stretch;
     border-bottom: 1px solid #DEDEDE;
+    border-left: 2px solid #FFFFFF;
     clear: both;
     display: flex;
     flex-direction: row;
@@ -8,6 +9,10 @@
     min-height: 50px;
     position: relative;
     width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceArticle-select {
+    border-left: 2px solid #2F8FC6;
 }
 
 .quiqqer-invoice-backend-invoiceArticle .cell {
@@ -85,18 +90,20 @@
 
 .quiqqer-invoice-backend-invoiceArticle-buttons {
     background: #fff;
+    bottom: 0;
     opacity: 0;
     padding: 10px;
     position: absolute;
     right: 0;
     text-align: right;
-    top: 0;
     transition: opacity 0.2s;
     width: 150px;
     z-index: 10;
 }
 
 .quiqqer-invoice-backend-invoiceArticle-buttons button {
+    padding: 0 5px;
+    line-height: 20px;
     margin-left: 5px;
 }
 

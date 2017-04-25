@@ -44,15 +44,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWi
                     onSubmit: function (Win, products) {
                         var productId = products[0];
 
-                        Win.close().then(function () {
-                            return self.openProductSettings(productId);
-                        }).then(function (productSettings) {
-                            if (!productSettings) {
-                                return false;
-                            }
+                        Win.Loader.show();
 
+                        self.$hasProductCustomFields(productId).then(function (hasCustomFields) {
+                            return Win.close().then(function () {
+                                if (!hasCustomFields) {
+                                    return Promise.resolve(false);
+                                }
+                                return self.openProductSettings(productId);
+                            });
+                        }).then(function (productSettings) {
                             return self.$parseProductToArticle(productId, productSettings);
                         }).then(function (article) {
+                            console.log(article);
                             self.fireEvent('submit', [self, article]);
                         }).catch(function (err) {
                             console.error(err);
@@ -163,11 +167,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWi
          * Return the data of a product for an ERP article
          *
          * @param {String|Number} productId
-         * @param {Object} attributes - fields, quantity and so on
+         * @param {Object} [attributes] - fields, quantity and so on
          * @returns {Promise}
          */
         $parseProductToArticle: function (productId, attributes) {
             var self = this;
+
+            attributes = attributes || {};
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_parseProductToArticle', resolve, {
@@ -192,6 +198,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWi
                     'package': 'quiqqer/invoice',
                     productId: productId,
                     user     : JSON.encode(this.getUserData()),
+                    onError  : reject
+                });
+            }.bind(this));
+        },
+
+        /**
+         * Has the product custom fields
+         *
+         * @param productId
+         * @returns {Promise}
+         */
+        $hasProductCustomFields: function (productId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_hasProductCustomFields', resolve, {
+                    'package': 'quiqqer/invoice',
+                    productId: productId,
                     onError  : reject
                 });
             }.bind(this));

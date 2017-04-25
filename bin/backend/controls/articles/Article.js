@@ -13,6 +13,14 @@
  * @require Editors
  * @require text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html
  * @require css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css
+ *
+ * @event onCalc [self]
+ * @event onSelect [self]
+ * @event onUnSelect [self]
+ *
+ * @event onDelete [self]
+ * @event onRemove [self]
+ * @event onDrop [self]
  */
 define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
@@ -46,7 +54,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             '$onEditUnitPriceQuantity',
             '$onEditVat',
             'openDeleteDialog',
-            'drop'
+            'remove',
+            'select'
         ],
 
         options: {
@@ -66,7 +75,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.setAttributes(this.__proto__.options); // set the default values
             this.parent(options);
 
-            this.$user = {};
+            this.$user         = {};
+            this.$calculations = {};
 
             this.$Position  = null;
             this.$Quantity  = null;
@@ -82,7 +92,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             this.$Loader  = null;
             this.$created = false;
-            console.warn(options);
+
             // admin format
             this.$Formatter = QUILocale.getNumberFormatter({
                 style   : 'currency',
@@ -101,7 +111,14 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.$Elm.addClass('quiqqer-invoice-backend-invoiceArticle');
 
             this.$Elm.set({
-                html: Mustache.render(template)
+                html      : Mustache.render(template),
+                'tabindex': -1,
+                styles    : {
+                    outline: 'none'
+                },
+                events    : {
+                    click: this.select
+                }
             });
 
             this.$Position  = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-pos');
@@ -191,10 +208,12 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * Deletes the article and destroy the Node
          *
          * @fires onDelete [self]
+         * @fires onRemove [self]
          * @fires onDrop [self]
          */
         remove: function () {
             this.fireEvent('delete', [this]);
+            this.fireEvent('remove', [this]);
             this.fireEvent('drop', [this]);
 
             this.destroy();
@@ -229,8 +248,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                     var unitPrice = self.$Formatter.format(product.calculated_basisPrice);
                     var price     = self.$Formatter.format(product.calculated_price);
 
-                    console.log('calc');
-                    console.log(product);
+                    self.$calculations = product;
 
                     self.$Total.set({
                         html : total,
@@ -249,9 +267,9 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
                     self.hideLoader();
 
-                    console.info(product);
-
                     resolve(product);
+
+                    self.fireEvent('calc', [self]);
                 }, {
                     'package': 'quiqqer/invoice',
                     onError  : reject,
@@ -259,6 +277,14 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                     user     : JSON.encode(self.$user)
                 });
             });
+        },
+
+        /**
+         *
+         * @returns {{}|*}
+         */
+        getCalculations: function () {
+            return this.$calculations;
         },
 
         /**
@@ -358,7 +384,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             vat = parseInt(vat);
 
             if (vat > 100 || vat < 0) {
-                return;
+                return Promise.resolve();
             }
 
             this.setAttribute('vat', vat);
@@ -390,6 +416,22 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          */
         hideLoader: function () {
             this.$Loader.setStyle('display', 'none');
+        },
+
+        /**
+         * select the article
+         */
+        select: function () {
+            this.$Elm.addClass('quiqqer-invoice-backend-invoiceArticle-select');
+            this.fireEvent('select', [this]);
+        },
+
+        /**
+         * unselect the article
+         */
+        unselect: function () {
+            this.$Elm.removeClass('quiqqer-invoice-backend-invoiceArticle-select');
+            this.fireEvent('unSelect', [this]);
         },
 
         /**

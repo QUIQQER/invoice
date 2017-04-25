@@ -321,6 +321,10 @@
             <de><![CDATA[Bestellt durch]]></de>
             <en><![CDATA[Ordered by]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.deleteButton.title">
+            <de><![CDATA[Rechnung löschen]]></de>
+            <en><![CDATA[Delete Invoice]]></en>
+        </locale>
 
         <locale name="dialog.ti.delete.title">
             <de><![CDATA[Rechnung löschen]]></de>

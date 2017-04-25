@@ -10,19 +10,24 @@
  * @require package/quiqqer/invoice/bin/backend/controls/article/Article
  * @require text!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.html
  * @require css!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.css
+ *
+ * @event onCalc [self, {Object} calculation]
+ * @event onArticleSelect [self, {Object} Article]
+ * @event onArticleUnSelect [self, {Object} Article]
  */
 define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
 
     'qui/QUI',
     'qui/controls/Control',
     'Mustache',
+    'Ajax',
     'Locale',
     'package/quiqqer/invoice/bin/backend/controls/articles/Article',
 
     'text!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.html',
     'css!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.css'
 
-], function (QUI, QUIControl, Mustache, QUILocale, Article, template) {
+], function (QUI, QUIControl, Mustache, QUIAjax, QUILocale, Article, template) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -33,16 +38,31 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
         Type   : 'package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList',
 
         Binds: [
-            '$onArticleDelete'
+            '$onArticleDelete',
+            '$onArticleSelect',
+            '$onArticleUnSelect',
+            '$calc'
         ],
-
-        options: {},
 
         initialize: function (options) {
             this.parent(options);
 
             this.$articles = [];
             this.$user     = {};
+
+            this.$calculationTimer = null;
+
+            this.$calculations = {
+                currencyData: {},
+                isEuVat     : 0,
+                isNetto     : true,
+                nettoSubSum : 0,
+                nettoSum    : 0,
+                subSum      : 0,
+                sum         : 0,
+                vatArray    : [],
+                vatText     : []
+            };
 
             this.$Container = null;
         },
@@ -86,8 +106,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
 
                 return attr;
             });
-            console.log('serialize');
-            console.info(articles);
+
             return {
                 articles: articles
             };
@@ -101,8 +120,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
          */
         unserialize: function (list) {
             var data = {};
-            console.log('unserialize');
-            console.info(list);
+
             if (typeOf(list) === 'string') {
                 try {
                     data = JSON.stringify(list);
@@ -155,7 +173,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             Child.setPosition(this.$articles.length);
 
             Child.addEvents({
-                onDelete: this.$onArticleDelete
+                onDelete  : this.$onArticleDelete,
+                onSelect  : this.$onArticleSelect,
+                onUnSelect: this.$onArticleUnSelect,
+                onCalc    : this.$calc
             });
 
             Child.inject(this.$Container);
@@ -174,14 +195,59 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
          * @return {Array}
          */
         save: function () {
-            // console.log('###');
-
             return this.$articles.map(function (Article) {
-                // console.log(typeOf(Article));
-                // console.log(Article.getAttributes());
-
                 return Article.getAttributes();
             });
+        },
+
+        /**
+         * Calculate the list
+         */
+        $calc: function () {
+            if (this.$calculationTimer) {
+                clearTimeout(this.$calculationTimer);
+                this.$calculationTimer = null;
+            }
+
+            var self = this;
+
+            this.$calculationTimer = (function () {
+                self.$executeCalculation();
+            }).delay(500);
+        },
+
+        /**
+         * Execute a new calculation
+         *
+         * @returns {Promise}
+         */
+        $executeCalculation: function () {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                var articles = self.$articles.map(function (Article) {
+                    return Article.getAttributes();
+                });
+
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_calc', function (result) {
+                    self.$calculations = result;
+                    self.fireEvent('calc', [self, result]);
+                    resolve(result);
+                }, {
+                    'package': 'quiqqer/invoice',
+                    articles : JSON.encode(articles),
+                    user     : JSON.encode(self.$user)
+                });
+            });
+        },
+
+        /**
+         * Return the current calculations
+         *
+         * @returns {{currencyData: {}, isEuVat: number, isNetto: boolean, nettoSubSum: number, nettoSum: number, subSum: number, sum: number, vatArray: Array, vatText: Array}|*}
+         */
+        getCalculation: function () {
+            return this.$calculations;
         },
 
         /**
@@ -191,11 +257,18 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
 
         /**
          * event : on article delete
+         *
+         * @param {Object} Article
          */
         $onArticleDelete: function (Article) {
+            if (this.$selectedArticle) {
+                this.$selectedArticle.unselect();
+            }
+
             var i, len, Current;
 
-            var articles = [],
+            var self     = this,
+                articles = [],
                 position = 1;
 
             for (i = 0, len = this.$articles.length; i < len; i++) {
@@ -211,6 +284,46 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             }
 
             this.$articles = articles;
+            this.$executeCalculation().then(function () {
+                if (self.$articles.length) {
+                    self.$articles[0].select();
+                }
+            });
+        },
+
+        /**
+         * event : on article delete
+         *
+         * @param {Object} Article
+         */
+        $onArticleSelect: function (Article) {
+            if (this.$selectedArticle) {
+                this.$selectedArticle.unselect();
+            }
+
+            this.$selectedArticle = Article;
+            this.fireEvent('articleSelect', [this, this.$selectedArticle]);
+        },
+
+        /**
+         * event : on article delete
+         *
+         * @param Article
+         */
+        $onArticleUnSelect: function (Article) {
+            if (this.$selectedArticle === Article) {
+                this.$selectedArticle = null;
+                this.fireEvent('articleUnSelect', [this, this.$selectedArticle]);
+            }
+        },
+
+        /**
+         * Return the current selected Article
+         *
+         * @returns {null|Object}
+         */
+        getSelectedArticle: function () {
+            return this.$selectedArticle;
         }
     });
 });

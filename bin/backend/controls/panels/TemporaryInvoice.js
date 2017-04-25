@@ -79,9 +79,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.parent(options);
 
-            this.$ArticleList  = null;
-            this.$AddProduct   = null;
-            this.$AddSeparator = null;
+            this.$ArticleList        = null;
+            this.$ArticleListSummary = null;
+            this.$AddProduct         = null;
+            this.$AddSeparator       = null;
 
             this.$serializedList = {};
 
@@ -234,28 +235,40 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         openArticles: function () {
+            var self = this;
+
             this.Loader.show();
 
-            return this.$closeCategory().then(function (Container) {
+            return self.$closeCategory().then(function (Container) {
                 return new Promise(function (resolve) {
                     require([
-                        'package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList'
-                    ], function (List) {
-                        this.$ArticleList = new List({
+                        'package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList',
+                        'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary'
+                    ], function (List, Summary) {
+                        self.$ArticleList = new List({
                             events: {}
                         }).inject(Container);
 
-                        if (this.$serializedList) {
-                            this.$ArticleList.unserialize(this.$serializedList);
+                        self.$ArticleListSummary = new Summary({
+                            List  : self.$ArticleList,
+                            styles: {
+                                bottom  : 0,
+                                left    : 0,
+                                position: 'absolute'
+                            }
+                        }).inject(Container.getParent());
+
+                        if (self.$serializedList) {
+                            self.$ArticleList.unserialize(self.$serializedList);
                         }
 
-                        this.$ArticleList.setUser(this.getUserData());
+                        self.$ArticleList.setUser(self.getUserData());
 
-                        this.$AddProduct.show();
-                        this.$AddSeparator.show();
-                        this.Loader.hide();
+                        self.$AddProduct.show();
+                        self.$AddSeparator.show();
+                        self.Loader.hide();
 
-                        this.getCategory('articles').setActive();
+                        self.getCategory('articles').setActive();
 
                         new QUIButton({
                             textimage: 'fa fa-check',
@@ -266,16 +279,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                                 margin : '10px auto 0'
                             },
                             events   : {
-                                onClick: this.openVerification
+                                onClick: self.openVerification
                             }
                         }).inject(Container);
 
                         resolve();
-                    }.bind(this));
-                }.bind(this));
-            }.bind(this)).then(function () {
-                return this.$openCategory();
-            }.bind(this));
+                    });
+                });
+            }).then(function () {
+                return self.$openCategory();
+            });
         },
 
         /**
@@ -310,12 +323,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             require([
                 'package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWindow',
-                'package/quiqqer/products/bin/controls/invoice/Article'
+                'package/quiqqer/invoice/bin/backend/controls/articles/Article'
             ], function (Win, Article) {
                 new Win({
                     events: {
                         onSubmit: function (Win, article) {
-                            self.$ArticleList.addArticle(new Article(article));
+                            var Instance = new Article(article);
+
+                            if ("calculated_vatArray" in article) {
+                                Instance.setVat(article.calculated_vatArray.vat);
+                            }
+
+                            self.$ArticleList.addArticle(Instance);
                         }
                     }
                 }).open();
@@ -333,6 +352,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             if (this.$AddProduct) {
                 this.$AddProduct.hide();
                 this.$AddSeparator.hide();
+            }
+
+            if (this.$ArticleListSummary) {
+                this.$ArticleListSummary.destroy();
+                this.$ArticleListSummary = null;
             }
 
             return new Promise(function (resolve) {
@@ -504,6 +528,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.addButton({
                 name  : 'delete',
                 icon  : 'fa fa-trash',
+                title : QUILocale.get(lg, 'erp.panel.temporary.invoice.deleteButton.title'),
                 styles: {
                     'float': 'right'
                 },
@@ -555,8 +580,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             Invoices.getTemporaryInvoice(this.getAttribute('invoiceId')).then(function (data) {
                 this.setAttribute('title', data.id);
                 this.setAttributes(data);
-
-                console.log(data);
 
                 if (data.articles.articles.length) {
                     this.$serializedList = {
