@@ -50,9 +50,15 @@ class TemporaryInvoice extends QUI\QDOM
         $this->Articles = new ArticleList();
 
         if (isset($data['articles'])) {
-            $this->Articles = new ArticleList(
-                json_decode($data['articles'], true)
-            );
+            $articles = json_decode($data['articles'], true);
+
+            if ($articles) {
+                try {
+                    $this->Articles = new ArticleList($articles);
+                } catch (QUI\Exception $Exception) {
+                    QUI\System\Log::addError($Exception->getMessage());
+                }
+            }
 
             unset($data['articles']);
         }
