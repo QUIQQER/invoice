@@ -106,20 +106,31 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.Loader.show();
             this.$unloadCategory(false);
 
-            return Invoices.saveInvoice(this.getAttribute('invoiceId'), {
-                customer_id     : this.getAttribute('customer_id'),
-                address_id      : this.getAttribute('address_id'),
-                project_name    : this.getAttribute('project_name'),
-                articles        : this.getAttribute('articles'),
-                date            : this.getAttribute('date'),
-                time_for_payment: this.getAttribute('time_for_payment')
-            }).then(function () {
+            return Invoices.saveInvoice(
+                this.getAttribute('invoiceId'),
+                this.getCurrentData()
+            ).then(function () {
                 this.Loader.hide();
             }.bind(this)).catch(function (err) {
                 console.error(err);
                 console.error(err.getMessage());
                 this.Loader.hide();
             }.bind(this));
+        },
+
+        /**
+         *
+         * @returns {{customer_id, address_id, project_name, articles, date, time_for_payment}}
+         */
+        getCurrentData: function () {
+            return {
+                customer_id     : this.getAttribute('customer_id'),
+                address_id      : this.getAttribute('address_id'),
+                project_name    : this.getAttribute('project_name'),
+                articles        : this.getAttribute('articles'),
+                date            : this.getAttribute('date'),
+                time_for_payment: this.getAttribute('time_for_payment')
+            };
         },
 
         /**
@@ -301,11 +312,33 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.Loader.show();
 
-            return this.$closeCategory().then(function () {
+            return this.$closeCategory().then(function (Container) {
+                return Invoices.getInvoiceHtml(
+                    self.getAttribute('invoiceId'),
+                    self.getCurrentData()
+                ).then(function (html) {
+                    //Container.set('html', html);
 
-                this.getCategory('verification').setActive();
-                this.Loader.hide();
-            }.bind(this)).then(function () {
+                    require(['qui/controls/elements/Sandbox'], function (Sandbox) {
+                        new Sandbox({
+                            content: html,
+                            styles : {
+                                border: '1px solid #DEDEDE',
+                                height: 1240,
+                                width : 874
+                            },
+                            events : {
+                                onLoad: function (Box) {
+                                    Box.getBody().style.padding = '20px';
+                                    self.Loader.hide();
+                                }
+                            }
+                        }).inject(Container);
+                    });
+
+                    self.Loader.hide();
+                });
+            }).then(function () {
                 return self.$openCategory();
             });
         },

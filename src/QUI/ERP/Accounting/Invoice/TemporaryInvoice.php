@@ -260,6 +260,8 @@ class TemporaryInvoice extends QUI\QDOM
         // create invoice
     }
 
+    //region to* Methods
+
     /**
      * Parse the Temporary invoice to an array
      *
@@ -276,8 +278,131 @@ class TemporaryInvoice extends QUI\QDOM
     }
 
     /**
-     * Article
+     * Output the invoice as HTML
+     *
+     * @return string
      */
+    public function toHTML()
+    {
+        return $this->getHTMLHeader() .
+               $this->getHTMLBody() .
+               $this->getHTMLFooter();
+    }
+
+    /**
+     * Output the invoice as PDF Document
+     *
+     * @return QUI\HtmlToPdf\Document
+     */
+    public function toPDF()
+    {
+        $localeCode = QUI::getLocale()->getLocalesByLang(
+            QUI::getLocale()->getCurrent()
+        );
+
+        $Formatter = new \IntlDateFormatter(
+            $localeCode[0],
+            \IntlDateFormatter::MEDIUM,
+            \IntlDateFormatter::SHORT
+        );
+
+        $date = $Formatter->format(time());
+        $date = preg_replace('/[^0-9]/', '_', $date);
+
+        $fileName = QUI::getLocale()->get('quiqqer/invoice', 'pdf.export.name') . '_';
+        $fileName .= $date;
+        $fileName .= '.pdf';
+
+        $Document = new QUI\HtmlToPdf\Document(array(
+            'marginTop' => 30,
+            'filename'  => $fileName
+        ));
+
+        try {
+            $Document->setHeaderHTML($this->getHTMLHeader());
+            $Document->setContentHTML($this->getHTMLHeader());
+            $Document->setFooterHTML($this->getHTMLFooter());
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+        }
+
+        return $Document;
+    }
+
+    //endregion
+
+    //region Template Output Helper
+
+    /**
+     * @return QUI\Interfaces\Template\EngineInterface
+     */
+    protected function getHTMLEngine()
+    {
+        $Engine = QUI::getTemplateManager()->getEngine();
+
+        $customerId = $this->getAttribute('customer_id');
+        $addressId  = $this->getAttribute('address_id');
+
+        $Customer = QUI::getUsers()->get($customerId);
+        $Address  = $Customer->getAddress($addressId);
+
+        // list calculation
+        $Calc = new QUI\ERP\Accounting\Calc($Customer);
+
+        $this->Articles->calc($Calc);
+
+        $Engine->assign(array(
+            'this'        => $this,
+            'ArticleList' => $this->Articles,
+            'Customer'    => $Customer,
+            'Address'     => $Address
+        ));
+
+        return $Engine;
+    }
+
+    /**
+     * Return the html header
+     *
+     * @return string
+     */
+    protected function getHTMLHeader()
+    {
+        $Engine = $this->getHTMLEngine();
+        $path   = QUI::getPackage('quiqqer/invoice')->getDir();
+
+        return $Engine->fetch($path . '/template/header.html');
+    }
+
+    /**
+     * Return the html body
+     *
+     * @return string
+     */
+    protected function getHTMLBody()
+    {
+        $Engine = $this->getHTMLEngine();
+        $path   = QUI::getPackage('quiqqer/invoice')->getDir();
+
+        return $Engine->fetch($path . '/template/body.html');
+    }
+
+    /**
+     * Return the html body
+     *
+     * @return string
+     */
+    protected function getHTMLFooter()
+    {
+        $Engine = $this->getHTMLEngine();
+        $path   = QUI::getPackage('quiqqer/invoice')->getDir();
+
+        return $Engine->fetch($path . '/template/footer.html');
+    }
+
+    //endregion
+
+    //region Article Management Methods
 
     /**
      * Add an article
@@ -346,4 +471,6 @@ class TemporaryInvoice extends QUI\QDOM
             }
         }
     }
+
+    //endregion
 }
