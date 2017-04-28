@@ -17,15 +17,17 @@ QUI::$Ajax->registerFunction(
     function ($articles, $user) {
         $articles = json_decode($articles, true);
         $user     = json_decode($user, true);
+        $List     = new ArticleList();
 
         try {
-            $User = new QUI\ERP\User($user);
+            $User = QUI\ERP\User::convertUserDataToErpUser($user);
             $Calc = QUI\ERP\Accounting\Calc::getInstance($User);
-        } catch (QUI\Exception $exception) {
+            $List->setUser($User);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::addWarning($Exception->getMessage());
             $Calc = QUI\ERP\Accounting\Calc::getInstance();
         }
 
-        $List = new ArticleList();
 
         foreach ($articles as $article) {
             $List->addArticle(new Article($article));

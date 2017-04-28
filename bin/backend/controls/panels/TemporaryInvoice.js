@@ -263,17 +263,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         self.$ArticleListSummary = new Summary({
                             List  : self.$ArticleList,
                             styles: {
-                                bottom  : 0,
+                                bottom  : -20,
                                 left    : 0,
+                                opacity : 0,
                                 position: 'absolute'
                             }
                         }).inject(Container.getParent());
 
+                        moofx(self.$ArticleListSummary.getElm()).animate({
+                            bottom : 0,
+                            opacity: 1
+                        });
+
+                        self.$ArticleList.setUser(self.getUserData());
+
                         if (self.$serializedList) {
                             self.$ArticleList.unserialize(self.$serializedList);
                         }
-
-                        self.$ArticleList.setUser(self.getUserData());
 
                         self.$AddProduct.show();
                         self.$AddSeparator.show();
@@ -388,8 +394,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }
 
             if (this.$ArticleListSummary) {
-                this.$ArticleListSummary.destroy();
-                this.$ArticleListSummary = null;
+                moofx(this.$ArticleListSummary.getElm()).animate({
+                    bottom : -20,
+                    opacity: 0
+                }, {
+                    duration: 250,
+                    callback: function () {
+                        this.$ArticleListSummary.destroy();
+                        this.$ArticleListSummary = null;
+                    }.bind(this)
+                });
             }
 
             return new Promise(function (resolve) {

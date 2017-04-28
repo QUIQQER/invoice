@@ -91,6 +91,10 @@
             <de><![CDATA[MwSt.]]></de>
             <en><![CDATA[VAT]]></en>
         </locale>
+        <locale name="invoice.products.discount">
+            <de><![CDATA[Rabatt]]></de>
+            <en><![CDATA[Discount]]></en>
+        </locale>
         <locale name="invoice.products.sum">
             <de><![CDATA[Summe]]></de>
             <en><![CDATA[Total]]></en>

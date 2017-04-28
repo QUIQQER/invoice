@@ -105,7 +105,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
 
             List.addEvent('onCalc', function (List) {
                 var data = List.getCalculation();
-console.log(data);
+
                 self.$Formatter = QUILocale.getNumberFormatter({
                     style                : 'currency',
                     currency             : data.currencyData.code,
@@ -136,7 +136,7 @@ console.log(data);
                 var data = Article.getCalculations();
 
                 self.$ArticleNettoSum.set('html', self.$Formatter.format(data.calculated_nettoSum));
-                self.$ArticleBruttoSum.set('html', self.$Formatter.format(data.calculated_price));
+                self.$ArticleBruttoSum.set('html', self.$Formatter.format(data.calculated_sum));
             });
         }
     });

@@ -85,6 +85,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                     titleUnitPrice  : QUILocale.get(lg, 'invoice.products.unitPrice'),
                     titlePrice      : QUILocale.get(lg, 'invoice.products.price'),
                     titleVAT        : QUILocale.get(lg, 'invoice.products.vat'),
+                    titleDiscount   : QUILocale.get(lg, 'invoice.products.discount'),
                     titleSum        : QUILocale.get(lg, 'invoice.products.sum')
                 })
             });
@@ -150,6 +151,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
          */
         setUser: function (user) {
             this.$user = user;
+
+            this.$articles.each(function (Article) {
+                Article.setUser(this.$user);
+            }.bind(this));
         },
 
         /**

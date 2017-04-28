@@ -26,10 +26,14 @@
     width: 200px;
 }
 
+.quiqqer-invoice-backend-temporaryInvoice-summary-total-vat {
+    width: 400px;
+}
+
 .quiqqer-invoice-backend-temporaryInvoice-summary-pos-title {
     width: calc(100% - 400px);
 }
 
 .quiqqer-invoice-backend-temporaryInvoice-summary-total-title {
-    width: calc(100% - 600px);
+    width: calc(100% - 800px);
 }

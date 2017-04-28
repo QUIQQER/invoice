@@ -60,6 +60,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             Invoices.addEvents({
                 onDeleteInvoice: this.$onInvoicesChange,
+                onSaveInvoice  : this.$onInvoicesChange,
                 onCreateInvoice: this.$onInvoicesChange,
                 onCopyInvoice  : this.$onInvoicesChange
             });
@@ -107,7 +108,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     'utils/Panels'
                 ], function (TemporaryInvoice, PanelUtils) {
                     var Panel = new TemporaryInvoice({
-                        invoiceId: invoiceId
+                        invoiceId: invoiceId,
+                        '#id'    : invoiceId
                     });
 
                     PanelUtils.openPanelInTasks(Panel);
@@ -370,6 +372,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             Invoices.removeEvents({
                 onDeleteInvoice: this.$onInvoicesChange,
                 onCreateInvoice: this.$onInvoicesChange,
+                onSaveInvoice  : this.$onInvoicesChange,
                 onCopyInvoice  : this.$onInvoicesChange
             });
         },

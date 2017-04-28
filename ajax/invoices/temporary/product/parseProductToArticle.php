@@ -24,8 +24,6 @@ QUI::$Ajax->registerFunction(
         }
 
         try {
-            \QUI\System\Log::writeRecursive($productId);
-
             $Product = Products::getProduct((int)$productId);
 
             foreach ($attributes as $field => $value) {

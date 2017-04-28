@@ -30,7 +30,7 @@
 }
 
 .quiqqer-invoice-backend-invoiceArticle-text {
-    width: calc(100% - 700px);
+    width: calc(100% - 800px);
 }
 
 .quiqqer-invoice-backend-invoiceArticle-text-title {
@@ -72,6 +72,7 @@
 .quiqqer-invoice-backend-invoiceArticle-unitPrice,
 .quiqqer-invoice-backend-invoiceArticle-price,
 .quiqqer-invoice-backend-invoiceArticle-vat,
+.quiqqer-invoice-backend-invoiceArticle-discount,
 .quiqqer-invoice-backend-invoiceArticle-total {
     overflow: hidden;
     text-align: right;

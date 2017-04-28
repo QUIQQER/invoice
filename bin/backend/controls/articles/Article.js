@@ -6,7 +6,8 @@
  *
  * @require qui/QUI
  * @require qui/controls/Control
- * @require qui/controls/buttons/Button
+ * @require qui/controls/Control
+ * @require qui/controls/windows/Confirm
  * @require Mustache
  * @require Locale
  * @require Ajax
@@ -28,6 +29,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
     'qui/controls/Control',
     'qui/controls/buttons/Button',
     'qui/controls/windows/Confirm',
+    'package/quiqqer/erp/bin/backend/utils/Discount',
     'Mustache',
     'Locale',
     'Ajax',
@@ -36,7 +38,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
     'text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html',
     'css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css'
 
-], function (QUI, QUIControl, QUIButton, QUIConfirm, Mustache, QUILocale, QUIAjax, Editors, template) {
+], function (QUI, QUIControl, QUIButton, QUIConfirm, DiscountUtils, Mustache, QUILocale, QUIAjax, Editors, template) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -53,19 +55,21 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             '$onEditArticleNo',
             '$onEditUnitPriceQuantity',
             '$onEditVat',
+            '$onEditDiscount',
             'openDeleteDialog',
             'remove',
             'select'
         ],
 
         options: {
-            position   : 0,
             articleNo  : '',
-            title      : '---',
             description: '---',
-            quantity   : 1,
-            unitPrice  : 0,
+            discount   : '-',
+            position   : 0,
             price      : 0,
+            quantity   : 1,
+            title      : '---',
+            unitPrice  : 0,
             vat        : '',
             params     : false, // mixed value for API Articles
             type       : 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Article'
@@ -92,6 +96,16 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             this.$Loader  = null;
             this.$created = false;
+
+            // discount
+            if ("discount" in options) {
+                this.setAttribute(
+                    'discount',
+                    DiscountUtils.parseToString(
+                        DiscountUtils.unserialize(options.discount)
+                    )
+                );
+            }
 
             // admin format
             this.$Formatter = QUILocale.getNumberFormatter({
@@ -128,6 +142,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.$UnitPrice = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-unitPrice');
             this.$Price     = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-price');
             this.$VAT       = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-vat');
+            this.$Discount  = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-discount');
             this.$Total     = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-total');
             this.$Buttons   = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-buttons');
 
@@ -135,6 +150,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.$Quantity.addEvent('click', this.$onEditQuantity);
             this.$UnitPrice.addEvent('click', this.$onEditUnitPriceQuantity);
             this.$VAT.addEvent('click', this.$onEditVat);
+            this.$Discount.addEvent('click', this.$onEditDiscount);
 
             this.$Loader = new Element('div', {
                 html  : '<span class="fa fa-spinner fa-spin"></span>',
@@ -174,6 +190,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             this.setQuantity(this.getAttribute('quantity'));
             this.setUnitPrice(this.getAttribute('unitPrice'));
+            this.setDiscount(this.getAttribute('discount'));
 
             // edit buttons
             new QUIButton({
@@ -244,10 +261,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_calc', function (product) {
-                    var total     = self.$Formatter.format(product.calculated_sum);
-                    var unitPrice = self.$Formatter.format(product.calculated_basisPrice);
-                    var price     = self.$Formatter.format(product.calculated_price);
-
+                    var unitPrice = self.$Formatter.format(product.unitPrice);
+                    var price     = self.$Formatter.format(product.calculated_nettoSubSum);
+                    var total     = self.$Formatter.format(product.calculated_nettoSum);
+                    console.log(product);
                     self.$calculations = product;
 
                     self.$Total.set({
@@ -405,6 +422,36 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
         },
 
         /**
+         * Set the discount
+         *
+         * @param {String} discount - 100 = 100€, 100€ = 100€ or 10% =  calculation
+         */
+        setDiscount: function (discount) {
+            var value = '',
+                type  = '';
+
+            if (discount === '' || !discount) {
+                discount = '-';
+            }
+
+            if (typeOf(discount) === 'string' && discount.match('%')) {
+                type = '%';
+            }
+
+            discount = parseInt(discount);
+
+            if (discount) {
+                value = discount + type;
+            } else {
+                value = '-';
+            }
+
+            this.setAttribute('discount', value);
+            this.$Discount.set('html', value);
+            return this.calc();
+        },
+
+        /**
          * Show the loader
          */
         showLoader: function () {
@@ -439,7 +486,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          */
 
         /**
-         *
+         * Opens the delete dialog
          */
         openDeleteDialog: function () {
             new QUIConfirm({
@@ -654,7 +701,9 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             }.bind(this));
         },
 
-
+        /**
+         * event: on edit VAT
+         */
         $onEditVat: function () {
             this.$createEditField(
                 this.$VAT,
@@ -662,6 +711,21 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 'number'
             ).then(function (value) {
                 this.setVat(value);
+            }.bind(this));
+        },
+
+        /**
+         * event: on edit discount
+         */
+        $onEditDiscount: function () {
+            var discount = this.getAttribute('discount');
+
+            if (discount === '-') {
+                discount = '';
+            }
+
+            this.$createEditField(this.$Discount, discount).then(function (value) {
+                this.setDiscount(value);
             }.bind(this));
         },
 

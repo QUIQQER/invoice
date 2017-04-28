@@ -28,7 +28,7 @@
 }
 
 .quiqqer-invoice-backend-invoiceItems-header-description {
-    width: calc(100% - 700px);
+    width: calc(100% - 800px);
 }
 
 .quiqqer-invoice-backend-invoiceItems-header-quantity {
@@ -40,6 +40,7 @@
 .quiqqer-invoice-backend-invoiceItems-header-unitPrice,
 .quiqqer-invoice-backend-invoiceItems-header-price,
 .quiqqer-invoice-backend-invoiceItems-header-vat,
+.quiqqer-invoice-backend-invoiceItems-header-discount,
 .quiqqer-invoice-backend-invoiceItems-header-total {
     overflow: hidden;
     text-align: right;

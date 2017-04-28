@@ -25,7 +25,8 @@ class NettoTest extends \PHPUnit_Framework_TestCase
             'username'  => 'user',
             'firstname' => 'Markus',
             'lastname'  => 'Baumgartner',
-            'lang'      => 'de'
+            'lang'      => 'de',
+            'isCompany' => 0
         ));
 
         $NettoUser->setAttribute('quiqqer.erp.isNettoUser', 1);
