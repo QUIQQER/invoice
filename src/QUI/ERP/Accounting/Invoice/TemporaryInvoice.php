@@ -158,7 +158,7 @@ class TemporaryInvoice extends QUI\QDOM
         $projectName    = '';
         $timeForPayment = '';
         $date           = '';
-        $isBrutto       = QUI\ERP\Defaults::getBruttoNettoUserStatus();
+        $isBrutto       = QUI\ERP\Defaults::getBruttoNettoStatus();
 
         if ($this->getCustomer()
             && !QUI\ERP\Utils\User::isNettoUser($this->getCustomer())
