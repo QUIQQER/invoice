@@ -98,6 +98,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         },
 
         /**
+         * Panel refresh
+         */
+        refresh: function () {
+            var title = this.getAttribute('invoiceId');
+
+            title = title + ' (';
+
+            if (this.getAttribute('isbrutto')) {
+                title = title + QUILocale.get(lg, 'brutto');
+            } else {
+                title = title + QUILocale.get(lg, 'netto');
+            }
+
+            title = title + ')';
+
+            this.setAttribute('title', title);
+            this.parent();
+        },
+
+        /**
          * Saves the current data
          *
          * @return {Promise}
@@ -624,8 +644,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }
 
             Invoices.getTemporaryInvoice(this.getAttribute('invoiceId')).then(function (data) {
-                this.setAttribute('title', data.id);
                 this.setAttributes(data);
+
+                console.log(data);
 
                 if (data.articles.articles.length) {
                     this.$serializedList = {

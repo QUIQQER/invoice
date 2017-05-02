@@ -91,6 +91,10 @@
             <de><![CDATA[MwSt.]]></de>
             <en><![CDATA[VAT]]></en>
         </locale>
+        <locale name="invoice.products.table.vat">
+            <de><![CDATA[MwSt. Satz]]></de>
+            <en><![CDATA[VAT rate]]></en>
+        </locale>
         <locale name="invoice.products.discount">
             <de><![CDATA[Rabatt]]></de>
             <en><![CDATA[Discount]]></en>
@@ -138,6 +142,14 @@
             <en><![CDATA[Close the extended view]]></en>
         </locale>
 
+        <locale name="netto">
+            <de><![CDATA[Netto]]></de>
+            <en><![CDATA[Net]]></en>
+        </locale>
+        <locale name="brutto">
+            <de><![CDATA[Brutto]]></de>
+            <en><![CDATA[Gross]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -373,6 +385,22 @@
         <locale name="dialog.delete.article.information">
             <de><![CDATA[Der Artikel wird unwiderruflich gelöscht.]]></de>
             <en><![CDATA[The article is irrevocably deleted.]]></en>
+        </locale>
+
+        <locale name="dialog.create.address.title">
+            <de><![CDATA[Rechnungsadresse anlegen]]></de>
+            <en><![CDATA[Create invoice address]]></en>
+        </locale>
+
+        <locale name="invoice.create.address.message" html="true">
+            <de><![CDATA[
+                Der Benutzer besitzt keine Adresse. Bitte legen Sie für den Benutzer eine neue Adresse an.<br />
+                Diese Adresse dient gleichzeitig auch als Rechnungsadresse
+            ]]></de>
+            <en><![CDATA[
+                The User does not have an address. Please create a new address for the user. <br />
+                This address also serves as an invoice address
+            ]]></en>
         </locale>
     </groups>
 

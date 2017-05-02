@@ -66,6 +66,8 @@ class TemporaryInvoice extends QUI\QDOM
         $this->setAttributes($data);
     }
 
+    //region Getter
+
     /**
      * @return string
      */
@@ -83,6 +85,26 @@ class TemporaryInvoice extends QUI\QDOM
     {
         return (int)str_replace(self::ID_PREFIX, '', $this->getId());
     }
+
+    /**
+     * Return the customer
+     *
+     * @return false|null|QUI\Users\Nobody|QUI\Users\SystemUser|QUI\Users\User
+     */
+    public function getCustomer()
+    {
+        $uid = $this->getAttribute('customer_id');
+
+        try {
+            return QUI::getUsers()->get($uid);
+        } catch (QUI\Users\Exception $Exception) {
+            QUI\System\Log::addWarning($Exception->getMessage());
+        }
+
+        return null;
+    }
+
+    //endregion
 
     /**
      * Save the current temporary invoice data to the database
@@ -130,13 +152,19 @@ class TemporaryInvoice extends QUI\QDOM
         $this->Articles->calc();
         $listCalculations = $this->Articles->getCalculations();
 
-        QUI\System\Log::writeRecursive($this->Articles->toJSON());
+        //QUI\System\Log::writeRecursive($this->Articles->toJSON());
 
         // attributes
-
         $projectName    = '';
         $timeForPayment = '';
         $date           = '';
+        $isBrutto       = QUI\ERP\Defaults::getBruttoNettoUserStatus();
+
+        if ($this->getCustomer()
+            && !QUI\ERP\Utils\User::isNettoUser($this->getCustomer())
+        ) {
+            $isBrutto = 1;
+        }
 
         if ($this->getAttribute('project_name')) {
             $projectName = $this->getAttribute('project_name');
@@ -173,7 +201,7 @@ class TemporaryInvoice extends QUI\QDOM
                 'data'              => '',
                 'articles'          => $this->Articles->toJSON(),
                 'customer_data'     => '', // @todo 'history'           => '',
-                'isbrutto'          => '',
+                'isbrutto'          => $isBrutto,
                 'currency_data'     => json_encode($listCalculations['currencyData']),
                 'nettosum'          => $listCalculations['nettoSum'],
                 'subsum'            => $listCalculations['subSum'],
@@ -408,7 +436,7 @@ class TemporaryInvoice extends QUI\QDOM
 
     //endregion
 
-    //region Article Management Methods
+    //region Article Management
 
     /**
      * Add an article

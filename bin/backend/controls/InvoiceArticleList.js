@@ -84,7 +84,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                     titleQuantity   : QUILocale.get(lg, 'invoice.products.quantity'),
                     titleUnitPrice  : QUILocale.get(lg, 'invoice.products.unitPrice'),
                     titlePrice      : QUILocale.get(lg, 'invoice.products.price'),
-                    titleVAT        : QUILocale.get(lg, 'invoice.products.vat'),
+                    titleVAT        : QUILocale.get(lg, 'invoice.products.table.vat'),
                     titleDiscount   : QUILocale.get(lg, 'invoice.products.discount'),
                     titleSum        : QUILocale.get(lg, 'invoice.products.sum')
                 })
