@@ -353,7 +353,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * Opens the product search
          *
          * @todo only if products are installed
-         * @todo we need an API for that
          */
         openProductSearch: function () {
             var self = this;

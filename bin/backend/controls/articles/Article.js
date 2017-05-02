@@ -30,6 +30,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
     'qui/controls/buttons/Button',
     'qui/controls/windows/Confirm',
     'package/quiqqer/erp/bin/backend/utils/Discount',
+    'package/quiqqer/erp/bin/backend/utils/Money',
     'Mustache',
     'Locale',
     'Ajax',
@@ -38,7 +39,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
     'text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html',
     'css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css'
 
-], function (QUI, QUIControl, QUIButton, QUIConfirm, DiscountUtils, Mustache, QUILocale, QUIAjax, Editors, template) {
+], function (QUI, QUIControl, QUIButton, QUIConfirm, DiscountUtils, MoneyUtils, Mustache, QUILocale, QUIAjax, Editors, template) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -121,7 +122,6 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          */
         create: function () {
             this.$Elm = this.parent();
-
             this.$Elm.addClass('quiqqer-invoice-backend-invoiceArticle');
 
             this.$Elm.set({
@@ -424,10 +424,11 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
         /**
          * Set the discount
          *
-         * @param {String} discount - 100 = 100€, 100€ = 100€ or 10% =  calculation
+         * @param {String|Number} discount - 100 = 100€, 100€ = 100€ or 10% =  calculation
          */
         setDiscount: function (discount) {
-            var value = '',
+            var self  = this,
+                value = '',
                 type  = '';
 
             if (discount === '' || !discount) {
@@ -438,17 +439,28 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 type = '%';
             }
 
-            discount = parseInt(discount);
+            var Prom;
 
-            if (discount) {
-                value = discount + type;
+            if (discount && type === '%') {
+                Prom = Promise.reolve(discount);
+            } else if (discount) {
+                Prom = MoneyUtils.validatePrice(discount);
             } else {
-                value = '-';
+                Prom = Promise.reolve('-');
             }
 
-            this.setAttribute('discount', value);
-            this.$Discount.set('html', value);
-            return this.calc();
+            return Prom.then(function (discount) {
+                if (discount && type === '%') {
+                    value = discount + type;
+                } else if (discount) {
+                    value = self.$Formatter.format(discount) + type;
+                } else {
+                    value = '-';
+                }
+
+                self.setAttribute('discount', discount);
+                self.$Discount.set('html', value);
+            }).then(this.calc.bind(this));
         },
 
         /**
@@ -722,9 +734,14 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             if (discount === '-') {
                 discount = '';
+            } else if (!discount.toString().match('%')) {
+                discount = parseFloat(discount);
             }
 
-            this.$createEditField(this.$Discount, discount).then(function (value) {
+            this.$createEditField(
+                this.$Discount,
+                discount
+            ).then(function (value) {
                 this.setDiscount(value);
             }.bind(this));
         },
@@ -735,9 +752,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * @param {HTMLDivElement} Container
          * @param {String} [value] - preselected value
          * @param {String} [type] - edit input type
+         * @param {Object} [inputAttributes] - input attributes
          * @returns {Promise}
          */
-        $createEditField: function (Container, value, type) {
+        $createEditField: function (Container, value, type, inputAttributes) {
             type = type || 'text';
 
             return new Promise(function (resolve) {
@@ -755,6 +773,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                         width     : '100%'
                     }
                 }).inject(Container);
+
+                if (typeof inputAttributes !== 'undefined') {
+                    Edit.set(inputAttributes);
+                }
 
                 Edit.focus();
 
