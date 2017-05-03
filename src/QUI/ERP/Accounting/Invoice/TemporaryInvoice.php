@@ -36,6 +36,11 @@ class TemporaryInvoice extends QUI\QDOM
      */
     protected $Articles;
 
+
+    protected $Comments;
+
+    protected $History;
+
     /**
      * Invoice constructor.
      *
@@ -46,8 +51,11 @@ class TemporaryInvoice extends QUI\QDOM
     {
         $data = $Handler->getTemporaryInvoiceData($id);
 
-        $this->id       = (int)str_replace(self::ID_PREFIX, '', $id);
+        $this->id = (int)str_replace(self::ID_PREFIX, '', $id);
+
         $this->Articles = new ArticleList();
+        $this->History  = new Comments();
+        $this->Comments = new Comments();
 
         if (isset($data['articles'])) {
             $articles = json_decode($data['articles'], true);
@@ -61,6 +69,14 @@ class TemporaryInvoice extends QUI\QDOM
             }
 
             unset($data['articles']);
+        }
+
+        if (isset($data['history'])) {
+            $this->History = Comments::unserialize($data['history']);
+        }
+
+        if (isset($data['comments'])) {
+            $this->Comments = Comments::unserialize($data['comments']);
         }
 
         $this->setAttributes($data);
@@ -224,12 +240,14 @@ class TemporaryInvoice extends QUI\QDOM
                 'paid_date'         => '', // nicht in gui
                 'paid_data'         => '', // nicht in gui
                 'processing_status' => '',
+                'customer_data'     => '',  // nicht in gui
 
-                'date'          => $date,
-                'data'          => '',
-                'articles'      => $this->Articles->toJSON(),
-                'customer_data' => '',  // nicht in gui
-                // 'history'           => '', // @todo
+                'date'     => $date,
+                'data'     => '',
+                'articles' => $this->Articles->toJSON(),
+                'history'  => $this->History->toJSON(),
+                'comments' => $this->Comments->toJSON(),
+
                 'isbrutto'      => $isBrutto,
                 'currency_data' => json_encode($listCalculations['currencyData']),
                 'nettosum'      => $listCalculations['nettoSum'],
@@ -309,6 +327,8 @@ class TemporaryInvoice extends QUI\QDOM
     public function post($User = null)
     {
         QUI\Permissions\Permission::checkPermission('quiqqer.invoice.post', $User);
+
+        $this->save(QUI::getUsers()->getSystemUser());
 
         // check all current data
         $this->validate();
@@ -400,7 +420,7 @@ class TemporaryInvoice extends QUI\QDOM
     protected function verificateField($value, $eMessage, $eCode = 0, $eContext = array())
     {
         if (empty($value)) {
-            throw new Exception($eMessage);
+            throw new Exception($eMessage, $eCode, $eContext);
         }
     }
 
@@ -487,6 +507,54 @@ class TemporaryInvoice extends QUI\QDOM
                 QUI\System\Log::writeException($Exception);
             }
         }
+    }
+
+    //endregion
+
+    //region Comments
+
+    /**
+     * Return the comments list object
+     *
+     * @return Comments
+     */
+    public function getComments()
+    {
+        return $this->Comments;
+    }
+
+    /**
+     * Add a comment
+     *
+     * @param string $message
+     */
+    public function addComment($message)
+    {
+        $this->Comments->addComment($message);
+    }
+
+    //endregion
+
+    //region History
+
+    /**
+     * Return the history list object
+     *
+     * @return Comments
+     */
+    public function getHistory()
+    {
+        return $this->History;
+    }
+
+    /**
+     * Add a history entry
+     *
+     * @param string $message
+     */
+    public function addHistory($message)
+    {
+        $this->History->addComment($message);
     }
 
     //endregion
