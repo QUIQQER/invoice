@@ -104,6 +104,16 @@ class TemporaryInvoice extends QUI\QDOM
         return null;
     }
 
+    /**
+     * Return a invoice view
+     *
+     * @return InvoiceView
+     */
+    public function getView()
+    {
+        return new InvoiceView($this);
+    }
+
     //endregion
 
     /**
@@ -156,6 +166,7 @@ class TemporaryInvoice extends QUI\QDOM
 
         // attributes
         $projectName    = '';
+        $invoiceAddress = '';
         $timeForPayment = '';
         $date           = '';
         $isBrutto       = QUI\ERP\Defaults::getBruttoNettoStatus();
@@ -180,34 +191,52 @@ class TemporaryInvoice extends QUI\QDOM
             $date = $this->getAttribute('date');
         }
 
+        // address
+        try {
+            $Customer = QUI::getUsers()->get((int)$this->getAttribute('customer_id'));
+            $Address  = $Customer->getAddress(
+                (int)$this->getAttribute('invoice_address_id')
+            );
+
+            $invoiceAddress = $Address->toJSON();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::addNotice($Exception->getMessage());
+        }
+
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
-                'customer_id'       => (int)$this->getAttribute('customer_id'),
-                'address_id'        => (int)$this->getAttribute('address_id'),
-                'order_id'          => (int)$this->getAttribute('order_id'),
-                'project_name'      => $projectName,
-                'payment_method'    => $this->getAttribute('payment_method'),
-                'payment_data'      => '',
-                'payment_time'      => '',
-                'payment_address'   => '',
-                'delivery_address'  => '',
+                'customer_id'  => (int)$this->getAttribute('customer_id'),
+                'order_id'     => (int)$this->getAttribute('order_id'),
+                'project_name' => $projectName,
+
+                'payment_method' => $this->getAttribute('payment_method'),
+                'payment_data'   => '',
+                'payment_time'   => '',
+
+                'invoice_address_id'  => (int)$this->getAttribute('invoice_address_id'),
+                'invoice_address'     => $invoiceAddress,
+                'delivery_address_id' => '',
+                'delivery_address'    => '',
+
                 'time_for_payment'  => $timeForPayment,
-                'paid_status'       => '',
-                'paid_date'         => '',
-                'paid_data'         => '',
-                'canceled'          => '',
-                'date'              => $date,
-                'data'              => '',
-                'articles'          => $this->Articles->toJSON(),
-                'customer_data'     => '', // @todo 'history'           => '',
-                'isbrutto'          => $isBrutto,
-                'currency_data'     => json_encode($listCalculations['currencyData']),
-                'nettosum'          => $listCalculations['nettoSum'],
-                'subsum'            => $listCalculations['subSum'],
-                'sum'               => $listCalculations['sum'],
-                'vat_data'          => json_encode($listCalculations['vatArray']),
-                'processing_status' => ''
+                'paid_status'       => '', // nicht in gui
+                'paid_date'         => '', // nicht in gui
+                'paid_data'         => '', // nicht in gui
+                'processing_status' => '',
+
+                'date'          => $date,
+                'data'          => '',
+                'articles'      => $this->Articles->toJSON(),
+                'customer_data' => '',  // nicht in gui
+                // 'history'           => '', // @todo
+                'isbrutto'      => $isBrutto,
+                'currency_data' => json_encode($listCalculations['currencyData']),
+                'nettosum'      => $listCalculations['nettoSum'],
+                'subsum'        => $listCalculations['subSum'],
+                'sum'           => $listCalculations['sum'],
+                'vat_data'      => json_encode($listCalculations['vatArray'])
+
             ),
             array(
                 'id' => $this->getCleanId()
@@ -282,19 +311,98 @@ class TemporaryInvoice extends QUI\QDOM
         QUI\Permissions\Permission::checkPermission('quiqqer.invoice.post', $User);
 
         // check all current data
-
-        // user and user-address check
-        $customerId = $this->getAttribute('customer_id');
-        $addressId  = $this->getAttribute('address_id');
-
-        $Customer = QUI::getUsers()->get($customerId);
-        $Address  = $Customer->getAddress($addressId);
-
+        $this->validate();
 
         // create invoice
     }
 
-    //region to* Methods
+    /**
+     * Alias for post()
+     *
+     * @param null $User
+     * @return Invoice
+     */
+    public function createInvoice($User = null)
+    {
+        return $this->post($User);
+    }
+
+    /**
+     * Verificate / Validate the invoice
+     * Can the invoice be posted?
+     *
+     * @throws QUI\Exception|Exception
+     */
+    public function validate()
+    {
+        $this->Articles->calc();
+
+        // user and user-address check
+        $customerId = $this->getAttribute('customer_id');
+        $addressId  = $this->getAttribute('invoice_address_id');
+
+        $Customer = QUI::getUsers()->get($customerId);
+        $Address  = $Customer->getAddress($addressId);
+
+        // check address fields
+        $Address->getCountry();
+
+        $this->verificateField($Address->getAttribute('firstname'), array(
+            'quiqqer/invoice',
+            'exception.invoice.verification.firstname'
+        ));
+
+        $this->verificateField($Address->getAttribute('lastname'), array(
+            'quiqqer/invoice',
+            'exception.invoice.verification.lastname'
+        ));
+
+        $this->verificateField($Address->getAttribute('street_no'), array(
+            'quiqqer/invoice',
+            'exception.invoice.verification.street_no'
+        ));
+
+        $this->verificateField($Address->getAttribute('zip'), array(
+            'quiqqer/invoice',
+            'exception.invoice.verification.zip'
+        ));
+
+        $this->verificateField($Address->getAttribute('city'), array(
+            'quiqqer/invoice',
+            'exception.invoice.verification.city'
+        ));
+
+        $this->verificateField($Address->getAttribute('country'), array(
+            'quiqqer/invoice',
+            'exception.invoice.verification.country'
+        ));
+
+        if (!$this->Articles->count()) {
+            throw new Exception(array(
+                'quiqqer/invoice',
+                'exception.invoice.verification.empty.articles'
+            ));
+        }
+
+        // @todo payment prüfung
+    }
+
+    /**
+     * Verification of a field, value can not be empty
+     *
+     * @param $value
+     * @param array|string $eMessage
+     * @param int $eCode - optional
+     * @param array $eContext - optional
+     *
+     * @throws Exception
+     */
+    protected function verificateField($value, $eMessage, $eCode = 0, $eContext = array())
+    {
+        if (empty($value)) {
+            throw new Exception($eMessage);
+        }
+    }
 
     /**
      * Parse the Temporary invoice to an array
@@ -310,131 +418,6 @@ class TemporaryInvoice extends QUI\QDOM
 
         return $attributes;
     }
-
-    /**
-     * Output the invoice as HTML
-     *
-     * @return string
-     */
-    public function toHTML()
-    {
-        return $this->getHTMLHeader() .
-               $this->getHTMLBody() .
-               $this->getHTMLFooter();
-    }
-
-    /**
-     * Output the invoice as PDF Document
-     *
-     * @return QUI\HtmlToPdf\Document
-     */
-    public function toPDF()
-    {
-        $localeCode = QUI::getLocale()->getLocalesByLang(
-            QUI::getLocale()->getCurrent()
-        );
-
-        $Formatter = new \IntlDateFormatter(
-            $localeCode[0],
-            \IntlDateFormatter::MEDIUM,
-            \IntlDateFormatter::SHORT
-        );
-
-        $date = $Formatter->format(time());
-        $date = preg_replace('/[^0-9]/', '_', $date);
-
-        $fileName = QUI::getLocale()->get('quiqqer/invoice', 'pdf.export.name') . '_';
-        $fileName .= $date;
-        $fileName .= '.pdf';
-
-        $Document = new QUI\HtmlToPdf\Document(array(
-            'marginTop' => 30,
-            'filename'  => $fileName
-        ));
-
-        try {
-            $Document->setHeaderHTML($this->getHTMLHeader());
-            $Document->setContentHTML($this->getHTMLHeader());
-            $Document->setFooterHTML($this->getHTMLFooter());
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeException($Exception);
-        }
-
-        return $Document;
-    }
-
-    //endregion
-
-    //region Template Output Helper
-
-    /**
-     * @return QUI\Interfaces\Template\EngineInterface
-     */
-    protected function getHTMLEngine()
-    {
-        $Engine = QUI::getTemplateManager()->getEngine();
-
-        $customerId = $this->getAttribute('customer_id');
-        $addressId  = $this->getAttribute('address_id');
-
-        $Customer = QUI::getUsers()->get($customerId);
-        $Address  = $Customer->getAddress($addressId);
-
-        // list calculation
-        $Calc = new QUI\ERP\Accounting\Calc($Customer);
-
-        $this->Articles->calc($Calc);
-
-        $Engine->assign(array(
-            'this'        => $this,
-            'ArticleList' => $this->Articles,
-            'Customer'    => $Customer,
-            'Address'     => $Address
-        ));
-
-        return $Engine;
-    }
-
-    /**
-     * Return the html header
-     *
-     * @return string
-     */
-    protected function getHTMLHeader()
-    {
-        $Engine = $this->getHTMLEngine();
-        $path   = QUI::getPackage('quiqqer/invoice')->getDir();
-
-        return $Engine->fetch($path . '/template/header.html');
-    }
-
-    /**
-     * Return the html body
-     *
-     * @return string
-     */
-    protected function getHTMLBody()
-    {
-        $Engine = $this->getHTMLEngine();
-        $path   = QUI::getPackage('quiqqer/invoice')->getDir();
-
-        return $Engine->fetch($path . '/template/body.html');
-    }
-
-    /**
-     * Return the html body
-     *
-     * @return string
-     */
-    protected function getHTMLFooter()
-    {
-        $Engine = $this->getHTMLEngine();
-        $path   = QUI::getPackage('quiqqer/invoice')->getDir();
-
-        return $Engine->fetch($path . '/template/footer.html');
-    }
-
-    //endregion
 
     //region Article Management
 

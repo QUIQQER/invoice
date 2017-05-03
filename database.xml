@@ -11,11 +11,12 @@
             <field type="VARCHAR(250) NOT NULL">hash</field>
             <field type="timestamp NULL DEFAULT CURRENT_TIMESTAMP">date</field>
 
+            <field type="TEXT NULL">invoice_address</field>
+            <field type="TEXT NULL">delivery_address</field>
+
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
             <field type="DATETIME NULL">payment_time</field>
-            <field type="TEXT NULL">payment_address</field>
-            <field type="TEXT NULL">delivery_address</field>
             <field type="INT(3) NULL">time_for_payment</field>
 
             <field type="INT(2) NOT NULL">paid_status</field>
@@ -23,6 +24,7 @@
             <field type="TEXT NULL">paid_data</field>
 
             <field type="INT(1) DEFAULT 0">canceled</field> <!-- storno -->
+            <field type="TEXT NULL">canceled_data</field> <!-- storno grund -->
             <field type="INT NOT NULL">c_user</field>
             <field type="TEXT NULL">data</field>
             <field type="TEXT NOT NULL">articles</field>
@@ -56,7 +58,13 @@
         <table name="invoice_temporary">
             <field type="INT NOT NULL">id</field>
             <field type="INT NOT NULL">customer_id</field>
-            <field type="INT NOT NULL">address_id</field>
+
+            <field type="INT NOT NULL">invoice_address_id</field>
+            <field type="TEXT NULL">invoice_address</field>
+
+            <field type="INT NOT NULL">delivery_address_id</field>
+            <field type="TEXT NULL">delivery_address</field>
+
             <field type="INT NULL">order_id</field>
             <field type="VARCHAR(40) NOT NULL">hash</field>
             <field type="VARCHAR(250) NULL">project_name</field>
@@ -64,15 +72,12 @@
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
             <field type="DATETIME NULL">payment_time</field>
-            <field type="TEXT NULL">payment_address</field>
-            <field type="TEXT NULL">delivery_address</field>
             <field type="INT(3) NULL">time_for_payment</field>
 
             <field type="INT(2) NOT NULL">paid_status</field>
             <field type="INT(11) NULL">paid_date</field>
             <field type="TEXT NULL">paid_data</field>
 
-            <field type="INT(1) DEFAULT 0">canceled</field> <!-- storno -->
             <field type="timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP">date</field>
             <field type="INT(11) NOT NULL">c_user</field>
             <field type="TEXT NULL">data</field>

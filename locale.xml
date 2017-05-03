@@ -322,8 +322,16 @@
             <en><![CDATA[Invoice data]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoiceDate">
-            <de><![CDATA[Rechnung Datum]]></de>
-            <en><![CDATA[Invoice Date]]></en>
+            <de><![CDATA[Rechnungs-Datum]]></de>
+            <en><![CDATA[Invoice date]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoicePayment">
+            <de><![CDATA[Bezahlung]]></de>
+            <en><![CDATA[Payment]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textPaymentType">
+            <de><![CDATA[Bezahlungsart]]></de>
+            <en><![CDATA[Payment type]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textTermOfPayment">
             <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
@@ -408,6 +416,35 @@
         <locale name="message.invoice.save.successfully">
             <de><![CDATA[Der Rechnungsentwurf wurde erfolgreich gespeichert.]]></de>
             <en><![CDATA[The invoice was successfully saved.]]></en>
+        </locale>
+
+        <locale name="exception.invoice.verification.firstname">
+            <de><![CDATA[Der Vornamen des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The first name of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.lastname">
+            <de><![CDATA[Der Vornamen des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The last name of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.street_no">
+            <de><![CDATA[Die Strasse des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The street of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.zip">
+            <de><![CDATA[Die Postleitzahl des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The zip of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.city">
+            <de><![CDATA[Die Stadt des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The city of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.country">
+            <de><![CDATA[Das Land des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The country of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.empty.articles">
+            <de><![CDATA[Die Rechnung besitzt keine Artikel.]]></de>
+            <en><![CDATA[The invoice has no articles.]]></en>
         </locale>
     </groups>
 

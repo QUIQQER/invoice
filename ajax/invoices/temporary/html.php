@@ -25,7 +25,7 @@ QUI::$Ajax->registerFunction(
 
         $Invoice->setAttributes($data);
 
-        return $Invoice->toHTML();
+        return $Invoice->getView()->toHTML();
     },
     array('invoiceId', 'data'),
     'Permission::checkAdminUser'

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * This file contains QUI\ERP\Accounting\Invoice\Invoice
+ */
+
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
@@ -66,7 +70,6 @@ class Invoice extends QUI\QDOM
 
     public function copy()
     {
-
     }
 
     /**

@@ -182,11 +182,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 Container.set({
                     html: Mustache.render(templateData, {
-                        textInvoiceData  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceData'),
-                        textInvoiceDate  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceDate'),
-                        textTermOfPayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textTermOfPayment'),
-                        textProjectName  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textProjectName'),
-                        textOrderedBy    : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textOrderedBy')
+                        textInvoiceData   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceData'),
+                        textInvoiceDate   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceDate'),
+                        textTermOfPayment : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textTermOfPayment'),
+                        textProjectName   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textProjectName'),
+                        textOrderedBy     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textOrderedBy'),
+                        textInvoicePayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoicePayment'),
+                        textPaymentType   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentType')
                     })
                 });
 
@@ -645,8 +647,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             Invoices.getTemporaryInvoice(this.getAttribute('invoiceId')).then(function (data) {
                 this.setAttributes(data);
-
-                console.log(data);
 
                 if (data.articles.articles.length) {
                     this.$serializedList = {
