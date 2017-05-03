@@ -163,23 +163,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 return Promise.resolve();
             }
 
+            var TemporaryUser;
+
             return this.$getUser().then(function (User) {
+                TemporaryUser = User;
+
                 if (!User) {
                     return [];
                 }
 
                 return self.getAddressList(User);
             }).then(function (addresses) {
-                console.info(addresses);
-
                 self.$AddressSelect.set('html', '');
 
                 if (!addresses.length) {
                     self.$AddressRow.setStyle('display', 'none');
                     return;
                 }
-
-                // @todo rechnungsadresse auswählen wenn keine value gesetzt ist
 
                 self.$AddressRow.setStyle('display', null);
 
@@ -191,6 +191,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 }
 
                 var addressId = self.getAttribute('addressId');
+
+                if (TemporaryUser.getAttribute('quiqqer.erp.address')) {
+                    addressId = TemporaryUser.getAttribute('quiqqer.erp.address');
+                }
+
+                if (!self.$AddressSelect.getElement('[value="' + addressId + '"]')) {
+                    addressId = addresses[0].id;
+                }
 
                 self.$AddressSelect.value = addressId || addresses[0].id;
             });

@@ -732,7 +732,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
         $onEditDiscount: function () {
             var discount = this.getAttribute('discount');
 
-            if (discount === '-') {
+            if (discount === '-' || discount === false || !discount) {
                 discount = '';
             } else if (!discount.toString().match('%')) {
                 discount = parseFloat(discount);

@@ -6,6 +6,7 @@
  * @require qui/QUI
  * @require qui/controls/Control
  * @require Mustache
+ * @require Ajax
  * @require Locale
  * @require package/quiqqer/invoice/bin/backend/controls/article/Article
  * @require text!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.html
@@ -41,7 +42,8 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             '$onArticleDelete',
             '$onArticleSelect',
             '$onArticleUnSelect',
-            '$calc'
+            '$calc',
+            '$onInject'
         ],
 
         initialize: function (options) {
@@ -65,6 +67,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             };
 
             this.$Container = null;
+
+            this.addEvents({
+                onInject: this.$onInject
+            });
         },
 
         /**
@@ -93,6 +99,17 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             this.$Container = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceItems-items');
 
             return this.$Elm;
+        },
+
+        /**
+         * event: on inject
+         */
+        $onInject: function () {
+            (function () {
+                if (this.$articles.length) {
+                    this.$articles[0].select();
+                }
+            }).delay(500, this);
         },
 
         /**

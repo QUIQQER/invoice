@@ -16,8 +16,12 @@ QUI::$Ajax->registerFunction(
         $user   = json_decode($user, true);
 
         if (!empty($user)) {
-            $User = QUI\ERP\User::convertUserDataToErpUser($user);
-            $Calc = QUI\ERP\Accounting\Calc::getInstance($User);
+            try {
+                $User = QUI\ERP\User::convertUserDataToErpUser($user);
+                $Calc = QUI\ERP\Accounting\Calc::getInstance($User);
+            } catch (QUI\ERP\Exception $Exception) {
+                $Calc = QUI\ERP\Accounting\Calc::getInstance();
+            }
         } else {
             $Calc = QUI\ERP\Accounting\Calc::getInstance();
         }
