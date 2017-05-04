@@ -25,16 +25,6 @@
         <tr>
             <td>
                 <label class="field-container">
-                    <span class="field-container-item" title="{{textTermOfPayment}}">
-                        {{textTermOfPayment}}
-                    </span>
-                    <input type="number" name="time_for_payment" min="1" max="999" class="field-container-field"/>
-                </label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label class="field-container">
                     <span class="field-container-item" title="{{textProjectName}}">
                         {{textProjectName}}
                     </span>
@@ -76,9 +66,17 @@
                     <span class="field-container-item" title="{{textOrderedBy}}">
                         {{textPaymentType}}
                     </span>
-                    <select class="field-container-field" name="payment_type">
-
-                    </select>
+                    <select class="field-container-field" name="payment_type"></select>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textTermOfPayment}}">
+                        {{textTermOfPayment}}
+                    </span>
+                    <input type="number" name="time_for_payment" min="1" max="999" class="field-container-field"/>
                 </label>
             </td>
         </tr>

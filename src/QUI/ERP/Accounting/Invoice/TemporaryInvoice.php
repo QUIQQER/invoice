@@ -254,7 +254,6 @@ class TemporaryInvoice extends QUI\QDOM
                 'subsum'        => $listCalculations['subSum'],
                 'sum'           => $listCalculations['sum'],
                 'vat_data'      => json_encode($listCalculations['vatArray'])
-
             ),
             array(
                 'id' => $this->getCleanId()

@@ -29,6 +29,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'controls/users/address/Select',
     'package/quiqqer/invoice/bin/Invoices',
     'package/quiqqer/invoice/bin/backend/controls/articles/Text',
+    'package/quiqqer/payments/bin/backend/Payments',
     'Locale',
     'Mustache',
     'Users',
@@ -37,7 +38,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
-             AddressSelect, Invoices, TextArticle, QUILocale, Mustache, Users, templateData) {
+             AddressSelect, Invoices, TextArticle,
+             Payments, QUILocale, Mustache, Users, templateData) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -254,6 +256,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         }
                     }
                 }).inject(Container);
+
+            }).then(function () {
+                return Payments.getPayments();
+            }).then(function (payments) {
+                // load payments
+                console.log(payments);
 
                 self.getCategory('data').setActive();
                 self.Loader.hide();
