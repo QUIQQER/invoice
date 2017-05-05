@@ -35,11 +35,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'Users',
 
     'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Data.html',
+    'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Post.html',
+    'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Missing.html',
+
     'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
              AddressSelect, Invoices, TextArticle,
-             Payments, QUILocale, Mustache, Users, templateData) {
+             Payments, QUILocale, Mustache, Users,
+             templateData, templatePost, templateMissing) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -282,8 +286,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 Payments.value = self.getAttribute('payment_method');
                 self.getCategory('data').setActive();
-                self.Loader.hide();
 
+                return self.Loader.hide();
+            }).then(function () {
                 return self.$openCategory();
             });
         },
@@ -336,7 +341,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                         self.$AddProduct.show();
                         self.$AddSeparator.show();
-                        self.Loader.hide();
 
                         self.getCategory('articles').setActive();
 
@@ -353,7 +357,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             }
                         }).inject(Container);
 
-                        resolve();
+                        self.Loader.hide().then(resolve);
                     });
                 });
             }).then(function () {
@@ -367,13 +371,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         openVerification: function () {
-            var self      = this,
-                ParentElm = null;
+            var self            = this,
+                ParentContainer = null,
+                FrameContainer  = null;
 
             this.Loader.show();
 
             return this.$closeCategory().then(function (Container) {
-                ParentElm = Container;
+                FrameContainer = new Element('div', {
+                    'class': 'quiqqer-invoice-backend-temporaryInvoice-previewContainer'
+                }).inject(Container);
+
+                Container.setStyle('overflow', 'hidden');
+                Container.setStyle('padding', 0);
+
+                ParentContainer = Container;
 
                 return Invoices.getInvoicePreviewHtml(
                     self.getAttribute('invoiceId'),
@@ -384,17 +396,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             new Sandbox({
                                 content: html,
                                 styles : {
-                                    border : '1px solid #DEDEDE',
-                                    'float': 'left',
                                     height : 1240,
+                                    padding: 20,
                                     width  : 874
                                 },
                                 events : {
                                     onLoad: function (Box) {
-                                        Box.getBody().style.padding = '20px';
+                                        //Box.getBody().style.padding = '20px';
+                                        Box.getElm().addClass('quiqqer-invoice-backend-temporaryInvoice-preview');
                                     }
                                 }
-                            }).inject(Container);
+                            }).inject(FrameContainer);
 
                             resolve();
                         });
@@ -404,25 +416,80 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return Invoices.getMissingAttributes(self.getAttribute('invoiceId'));
             }).then(function (missing) {
                 var Missing = new Element('div', {
-                    styles: {
-                        'float': 'left',
-                        padding: '0 0 0 20px',
-                        width  : 'calc(100% - 900)'
+                    'class': 'quiqqer-invoice-backend-temporaryInvoice-missing',
+                    styles : {
+                        opacity: 0,
+                        bottom : -20
                     }
-                }).inject(ParentElm);
+                }).inject(ParentContainer);
 
-                for (var missed in missing) {
-                    if (!missing.hasOwnProperty(missed)) {
-                        continue;
+                if (Object.getLength(missing)) {
+                    Missing.set('html', Mustache.render(templateMissing));
+
+                    var Info = new Element('info', {
+                        'class': 'quiqqer-invoice-backend-temporaryInvoice-missing-miss-message',
+                        styles : {
+                            opacity: 0
+                        }
+                    }).inject(ParentContainer);
+
+                    Missing.getElement(
+                        '.quiqqer-invoice-backend-temporaryInvoice-missing-miss-button'
+                    ).addEvent('click', function () {
+                        var isShow = parseInt(Info.getStyle('opacity'));
+
+                        if (isShow) {
+                            moofx(Info).animate({
+                                bottom : 60,
+                                opacity: 0
+                            });
+                        } else {
+                            moofx(Info).animate({
+                                bottom : 80,
+                                opacity: 1
+                            });
+                        }
+                    });
+
+                    for (var missed in missing) {
+                        if (!missing.hasOwnProperty(missed)) {
+                            continue;
+                        }
+
+                        new Element('div', {
+                            'class': 'messages-message message-error',
+                            html   : missing[missed]
+                        }).inject(Info);
                     }
+                } else {
+                    // post available
+                    Missing.set('html', Mustache.render(templatePost));
 
-                    new Element('div', {
-                        'class': 'messages-message message-error',
-                        html   : missing[missed]
-                    }).inject(Missing);
+                    new QUIButton({
+                        text  : 'Rechnung buchen',
+                        class : 'btn-green',
+                        events: {
+                            onClick: function () {
+                            }
+                        }
+                    }).inject(
+                        Missing.getElement('.quiqqer-invoice-backend-temporaryInvoice-missing-button')
+                    );
                 }
 
-                self.Loader.hide();
+
+                self.Loader.hide().then(function () {
+                    return new Promise(function (resolve) {
+                        moofx(Missing).animate({
+                            opacity: 1,
+                            bottom : 0
+                        }, {
+                            callback: function () {
+                                self.Loader.hide().then(resolve);
+                            }
+                        });
+                    });
+                });
             }).then(function () {
                 return self.$openCategory();
             });
@@ -484,6 +551,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 });
             }
 
+            this.getContent().setStyle('padding', 0);
+
             return new Promise(function (resolve) {
                 var Container = this.getContent().getElement('.container');
 
@@ -506,6 +575,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     callback: function () {
                         this.$unloadCategory();
                         Container.set('html', '');
+                        Container.setStyle('padding', 20);
 
                         resolve(Container);
                     }.bind(this)

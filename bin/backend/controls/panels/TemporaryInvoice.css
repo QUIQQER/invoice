@@ -19,3 +19,99 @@
 .invoice-data [type="time"] {
     border-width: 0;
 }
+
+/** Preview
+ ========================================== */
+
+.quiqqer-invoice-backend-temporaryInvoice-previewContainer {
+    background-color: #efefef;
+    height: calc(100% - 60px);
+    overflow: auto;
+    padding: 20px;
+
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-preview {
+    background: #fff;
+    box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #ccc;
+    border: none;
+    display: block;
+    margin: 0 auto;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-missing {
+    background: #FFFFFF;
+    border-top: 2px solid #DEDEDE;
+    bottom: 0;
+    float: left;
+    height: 60px;
+    left: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-message-miss-message,
+.quiqqer-invoice-backend-temporaryInvoice-message-post-message {
+    float: left;
+    font-size: 14px;
+    line-height: 20px;
+    width: calc(100% - 200px);
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-message-miss-message .message,
+.quiqqer-invoice-backend-temporaryInvoice-message-post-message .message {
+    float: left;
+    margin-top: 10px;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-message-miss-message .fa,
+.quiqqer-invoice-backend-temporaryInvoice-message-post-message .fa {
+    color: #77AB13;
+    float: left;
+    font-size: 20px;
+    line-height: 60px;
+    text-align: center;
+    width: 60px;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-message-miss-message .fa {
+    color: #AE432E;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-missing-button {
+    float: left;
+    padding: 15px;
+    width: 200px;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-missing-button button {
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-missing-miss-button {
+    cursor: pointer;
+    float: left;
+    height: 60px;
+    padding: 0;
+    text-align: center;
+    width: 200px;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-missing-miss-button:hover {
+    background: #2F8FC6;
+    color: #FFFFFF;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-missing-miss-button .fa {
+    float: none;
+    font-size: 20px;
+    line-height: 60px;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-missing-miss-message {
+    bottom: 60px;
+    opacity: 0;
+    position: absolute;
+    right: 10px;
+    width: 400px;
+}
