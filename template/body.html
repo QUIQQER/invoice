@@ -110,14 +110,18 @@
 </style>
 
 <div class="invoice-customer">
+    {if $Address}
     {$Address->getDisplay()}
+    {/if}
 </div>
 
 
 <div class="invoice-data">
     Beleg-Nummer: {$this->getId()}<br/>
     Datum: {$this->getAttribute('date')}<br/>
+    {if $Customer}
     Kunden-Nummer: {$Customer->getId()}<br/>
+    {/if}
     Bearbeiter:
 </div>
 

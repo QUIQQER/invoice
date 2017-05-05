@@ -96,6 +96,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                 })
             });
 
+            if (this.getAttribute('styles')) {
+                this.setStyles(this.getAttribute('styles'));
+            }
+
             this.$Container = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceItems-items');
 
             return this.$Elm;

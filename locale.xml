@@ -315,7 +315,11 @@
         </locale>
         <locale name="erp.panel.temporary.invoice.category.review">
             <de><![CDATA[Überprüfung]]></de>
-            <en><![CDATA[Review]]></en>
+            <en><![CDATA[Validation]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.review.btnGoto">
+            <de><![CDATA[Zur Überprüfung]]></de>
+            <en><![CDATA[For validation]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoiceData">
             <de><![CDATA[Rechnungsdaten]]></de>
@@ -418,6 +422,14 @@
             <en><![CDATA[The invoice was successfully saved.]]></en>
         </locale>
 
+        <locale name="exception.invoice.verification.customer">
+            <de><![CDATA[Der Rechnung wurde noch kein Kunde zugewiesen.]]></de>
+            <en><![CDATA[No customer has yet been assigned to the invoice.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.address">
+            <de><![CDATA[Der Rechnung wurde noch keine Rechnungsaddresse zugewiesen.]]></de>
+            <en><![CDATA[No invoice address has yet been assigned to the invoice.]]></en>
+        </locale>
         <locale name="exception.invoice.verification.firstname">
             <de><![CDATA[Der Vornamen des Rechnungsempfänger ist nicht korrekt.]]></de>
             <en><![CDATA[The first name of the invoice recipient is incorrect.]]></en>

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * This file contains QUI\ERP\Accounting\Invoice\TemporaryInvoice
+ */
+
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
@@ -36,9 +40,14 @@ class TemporaryInvoice extends QUI\QDOM
      */
     protected $Articles;
 
-
+    /**
+     * @var Comments
+     */
     protected $Comments;
 
+    /**
+     * @var Comments
+     */
     protected $History;
 
     /**
@@ -118,6 +127,16 @@ class TemporaryInvoice extends QUI\QDOM
         }
 
         return null;
+    }
+
+    /**
+     * Return all fields, attributes which are still missing to post the invoice
+     *
+     * @return array
+     */
+    public function getMissingAttributes()
+    {
+        return Utils\Invoice::getMissingAttributes($this);
     }
 
     /**
@@ -371,81 +390,10 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function validate()
     {
-        $this->Articles->calc();
+        $missing = $this->getMissingAttributes();
 
-        // user and user-address check
-        $customerId = $this->getAttribute('customer_id');
-        $addressId  = $this->getAttribute('invoice_address_id');
-
-        $Customer = QUI::getUsers()->get($customerId);
-        $Address  = $Customer->getAddress($addressId);
-
-        // check address fields
-        $Address->getCountry();
-
-        $this->verificateField($Address->getAttribute('firstname'), array(
-            'quiqqer/invoice',
-            'exception.invoice.verification.firstname'
-        ));
-
-        $this->verificateField($Address->getAttribute('lastname'), array(
-            'quiqqer/invoice',
-            'exception.invoice.verification.lastname'
-        ));
-
-        $this->verificateField($Address->getAttribute('street_no'), array(
-            'quiqqer/invoice',
-            'exception.invoice.verification.street_no'
-        ));
-
-        $this->verificateField($Address->getAttribute('zip'), array(
-            'quiqqer/invoice',
-            'exception.invoice.verification.zip'
-        ));
-
-        $this->verificateField($Address->getAttribute('city'), array(
-            'quiqqer/invoice',
-            'exception.invoice.verification.city'
-        ));
-
-        $this->verificateField($Address->getAttribute('country'), array(
-            'quiqqer/invoice',
-            'exception.invoice.verification.country'
-        ));
-
-        if (!$this->Articles->count()) {
-            throw new Exception(array(
-                'quiqqer/invoice',
-                'exception.invoice.verification.empty.articles'
-            ));
-        }
-
-        // payment
-        try {
-            $Payments = QUI\ERP\Accounting\Payments\Handler::getInstance();
-            $Payments->getPayment($this->getAttribute('payment_method'));
-        } catch (QUI\ERP\Accounting\Payments\Exception $Exception) {
-            throw new Exception(array(
-                'quiqqer/invoice',
-                'exception.invoice.verification.missingPayment'
-            ));
-        }
-    }
-
-    /**
-     * Verification of a field, value can not be empty
-     *
-     * @param $value
-     * @param array|string $eMessage
-     * @param int $eCode - optional
-     * @param array $eContext - optional
-     *
-     * @throws Exception
-     */
-    protected function verificateField($value, $eMessage, $eCode = 0, $eContext = array())
-    {
-        if (empty($value)) {
-            throw new Exception($eMessage, $eCode, $eContext);
+        foreach ($missing as $field) {
+            throw new Exception(Utils\Invoice::getMissingAttributeMessage($field));
         }
     }
 

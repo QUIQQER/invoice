@@ -41,6 +41,34 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->Invoice->getId();
+    }
+
+    /**
+     * Return preview HTML
+     * Like HTML or PDF with extra stylesheets to preview the view in DIN A4
+     *
+     * @return string
+     */
+    public function previewHTML()
+    {
+        $output = '';
+
+        $output .= '<style>';
+        $output .= file_get_contents(dirname(__FILE__) . '/InvoiceView.HTML.Preview.css');
+        $output .= '</style>';
+        $output .= $this->getHTMLHeader();
+        $output .= $this->getHTMLBody();
+        $output .= $this->getHTMLFooter();
+
+        return $output;
+    }
+
+    /**
      * Output the invoice as HTML
      *
      * @return string
@@ -102,11 +130,17 @@ class InvoiceView extends QUI\QDOM
     {
         $Engine = QUI::getTemplateManager()->getEngine();
 
-        $customerId = $this->getAttribute('customer_id');
-        $addressId  = $this->getAttribute('invoice_address_id');
+        $customerId = $this->Invoice->getAttribute('customer_id');
+        $addressId  = $this->Invoice->getAttribute('invoice_address_id');
 
         $Customer = QUI::getUsers()->get($customerId);
-        $Address  = $Customer->getAddress($addressId);
+
+        try {
+            $Address = $Customer->getAddress($addressId);
+        } catch (QUI\Exception $Exception) {
+            $Address = null;
+        }
+
 
         // list calculation
         $Calc     = new QUI\ERP\Accounting\Calc($Customer);

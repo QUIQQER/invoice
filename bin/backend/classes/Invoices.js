@@ -181,6 +181,42 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Return the invoice html
+         *
+         * @param {String} invoiceId
+         * @param {Object} data
+         * @returns {Promise}
+         */
+        getInvoicePreviewHtml: function (invoiceId, data) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_previewhtml', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    data     : JSON.encode(data),
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Return the missing attributes of an invoice
+         *
+         * @param invoiceId
+         * @return {Promise}
+         */
+        getMissingAttributes: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_missing', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Copy a temporary invoice
          *
          * @param {String} invoiceId

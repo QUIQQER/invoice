@@ -305,8 +305,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary'
                     ], function (List, Summary) {
                         self.$ArticleList = new List({
-                            events: {}
+                            events: {},
+                            styles: {
+                                height: 'calc(100% - 120px)'
+                            }
                         }).inject(Container);
+
+                        Container.setStyle('height', '100%');
 
                         self.$ArticleListSummary = new Summary({
                             List  : self.$ArticleList,
@@ -337,11 +342,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                         new QUIButton({
                             textimage: 'fa fa-check',
-                            text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review'),
+                            text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review.btnGoto'),
                             styles   : {
                                 display: 'block',
                                 'float': 'none',
-                                margin : '10px auto 0'
+                                margin : '20px auto 0'
                             },
                             events   : {
                                 onClick: self.openVerification
@@ -362,36 +367,62 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         openVerification: function () {
-            var self = this;
+            var self      = this,
+                ParentElm = null;
 
             this.Loader.show();
 
             return this.$closeCategory().then(function (Container) {
-                return Invoices.getInvoiceHtml(
+                ParentElm = Container;
+
+                return Invoices.getInvoicePreviewHtml(
                     self.getAttribute('invoiceId'),
                     self.getCurrentData()
                 ).then(function (html) {
-                    //Container.set('html', html);
-
-                    require(['qui/controls/elements/Sandbox'], function (Sandbox) {
-                        new Sandbox({
-                            content: html,
-                            styles : {
-                                border: '1px solid #DEDEDE',
-                                height: 1240,
-                                width : 874
-                            },
-                            events : {
-                                onLoad: function (Box) {
-                                    Box.getBody().style.padding = '20px';
-                                    self.Loader.hide();
+                    return new Promise(function (resolve) {
+                        require(['qui/controls/elements/Sandbox'], function (Sandbox) {
+                            new Sandbox({
+                                content: html,
+                                styles : {
+                                    border : '1px solid #DEDEDE',
+                                    'float': 'left',
+                                    height : 1240,
+                                    width  : 874
+                                },
+                                events : {
+                                    onLoad: function (Box) {
+                                        Box.getBody().style.padding = '20px';
+                                    }
                                 }
-                            }
-                        }).inject(Container);
-                    });
+                            }).inject(Container);
 
-                    self.Loader.hide();
+                            resolve();
+                        });
+                    });
                 });
+            }).then(function () {
+                return Invoices.getMissingAttributes(self.getAttribute('invoiceId'));
+            }).then(function (missing) {
+                var Missing = new Element('div', {
+                    styles: {
+                        'float': 'left',
+                        padding: '0 0 0 20px',
+                        width  : 'calc(100% - 900)'
+                    }
+                }).inject(ParentElm);
+
+                for (var missed in missing) {
+                    if (!missing.hasOwnProperty(missed)) {
+                        continue;
+                    }
+
+                    new Element('div', {
+                        'class': 'messages-message message-error',
+                        html   : missing[missed]
+                    }).inject(Missing);
+                }
+
+                self.Loader.hide();
             }).then(function () {
                 return self.$openCategory();
             });
