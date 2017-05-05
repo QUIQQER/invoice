@@ -178,14 +178,14 @@ class TemporaryInvoice extends QUI\QDOM
         $this->Articles->calc();
         $listCalculations = $this->Articles->getCalculations();
 
-        //QUI\System\Log::writeRecursive($this->Articles->toJSON());
-
         // attributes
         $projectName    = '';
         $invoiceAddress = '';
         $timeForPayment = '';
+        $paymentMethod  = '';
         $date           = '';
-        $isBrutto       = QUI\ERP\Defaults::getBruttoNettoStatus();
+
+        $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
 
         if ($this->getCustomer()
             && !QUI\ERP\Utils\User::isNettoUser($this->getCustomer())
@@ -219,41 +219,58 @@ class TemporaryInvoice extends QUI\QDOM
             QUI\System\Log::addNotice($Exception->getMessage());
         }
 
+        // payment
+        try {
+            if ($this->getAttribute('payment_method')) {
+                $Payments = QUI\ERP\Accounting\Payments\Handler::getInstance();
+                $Payment  = $Payments->getPayment($this->getAttribute('payment_method'));
+
+                $paymentMethod = $Payment->getName();
+            }
+        } catch (QUI\ERP\Accounting\Payments\Exception $Exception) {
+            QUI\System\Log::addNotice($Exception->getMessage());
+        }
+
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
-                'customer_id'  => (int)$this->getAttribute('customer_id'),
-                'order_id'     => (int)$this->getAttribute('order_id'),
-                'project_name' => $projectName,
+                'customer_id'         => (int)$this->getAttribute('customer_id'),
+                'order_id'            => (int)$this->getAttribute('order_id'),
+                'project_name'        => $projectName,
 
-                'payment_method' => $this->getAttribute('payment_method'),
-                'payment_data'   => '',
-                'payment_time'   => '',
+                // payments
+                'payment_method'      => $paymentMethod,
+                'payment_data'        => '',
+                'payment_time'        => '',
 
+                // address
                 'invoice_address_id'  => (int)$this->getAttribute('invoice_address_id'),
                 'invoice_address'     => $invoiceAddress,
                 'delivery_address_id' => '',
                 'delivery_address'    => '',
 
-                'time_for_payment'  => $timeForPayment,
-                'paid_status'       => '', // nicht in gui
-                'paid_date'         => '', // nicht in gui
-                'paid_data'         => '', // nicht in gui
-                'processing_status' => '',
-                'customer_data'     => '',  // nicht in gui
+                // processing status
+                'time_for_payment'    => $timeForPayment,
+                'paid_status'         => '', // nicht in gui
+                'paid_date'           => '', // nicht in gui
+                'paid_data'           => '', // nicht in gui
+                'processing_status'   => '',
+                'customer_data'       => '',  // nicht in gui
 
-                'date'     => $date,
-                'data'     => '',
-                'articles' => $this->Articles->toJSON(),
-                'history'  => $this->History->toJSON(),
-                'comments' => $this->Comments->toJSON(),
+                // invoice data
+                'date'                => $date,
+                'data'                => '',
+                'articles'            => $this->Articles->toJSON(),
+                'history'             => $this->History->toJSON(),
+                'comments'            => $this->Comments->toJSON(),
 
-                'isbrutto'      => $isBrutto,
-                'currency_data' => json_encode($listCalculations['currencyData']),
-                'nettosum'      => $listCalculations['nettoSum'],
-                'subsum'        => $listCalculations['subSum'],
-                'sum'           => $listCalculations['sum'],
-                'vat_data'      => json_encode($listCalculations['vatArray'])
+                // Calc data
+                'isbrutto'            => $isBrutto,
+                'currency_data'       => json_encode($listCalculations['currencyData']),
+                'nettosum'            => $listCalculations['nettoSum'],
+                'subsum'              => $listCalculations['subSum'],
+                'sum'                 => $listCalculations['sum'],
+                'vat_data'            => json_encode($listCalculations['vatArray'])
             ),
             array(
                 'id' => $this->getCleanId()
@@ -403,7 +420,16 @@ class TemporaryInvoice extends QUI\QDOM
             ));
         }
 
-        // @todo payment prüfung
+        // payment
+        try {
+            $Payments = QUI\ERP\Accounting\Payments\Handler::getInstance();
+            $Payments->getPayment($this->getAttribute('payment_method'));
+        } catch (QUI\ERP\Accounting\Payments\Exception $Exception) {
+            throw new Exception(array(
+                'quiqqer/invoice',
+                'exception.invoice.verification.missingPayment'
+            ));
+        }
     }
 
     /**

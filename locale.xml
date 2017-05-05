@@ -329,7 +329,7 @@
             <de><![CDATA[Bezahlung]]></de>
             <en><![CDATA[Payment]]></en>
         </locale>
-        <locale name="erp.panel.temporary.invoice.category.data.textPaymentType">
+        <locale name="erp.panel.temporary.invoice.category.data.textPaymentMethod">
             <de><![CDATA[Bezahlungsart]]></de>
             <en><![CDATA[Payment type]]></en>
         </locale>
@@ -445,6 +445,10 @@
         <locale name="exception.invoice.verification.empty.articles">
             <de><![CDATA[Die Rechnung besitzt keine Artikel.]]></de>
             <en><![CDATA[The invoice has no articles.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.missingPayment">
+            <de><![CDATA[Die Rechnung besitzt keine Bezahlmethod.]]></de>
+            <en><![CDATA[The invoice has no payment method.]]></en>
         </locale>
     </groups>
 

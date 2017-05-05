@@ -64,14 +64,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         ],
 
         options: {
-            invoiceId       : false,
-            customer_id     : false,
-            address_id      : false,
-            project_name    : '',
-            date            : '',
-            time_for_payment: '',
-            data            : {},
-            articles        : []
+            invoiceId         : false,
+            customer_id       : false,
+            invoice_address_id: false,
+            project_name      : '',
+            date              : '',
+            time_for_payment  : '',
+            data              : {},
+            articles          : []
         },
 
         initialize: function (options) {
@@ -142,16 +142,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
         /**
          *
-         * @returns {{customer_id, address_id, project_name, articles, date, time_for_payment}}
+         * @returns {{customer_id, invoice_address_id, project_name, articles, date, time_for_payment}}
          */
         getCurrentData: function () {
             return {
-                customer_id     : this.getAttribute('customer_id'),
-                address_id      : this.getAttribute('address_id'),
-                project_name    : this.getAttribute('project_name'),
-                articles        : this.getAttribute('articles'),
-                date            : this.getAttribute('date'),
-                time_for_payment: this.getAttribute('time_for_payment')
+                customer_id       : this.getAttribute('customer_id'),
+                invoice_address_id: this.getAttribute('invoice_address_id'),
+                project_name      : this.getAttribute('project_name'),
+                articles          : this.getAttribute('articles'),
+                date              : this.getAttribute('date'),
+                time_for_payment  : this.getAttribute('time_for_payment'),
+                payment_method    : this.getAttribute('payment_method')
             };
         },
 
@@ -161,7 +162,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         getUserData: function () {
             return {
                 uid: this.getAttribute('customer_id'),
-                aid: this.getAttribute('address_id')
+                aid: this.getAttribute('invoice_address_id')
             };
         },
 
@@ -190,7 +191,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textProjectName   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textProjectName'),
                         textOrderedBy     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textOrderedBy'),
                         textInvoicePayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoicePayment'),
-                        textPaymentType   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentType')
+                        textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod')
                     })
                 });
 
@@ -232,12 +233,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 Data.addEvent('onChange', function () {
                     self.setAttribute('customer_id', Data.getValue().userId);
-                    self.setAttribute('address_id', Data.getValue().addressId);
+                    self.setAttribute('invoice_address_id', Data.getValue().addressId);
                 });
 
                 return Data.setValue(
                     self.getAttribute('customer_id'),
-                    self.getAttribute('address_id')
+                    self.getAttribute('invoice_address_id')
                 );
             }).then(function () {
                 var Container = self.getContent().getElement('.container');
@@ -261,8 +262,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return Payments.getPayments();
             }).then(function (payments) {
                 // load payments
-                console.log(payments);
+                var Payments = self.getContent().getElement('[name="payment_method"]');
 
+                new Element('option', {
+                    html : '',
+                    value: ''
+                }).inject(Payments);
+
+                for (var payment in payments) {
+                    if (!payments.hasOwnProperty(payment)) {
+                        continue;
+                    }
+
+                    new Element('option', {
+                        html : payments[payment].title,
+                        value: payment
+                    }).inject(Payments);
+                }
+
+                Payments.value = self.getAttribute('payment_method');
                 self.getCategory('data').setActive();
                 self.Loader.hide();
 
@@ -528,7 +546,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 );
             }
 
-            ['time_for_payment', 'project_name'].each(function (entry) {
+            ['time_for_payment', 'project_name', 'payment_method'].each(function (entry) {
                 if (!formData.hasOwnProperty(entry)) {
                     return;
                 }
