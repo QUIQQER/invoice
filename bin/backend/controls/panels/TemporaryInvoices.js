@@ -272,8 +272,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'integer',
                     width    : 50
                 }, {
-                    header   : QUILocale.get(lg, 'taxid'),
-                    dataIndex: 'taxid',
+                    header   : QUILocale.get(lg, 'journal.grid.taxId'),
+                    dataIndex: 'taxId',
                     dataType : 'string',
                     width    : 120
                 }, {

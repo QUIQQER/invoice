@@ -150,6 +150,51 @@
             <de><![CDATA[Brutto]]></de>
             <en><![CDATA[Gross]]></en>
         </locale>
+
+        <locale name="payment.status.0" html="true">
+            <de><![CDATA[<span class="payment-status-0">offen</span>]]></de>
+            <en><![CDATA[<span class="payment-status-0">open</span>]]></en>
+        </locale>
+        <locale name="payment.status.1" html="true">
+            <de><![CDATA[<span class="payment-status-1">bezahlt</span>]]></de>
+            <en><![CDATA[<span class="payment-status-1">paid</span>]]></en>
+        </locale>
+        <locale name="payment.status.2" html="true">
+            <de><![CDATA[<span class="payment-status-2">Teilzahlung</span>]]></de>
+            <en><![CDATA[<span class="payment-status-2">part payment</span>]]></en>
+        </locale>
+        <locale name="payment.status.3" html="true">
+            <de><![CDATA[<span class="payment-status-3">storniert</span>]]></de>
+            <en><![CDATA[<span class="payment-status-3">canceled</span>]]></en>
+        </locale>
+        <locale name="payment.status.4" html="true">
+            <de><![CDATA[<span class="payment-status-4">error</span>]]></de>
+            <en><![CDATA[<span class="payment-status-4">error</span>]]></en>
+        </locale>
+        <locale name="payment.status.11" html="true">
+            <de><![CDATA[<span class="payment-status-11">Lastschrift</span>]]></de>
+            <en><![CDATA[<span class="payment-status-11">Debit</span>]]></en>
+        </locale>
+        <locale name="dunning.level.0" html="true">
+            <de><![CDATA[---]]></de>
+            <en><![CDATA[---]]></en>
+        </locale>
+        <locale name="dunning.level.1" html="true">
+            <de><![CDATA[Zahlungserinnerung]]></de>
+            <en><![CDATA[Payment reminding]]></en>
+        </locale>
+        <locale name="dunning.level.2" html="true">
+            <de><![CDATA[Erste Mahnung]]></de>
+            <en><![CDATA[Dunning]]></en>
+        </locale>
+        <locale name="dunning.level.3" html="true">
+            <de><![CDATA[Zweite Mahnung]]></de>
+            <en><![CDATA[Second dunning]]></en>
+        </locale>
+        <locale name="dunning.level.4" html="true">
+            <de><![CDATA[Im Inkasso Verfahren]]></de>
+            <en><![CDATA[Encashment]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -235,7 +280,7 @@
             <de><![CDATA[Netto]]></de>
             <en><![CDATA[Net]]></en>
         </locale>
-        <locale name="journal.grid.taxid">
+        <locale name="journal.grid.taxId">
             <de><![CDATA[Umsatzsteuer ID]]></de>
             <en><![CDATA[Tax ID]]></en>
         </locale>
@@ -462,6 +507,29 @@
             <de><![CDATA[Die Rechnung besitzt keine Bezahlmethod.]]></de>
             <en><![CDATA[The invoice has no payment method.]]></en>
         </locale>
+
+        <locale name="history.message.addPayment">
+            <de><![CDATA[Zahlung hinzugefügt. Von [username] #[uid]. Zahlungsweise: [payment].]]></de>
+            <en><![CDATA[Add payment. From [username] #[uid]. Payment method: [payment].]]></en>
+        </locale>
+        <locale name="history.message.edit">
+            <de><![CDATA[Rechnung verändert von [username] #[uid].]]></de>
+            <en><![CDATA[Invoice changed by [username] #[uid].]]></en>
+        </locale>
+        <locale name="history.message.addComment">
+            <de><![CDATA[Kommentar hinzugefügt von [username] #[uid].]]></de>
+            <en><![CDATA[Comment added by [username] #[uid].]]></en>
+        </locale>
+        <locale name="history.message.copy">
+            <de><![CDATA[Rechnung kopiert von [username] #[uid].]]></de>
+            <en><![CDATA[Invoice copied by [username] #[uid].]]></en>
+        </locale>
+        <locale name="history.message.cancel">
+            <de><![CDATA[Rechnung storniert von [username] #[uid].]]></de>
+            <en><![CDATA[Invoice canceled by [username] #[uid].]]></en>
+        </locale>
+
+
     </groups>
 
 </locales>

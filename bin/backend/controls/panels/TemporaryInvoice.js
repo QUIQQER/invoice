@@ -55,6 +55,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
         Binds: [
             'save',
+            'post',
             'openData',
             'openArticles',
             'openVerification',
@@ -138,6 +139,33 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             ).then(function () {
                 this.Loader.hide();
             }.bind(this)).catch(function (err) {
+                console.error(err);
+                console.error(err.getMessage());
+                this.Loader.hide();
+            }.bind(this));
+        },
+
+        /**
+         * Post the temporary invoice
+         *
+         * @return {Promise}
+         */
+        post: function () {
+            var self = this;
+
+            this.Loader.show();
+            this.$unloadCategory(false);
+
+            return Invoices.saveInvoice(
+                this.getAttribute('invoiceId'),
+                this.getCurrentData()
+            ).then(function () {
+                return Invoices.postInvoice(self.getAttribute('invoiceId'));
+            }).then(function (newInvoiceId) {
+                console.log(newInvoiceId);
+
+                self.close();
+            }).catch(function (err) {
                 console.error(err);
                 console.error(err.getMessage());
                 this.Loader.hide();
@@ -469,8 +497,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         text  : 'Rechnung buchen',
                         class : 'btn-green',
                         events: {
-                            onClick: function () {
-                            }
+                            onClick: self.post
                         }
                     }).inject(
                         Missing.getElement('.quiqqer-invoice-backend-temporaryInvoice-missing-button')

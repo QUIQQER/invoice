@@ -1,11 +1,11 @@
 <?php
 
 /**
- * This file contains package_quiqqer_invoice_ajax_invoices_temporary_list
+ * This file contains package_quiqqer_invoice_ajax_invoices_temporary_post
  */
 
 /**
- * Returns temporary invoices list for a grid
+ * Post a temporary invoices and returns the new Invoice ID
  *
  * @param string $params - JSON query params
  *
@@ -14,10 +14,11 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_post',
     function ($invoiceId) {
-        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+        $Invoices  = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+        $Temporary = $Invoices->getTemporaryInvoice($invoiceId);
+        $Invoice   = $Temporary->post();
 
-        $Invoices->getTemporaryInvoice($invoiceId)
-            ->post();
+        return $Invoice->getId();
     },
     array('invoiceId'),
     'Permission::checkAdminUser'

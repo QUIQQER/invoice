@@ -16,7 +16,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'qui/controls/buttons/Select',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
-    'Locale'
+    'Locale',
+
+    'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
 
 ], function (QUI, QUIPanel, QUISelect, Grid, Invoices, QUILocale) {
     "use strict";
@@ -32,7 +34,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             'refresh',
             '$onCreate',
             '$onResize',
-            '$onInject'
+            '$onInject',
+            '$refreshButtonStatus',
+            '$onPDFExportButtonClick',
+            '$onAddPaymentButtonClick'
         ],
 
         initialize: function (options) {
@@ -61,8 +66,61 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             Invoices.getList().then(function (result) {
                 this.$Grid.setData(result);
+                this.$refreshButtonStatus();
                 this.Loader.hide();
             }.bind(this));
+        },
+
+        /**
+         *
+         */
+        $refreshButtonStatus: function () {
+            if (!this.$Grid) {
+                return;
+            }
+
+            var selected = this.$Grid.getSelectedData(),
+                buttons  = this.$Grid.getButtons();
+
+            var Payment = buttons.filter(function (Button) {
+                return Button.getAttribute('name') === 'addPayment';
+            })[0];
+
+            var PDF = buttons.filter(function (Button) {
+                return Button.getAttribute('name') === 'pdfExport';
+            })[0];
+
+            var Cancel = buttons.filter(function (Button) {
+                return Button.getAttribute('name') === 'cancel';
+            })[0];
+
+            var Copy = buttons.filter(function (Button) {
+                return Button.getAttribute('name') === 'copy';
+            })[0];
+
+            var CreateCredit = buttons.filter(function (Button) {
+                return Button.getAttribute('name') === 'createCredit';
+            })[0];
+
+            if (selected.length) {
+                if (selected[0].paid_status === 1) {
+                    Payment.disable();
+                } else {
+                    Payment.enable();
+                }
+
+                PDF.enable();
+                Cancel.enable();
+                Copy.enable();
+                CreateCredit.enable();
+                return;
+            }
+
+            Payment.disable();
+            PDF.disable();
+            Cancel.disable();
+            Copy.disable();
+            CreateCredit.disable();
         },
 
         /**
@@ -93,11 +151,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.debit'), 'debit');
 
             this.addButton(this.$Status);
-            //
-            // this.addButton({
-            //     text: 'Summe anzeigen',
-            //     textimage: 'fa fa-calculator'
-            // });
 
 
             this.getContent().setStyles({
@@ -112,31 +165,37 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$Grid = new Grid(Container, {
                 pagination : true,
                 buttons    : [{
+                    name     : 'addPayment',
                     text     : QUILocale.get(lg, 'journal.btn.paymentBook'),
                     textimage: 'fa fa-money',
+                    disabled : true,
                     events   : {
-                        onClick: function () {
-                        }
+                        onClick: this.$onAddPaymentButtonClick
                     }
                 }, {
+                    name     : 'pdfExport',
                     text     : QUILocale.get(lg, 'journal.btn.pdf'),
                     textimage: 'fa fa-file-pdf-o',
+                    disabled : true,
                     events   : {
-                        onClick: function () {
-                        }
+                        onClick: this.$onPDFExportButtonClick
                     }
                 }, {
                     type: 'separator'
                 }, {
+                    name     : 'cancel',
                     text     : QUILocale.get(lg, 'journal.btn.cancelInvoice'),
                     textimage: 'fa fa-remove',
+                    disabled : true,
                     events   : {
                         onClick: function () {
                         }
                     }
                 }, {
+                    name     : 'copy',
                     text     : QUILocale.get(lg, 'journal.btn.copyInvoice'),
                     textimage: 'fa fa-copy',
+                    disabled : true,
                     events   : {
                         onClick: function () {
                         }
@@ -144,8 +203,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 }, {
                     type: 'separator'
                 }, {
+                    name     : 'createCredit',
                     text     : QUILocale.get(lg, 'journal.btn.createCredit'),
                     textimage: 'fa fa-clipboard',
+                    disabled : true,
                     events   : {
                         onClick: function () {
                         }
@@ -158,32 +219,32 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width    : 100
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.orderNo'),
-                    dataIndex: 'orderid',
+                    dataIndex: 'order_id',
                     dataType : 'integer',
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.customerNo'),
-                    dataIndex: 'uid',
+                    dataIndex: 'customer_id',
                     dataType : 'integer',
                     width    : 100
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'name'),
-                    dataIndex: 'customer',
+                    dataIndex: 'customer_name',
                     dataType : 'string',
                     width    : 130
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'date'),
                     dataIndex: 'date',
                     dataType : 'date',
-                    width    : 150
+                    width    : 100
                 }, {
-                    header   : QUILocale.get('quiqqer/system', 'username'),
-                    dataIndex: 'username',
-                    dataType : 'integer',
+                    header   : QUILocale.get('quiqqer/system', 'c_user'),
+                    dataIndex: 'c_username',
+                    dataType : 'string',
                     width    : 130
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
-                    dataIndex: 'paidstatus',
+                    dataIndex: 'paid_status_display',
                     dataType : 'string',
                     width    : 120
                 }, {
@@ -203,17 +264,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
-                    dataIndex: 'payment',
+                    dataIndex: 'payment_title',
                     dataType : 'string',
-                    width    : 120
+                    width    : 180
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentTerm'),
-                    dataIndex: 'payment_time',
+                    dataIndex: 'time_for_payment',
                     dataType : 'string',
                     width    : 120
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentDate'),
-                    dataIndex: 'paiddate',
+                    dataIndex: 'paid_date',
                     dataType : 'date',
                     width    : 120
                 }, {
@@ -223,7 +284,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.open'),
-                    dataIndex: 'display_missing',
+                    dataIndex: 'display_toPay',
                     dataType : 'currency',
                     width    : 80
                 }, {
@@ -232,8 +293,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'integer',
                     width    : 50
                 }, {
-                    header   : QUILocale.get(lg, 'taxid'),
-                    dataIndex: 'vatid',
+                    header   : QUILocale.get(lg, 'journal.grid.taxId'),
+                    dataIndex: 'taxId',
                     dataType : 'string',
                     width    : 120
                 }, {
@@ -243,12 +304,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width    : 130
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.dunning'),
-                    dataIndex: 'dunning_level',
-                    dataType : 'integer',
+                    dataIndex: 'dunning_level_display',
+                    dataType : 'string',
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.processing'),
-                    dataIndex: 'processing_text',
+                    dataIndex: 'processing',
                     dataType : 'string',
                     width    : 150
                 }, {
@@ -258,7 +319,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width    : 100
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentData'),
-                    dataIndex: 'paymentData',
+                    dataIndex: 'payment_data',
                     dataType : 'string',
                     width    : 100
                 }, {
@@ -267,6 +328,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 200
                 }]
+            });
+
+            this.$Grid.addEvents({
+                onRefresh: this.refresh,
+                onClick  : this.$refreshButtonStatus
             });
         },
 
@@ -299,6 +365,124 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             if (value === '' || !value) {
                 this.$Status.setValue('all');
             }
+        },
+
+        //region Buttons events
+
+        /**
+         * event : on PDF Export button click
+         */
+        $onPDFExportButtonClick: function (Button) {
+            var selectedData = this.$Grid.getSelectedData();
+
+            if (!selectedData.length) {
+                return;
+            }
+
+            selectedData = selectedData[0];
+
+            Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
+
+            this.downloadPdf(selectedData.id).then(function () {
+                Button.setAttribute('textimage', 'fa fa-file-pdf-o');
+            });
+        },
+
+        /**
+         * event : on payment add button click
+         */
+        $onAddPaymentButtonClick: function (Button) {
+            var self         = this,
+                selectedData = this.$Grid.getSelectedData();
+
+            if (!selectedData.length) {
+                return;
+            }
+
+            Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
+
+            var invoiceId = selectedData[0].id;
+
+            require([
+                'package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentWindow'
+            ], function (AddPaymentWindow) {
+                new AddPaymentWindow({
+                    invoiceId: invoiceId,
+                    events   : {
+                        onSubmit: function (Win, data) {
+                            self.addPayment(
+                                invoiceId,
+                                data.amount,
+                                data.payment_method,
+                                data.date
+                            ).then(function () {
+                                Button.setAttribute('textimage', 'fa fa-money');
+                                self.refresh();
+                            });
+                        },
+
+                        onClose: function () {
+                            Button.setAttribute('textimage', 'fa fa-money');
+                        }
+                    }
+                }).open();
+            });
+        },
+
+        //endregion
+
+        /**
+         * Download an invoice
+         *
+         * @param {Number|String} invoiceId
+         */
+        downloadPdf: function (invoiceId) {
+            return new Promise(function (resolve) {
+                var id = 'download-invoice-' + invoiceId;
+
+                new Element('iframe', {
+                    src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/downloadInvoice.php?' + Object.toQueryString({
+                        invoiceId: invoiceId
+                    }),
+                    id    : id,
+                    styles: {
+                        position: 'absolute',
+                        top     : -200,
+                        left    : -200,
+                        width   : 50,
+                        height  : 50
+                    }
+                }).inject(document.body);
+
+                (function () {
+                    // document.getElements('#' + id).destroy();
+                    resolve();
+                }).delay(1000, this);
+            });
+        },
+
+        /**
+         * Add a payment to an invoice
+         * @param {String|Number} invoiceId
+         * @param {String|Number} amount
+         * @param {String} paymentMethod
+         * @param {String|Number} date
+         */
+        addPayment: function (invoiceId, amount, paymentMethod, date) {
+            var self = this;
+
+            this.Loader.show();
+
+            return Invoices.addPaymentToInvoice(
+                invoiceId,
+                amount,
+                paymentMethod,
+                date
+            ).then(function () {
+                return self.refresh();
+            }).then(function () {
+                self.Loader.hide();
+            });
         }
     });
 });

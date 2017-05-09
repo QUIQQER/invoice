@@ -162,6 +162,57 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Post a invoice
+         *
+         * @param {String} invoiceId
+         * @return {Promise}
+         */
+        postInvoice: function (invoiceId) {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_post', function (id) {
+                    self.fireEvent('postInvoice', [self, invoiceId, id]);
+                    resolve(id);
+                }, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Add a payment to an invoice
+         *
+         * @param {Number|String} invoiceId
+         * @param {Number} amount
+         * @param {String} paymentMethod
+         * @param {Number|String} [date]
+         */
+        addPaymentToInvoice: function (invoiceId, amount, paymentMethod, date) {
+            var self = this;
+
+            date = date || false;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_addPayment', function (id) {
+                    self.fireEvent('addPaymentToInvoice', [self, invoiceId, id]);
+                    resolve(id);
+                }, {
+                    'package'    : 'quiqqer/invoice',
+                    invoiceId    : invoiceId,
+                    amount       : amount,
+                    paymentMethod: paymentMethod,
+                    date         : date,
+                    onError      : reject,
+                    showError    : false
+                });
+            });
+        },
+
+        /**
          * Return the invoice html
          *
          * @param {String} invoiceId

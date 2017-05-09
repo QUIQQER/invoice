@@ -1,0 +1,28 @@
+.payment-status-0 {
+    color: blue;
+    font-weight: bold;
+}
+
+.payment-status-1 {
+    color: green;
+    font-weight: bold;
+}
+
+.payment-status-2 {
+    color: orange;
+    font-weight: bold;
+}
+
+.payment-status-3 {
+    text-decoration: line-through;
+}
+
+.payment-status-4 {
+    color: red;
+    font-weight: bold;
+}
+
+.payment-status-11 {
+    color: purple;
+    font-weight: bold;
+}

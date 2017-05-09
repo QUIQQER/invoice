@@ -161,39 +161,6 @@ class TemporaryInvoice extends QUI\QDOM
     {
         QUI\Permissions\Permission::checkPermission('quiqqer.invoice.edit', $User);
 
-        //region list of attributes - helper
-        //            customer_id
-//            order_id
-//            hash
-//
-//            payment_method
-//            payment_data
-//            payment_time
-//            payment_address
-//            delivery_address
-//            time_for_payment
-//
-//            paid_status
-//            paid_date
-//            paid_data
-//
-//            canceled
-//            date
-//            c_user
-//            data
-//            products
-//            history
-//            customer_data
-//            isbrutto
-//            currency_data
-//
-//            nettosum
-//            subsum
-//            sum
-//            vat_data
-//            processing_status
-        //endregion
-
         $this->Articles->calc();
         $listCalculations = $this->Articles->getCalculations();
 
@@ -289,7 +256,7 @@ class TemporaryInvoice extends QUI\QDOM
                 'nettosum'            => $listCalculations['nettoSum'],
                 'subsum'              => $listCalculations['subSum'],
                 'sum'                 => $listCalculations['sum'],
-                'vat_data'            => json_encode($listCalculations['vatArray'])
+                'vat_array'           => json_encode($listCalculations['vatArray'])
             ),
             array(
                 'id' => $this->getCleanId()
@@ -361,14 +328,97 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function post($User = null)
     {
+        if ($User === null) {
+            $User = QUI::getUserBySession();
+        }
+
         QUI\Permissions\Permission::checkPermission('quiqqer.invoice.post', $User);
 
         $this->save(QUI::getUsers()->getSystemUser());
 
         // check all current data
         $this->validate();
+        $this->Articles->calc();
+
+        // data
+        $listCalculations = $this->Articles->getCalculations();
+
+        $date     = date('y-m-d H:i:s');
+        $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
+        $Customer = $this->getCustomer();
+
+
+        if ($this->getAttribute('date')
+            && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('date'))
+        ) {
+            $date = $this->getAttribute('date');
+        }
+
+        if ($Customer
+            && !QUI\ERP\Utils\User::isNettoUser($this->getCustomer())
+        ) {
+            $isBrutto = 1;
+        }
+
+        // address // @todo must be variable
+        $Address = $Customer->getAddress(
+            (int)$this->getAttribute('invoice_address_id')
+        );
+
+        $invoiceAddress = $Address->toJSON();
+
+        // customerData
+        $customerData = array(
+            'erp.isNettoUser' => $Customer->getAttribute('quiqqer.erp.isNettoUser'),
+            'erp.euVatId'     => $Customer->getAttribute('quiqqer.erp.euVatId'),
+            'erp.taxNumber'   => $Customer->getAttribute('quiqqer.erp.taxNumber'),
+        );
 
         // create invoice
+        QUI::getDataBase()->insert(
+            Handler::getInstance()->invoiceTable(),
+            array(
+                'id_prefix'    => Invoice::ID_PREFIX,
+                'customer_id'  => $this->getCustomer()->getId(),
+                'order_id'     => $this->getAttribute('order_id'),
+                'c_user'       => $User->getId(),
+                'c_username'   => $User->getUsername(),
+                'hash'         => $this->getAttribute('hash'),
+                'project_name' => $this->getAttribute('project_name'),
+
+                'invoice_address'  => $invoiceAddress,
+                'delivery_address' => $this->getAttribute('delivery_address'),
+
+                'payment_method'   => $this->getAttribute('payment_method'),
+                'payment_data'     => '', // <!-- muss verschlüsselt sein -->
+                'payment_time'     => '',
+                'time_for_payment' => (int)$this->getAttribute('time_for_payment'),
+
+                'paid_status'   => Invoice::PAYMENT_STATUS_OPEN,
+                'paid_date'     => '',
+                'paid_data'     => '',
+                'customer_data' => json_encode($customerData),
+
+                'date'          => $date,
+                'data'          => '',
+                'articles'      => $this->getArticles()->toJSON(),
+                'history'       => $this->getHistory()->toJSON(),
+                'comments'      => $this->getComments()->toJSON(),
+
+                // Calc data
+                'isbrutto'      => $isBrutto,
+                'currency_data' => json_encode($listCalculations['currencyData']),
+                'nettosum'      => $listCalculations['nettoSum'],
+                'nettosubsum'   => $listCalculations['nettoSubSum'],
+                'subsum'        => $listCalculations['subSum'],
+                'sum'           => $listCalculations['sum'],
+                'vat_array'     => json_encode($listCalculations['vatArray'])
+            )
+        );
+
+        $newId = QUI::getDataBase()->getPDO()->lastInsertId();
+
+        return Handler::getInstance()->getInvoice($newId);
     }
 
     /**
