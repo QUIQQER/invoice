@@ -350,6 +350,10 @@
             <de><![CDATA[Text]]></de>
             <en><![CDATA[Text]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.button.article.sort.text">
+            <de><![CDATA[Artikel sortieren]]></de>
+            <en><![CDATA[Sort articles]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.data">
             <de><![CDATA[Rechnungsdaten]]></de>
             <en><![CDATA[Invoice data]]></en>
@@ -397,6 +401,14 @@
         <locale name="erp.panel.temporary.invoice.deleteButton.title">
             <de><![CDATA[Rechnung löschen]]></de>
             <en><![CDATA[Delete Invoice]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.button.nextToArticles">
+            <de><![CDATA[Artikel verwalten]]></de>
+            <en><![CDATA[Manage articles]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.button.data">
+            <de><![CDATA[Zu den Rechnungsdaten]]></de>
+            <en><![CDATA[To the invoice data]]></en>
         </locale>
 
         <locale name="dialog.ti.delete.title">

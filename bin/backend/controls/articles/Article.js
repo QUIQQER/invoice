@@ -6,8 +6,10 @@
  *
  * @require qui/QUI
  * @require qui/controls/Control
- * @require qui/controls/Control
+ * @require qui/controls/buttons/Button
  * @require qui/controls/windows/Confirm
+ * @require package/quiqqer/erp/bin/backend/utils/Discount
+ * @require package/quiqqer/erp/bin/backend/utils/Money
  * @require Mustache
  * @require Locale
  * @require Ajax
@@ -22,6 +24,13 @@
  * @event onDelete [self]
  * @event onRemove [self]
  * @event onDrop [self]
+ *
+ * @event onSetTitle [self]
+ * @event onSetDescription [self]
+ * @event onSetPosition [self]
+ * @event onSetQuantity [self]
+ * @event onSetUnitPrice [self]
+ * @event onSetVat [self]
  */
 define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
@@ -264,7 +273,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                     var unitPrice = self.$Formatter.format(product.unitPrice);
                     var price     = self.$Formatter.format(product.calculated_nettoSubSum);
                     var total     = self.$Formatter.format(product.calculated_nettoSum);
-                    console.log(product);
+
                     self.$calculations = product;
 
                     self.$Total.set({
@@ -316,6 +325,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (title === '') {
                 this.$Title.set('html', '&nbsp;');
             }
+
+            this.fireEvent('setTitle', [this]);
         },
 
         /**
@@ -330,6 +341,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (description === '') {
                 this.$Description.set('html', '&nbsp;');
             }
+
+            this.fireEvent('setDescription', [this]);
         },
 
         /**
@@ -344,6 +357,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (articleNo === '') {
                 this.$ArticleNo.set('html', '&nbsp;');
             }
+
+            this.fireEvent('setArticleNo', [this]);
         },
 
         /**
@@ -357,6 +372,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (this.$Position) {
                 this.$Position.getChildren('span').set('html', this.getAttribute('position'));
             }
+
+            this.fireEvent('setPosition', [this]);
         },
 
         /**
@@ -371,6 +388,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (this.$Quantity) {
                 this.$Quantity.set('html', this.getAttribute('quantity'));
             }
+
+            this.fireEvent('setQuantity', [this]);
 
             return this.calc();
         },
@@ -387,6 +406,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (this.$UnitPrice) {
                 this.$UnitPrice.set('html', this.getAttribute('unitPrice'));
             }
+
+            this.fireEvent('setUnitPrice', [this]);
 
             return this.calc();
         },
@@ -417,6 +438,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
                 this.$VAT.set('html', vat);
             }
+
+            this.fireEvent('setVat', [this]);
 
             return this.calc();
         },
@@ -513,6 +536,13 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                     onSubmit: this.remove.bind(this)
                 }
             }).open();
+        },
+
+        /**
+         * Opens the delete dialog
+         */
+        openReplaceDialog: function () {
+
         },
 
         /**

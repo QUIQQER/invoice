@@ -24,11 +24,13 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
     'Ajax',
     'Locale',
     'package/quiqqer/invoice/bin/backend/controls/articles/Article',
+    'package/quiqqer/invoice/bin/backend/classes/Sortable',
 
     'text!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.html',
+    'text!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.sortablePlaceholder.html',
     'css!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.css'
 
-], function (QUI, QUIControl, Mustache, QUIAjax, QUILocale, Article, template) {
+], function (QUI, QUIControl, Mustache, QUIAjax, QUILocale, Article, Sortables, template, templateSortablePlaceholder) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -51,6 +53,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
 
             this.$articles = [];
             this.$user     = {};
+            this.$sorting  = false;
 
             this.$calculationTimer = null;
 
@@ -67,6 +70,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             };
 
             this.$Container = null;
+            this.$Sortables = null;
 
             this.addEvents({
                 onInject: this.$onInject
@@ -136,7 +140,9 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
 
         /**
          * Unserialize the list
-         * load the serialized list into list
+         *
+         * load the serialized list into
+         * current articles would be deleted
          *
          * @param {Object|String} list
          */
@@ -156,9 +162,11 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                 return;
             }
 
-            var article;
+            this.$articles = [];
 
-            for (var i = 0, len = data.articles.length; i < len; i++) {
+            var i, len, article;
+
+            for (i = 0, len = data.articles.length; i < len; i++) {
                 article = data.articles[i];
 
                 this.addArticle(new Article(article));
@@ -206,6 +214,36 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             });
 
             Child.inject(this.$Container);
+            Child.getElm().addClass('article');
+        },
+
+        /**
+         * Replace an article with another
+         *
+         * @param {Object} Child
+         * @param {Number} index
+         */
+        replaceArticle: function (Child, index) {
+            if (typeof Child !== 'object') {
+                return;
+            }
+
+            if (!(Child instanceof Article)) {
+                return;
+            }
+
+            //this.$articles.push(Child);
+
+            Child.setUser(this.$user);
+            Child.setPosition(this.$articles.length);
+
+            Child.addEvents({
+                onDelete  : this.$onArticleDelete,
+                onSelect  : this.$onArticleSelect,
+                onUnSelect: this.$onArticleUnSelect,
+                onCalc    : this.$calc
+            });
+
         },
 
         /**
@@ -243,6 +281,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
         },
 
         /**
+         * Calc
+         */
+
+        /**
          * Execute a new calculation
          *
          * @returns {Promise}
@@ -277,9 +319,167 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
         },
 
         /**
-         * Events
+         * Sorting
          */
 
+        /**
+         * Toggles the sorting
+         */
+        toggleSorting: function () {
+            if (this.$sorting) {
+                this.disableSorting();
+                return;
+            }
+
+            this.enableSorting();
+        },
+
+        /**
+         * Enables the sorting
+         * Articles can be sorted by drag and drop
+         */
+        enableSorting: function () {
+            var self = this;
+
+            var Elm      = this.getElm(),
+                elements = Elm.getElements('.article');
+
+            elements.each(function (Node) {
+                var Article    = QUI.Controls.getById(Node.get('data-quiid'));
+                var attributes = Article.getAttributes();
+
+                Article.addEvents({
+                    onSetPosition: self.$onArticleSetPosition
+                });
+
+                new Element('div', {
+                    'class': 'quiqqer-invoice-sortableClone-placeholder',
+                    html   : Mustache.render(templateSortablePlaceholder, attributes)
+                }).inject(Node);
+            });
+
+
+            this.$Sortables = new Sortables(this.$Container, {
+                revert: {
+                    duration  : 500,
+                    transition: 'elastic:out'
+                },
+
+                clone: function (event) {
+                    var Target = event.target;
+
+                    if (!Target.hasClass('article')) {
+                        Target = Target.getParent('.article');
+                    }
+
+                    var size = Target.getSize(),
+                        pos  = Target.getPosition(self.$Container);
+
+                    return new Element('div', {
+                        styles: {
+                            background: 'rgba(0,0,0,0.5)',
+                            height    : size.y,
+                            position  : 'absolute',
+                            top       : pos.y,
+                            width     : size.x,
+                            zIndex    : 1000
+                        }
+                    });
+                },
+
+                onStart: function (element) {
+                    element.addClass('quiqqer-invoice-sortableClone');
+
+                    self.$Container.setStyles({
+                        height  : self.$Container.getSize().y,
+                        overflow: 'hidden',
+                        width   : self.$Container.getSize().x
+                    });
+                },
+
+                onComplete: function (element) {
+                    element.removeClass('quiqqer-invoice-sortableClone');
+
+                    self.$Container.setStyles({
+                        height  : null,
+                        overflow: null,
+                        width   : null
+                    });
+
+                    self.$recalculatePositions();
+                }
+            });
+
+            this.$sorting = true;
+        },
+
+        /**
+         * Disables the sorting
+         * Articles can not be sorted
+         */
+        disableSorting: function () {
+            this.$sorting = false;
+
+            var self     = this,
+                Elm      = this.getElm(),
+                elements = Elm.getElements('.article');
+
+            Elm.getElements('.quiqqer-invoice-sortableClone-placeholder').destroy();
+
+            elements.each(function (Node) {
+                var Article = QUI.Controls.getById(Node.get('data-quiid'));
+
+                Article.removeEvents({
+                    onSetPosition: self.$onArticleSetPosition
+                });
+            });
+
+            this.$Sortables.detach();
+            this.$Sortables = null;
+
+            this.$articles.sort(function (A, B) {
+                return A.getAttribute('position') - B.getAttribute('position');
+            });
+        },
+
+        /**
+         * Is the sorting enabled?
+         *
+         * @return {boolean}
+         */
+        isSortingEnabled: function () {
+            return this.$sorting;
+        },
+
+        /**
+         * event: on set position at article
+         *
+         * @param Article
+         */
+        $onArticleSetPosition: function (Article) {
+            Article.getElm()
+                   .getElement('.quiqqer-invoice-backend-invoiceArticlePlaceholder-pos')
+                   .set('html', Article.getAttribute('position'));
+        },
+
+        /**
+         * Recalculate the Position of all Articles
+         */
+        $recalculatePositions: function () {
+            var i, len, Article;
+
+            var Elm      = this.getElm(),
+                elements = Elm.getElements('.article');
+
+            for (i = 0, len = elements.length; i < len; i++) {
+                Article = QUI.Controls.getById(elements[i].get('data-quiid'));
+                Article.setPosition(i + 1);
+            }
+        },
+
+        /**
+         * Events
+         */
 
         /**
          * event : on article delete
@@ -310,6 +510,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             }
 
             this.$articles = articles;
+
             this.$executeCalculation().then(function () {
                 if (self.$articles.length) {
                     self.$articles[0].select();

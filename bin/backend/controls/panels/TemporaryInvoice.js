@@ -9,13 +9,18 @@
  * @require qui/controls/buttons/ButtonMultiple
  * @require qui/controls/buttons/Separator
  * @require qui/controls/windows/Confirm
+ * @require qui/utils/Form
  * @require controls/users/address/Select
  * @require package/quiqqer/invoice/bin/Invoices
+ * @require package/quiqqer/invoice/bin/backend/controls/articles/Text
+ * @require package/quiqqer/payments/bin/backend/Payments
  * @require Locale
  * @require Mustache
  * @require Users
- * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Data.html',
- * @require css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
+ * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Data.html
+ * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Post.html
+ * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Missing.html
+ * @require css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
@@ -65,7 +70,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             '$onInject',
             '$onDestroy',
             '$onDeleteInvoice',
-            '$clickDelete'
+            '$clickDelete',
+            'toggleSort'
         ],
 
         options: {
@@ -89,7 +95,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.$ArticleList        = null;
             this.$ArticleListSummary = null;
             this.$AddProduct         = null;
-            this.$AddSeparator       = null;
+            this.$ArticleSort        = null;
+
+            this.$AddSeparator  = null;
+            this.$SortSeparator = null;
 
             this.$serializedList = {};
 
@@ -277,10 +286,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 new QUIButton({
                     textimage: 'fa fa-list',
-                    text     : 'Artikel verwalten', // #locale
+                    text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.button.nextToArticles'),
                     styles   : {
                         display: 'block',
-                        'float': 'none',
+                        'float': 'right',
                         margin : '0 auto'
                     },
                     events   : {
@@ -369,16 +378,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                         self.$AddProduct.show();
                         self.$AddSeparator.show();
+                        self.$SortSeparator.show();
+                        self.$ArticleSort.show();
 
                         self.getCategory('articles').setActive();
+
+                        new QUIButton({
+                            textimage: 'fa fa-info',
+                            text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.button.data'),
+                            styles   : {
+                                'float': 'left',
+                                margin : '20px 0 0'
+                            },
+                            events   : {
+                                onClick: self.openData
+                            }
+                        }).inject(Container);
 
                         new QUIButton({
                             textimage: 'fa fa-check',
                             text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review.btnGoto'),
                             styles   : {
-                                display: 'block',
-                                'float': 'none',
-                                margin : '20px auto 0'
+                                'float': 'right',
+                                margin : '20px 0 0'
                             },
                             events   : {
                                 onClick: self.openVerification
@@ -504,6 +526,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     );
                 }
 
+                self.getCategory('verification').setActive();
 
                 self.Loader.hide().then(function () {
                     return new Promise(function (resolve) {
@@ -563,6 +586,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             if (this.$AddProduct) {
                 this.$AddProduct.hide();
                 this.$AddSeparator.hide();
+                this.$SortSeparator.hide();
+                this.$ArticleSort.hide();
             }
 
             if (this.$ArticleListSummary) {
@@ -732,7 +757,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }
             });
 
-            this.$AddSeparator = new QUISeparator();
+            this.$AddSeparator  = new QUISeparator();
+            this.$SortSeparator = new QUISeparator();
 
             // buttons
             this.addButton({
@@ -744,8 +770,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }
             });
 
+            this.$ArticleSort = new QUIButton({
+                name     : 'sort',
+                textimage: 'fa fa-sort',
+                text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.button.article.sort.text'),
+                events   : {
+                    onClick: this.toggleSort
+                }
+            });
+
+            this.$ArticleSort.hide();
+
+
             this.addButton(this.$AddSeparator);
             this.addButton(this.$AddProduct);
+            this.addButton(this.$SortSeparator);
+            this.addButton(this.$ArticleSort);
 
             this.addButton({
                 name  : 'delete',
@@ -806,6 +846,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     this.$serializedList = {
                         articles: data.articles.articles
                     };
+
+                    this.setAttribute('articles', data.articles.articles);
                 }
 
                 this.refresh();
@@ -871,6 +913,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          */
         $onDeleteInvoice: function () {
             this.destroy();
+        },
+
+        /**
+         * Toggle the article sorting
+         */
+        toggleSort: function () {
+            this.$ArticleList.toggleSorting();
+
+            if (this.$ArticleList.isSortingEnabled()) {
+                this.$ArticleSort.setActive();
+                return;
+            }
+
+            this.$ArticleSort.setNormal();
         }
     });
 });

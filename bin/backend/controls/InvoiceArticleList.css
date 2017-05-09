@@ -17,6 +17,7 @@
     display: inline-block;
     height: calc(100% - 30px);
     overflow: auto;
+    position: relative;
     width: 100%;
 }
 
