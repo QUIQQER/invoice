@@ -11,10 +11,19 @@ if (!$User->canUseBackend()) {
 }
 
 $Request  = QUI::getRequest();
-$Invoices = \QUI\ERP\Accounting\Invoice\Handler::getInstance();
+$Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
 $invoiceId = $Request->query->get('invoiceId');
-$Invoice   = $Invoices->getInvoice($invoiceId);
+
+try {
+    $Invoice = $Invoices->get($invoiceId);
+} catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
+    try {
+        $Invoice = $Invoices->getInvoice($invoiceId);
+    } catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
+        $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
+    }
+}
 
 $HtmlPdfDocument = $Invoice->getView()->toPDF();
 $HtmlPdfDocument->download();

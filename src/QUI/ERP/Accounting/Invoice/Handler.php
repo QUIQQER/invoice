@@ -214,6 +214,10 @@ class Handler extends QUI\Utils\Singleton
      */
     public function get($id)
     {
+        if (strpos($id, TemporaryInvoice::ID_PREFIX) !== false) {
+            return $this->getTemporaryInvoice($id);
+        }
+
         return $this->getInvoice($id);
     }
 

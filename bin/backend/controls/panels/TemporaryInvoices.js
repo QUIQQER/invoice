@@ -38,6 +38,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             '$clickCreateInvoice',
             '$clickDeleteInvoice',
             '$clickCopyInvoice',
+            '$clickPDF',
             '$onInvoicesChange'
         ],
 
@@ -119,6 +120,36 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
         },
 
         /**
+         * Download an invoice
+         *
+         * @param {Number|String} invoiceId
+         */
+        downloadPdf: function (invoiceId) {
+            return new Promise(function (resolve) {
+                var id = 'download-invoice-' + invoiceId;
+                
+                new Element('iframe', {
+                    src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/downloadInvoice.php?' + Object.toQueryString({
+                        invoiceId: invoiceId
+                    }),
+                    id    : id,
+                    styles: {
+                        position: 'absolute',
+                        top     : -200,
+                        left    : -200,
+                        width   : 50,
+                        height  : 50
+                    }
+                }).inject(document.body);
+
+                (function () {
+                    // document.getElements('#' + id).destroy();
+                    resolve();
+                }).delay(1000, this);
+            });
+        },
+
+        /**
          * Event Handling
          */
 
@@ -182,8 +213,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     text     : QUILocale.get(lg, 'journal.btn.pdf'),
                     textimage: 'fa fa-file-pdf-o',
                     events   : {
-                        onClick: function () {
-                        }
+                        onClick: this.$clickPDF
                     }
                 }],
                 columnModel: [{
@@ -466,6 +496,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     }
                 }
             }).open();
+        },
+
+        /**
+         * Export PDF of a temporary invoice
+         *
+         * @param Button
+         */
+        $clickPDF: function (Button) {
+            var selected = this.$Grid.getSelectedData();
+
+            if (!selected.length) {
+                return;
+            }
+
+            selected = selected[0];
+            Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
+
+            this.downloadPdf(selected.id).then(function () {
+                Button.setAttribute('textimage', 'fa fa-file-pdf-o');
+            });
         },
 
         /**
