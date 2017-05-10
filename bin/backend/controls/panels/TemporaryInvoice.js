@@ -227,6 +227,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             return this.$closeCategory().then(function () {
                 var Container = self.getContent().getElement('.container');
 
+                Container.setStyle('height', null);
+
                 Container.set({
                     html: Mustache.render(templateData, {
                         textInvoiceData   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceData'),
@@ -442,6 +444,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 Container.setStyle('overflow', 'hidden');
                 Container.setStyle('padding', 0);
+                Container.setStyle('height', '100%');
 
                 ParentContainer = Container;
 
@@ -460,7 +463,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                                 },
                                 events : {
                                     onLoad: function (Box) {
-                                        //Box.getBody().style.padding = '20px';
                                         Box.getElm().addClass('quiqqer-invoice-backend-temporaryInvoice-preview');
                                     }
                                 }
