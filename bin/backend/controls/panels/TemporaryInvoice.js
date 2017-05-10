@@ -923,29 +923,38 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return;
             }
 
-            Invoices.getTemporaryInvoice(this.getAttribute('invoiceId')).then(function (data) {
-                this.setAttributes(data);
+            var self      = this,
+                invoiceId = this.getAttribute('invoiceId');
+
+            Invoices.getTemporaryInvoice(invoiceId).then(function (data) {
+                self.setAttributes(data);
 
                 if (data.articles.articles.length) {
-                    this.$serializedList = {
+                    self.$serializedList = {
                         articles: data.articles.articles
                     };
 
-                    this.setAttribute('articles', data.articles.articles);
+                    self.setAttribute('articles', data.articles.articles);
                 }
 
-                this.refresh();
-                this.getCategoryBar().firstChild().click();
-                this.Loader.hide();
+                self.refresh();
 
-            }.bind(this)).catch(function (Exception) {
+                return Invoices.getMissingAttributes(invoiceId);
+            }).then(function (missing) {
+                if (Object.getLength(missing)) {
+                    self.getCategoryBar().firstChild().click();
+                    return;
+                }
+
+                self.getCategoryBar().getChildren('verification').click();
+            }).catch(function (Exception) {
                 QUI.getMessageHandler().then(function (MH) {
                     console.error(Exception);
                     MH.addError(Exception.getMessage());
                 });
 
-                this.destroy();
-            }.bind(this));
+                self.destroy();
+            });
         },
 
         /**
