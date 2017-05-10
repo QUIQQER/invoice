@@ -398,6 +398,10 @@
             <de><![CDATA[Bestellt durch]]></de>
             <en><![CDATA[Ordered by]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoiceText">
+            <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
+            <en><![CDATA[Additional invoice text]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.deleteButton.title">
             <de><![CDATA[Rechnung löschen]]></de>
             <en><![CDATA[Delete Invoice]]></en>

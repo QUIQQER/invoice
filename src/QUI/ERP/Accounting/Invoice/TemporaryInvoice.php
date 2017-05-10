@@ -220,43 +220,44 @@ class TemporaryInvoice extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
-                'customer_id'         => (int)$this->getAttribute('customer_id'),
-                'order_id'            => (int)$this->getAttribute('order_id'),
-                'project_name'        => $projectName,
+                'customer_id'             => (int)$this->getAttribute('customer_id'),
+                'order_id'                => (int)$this->getAttribute('order_id'),
+                'project_name'            => $projectName,
 
                 // payments
-                'payment_method'      => $paymentMethod,
-                'payment_data'        => '',
-                'payment_time'        => '',
+                'payment_method'          => $paymentMethod,
+                'payment_data'            => '',
+                'payment_time'            => '',
 
                 // address
-                'invoice_address_id'  => (int)$this->getAttribute('invoice_address_id'),
-                'invoice_address'     => $invoiceAddress,
-                'delivery_address_id' => '',
-                'delivery_address'    => '',
+                'invoice_address_id'      => (int)$this->getAttribute('invoice_address_id'),
+                'invoice_address'         => $invoiceAddress,
+                'delivery_address_id'     => '',
+                'delivery_address'        => '',
 
                 // processing status
-                'time_for_payment'    => $timeForPayment,
-                'paid_status'         => '', // nicht in gui
-                'paid_date'           => '', // nicht in gui
-                'paid_data'           => '', // nicht in gui
-                'processing_status'   => '',
-                'customer_data'       => '',  // nicht in gui
+                'time_for_payment'        => $timeForPayment,
+                'paid_status'             => '', // nicht in gui
+                'paid_date'               => '', // nicht in gui
+                'paid_data'               => '', // nicht in gui
+                'processing_status'       => '',
+                'customer_data'           => '',  // nicht in gui
 
                 // invoice data
-                'date'                => $date,
-                'data'                => '',
-                'articles'            => $this->Articles->toJSON(),
-                'history'             => $this->History->toJSON(),
-                'comments'            => $this->Comments->toJSON(),
+                'date'                    => $date,
+                'data'                    => '',
+                'articles'                => $this->Articles->toJSON(),
+                'history'                 => $this->History->toJSON(),
+                'comments'                => $this->Comments->toJSON(),
+                'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
 
                 // Calc data
-                'isbrutto'            => $isBrutto,
-                'currency_data'       => json_encode($listCalculations['currencyData']),
-                'nettosum'            => $listCalculations['nettoSum'],
-                'subsum'              => $listCalculations['subSum'],
-                'sum'                 => $listCalculations['sum'],
-                'vat_array'           => json_encode($listCalculations['vatArray'])
+                'isbrutto'                => $isBrutto,
+                'currency_data'           => json_encode($listCalculations['currencyData']),
+                'nettosum'                => $listCalculations['nettoSum'],
+                'subsum'                  => $listCalculations['subSum'],
+                'sum'                     => $listCalculations['sum'],
+                'vat_array'               => json_encode($listCalculations['vatArray'])
             ),
             array(
                 'id' => $this->getCleanId()
@@ -399,20 +400,21 @@ class TemporaryInvoice extends QUI\QDOM
                 'paid_data'     => '',
                 'customer_data' => json_encode($customerData),
 
-                'date'          => $date,
-                'data'          => '',
-                'articles'      => $this->getArticles()->toJSON(),
-                'history'       => $this->getHistory()->toJSON(),
-                'comments'      => $this->getComments()->toJSON(),
+                'date'                    => $date,
+                'data'                    => '',
+                'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
+                'articles'                => $this->getArticles()->toJSON(),
+                'history'                 => $this->getHistory()->toJSON(),
+                'comments'                => $this->getComments()->toJSON(),
 
                 // Calc data
-                'isbrutto'      => $isBrutto,
-                'currency_data' => json_encode($listCalculations['currencyData']),
-                'nettosum'      => $listCalculations['nettoSum'],
-                'nettosubsum'   => $listCalculations['nettoSubSum'],
-                'subsum'        => $listCalculations['subSum'],
-                'sum'           => $listCalculations['sum'],
-                'vat_array'     => json_encode($listCalculations['vatArray'])
+                'isbrutto'                => $isBrutto,
+                'currency_data'           => json_encode($listCalculations['currencyData']),
+                'nettosum'                => $listCalculations['nettoSum'],
+                'nettosubsum'             => $listCalculations['nettoSubSum'],
+                'subsum'                  => $listCalculations['subSum'],
+                'sum'                     => $listCalculations['sum'],
+                'vat_array'               => json_encode($listCalculations['vatArray'])
             )
         );
 

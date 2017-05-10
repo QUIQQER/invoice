@@ -38,6 +38,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'Locale',
     'Mustache',
     'Users',
+    'Editors',
 
     'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Data.html',
     'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Post.html',
@@ -47,7 +48,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
              AddressSelect, Invoices, TextArticle,
-             Payments, QUILocale, Mustache, Users,
+             Payments, QUILocale, Mustache, Users, Editors,
              templateData, templatePost, templateMissing) {
     "use strict";
 
@@ -92,6 +93,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.parent(options);
 
+            this.$AdditionalText     = null;
             this.$ArticleList        = null;
             this.$ArticleListSummary = null;
             this.$AddProduct         = null;
@@ -187,13 +189,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          */
         getCurrentData: function () {
             return {
-                customer_id       : this.getAttribute('customer_id'),
-                invoice_address_id: this.getAttribute('invoice_address_id'),
-                project_name      : this.getAttribute('project_name'),
-                articles          : this.getAttribute('articles'),
-                date              : this.getAttribute('date'),
-                time_for_payment  : this.getAttribute('time_for_payment'),
-                payment_method    : this.getAttribute('payment_method')
+                customer_id            : this.getAttribute('customer_id'),
+                invoice_address_id     : this.getAttribute('invoice_address_id'),
+                project_name           : this.getAttribute('project_name'),
+                articles               : this.getAttribute('articles'),
+                date                   : this.getAttribute('date'),
+                time_for_payment       : this.getAttribute('time_for_payment'),
+                payment_method         : this.getAttribute('payment_method'),
+                additional_invoice_text: this.getAttribute('additional_invoice_text')
             };
         },
 
@@ -232,7 +235,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textProjectName   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textProjectName'),
                         textOrderedBy     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textOrderedBy'),
                         textInvoicePayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoicePayment'),
-                        textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod')
+                        textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod'),
+                        textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText')
                     })
                 });
 
@@ -290,7 +294,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     styles   : {
                         display: 'block',
                         'float': 'right',
-                        margin : '0 auto'
+                        margin : '0 0 20px'
                     },
                     events   : {
                         onClick: function () {
@@ -322,6 +326,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }
 
                 Payments.value = self.getAttribute('payment_method');
+            }).then(function () {
+                // additional-invoice-text -> wysiwyg
+                return self.$loadAdditionalInvoiceText();
+            }).then(function () {
                 self.getCategory('data').setActive();
 
                 return self.Loader.hide();
@@ -578,6 +586,73 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         },
 
         /**
+         *
+         * @return {Promise}
+         */
+        $loadAdditionalInvoiceText: function () {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                var EditorParent = new Element('div').inject(
+                    self.getContent().getElement('.additional-invoice-text')
+                );
+
+                Editors.getEditor(null).then(function (Editor) {
+                    self.$AdditionalText = Editor;
+
+                    // minimal toolbar
+                    self.$AdditionalText.setAttribute('buttons', {
+                        lines: [
+                            [[
+                                {
+                                    type  : "button",
+                                    button: "Bold"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "Italic"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "Underline"
+                                },
+                                {
+                                    type: "separator"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "RemoveFormat"
+                                },
+                                {
+                                    type: "separator"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "NumberedList"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "BulletedList"
+                                }
+                            ]]
+                        ]
+                    });
+
+                    self.$AdditionalText.addEvent('onLoaded', function () {
+                        self.$AdditionalText.switchToWYSIWYG();
+                        self.$AdditionalText.showToolbar();
+                        self.$AdditionalText.setContent(self.getAttribute('additional_invoice_text'));
+
+                        resolve();
+                    });
+
+                    self.$AdditionalText.inject(EditorParent);
+                    self.$AdditionalText.setHeight(200);
+                });
+            });
+        },
+
+        /**
          * Close the current category
          *
          * @returns {Promise}
@@ -679,6 +754,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     this.$ArticleList.destroy();
                     this.$ArticleList = null;
                 }
+            }
+
+            if (this.$AdditionalText) {
+                this.setAttribute(
+                    'additional_invoice_text',
+                    this.$AdditionalText.getContent()
+                );
             }
 
             var Form = Container.getElement('form');

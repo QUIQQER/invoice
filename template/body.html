@@ -21,6 +21,11 @@
         float: right;
     }
 
+    .invoice-additional {
+        clear: both;
+        margin-top: 40px;
+    }
+
     .articles-article {
         border-bottom: 1px solid #DDDDDD;
         margin-top: 20px;
@@ -127,4 +132,8 @@
 
 <div class="invoice-articles">
     {$ArticleList->toHTML()}
+</div>
+
+<div class="invoice-additional">
+    {$this->getAttribute('additional_invoice_text')}
 </div>

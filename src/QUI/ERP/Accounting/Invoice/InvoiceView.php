@@ -135,6 +135,8 @@ class InvoiceView extends QUI\QDOM
 
         $Customer = QUI::getUsers()->get($customerId);
 
+        $this->setAttributes($this->Invoice->getAttributes());
+
         try {
             $Address = $Customer->getAddress($addressId);
         } catch (QUI\Exception $Exception) {

@@ -108,7 +108,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.$created = false;
 
             // discount
-            if ("discount" in options) {
+            if (options && "discount" in options) {
                 this.setAttribute(
                     'discount',
                     DiscountUtils.parseToString(
