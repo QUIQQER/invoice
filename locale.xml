@@ -579,6 +579,23 @@
             <de><![CDATA[Rechnung]]></de>
             <en><![CDATA[Invoice]]></en>
         </locale>
+        <locale name="pdf.export.footer.1">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
+        <locale name="pdf.export.footer.2">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
+        <locale name="pdf.export.footer.3">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
+        <locale name="pdf.export.footer.4">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
+
     </groups>
 
 </locales>

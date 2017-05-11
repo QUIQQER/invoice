@@ -159,8 +159,20 @@ class Invoice extends QUI\QDOM
             )
         );
 
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceCancel',
+            array($this)
+        );
+
         // @todo wenn umgesetzt wird, vorher mor fragen
         // -> Gutschrift erzeugen
+
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceCancelEnd',
+            array($this)
+        );
     }
 
     /**
@@ -193,6 +205,11 @@ class Invoice extends QUI\QDOM
             )
         );
 
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceCopyBegin',
+            array($this)
+        );
+
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
         $New     = $Factory->createInvoice($User);
@@ -207,6 +224,10 @@ class Invoice extends QUI\QDOM
 
         $currentData = $currentData[0];
 
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceCopy',
+            array($this)
+        );
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
             array(
@@ -243,7 +264,15 @@ class Invoice extends QUI\QDOM
             array('id' => $New->getCleanId())
         );
 
-        return $Handler->getTemporaryInvoice($New->getId());
+        $NewTemporaryInvoice = $Handler->getTemporaryInvoice($New->getId());
+
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceCopyEnd',
+            array($this, $NewTemporaryInvoice)
+        );
+
+        return $NewTemporaryInvoice;
     }
 
     /**
@@ -272,6 +301,11 @@ class Invoice extends QUI\QDOM
         if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PAID) {
             return;
         }
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceAddPaymentBegin',
+            array($this, $amount, $Payment, $date)
+        );
 
         $User     = QUI::getUserBySession();
         $paidData = $this->getAttribute('paid_data');
@@ -324,7 +358,17 @@ class Invoice extends QUI\QDOM
             )
         );
 
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceAddPayment',
+            array($this, $amount, $Payment, $date)
+        );
+
         $this->calculatePayments();
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceAddPaymentEnd',
+            array($this, $amount, $Payment, $date)
+        );
     }
 
     /**
@@ -415,6 +459,8 @@ class Invoice extends QUI\QDOM
             array('comments' => $Comments->toJSON()),
             array('id' => $this->getCleanId())
         );
+
+        QUI::getEvents()->fireEvent('onQuiqqerInvoiceAddComment', array($this, $comment));
     }
 
     /**
@@ -436,6 +482,8 @@ class Invoice extends QUI\QDOM
             array('history' => $History->toJSON()),
             array('id' => $this->getCleanId())
         );
+
+        QUI::getEvents()->fireEvent('onQuiqqerInvoiceAddHistory', array($this, $comment));
     }
 
     //endregion

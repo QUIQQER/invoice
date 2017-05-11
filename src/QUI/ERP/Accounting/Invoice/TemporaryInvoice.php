@@ -160,6 +160,12 @@ class TemporaryInvoice extends QUI\QDOM
     public function save($User = null)
     {
         QUI\Permissions\Permission::checkPermission('quiqqer.invoice.edit', $User);
+        $this->checkLocked();
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoiceSaveBegin',
+            array($this)
+        );
 
         $this->Articles->calc();
         $listCalculations = $this->Articles->getCalculations();
@@ -217,6 +223,11 @@ class TemporaryInvoice extends QUI\QDOM
             QUI\System\Log::addNotice($Exception->getMessage());
         }
 
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoiceSave',
+            array($this)
+        );
+
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
@@ -263,6 +274,11 @@ class TemporaryInvoice extends QUI\QDOM
                 'id' => $this->getCleanId()
             )
         );
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoiceEnd',
+            array($this)
+        );
     }
 
     /**
@@ -274,6 +290,12 @@ class TemporaryInvoice extends QUI\QDOM
     public function delete($User = null)
     {
         QUI\Permissions\Permission::checkPermission('quiqqer.invoice.delete', $User);
+        $this->checkLocked();
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoiceDelete',
+            array($this)
+        );
 
         QUI::getDataBase()->delete(
             Handler::getInstance()->temporaryInvoiceTable(),
@@ -291,6 +313,11 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function copy($User = null)
     {
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoiceCopy',
+            array($this)
+        );
+
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
         $New     = $Factory->createInvoice($User);
@@ -315,7 +342,14 @@ class TemporaryInvoice extends QUI\QDOM
             array('id' => $New->getCleanId())
         );
 
-        return $Handler->getTemporaryInvoice($New->getId());
+        $Copy = $Handler->getTemporaryInvoice($New->getId());
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoiceCopyEnd',
+            array($this, $Copy)
+        );
+
+        return $Copy;
     }
 
     /**
@@ -333,6 +367,12 @@ class TemporaryInvoice extends QUI\QDOM
         }
 
         QUI\Permissions\Permission::checkPermission('quiqqer.invoice.post', $User);
+        $this->checkLocked();
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoicePostBegin',
+            array($this)
+        );
 
         $this->save(QUI::getUsers()->getSystemUser());
 
@@ -373,6 +413,11 @@ class TemporaryInvoice extends QUI\QDOM
             'erp.isNettoUser' => $Customer->getAttribute('quiqqer.erp.isNettoUser'),
             'erp.euVatId'     => $Customer->getAttribute('quiqqer.erp.euVatId'),
             'erp.taxNumber'   => $Customer->getAttribute('quiqqer.erp.taxNumber'),
+        );
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoicePost',
+            array($this)
         );
 
         // create invoice
@@ -421,8 +466,14 @@ class TemporaryInvoice extends QUI\QDOM
         $newId = QUI::getDataBase()->getPDO()->lastInsertId();
 
         $this->delete($User);
+        $Invoice = $Handler->getInvoice($newId);
 
-        return $Handler->getInvoice($newId);
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoicePostEnd',
+            array($this, $Invoice)
+        );
+
+        return $Invoice;
     }
 
     /**
@@ -558,6 +609,12 @@ class TemporaryInvoice extends QUI\QDOM
     public function addComment($message)
     {
         $this->Comments->addComment($message);
+        $this->save();
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoiceAddComment',
+            array($this, $message)
+        );
     }
 
     //endregion
@@ -582,6 +639,65 @@ class TemporaryInvoice extends QUI\QDOM
     public function addHistory($message)
     {
         $this->History->addComment($message);
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryInvoiceAddHistory',
+            array($this, $message)
+        );
+    }
+
+    //endregion
+
+    //region LOCK
+
+    /**
+     * Lock the invoice
+     * Invoice can't be edited
+     */
+    public function lock()
+    {
+        $Package = QUI::getPackage('quiqqer/invoice');
+        $key     = 'temporary-invoice-' . $this->getId();
+
+        QUI\Lock\Locker::lock($Package, $key);
+    }
+
+    /**
+     * Unlock the invoice
+     * Invoice can be edited
+     */
+    public function unlock()
+    {
+        $Package = QUI::getPackage('quiqqer/invoice');
+        $key     = 'temporary-invoice-' . $this->getId();
+
+        QUI\Lock\Locker::unlock($Package, $key);
+    }
+
+    /**
+     * Is the invoice locked?
+     *
+     * @return false|mixed
+     */
+    public function isLocked()
+    {
+        $Package = QUI::getPackage('quiqqer/invoice');
+        $key     = 'temporary-invoice-' . $this->getId();
+
+        return QUI\Lock\Locker::isLocked($Package, $key);
+    }
+
+    /**
+     * Check, if the item is locked
+     *
+     * @throws QUI\Exception
+     */
+    public function checkLocked()
+    {
+        $Package = QUI::getPackage('quiqqer/invoice');
+        $key     = 'temporary-invoice-' . $this->getId();
+
+        QUI\Lock\Locker::checkLocked($Package, $key);
     }
 
     //endregion
