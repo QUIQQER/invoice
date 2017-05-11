@@ -184,7 +184,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         },
 
         /**
-         *
          * @returns {{customer_id, invoice_address_id, project_name, articles, date, time_for_payment}}
          */
         getCurrentData: function () {
@@ -526,7 +525,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     Missing.set('html', Mustache.render(templatePost));
 
                     new QUIButton({
-                        text  : 'Rechnung buchen',
+                        text  : QUILocale.get(lg, 'journal.btn.post'),
                         class : 'btn-green',
                         events: {
                             onClick: self.post

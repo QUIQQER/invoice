@@ -1,0 +1,13 @@
+<div class="journal-invoice-details">
+    {{#articles}}
+    <div class="journal-invoice-details-article">
+        <div class="journal-invoice-details-article-pos">{{position}}</div>
+        <div class="journal-invoice-details-article-title">{{title}}</div>
+        <div class="journal-invoice-details-article-description">{{{description}}}</div>
+    </div>
+    {{/articles}}
+
+    <div class="journal-invoice-details-calculation">
+        <b>Zwischensumme:</b> {{subSum}} - <b>Gesamtsumme</b>: {{sum}}
+    </div>
+</div>

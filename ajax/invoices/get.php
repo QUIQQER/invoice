@@ -17,7 +17,13 @@ QUI::$Ajax->registerFunction(
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $Invoice  = $Invoices->get($invoiceId);
 
-        return $Invoice->toArray();
+        $attributes = $Invoice->toArray();
+        $Currency   = $Invoice->getCurrency();
+
+        $attributes['display_subsum'] = $Currency->format($attributes['subsum']);
+        $attributes['display_sum']    = $Currency->format($attributes['sum']);
+
+        return $attributes;
     },
     array('invoiceId'),
     'Permission::checkAdminUser'

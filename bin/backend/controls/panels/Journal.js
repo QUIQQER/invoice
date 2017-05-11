@@ -13,15 +13,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
     'qui/QUI',
     'qui/controls/desktop/Panel',
+    'qui/controls/buttons/Button',
     'qui/controls/buttons/Select',
     'qui/controls/windows/Confirm',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
     'Locale',
+    'Mustache',
 
+    'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html',
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
 
-], function (QUI, QUIPanel, QUISelect, QUIConfirm, Grid, Invoices, QUILocale) {
+], function (QUI, QUIPanel, QUIButton, QUISelect, QUIConfirm, Grid, Invoices, QUILocale, Mustache, templateInvoiceDetails) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -34,12 +37,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         Binds: [
             'refresh',
             '$onCreate',
+            '$onDestroy',
             '$onResize',
             '$onInject',
+            '$onInvoicesChange',
             '$refreshButtonStatus',
             '$onPDFExportButtonClick',
             '$onAddPaymentButtonClick',
-            '$onClickCopyInvoice'
+            '$onClickCopyInvoice',
+            '$onClickInvoiceDetails'
         ],
 
         initialize: function (options) {
@@ -56,7 +62,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.addEvents({
                 onCreate: this.$onCreate,
                 onResize: this.$onResize,
-                onInject: this.$onInject
+                onInject: this.$onInject,
+                onDelete: this.$onDestroy
+            });
+
+            Invoices.addEvents({
+                onPostInvoice: this.$onInvoicesChange
             });
         },
 
@@ -84,7 +95,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             var selected = this.$Grid.getSelectedData(),
                 buttons  = this.$Grid.getButtons();
 
-            var Payment = buttons.filter(function (Button) {
+            var Actions = buttons.filter(function (Button) {
+                return Button.getAttribute('name') === 'actions';
+            })[0];
+
+            var Payment = Actions.getChildren().filter(function (Button) {
                 return Button.getAttribute('name') === 'addPayment';
             })[0];
 
@@ -92,16 +107,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return Button.getAttribute('name') === 'pdfExport';
             })[0];
 
-            var Cancel = buttons.filter(function (Button) {
-                return Button.getAttribute('name') === 'cancel';
-            })[0];
-
-            var Copy = buttons.filter(function (Button) {
-                return Button.getAttribute('name') === 'copy';
-            })[0];
-
-            var CreateCredit = buttons.filter(function (Button) {
-                return Button.getAttribute('name') === 'createCredit';
+            var Open = buttons.filter(function (Button) {
+                return Button.getAttribute('name') === 'open';
             })[0];
 
             if (selected.length) {
@@ -111,18 +118,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     Payment.enable();
                 }
 
+                Open.enable();
                 PDF.enable();
-                Cancel.enable();
-                Copy.enable();
-                CreateCredit.enable();
+                Actions.enable();
                 return;
             }
 
-            Payment.disable();
+            Open.disable();
+            Actions.disable();
             PDF.disable();
-            Cancel.disable();
-            Copy.disable();
-            CreateCredit.disable();
         },
 
         /**
@@ -131,7 +135,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         $onCreate: function () {
             // Buttons
             this.addButton({
-                text     : 'Summe anzeigen',
+                text     : 'Summe anzeigen', //#locale
                 textimage: 'fa fa-calculator'
             });
 
@@ -164,15 +168,68 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 this.getContent()
             );
 
+            var Actions = new QUIButton({
+                name      : 'actions',
+                text      : QUILocale.get(lg, 'journal.btn.actions'),
+                menuCorner: 'topRight',
+                styles    : {
+                    'float': 'right'
+                }
+            });
+
+            Actions.appendChild({
+                name  : 'addPayment',
+                text  : QUILocale.get(lg, 'journal.btn.paymentBook'),
+                icon  : 'fa fa-money',
+                events: {
+                    onClick: this.$onAddPaymentButtonClick
+                }
+            });
+
+            Actions.appendChild({
+                name  : 'cancel',
+                text  : QUILocale.get(lg, 'journal.btn.cancelInvoice'),
+                icon  : 'fa fa-remove',
+                events: {
+                    onClick: function () {
+                    }
+                }
+            });
+
+            Actions.appendChild({
+                name  : 'copy',
+                text  : QUILocale.get(lg, 'journal.btn.copyInvoice'),
+                icon  : 'fa fa-copy',
+                events: {
+                    onClick: this.$onClickCopyInvoice
+                }
+            });
+
+            Actions.appendChild({
+                name  : 'createCredit',
+                text  : QUILocale.get(lg, 'journal.btn.createCredit'),
+                icon  : 'fa fa-clipboard',
+                events: {
+                    onClick: function () {
+                    }
+                }
+            });
+
+
             this.$Grid = new Grid(Container, {
-                pagination : true,
-                buttons    : [{
-                    name     : 'addPayment',
-                    text     : QUILocale.get(lg, 'journal.btn.paymentBook'),
-                    textimage: 'fa fa-money',
+                pagination           : true,
+                accordion            : true,
+                autoSectionToggle    : false,
+                toggleiconTitle      : 'HUHU',
+                accordionLiveRenderer: this.$onClickInvoiceDetails,
+                buttons              : [Actions, {
+                    name     : 'open',
+                    text     : QUILocale.get(lg, 'journal.btn.open'),
+                    textimage: 'fa fa-file-o',
                     disabled : true,
                     events   : {
-                        onClick: this.$onAddPaymentButtonClick
+                        onClick: function () {
+                        }
                     }
                 }, {
                     name     : 'pdfExport',
@@ -182,38 +239,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     events   : {
                         onClick: this.$onPDFExportButtonClick
                     }
-                }, {
-                    type: 'separator'
-                }, {
-                    name     : 'cancel',
-                    text     : QUILocale.get(lg, 'journal.btn.cancelInvoice'),
-                    textimage: 'fa fa-remove',
-                    disabled : true,
-                    events   : {
-                        onClick: function () {
-                        }
-                    }
-                }, {
-                    name     : 'copy',
-                    text     : QUILocale.get(lg, 'journal.btn.copyInvoice'),
-                    textimage: 'fa fa-copy',
-                    disabled : true,
-                    events   : {
-                        onClick: this.$onClickCopyInvoice
-                    }
-                }, {
-                    type: 'separator'
-                }, {
-                    name     : 'createCredit',
-                    text     : QUILocale.get(lg, 'journal.btn.createCredit'),
-                    textimage: 'fa fa-clipboard',
-                    disabled : true,
-                    events   : {
-                        onClick: function () {
-                        }
-                    }
                 }],
-                columnModel: [{
+                columnModel          : [{
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
                     dataType : 'integer',
@@ -368,6 +395,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             }
         },
 
+        /**
+         * event: on panel destroy
+         */
+        $onDestroy: function () {
+            Invoices.removeEvents({
+                onPostInvoice: this.$onInvoicesChange
+            });
+        },
+
+        /**
+         * event: invoices changed something
+         */
+        $onInvoicesChange: function () {
+            this.refresh();
+        },
+
         //region Buttons events
 
         /**
@@ -470,6 +513,37 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     }
                 }
             }).open();
+        },
+
+        /**
+         * Open the accordion details of the invoice
+         *
+         * @param {Object} data
+         */
+        $onClickInvoiceDetails: function (data) {
+            var row        = data.row,
+                ParentNode = data.parent;
+
+            ParentNode.setStyle('padding', 10);
+            ParentNode.set('html', '<div class="fa fa-spinner fa-spin"></div>');
+
+            Invoices.get(this.$Grid.getDataByRow(row).id).then(function (result) {
+                var articles = [];
+
+                if ("articles" in result) {
+                    try {
+                        articles = JSON.decode(result.articles);
+                    } catch (e) {
+                    }
+                }
+
+                ParentNode.set('html', Mustache.render(templateInvoiceDetails, {
+                    articles    : articles.articles,
+                    calculations: articles.calculations,
+                    sum         : result.display_sum,
+                    subSum      : result.display_subsum
+                }));
+            });
         },
 
         //endregion

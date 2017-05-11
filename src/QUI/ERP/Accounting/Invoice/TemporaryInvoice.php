@@ -275,7 +275,6 @@ class TemporaryInvoice extends QUI\QDOM
     {
         QUI\Permissions\Permission::checkPermission('quiqqer.invoice.delete', $User);
 
-
         QUI::getDataBase()->delete(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
@@ -347,6 +346,7 @@ class TemporaryInvoice extends QUI\QDOM
         $date     = date('y-m-d H:i:s');
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
         $Customer = $this->getCustomer();
+        $Handler  = Handler::getInstance();
 
 
         if ($this->getAttribute('date')
@@ -377,7 +377,7 @@ class TemporaryInvoice extends QUI\QDOM
 
         // create invoice
         QUI::getDataBase()->insert(
-            Handler::getInstance()->invoiceTable(),
+            $Handler->invoiceTable(),
             array(
                 'id_prefix'    => Invoice::ID_PREFIX,
                 'customer_id'  => $this->getCustomer()->getId(),
@@ -420,7 +420,9 @@ class TemporaryInvoice extends QUI\QDOM
 
         $newId = QUI::getDataBase()->getPDO()->lastInsertId();
 
-        return Handler::getInstance()->getInvoice($newId);
+        $this->delete($User);
+
+        return $Handler->getInvoice($newId);
     }
 
     /**

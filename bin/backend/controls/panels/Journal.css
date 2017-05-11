@@ -26,3 +26,30 @@
     color: purple;
     font-weight: bold;
 }
+
+.journal-invoice-details,
+.journal-invoice-details-article,
+.journal-invoice-details-calculation {
+    float: left;
+    width: 100%;
+}
+
+.journal-invoice-details-article {
+    padding: 0 0 5px;
+}
+
+.journal-invoice-details-article-pos {
+    float: left;
+    width: 100px;
+}
+
+.journal-invoice-details-article-title,
+.journal-invoice-details-article-description {
+    float: left;
+    width: 200px;
+}
+
+.journal-invoice-details-calculation {
+    border-top: 1px solid #DEDEDE;
+    padding: 5px 0;
+}

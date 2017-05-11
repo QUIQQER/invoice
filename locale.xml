@@ -218,6 +218,18 @@
             <de><![CDATA[Gutschrift erstellen]]></de>
             <en><![CDATA[Create credit memo]]></en>
         </locale>
+        <locale name="journal.btn.post">
+            <de><![CDATA[Rechnung buchen]]></de>
+            <en><![CDATA[Post invoice]]></en>
+        </locale>
+        <locale name="journal.btn.actions">
+            <de><![CDATA[Aktionen]]></de>
+            <en><![CDATA[Actions]]></en>
+        </locale>
+        <locale name="journal.btn.open">
+            <de><![CDATA[Rechnung öffnen]]></de>
+            <en><![CDATA[Open invoice]]></en>
+        </locale>
 
         <locale name="temporary.btn.deleteInvoice">
             <de><![CDATA[Rechnung löschen]]></de>
@@ -563,7 +575,10 @@
             <en><![CDATA[Invoice canceled by [username] #[uid].]]></en>
         </locale>
 
-
+        <locale name="pdf.export.name">
+            <de><![CDATA[Rechnung]]></de>
+            <en><![CDATA[Invoice]]></en>
+        </locale>
     </groups>
 
 </locales>

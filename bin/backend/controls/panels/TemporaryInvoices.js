@@ -35,6 +35,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             '$onResize',
             '$onInject',
             '$onDestroy',
+            '$clickPostInvoice',
             '$clickCreateInvoice',
             '$clickDeleteInvoice',
             '$clickCopyInvoice',
@@ -63,7 +64,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onDeleteInvoice: this.$onInvoicesChange,
                 onSaveInvoice  : this.$onInvoicesChange,
                 onCreateInvoice: this.$onInvoicesChange,
-                onCopyInvoice  : this.$onInvoicesChange
+                onCopyInvoice  : this.$onInvoicesChange,
+                onPostInvoice  : this.$onInvoicesChange
             });
         },
 
@@ -88,9 +90,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     return Btn.getAttribute('name') === 'pdf';
                 })[0];
 
+                var Post = this.$Grid.getButtons().filter(function (Btn) {
+                    return Btn.getAttribute('name') === 'post';
+                })[0];
+
                 Copy.disable();
                 Delete.disable();
                 PDF.disable();
+                Post.disable();
 
                 this.Loader.hide();
             }.bind(this));
@@ -161,7 +168,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             // Buttons
             this.addButton({
-                text     : 'Summe anzeigen',
+                text     : 'Summe anzeigen', // #locale
                 textimage: 'fa fa-calculator'
             });
 
@@ -184,10 +191,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         onClick: function (Btn) {
                             Btn.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-                            self.$clickCreateInvoice().then(function () {
+                            self.$clickCreateInvoice(Btn).then(function () {
                                 Btn.setAttribute('textimage', 'fa fa-plus');
                             });
                         }
+                    }
+                }, {
+                    type: 'separator'
+                }, {
+                    name     : 'post',
+                    disabled : true,
+                    text     : QUILocale.get(lg, 'journal.btn.post'),
+                    textimage: 'fa fa-check',
+                    events   : {
+                        onClick: this.$clickPostInvoice
                     }
                 }, {
                     name     : 'copy',
@@ -259,17 +276,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.netto'),
                     dataIndex: 'nettosum',
-                    dataType : 'currency',
+                    dataType : 'string',
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.vat'),
                     dataIndex: 'display_vatsum',
-                    dataType : 'currency',
+                    dataType : 'string',
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.sum'),
                     dataIndex: 'sum',
-                    dataType : 'currency',
+                    dataType : 'string',
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
@@ -289,12 +306,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paid'),
                     dataIndex: 'display_paid',
-                    dataType : 'currency',
+                    dataType : 'string',
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.open'),
                     dataIndex: 'display_missing',
-                    dataType : 'currency',
+                    dataType : 'string',
                     width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.brutto'),
@@ -355,9 +372,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         return Btn.getAttribute('name') === 'pdf';
                     })[0];
 
+                    var Post = self.$Grid.getButtons().filter(function (Btn) {
+                        return Btn.getAttribute('name') === 'post';
+                    })[0];
+
                     Copy.enable();
                     Delete.enable();
                     PDF.enable();
+                    Post.enable();
                 },
 
                 onDblClick: function () {
@@ -403,7 +425,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onDeleteInvoice: this.$onInvoicesChange,
                 onCreateInvoice: this.$onInvoicesChange,
                 onSaveInvoice  : this.$onInvoicesChange,
-                onCopyInvoice  : this.$onInvoicesChange
+                onCopyInvoice  : this.$onInvoicesChange,
+                onPostInvoice  : this.$onInvoicesChange
             });
         },
 
@@ -416,6 +439,44 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             return Invoices.createInvoice().then(function (invoiceId) {
                 return this.openInvoice(invoiceId);
             }.bind(this));
+        },
+
+        /**
+         * Post the selected invoice
+         *
+         * @param Button
+         */
+        $clickPostInvoice: function (Button) {
+            if (typeOf(Button) !== 'qui/controls/buttons/Button') {
+                return;
+            }
+
+            var selected = this.$Grid.getSelectedData(),
+                oldImage = Button.getAttribute('textimage');
+
+            if (!selected.length) {
+                return;
+            }
+
+            selected = selected[0];
+
+            Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
+
+            return Invoices.getMissingAttributes(selected.id).then(function (missing) {
+                if (!Object.getLength(missing)) {
+                    return Invoices.postInvoice(selected.id);
+                }
+
+                QUI.getMessageHandler().then(function (MH) {
+                    for (var i in missing) {
+                        if (missing.hasOwnProperty(i)) {
+                            MH.addError(missing[i]);
+                        }
+                    }
+                });
+            }).then(function () {
+                Button.setAttribute('textimage', oldImage);
+            });
         },
 
         /**

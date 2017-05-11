@@ -93,25 +93,27 @@ class InvoiceView extends QUI\QDOM
 
         $Formatter = new \IntlDateFormatter(
             $localeCode[0],
-            \IntlDateFormatter::MEDIUM,
-            \IntlDateFormatter::SHORT
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::NONE
         );
 
         $date = $Formatter->format(time());
         $date = preg_replace('/[^0-9]/', '_', $date);
+        $date = trim($date, '_');
 
         $fileName = QUI::getLocale()->get('quiqqer/invoice', 'pdf.export.name') . '_';
         $fileName .= $date;
         $fileName .= '.pdf';
 
         $Document = new QUI\HtmlToPdf\Document(array(
-            'marginTop' => 30,
-            'filename'  => $fileName
+            'marginTop'    => 30, // dies muss variabel sein
+            'filename'     => $fileName,
+            'marginBottom' => 80 // dies muss variabel sein
         ));
 
         try {
             $Document->setHeaderHTML($this->getHTMLHeader());
-            $Document->setContentHTML($this->getHTMLHeader());
+            $Document->setContentHTML($this->getHTMLBody());
             $Document->setFooterHTML($this->getHTMLFooter());
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);

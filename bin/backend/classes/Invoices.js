@@ -104,6 +104,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          */
         createInvoice: function () {
             var self = this;
+
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_create', function (newId) {
                     self.fireEvent('copyInvoice', [self, newId]);

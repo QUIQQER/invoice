@@ -99,6 +99,30 @@ class Invoice extends QUI\QDOM
     }
 
     /**
+     * Return the invoice currency
+     *
+     * @return QUI\ERP\Currency\Currency
+     */
+    public function getCurrency()
+    {
+        $currency = $this->getAttribute('currency_data');
+
+        if (!$currency) {
+            QUI\ERP\Defaults::getCurrency();
+        }
+
+        if (is_string($currency)) {
+            $currency = json_decode($currency, true);
+        }
+
+        if (!$currency || !isset($currency['code'])) {
+            QUI\ERP\Defaults::getCurrency();
+        }
+
+        return QUI\ERP\Currency\Handler::getCurrency($currency['code']);
+    }
+
+    /**
      * Return the payment paid status information
      * - How many has already been paid
      * - How many must be paid
