@@ -62,6 +62,21 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Returns the invoice templates
+         *
+         * @return {Promise}
+         */
+        getTemplates: function () {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_settings_templates', resolve, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Return the data from a temporary invoice
          *
          * @param {Number|String} invoiceId

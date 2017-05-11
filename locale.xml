@@ -195,6 +195,23 @@
             <de><![CDATA[Im Inkasso Verfahren]]></de>
             <en><![CDATA[Encashment]]></en>
         </locale>
+
+        <locale name="window.erp.title">
+            <de><![CDATA[Shop]]></de>
+            <en><![CDATA[Shop]]></en>
+        </locale>
+        <locale name="window.erp.invoice.title">
+            <de><![CDATA[Rechnungen]]></de>
+            <en><![CDATA[Invoices]]></en>
+        </locale>
+        <locale name="invoice.settings.title">
+            <de><![CDATA[Allgemeine Rechnungseinstellungen]]></de>
+            <en><![CDATA[General invoice settings]]></en>
+        </locale>
+        <locale name="invoice.settings.template">
+            <de><![CDATA[Standard Rechnungstemplate]]></de>
+            <en><![CDATA[Default invoice template]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">

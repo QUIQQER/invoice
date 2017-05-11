@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiqqer>
+    <settings name="ERP">
+
+        <config>
+            <section name="invoice">
+                <conf name="template">
+                    <type><![CDATA[string]]></type>
+                </conf>
+            </section>
+        </config>
+
+        <window name="ERP">
+            <title>
+                <locale group="quiqqer/invoice" var="window.erp.title"/>
+            </title>
+            <params>
+                <icon>fa fa-sun-o</icon>
+            </params>
+
+            <categories>
+                <category name="invoice" index="2">
+                    <text>
+                        <locale group="quiqqer/invoice" var="window.erp.invoice.title"/>
+                    </text>
+                    <icon>fa fa-money</icon>
+
+                    <settings title="invoice" name="invoice">
+                        <title>
+                            <locale group="quiqqer/invoice" var="invoice.settings.title"/>
+                        </title>
+
+                        <input type="hidden"
+                               conf="invoice.template"
+                               data-qui="package/quiqqer/invoice/bin/backend/controls/settings/Templates"
+                        >
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.template"/>
+                            </text>
+                        </input>
+                    </settings>
+                </category>
+            </categories>
+        </window>
+
+    </settings>
+</quiqqer>
