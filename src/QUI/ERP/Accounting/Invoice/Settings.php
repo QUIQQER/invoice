@@ -6,6 +6,7 @@
 
 namespace QUI\ERP\Accounting\Invoice;
 
+use function DusanKasan\Knapsack\first;
 use QUI;
 use QUI\Utils\Singleton;
 
@@ -44,9 +45,28 @@ class Settings extends Singleton
 
     /**
      * Return the default invoice template
+     *
+     * @return string
      */
     public function getDefaultTemplate()
     {
+        $Package = QUI::getPackage('quiqqer/invoice');
+        $Config  = $Package->getConfig();
+
+        $template = $Config->getValue('invoice', 'quiqqer/invoice-accounting-template');
+
+        if (!empty($template)) {
+            return $template;
+        }
+
         $available = $this->getAvailableTemplates();
+
+        if (empty($available)) {
+            return '';
+        }
+
+        $first = reset($available);
+
+        return $first['name'];
     }
 }
