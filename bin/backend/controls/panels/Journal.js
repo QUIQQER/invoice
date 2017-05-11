@@ -14,13 +14,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'qui/QUI',
     'qui/controls/desktop/Panel',
     'qui/controls/buttons/Select',
+    'qui/controls/windows/Confirm',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
     'Locale',
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
 
-], function (QUI, QUIPanel, QUISelect, Grid, Invoices, QUILocale) {
+], function (QUI, QUIPanel, QUISelect, QUIConfirm, Grid, Invoices, QUILocale) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -37,7 +38,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             '$onInject',
             '$refreshButtonStatus',
             '$onPDFExportButtonClick',
-            '$onAddPaymentButtonClick'
+            '$onAddPaymentButtonClick',
+            '$onClickCopyInvoice'
         ],
 
         initialize: function (options) {
@@ -197,8 +199,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     textimage: 'fa fa-copy',
                     disabled : true,
                     events   : {
-                        onClick: function () {
-                        }
+                        onClick: this.$onClickCopyInvoice
                     }
                 }, {
                     type: 'separator'
@@ -429,6 +430,48 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
         },
 
+        /**
+         * Copy the temporary invoice and opens the invoice
+         */
+        $onClickCopyInvoice: function () {
+            var self     = this,
+                selected = this.$Grid.getSelectedData();
+
+            if (!selected.length) {
+                return;
+            }
+
+            new QUIConfirm({
+                title      : QUILocale.get(lg, 'dialog.invoice.copy.title'),
+                text       : QUILocale.get(lg, 'dialog.invoice.copy.text'),
+                information: QUILocale.get(lg, 'dialog.invoice.copy.information', {
+                    id: selected[0].id
+                }),
+                icon       : 'fa fa-copy',
+                texticon   : 'fa fa-copy',
+                maxHeight  : 400,
+                maxWidth   : 600,
+                autoclose  : false,
+                ok_button  : {
+                    text     : QUILocale.get('quiqqer/system', 'copy'),
+                    textimage: 'fa fa-copy'
+                },
+                events     : {
+                    onSubmit: function (Win) {
+                        Win.Loader.show();
+
+                        Invoices.copyInvoice(selected[0].id).then(function (newId) {
+                            Win.close();
+
+                            return self.openTemporaryInvoice(newId);
+                        }).then(function () {
+                            Win.Loader.show();
+                        });
+                    }
+                }
+            }).open();
+        },
+
         //endregion
 
         /**
@@ -482,6 +525,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return self.refresh();
             }).then(function () {
                 self.Loader.hide();
+            });
+        },
+
+        /**
+         * Opens a temporary invoice
+         *
+         * @param {String|Number} invoiceId
+         * @return {Promise}
+         */
+        openTemporaryInvoice: function (invoiceId) {
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
+                    'utils/Panels'
+                ], function (TemporaryInvoice, PanelUtils) {
+                    var Panel = new TemporaryInvoice({
+                        invoiceId: invoiceId,
+                        '#id'    : invoiceId
+                    });
+
+                    PanelUtils.openPanelInTasks(Panel);
+                    resolve();
+                });
             });
         }
     });

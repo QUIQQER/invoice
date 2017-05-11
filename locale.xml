@@ -445,6 +445,24 @@
             the data of the invoice <b> [id] </ b> will be copied to it.
             ]]></en>
         </locale>
+        <locale name="dialog.invoice.copy.title">
+            <de><![CDATA[Rechnung kopieren]]></de>
+            <en><![CDATA[Copy invoice]]></en>
+        </locale>
+        <locale name="dialog.invoice.copy.text">
+            <de><![CDATA[Möchten Sie die Rechnung wirklich kopieren?]]></de>
+            <en><![CDATA[Are you sure you want to copy the invoice?]]></en>
+        </locale>
+        <locale name="dialog.invoice.copy.information" html="true">
+            <de><![CDATA[
+            Es wird ein neuer Rechnungsentwurf erstellt und
+            die Daten der Rechnung <b>[id]</b> werden in diesen kopiert.
+            ]]></de>
+            <en><![CDATA[
+            A new temporary invoice is created and
+            the data of the invoice <b> [id] </ b> will be copied to it.
+            ]]></en>
+        </locale>
 
 
         <locale name="dialog.delete.article.title">

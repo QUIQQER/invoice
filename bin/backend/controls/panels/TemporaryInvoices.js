@@ -127,7 +127,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
         downloadPdf: function (invoiceId) {
             return new Promise(function (resolve) {
                 var id = 'download-invoice-' + invoiceId;
-                
+
                 new Element('iframe', {
                     src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/downloadInvoice.php?' + Object.toQueryString({
                         invoiceId: invoiceId

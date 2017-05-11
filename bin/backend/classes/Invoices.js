@@ -184,6 +184,28 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Copy a invoice
+         *
+         * @param {String} invoiceId
+         * @return {Promise}
+         */
+        copyInvoice: function (invoiceId) {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_copy', function (id) {
+                    self.fireEvent('copyInvoice', [self, invoiceId, id]);
+                    resolve(id);
+                }, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Add a payment to an invoice
          *
          * @param {Number|String} invoiceId

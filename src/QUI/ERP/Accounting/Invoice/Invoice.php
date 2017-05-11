@@ -150,9 +150,10 @@ class Invoice extends QUI\QDOM
     /**
      * Copy the invoice to a temporary invoice
      *
+     * @param null $User
      * @return TemporaryInvoice
      */
-    public function copy()
+    public function copy($User = null)
     {
         // @todo permissions
         $User = QUI::getUserBySession();
@@ -168,6 +169,64 @@ class Invoice extends QUI\QDOM
             )
         );
 
+        $Handler = Handler::getInstance();
+        $Factory = Factory::getInstance();
+        $New     = $Factory->createInvoice($User);
+
+        $currentData = QUI::getDataBase()->fetch(array(
+            'from'  => $Handler->invoiceTable(),
+            'where' => array(
+                'id' => $this->getCleanId()
+            ),
+            'limit' => 1
+        ));
+
+        $currentData = $currentData[0];
+
+        QUI::getDataBase()->update(
+            $Handler->temporaryInvoiceTable(),
+            array(
+                'customer_id'             => $currentData['customer_id'],
+                'invoice_address_id'      => '',
+                'invoice_address'         => $currentData['invoice_address'],
+                'delivery_address_id'     => '',
+                'delivery_address'        => $currentData['delivery_address'],
+                'order_id'                => $currentData['order_id'],
+                'project_name'            => $currentData['project_name'],
+                'payment_method'          => $currentData['payment_method'],
+                'payment_data'            => $currentData['payment_data'],
+                'payment_time'            => $currentData['payment_time'],
+                'time_for_payment'        => $currentData['time_for_payment'],
+                'paid_status'             => $currentData['paid_status'],
+                'paid_date'               => $currentData['paid_date'],
+                'paid_data'               => $currentData['paid_data'],
+                'date'                    => $currentData['date'],
+                'data'                    => $currentData['data'],
+                'additional_invoice_text' => $currentData['additional_invoice_text'],
+                'articles'                => $currentData['articles'],
+                'history'                 => $currentData['history'],
+                'comments'                => $currentData['comments'],
+                'customer_data'           => $currentData['customer_data'],
+                'isbrutto'                => $currentData['isbrutto'],
+                'currency_data'           => $currentData['currency_data'],
+                'nettosum'                => $currentData['nettosum'],
+                'nettosubsum'             => $currentData['nettosubsum'],
+                'subsum'                  => $currentData['subsum'],
+                'sum'                     => $currentData['sum'],
+                'vat_array'               => $currentData['vat_array'],
+                'processing_status'       => ''
+            ),
+            array('id' => $New->getCleanId())
+        );
+
+        return $Handler->getTemporaryInvoice($New->getId());
+    }
+
+    /**
+     * @todo Gutschrift
+     */
+    public function createCredit()
+    {
 
     }
 
