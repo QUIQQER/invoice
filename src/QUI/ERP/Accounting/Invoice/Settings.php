@@ -6,10 +6,13 @@
 
 namespace QUI\ERP\Accounting\Invoice;
 
-use function DusanKasan\Knapsack\first;
 use QUI;
 use QUI\Utils\Singleton;
 
+/**
+ * Class Settings
+ * @package QUI\ERP\Accounting\Invoice
+ */
 class Settings extends Singleton
 {
     /**
@@ -53,7 +56,7 @@ class Settings extends Singleton
         $Package = QUI::getPackage('quiqqer/invoice');
         $Config  = $Package->getConfig();
 
-        $template = $Config->getValue('invoice', 'quiqqer/invoice-accounting-template');
+        $template = $Config->getValue('invoice', 'template');
 
         if (!empty($template)) {
             return $template;

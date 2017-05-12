@@ -169,10 +169,7 @@ class InvoiceView extends QUI\QDOM
      */
     protected function getHTMLHeader()
     {
-        $Engine = $this->getHTMLEngine();
-        $path   = QUI::getPackage('quiqqer/invoice')->getDir();
-
-        return $Engine->fetch($path . '/template/header.html');
+        return $this->getTemplate('/template/header');
     }
 
     /**
@@ -182,10 +179,7 @@ class InvoiceView extends QUI\QDOM
      */
     protected function getHTMLBody()
     {
-        $Engine = $this->getHTMLEngine();
-        $path   = QUI::getPackage('quiqqer/invoice')->getDir();
-
-        return $Engine->fetch($path . '/template/body.html');
+        return $this->getTemplate('/template/body');
     }
 
     /**
@@ -195,10 +189,59 @@ class InvoiceView extends QUI\QDOM
      */
     protected function getHTMLFooter()
     {
-        $Engine = $this->getHTMLEngine();
-        $path   = QUI::getPackage('quiqqer/invoice')->getDir();
+        return $this->getTemplate('/template/footer');
+    }
 
-        return $Engine->fetch($path . '/template/footer.html');
+    /**
+     * Helper for template check
+     *
+     * @param $template
+     * @return string
+     */
+    protected function getTemplate($template)
+    {
+        $path = $this->getTemplatePath();
+        $file = $path . $template;
+
+        if (!file_exists($file . '.html')) {
+            $file = QUI::getPackage('quiqqer/invoice')->getDir() . $template;
+        }
+
+        $cssFile  = $file . '.css';
+        $htmlFile = $file . '.html';
+
+        $output = '';
+
+        if (file_exists($cssFile)) {
+            $output .= '<style>' . file_get_contents($cssFile) . '</style>';
+        }
+
+        $output .= $this->getHTMLEngine()->fetch($htmlFile);
+
+        return $output;
+    }
+
+    /**
+     * Return the template path
+     *
+     * @return string
+     */
+    protected function getTemplatePath()
+    {
+        $template = $this->getAttribute('template');
+        $Settings = Settings::getInstance();
+
+        if (empty($template)) {
+            $template = $Settings->getDefaultTemplate();
+        }
+
+        $templatePath = OPT_DIR . $template;
+
+        if (!is_dir($templatePath)) {
+            $templatePath = OPT_DIR . $Settings->getDefaultTemplate();
+        }
+
+        return $templatePath;
     }
 
     //endregion

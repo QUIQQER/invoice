@@ -23,7 +23,7 @@
                     <text>
                         <locale group="quiqqer/invoice" var="window.erp.invoice.title"/>
                     </text>
-                    <icon>fa fa-money</icon>
+                    <icon>fa fa-file-text-o</icon>
 
                     <settings title="invoice" name="invoice">
                         <title>
