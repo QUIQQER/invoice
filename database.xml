@@ -29,6 +29,8 @@
             <field type="TEXT NULL">canceled_data</field> <!-- storno grund -->
             <field type="INT NOT NULL">c_user</field>
             <field type="VARCHAR(200) NOT NULL">c_username</field>
+            <field type="INT NOT NULL">editor_id</field>
+            <field type="VARCHAR(200) NOT NULL">editor_username</field>
             <field type="TEXT NULL">data</field>
             <field type="TEXT NULL">additional_invoice_text</field>
             <field type="TEXT NOT NULL">articles</field>
@@ -86,6 +88,8 @@
 
             <field type="timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP">date</field>
             <field type="INT(11) NOT NULL">c_user</field>
+            <field type="INT(11) NOT NULL">editor_id</field>
+            <field type="VARCHAR(200) NOT NULL">editor_username</field>
             <field type="TEXT NULL">data</field>
             <field type="TEXT NULL">additional_invoice_text</field>
             <field type="TEXT NOT NULL">articles</field>

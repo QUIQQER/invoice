@@ -415,6 +415,32 @@ class TemporaryInvoice extends QUI\QDOM
             'erp.taxNumber'   => $Customer->getAttribute('quiqqer.erp.taxNumber'),
         );
 
+        // Editor
+        $editorId   = '';
+        $editorName = '';
+
+        $Employees = QUI\ERP\Employee\Employees::getInstance();
+
+        if ($this->getAttribute('editorId')) {
+            try {
+                $Editor    = QUI::getUsers()->get($this->getAttribute('editorId'));
+                $isInGroup = $Editor->isInGroup($Employees->getEmployeeGroup()->getId());
+
+                if ($isInGroup) {
+                    $editorId   = $Editor->getId();
+                    $editorName = $Editor->getName();
+                }
+            } catch (QUI\Exception $Exception) {
+            }
+        }
+
+        // use default advisor as editor
+        if (empty($editorId) && $Employees->getDefaultAdvisor()) {
+            $editorId   = $Employees->getDefaultAdvisor()->getId();
+            $editorName = $Employees->getDefaultAdvisor()->getName();
+        }
+
+
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePost',
             array($this)
@@ -424,13 +450,15 @@ class TemporaryInvoice extends QUI\QDOM
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             array(
-                'id_prefix'    => Invoice::ID_PREFIX,
-                'customer_id'  => $this->getCustomer()->getId(),
-                'order_id'     => $this->getAttribute('order_id'),
-                'c_user'       => $User->getId(),
-                'c_username'   => $User->getUsername(),
-                'hash'         => $this->getAttribute('hash'),
-                'project_name' => $this->getAttribute('project_name'),
+                'id_prefix'       => Invoice::ID_PREFIX,
+                'customer_id'     => $this->getCustomer()->getId(),
+                'order_id'        => $this->getAttribute('order_id'),
+                'c_user'          => $User->getId(),
+                'c_username'      => $User->getUsername(),
+                'editor_id'       => $editorId,
+                'editor_username' => $editorName,
+                'hash'            => $this->getAttribute('hash'),
+                'project_name'    => $this->getAttribute('project_name'),
 
                 'invoice_address'  => $invoiceAddress,
                 'delivery_address' => $this->getAttribute('delivery_address'),
