@@ -210,6 +210,9 @@ class InvoiceView extends QUI\QDOM
         $cssFile  = $file . '.css';
         $htmlFile = $file . '.html';
 
+        $Output = new QUI\Output();
+        $Output->setSetting('use-system-image-paths', true);
+
         $output = '';
 
         if (file_exists($cssFile)) {
@@ -218,7 +221,7 @@ class InvoiceView extends QUI\QDOM
 
         $output .= $this->getHTMLEngine()->fetch($htmlFile);
 
-        return $output;
+        return $Output->parse($output);
     }
 
     /**
