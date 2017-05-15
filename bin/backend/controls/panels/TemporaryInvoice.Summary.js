@@ -15,11 +15,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
     'qui/controls/Control',
     'Mustache',
     'Locale',
+    'package/quiqqer/invoice/bin/Invoices',
 
     'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary.html',
     'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary.css'
 
-], function (QUI, QUIControl, Mustache, QUILocale, template) {
+], function (QUI, QUIControl, Mustache, QUILocale, Invoices, template) {
     "use strict";
 
     return new Class({
@@ -33,7 +34,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
         },
 
         Binds: [
-            '$onInject'
+            '$onInject',
+            '$refreshArticleSelect'
         ],
 
         initialize: function (options) {
@@ -132,12 +134,30 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
                 self.$VAT.set('html', vatText);
             });
 
-            List.addEvent('onArticleSelect', function (List, Article) {
-                var data = Article.getCalculations();
+            List.addEvent('onArticleSelect', this.$refreshArticleSelect);
+        },
 
-                self.$ArticleNettoSum.set('html', self.$Formatter.format(data.calculated_nettoSum));
-                self.$ArticleBruttoSum.set('html', self.$Formatter.format(data.calculated_sum));
+
+        $refreshArticleSelect: function (List, Article) {
+            var self = this;
+
+            Invoices.getArticleSummary(Article.getAttributes()).then(function (result) {
+                console.info(result);
+                self.$ArticleNettoSum.set(
+                    'html',
+                    self.$Formatter.format(result.calculated_nettoSum)
+                );
+
+                self.$ArticleBruttoSum.set(
+                    'html',
+                    self.$Formatter.format(result.calculated_sum)
+                );
             });
+            //
+            // var data = Article.getCalculations();
+            //
+            // self.$ArticleNettoSum.set('html', self.$Formatter.format(data.calculated_nettoSum));
+            // self.$ArticleBruttoSum.set('html', self.$Formatter.format(data.calculated_sum));
         }
     });
 });

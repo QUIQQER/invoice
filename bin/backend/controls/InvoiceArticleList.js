@@ -187,6 +187,15 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
         },
 
         /**
+         * Return the user details
+         *
+         * @return {Object|*|{}}
+         */
+        getUser: function () {
+            return this.$user;
+        },
+
+        /**
          * Add a product to the list
          * The product must be an instance of Article
          *

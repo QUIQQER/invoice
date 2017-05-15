@@ -324,6 +324,22 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                     showError: false
                 });
             });
+        },
+
+        /**
+         * Return the article summary
+         *
+         * @param {Object} article - Article attributes
+         * @return {Promise}
+         */
+        getArticleSummary: function (article) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_summary', resolve, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject,
+                    article  : JSON.encode(article)
+                });
+            });
         }
     });
 });
