@@ -130,6 +130,52 @@ class TemporaryInvoice extends QUI\QDOM
     }
 
     /**
+     * Return the editor user
+     *
+     * @return null|QUI\Interfaces\Users\User
+     */
+    public function getEditor()
+    {
+        $Employees = QUI\ERP\Employee\Employees::getInstance();
+
+        if ($this->getAttribute('editor_id')) {
+            try {
+                $Editor    = QUI::getUsers()->get($this->getAttribute('editor_id'));
+                $isInGroup = $Editor->isInGroup($Employees->getEmployeeGroup()->getId());
+
+                if ($isInGroup) {
+                    return $Editor;
+                }
+            } catch (QUI\Exception $Exception) {
+            }
+        }
+
+        // use default advisor as editor
+        if (empty($editorId) && $Employees->getDefaultAdvisor()) {
+            return $Employees->getDefaultAdvisor();
+        }
+
+        return null;
+    }
+
+    /**
+     * Return the ordered by user
+     *
+     * @return null|QUI\Interfaces\Users\User
+     */
+    public function getOrderedByUser()
+    {
+        if ($this->getAttribute('ordered_by')) {
+            try {
+                return QUI::getUsers()->get($this->getAttribute('ordered_by'));
+            } catch (QUI\Exception $Exception) {
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Return all fields, attributes which are still missing to post the invoice
      *
      * @return array
@@ -223,6 +269,28 @@ class TemporaryInvoice extends QUI\QDOM
             QUI\System\Log::addNotice($Exception->getMessage());
         }
 
+        // Editor
+        $Editor     = $this->getEditor();
+        $editorId   = '';
+        $editorName = '';
+
+        // use default advisor as editor
+        if ($Editor) {
+            $editorId   = $Editor->getId();
+            $editorName = $Editor->getName();
+        }
+
+        // Ordered By
+        $OrderedBy     = $this->getOrderedByUser();
+        $orderedBy     = '';
+        $orderedByName = '';
+
+        if ($OrderedBy) {
+            $orderedBy     = $OrderedBy->getId();
+            $orderedByName = $OrderedBy->getName();
+        }
+
+
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
             array($this)
@@ -231,9 +299,14 @@ class TemporaryInvoice extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
-                'customer_id'             => (int)$this->getAttribute('customer_id'),
-                'order_id'                => (int)$this->getAttribute('order_id'),
-                'project_name'            => $projectName,
+                'customer_id'  => (int)$this->getAttribute('customer_id'),
+                'order_id'     => (int)$this->getAttribute('order_id'),
+                'project_name' => $projectName,
+
+                'editor_id'               => $editorId,
+                'editor_name'             => $editorName,
+                'ordered_by'              => $orderedBy,
+                'ordered_by_name'         => $orderedByName,
 
                 // payments
                 'payment_method'          => $paymentMethod,
@@ -416,30 +489,26 @@ class TemporaryInvoice extends QUI\QDOM
         );
 
         // Editor
+        $Editor     = $this->getEditor();
         $editorId   = '';
         $editorName = '';
 
-        $Employees = QUI\ERP\Employee\Employees::getInstance();
-
-        if ($this->getAttribute('editorId')) {
-            try {
-                $Editor    = QUI::getUsers()->get($this->getAttribute('editorId'));
-                $isInGroup = $Editor->isInGroup($Employees->getEmployeeGroup()->getId());
-
-                if ($isInGroup) {
-                    $editorId   = $Editor->getId();
-                    $editorName = $Editor->getName();
-                }
-            } catch (QUI\Exception $Exception) {
-            }
+        // use default advisor as editor
+        if ($Editor) {
+            $editorId   = $Editor->getId();
+            $editorName = $Editor->getName();
         }
+
+        // Ordered By
+        $OrderedBy     = $this->getOrderedByUser();
+        $orderedBy     = '';
+        $orderedByName = '';
 
         // use default advisor as editor
-        if (empty($editorId) && $Employees->getDefaultAdvisor()) {
-            $editorId   = $Employees->getDefaultAdvisor()->getId();
-            $editorName = $Employees->getDefaultAdvisor()->getName();
+        if ($OrderedBy) {
+            $orderedBy     = $OrderedBy->getId();
+            $orderedByName = $OrderedBy->getName();
         }
-
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePost',
@@ -450,15 +519,19 @@ class TemporaryInvoice extends QUI\QDOM
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             array(
-                'id_prefix'       => Invoice::ID_PREFIX,
-                'customer_id'     => $this->getCustomer()->getId(),
-                'order_id'        => $this->getAttribute('order_id'),
-                'c_user'          => $User->getId(),
-                'c_username'      => $User->getUsername(),
+                'id_prefix'   => Invoice::ID_PREFIX,
+                'customer_id' => $this->getCustomer()->getId(),
+                'order_id'    => $this->getAttribute('order_id'),
+                'c_user'      => $User->getId(),
+                'c_username'  => $User->getUsername(),
+
                 'editor_id'       => $editorId,
-                'editor_username' => $editorName,
-                'hash'            => $this->getAttribute('hash'),
-                'project_name'    => $this->getAttribute('project_name'),
+                'editor_name'     => $editorName,
+                'ordered_by'      => $orderedBy,
+                'ordered_by_name' => $orderedByName,
+
+                'hash'         => $this->getAttribute('hash'),
+                'project_name' => $this->getAttribute('project_name'),
 
                 'invoice_address'  => $invoiceAddress,
                 'delivery_address' => $this->getAttribute('delivery_address'),
@@ -474,7 +547,7 @@ class TemporaryInvoice extends QUI\QDOM
                 'customer_data' => json_encode($customerData),
 
                 'date'                    => $date,
-                'data'                    => '',
+                'data'                    => $this->getAttribute('data'),
                 'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
                 'articles'                => $this->getArticles()->toJSON(),
                 'history'                 => $this->getHistory()->toJSON(),

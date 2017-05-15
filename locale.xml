@@ -419,6 +419,10 @@
             <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
             <en><![CDATA[Term of Payment (in days)]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textEditor">
+            <de><![CDATA[Bearbeiter]]></de>
+            <en><![CDATA[Editor]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textProjectName">
             <de><![CDATA[Projektname]]></de>
             <en><![CDATA[Projectname]]></en>

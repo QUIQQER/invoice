@@ -193,6 +193,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 project_name           : this.getAttribute('project_name'),
                 articles               : this.getAttribute('articles'),
                 date                   : this.getAttribute('date'),
+                editor_id              : this.getAttribute('editor_id'),
+                ordered_by             : this.getAttribute('ordered_by'),
                 time_for_payment       : this.getAttribute('time_for_payment'),
                 payment_method         : this.getAttribute('payment_method'),
                 additional_invoice_text: this.getAttribute('additional_invoice_text')
@@ -235,6 +237,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textTermOfPayment : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textTermOfPayment'),
                         textProjectName   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textProjectName'),
                         textOrderedBy     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textOrderedBy'),
+                        textEditor        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textEditor'),
                         textInvoicePayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoicePayment'),
                         textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod'),
                         textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText')
@@ -266,7 +269,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     date_date       : dateDate,
                     date_time       : dateTime,
                     time_for_payment: self.getAttribute('time_for_payment'),
-                    project_name    : self.getAttribute('project_name')
+                    project_name    : self.getAttribute('project_name'),
+                    editor_id       : self.getAttribute('editor_id')
                 }, Form);
 
                 return QUI.parse(Container);
@@ -275,12 +279,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     '[data-qui="package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData"]'
                 ).get('data-quiid');
 
-                var Data = QUI.Controls.getById(quiId);
+                var editorIdQUIId    = self.getContent().getElement('[name="editorId"]').get('data-quiid');
+                var orderedByIdQUIId = self.getContent().getElement('[name="orderedBy"]').get('data-quiid');
+
+                var Data      = QUI.Controls.getById(quiId);
+                var EditorId  = QUI.Controls.getById(editorIdQUIId);
+                var OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
 
                 Data.addEvent('onChange', function () {
                     self.setAttribute('customer_id', Data.getValue().userId);
                     self.setAttribute('invoice_address_id', Data.getValue().addressId);
                 });
+
+                EditorId.addEvent('onChange', function () {
+                    self.setAttribute('editor_id', EditorId.getValue());
+                });
+
+                OrderedBy.addEvent('onChange', function () {
+                    self.setAttribute('ordered_by', OrderedBy.getValue());
+                });
+
+
+                EditorId.addItem(self.getAttribute('editor_id'));
+                OrderedBy.addItem(self.getAttribute('ordered_by'));
 
                 return Data.setValue(
                     self.getAttribute('customer_id'),
@@ -782,7 +803,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 );
             }
 
-            ['time_for_payment', 'project_name', 'payment_method'].each(function (entry) {
+            [
+                'time_for_payment',
+                'project_name',
+                'payment_method',
+                'editor_id',
+                'ordered_by'
+            ].each(function (entry) {
                 if (!formData.hasOwnProperty(entry)) {
                     return;
                 }
