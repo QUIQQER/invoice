@@ -275,12 +275,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 return QUI.parse(Container);
             }).then(function () {
-                var quiId = self.getContent().getElement(
+                var Content = self.getContent();
+
+                var quiId = Content.getElement(
                     '[data-qui="package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData"]'
                 ).get('data-quiid');
 
-                var editorIdQUIId    = self.getContent().getElement('[name="editorId"]').get('data-quiid');
-                var orderedByIdQUIId = self.getContent().getElement('[name="orderedBy"]').get('data-quiid');
+                var editorIdQUIId    = Content.getElement('[name="editorId"]').get('data-quiid');
+                var orderedByIdQUIId = Content.getElement('[name="orderedBy"]').get('data-quiid');
 
                 var Data      = QUI.Controls.getById(quiId);
                 var EditorId  = QUI.Controls.getById(editorIdQUIId);
@@ -291,17 +293,42 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.setAttribute('invoice_address_id', Data.getValue().addressId);
                 });
 
+                // editor
                 EditorId.addEvent('onChange', function () {
                     self.setAttribute('editor_id', EditorId.getValue());
                 });
 
+                if (typeof window.QUIQQER_EMPLOYEE_GROUP !== 'undefined') {
+                    EditorId.setAttribute('search', true);
+                    EditorId.setAttribute('searchSettings', {
+                        filter: {
+                            filter_group: window.QUIQQER_EMPLOYEE_GROUP
+                        }
+                    });
+                }
+
+                if (self.getAttribute('editor_id')) {
+                    EditorId.addItem(self.getAttribute('editor_id'));
+                }
+
+
+                // ordered by
                 OrderedBy.addEvent('onChange', function () {
                     self.setAttribute('ordered_by', OrderedBy.getValue());
                 });
 
+                if (typeof window.QUIQQER_CUSTOMER_GROUP !== 'undefined') {
+                    OrderedBy.setAttribute('search', true);
+                    OrderedBy.setAttribute('searchSettings', {
+                        filter: {
+                            filter_group: window.QUIQQER_CUSTOMER_GROUP
+                        }
+                    });
+                }
 
-                EditorId.addItem(self.getAttribute('editor_id'));
-                OrderedBy.addItem(self.getAttribute('ordered_by'));
+                if (self.getAttribute('ordered_by')) {
+                    OrderedBy.addItem(self.getAttribute('ordered_by'));
+                }
 
                 return Data.setValue(
                     self.getAttribute('customer_id'),

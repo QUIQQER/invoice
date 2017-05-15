@@ -130,12 +130,11 @@ class InvoiceView extends QUI\QDOM
      */
     protected function getHTMLEngine()
     {
-        $Engine = QUI::getTemplateManager()->getEngine();
+        $Engine   = QUI::getTemplateManager()->getEngine();
+        $Customer = $this->Invoice->getCustomer();
+        $Editor   = $this->Invoice->getEditor();
 
-        $customerId = $this->Invoice->getAttribute('customer_id');
-        $addressId  = $this->Invoice->getAttribute('invoice_address_id');
-
-        $Customer = QUI::getUsers()->get($customerId);
+        $addressId = $this->Invoice->getAttribute('invoice_address_id');
 
         $this->setAttributes($this->Invoice->getAttributes());
 
@@ -156,6 +155,7 @@ class InvoiceView extends QUI\QDOM
             'this'        => $this,
             'ArticleList' => $Articles,
             'Customer'    => $Customer,
+            'Editor'      => $Editor,
             'Address'     => $Address
         ));
 
