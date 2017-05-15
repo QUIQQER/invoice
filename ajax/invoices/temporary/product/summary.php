@@ -33,6 +33,7 @@ QUI::$Ajax->registerFunction(
         $Calc    = QUI\ERP\Accounting\Calc::getInstance($Brutto);
         $Article = new QUI\ERP\Accounting\Article($article);
 
+        $Article->setUser($Brutto);
         $Article->calc($Calc);
 
         return $Article->toArray();

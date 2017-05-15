@@ -153,11 +153,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
                     self.$Formatter.format(result.calculated_sum)
                 );
             });
-            //
-            // var data = Article.getCalculations();
-            //
-            // self.$ArticleNettoSum.set('html', self.$Formatter.format(data.calculated_nettoSum));
-            // self.$ArticleBruttoSum.set('html', self.$Formatter.format(data.calculated_sum));
         }
     });
 });

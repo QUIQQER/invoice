@@ -419,6 +419,13 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * @return {Promise}
          */
         setVat: function (vat) {
+            if (vat === '-' || vat === '') {
+                this.setAttribute('vat', '');
+                this.$VAT.set('html', '-');
+
+                return this.calc();
+            }
+
             vat = parseInt(vat);
 
             if (vat > 100 || vat < 0) {
@@ -429,12 +436,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             if (this.$VAT) {
                 vat = this.getAttribute('vat');
-
-                if (!vat) {
-                    vat = '-';
-                } else {
-                    vat = vat + '%';
-                }
+                vat = vat + '%';
 
                 this.$VAT.set('html', vat);
             }
