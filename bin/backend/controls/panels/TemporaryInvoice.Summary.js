@@ -137,12 +137,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
             List.addEvent('onArticleSelect', this.$refreshArticleSelect);
         },
 
-
+        /**
+         * event: onArticleSelect
+         *
+         * @param List
+         * @param Article
+         */
         $refreshArticleSelect: function (List, Article) {
             var self = this;
 
             Invoices.getArticleSummary(Article.getAttributes()).then(function (result) {
-                console.info(result);
                 self.$ArticleNettoSum.set(
                     'html',
                     self.$Formatter.format(result.calculated_nettoSum)

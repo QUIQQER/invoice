@@ -310,6 +310,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
         },
 
         /**
+         * Return the current calculations
          *
          * @returns {{}|*}
          */
@@ -720,6 +721,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 this.getAttribute('articleNo')
             ).then(function (value) {
                 this.setArticleNo(value);
+                this.select();
             }.bind(this));
         },
 
@@ -733,6 +735,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 'number'
             ).then(function (value) {
                 this.setQuantity(value);
+                this.select();
             }.bind(this));
         },
 
@@ -746,6 +749,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 'number'
             ).then(function (value) {
                 this.setUnitPrice(value);
+                this.select();
             }.bind(this));
         },
 
@@ -759,6 +763,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 'number'
             ).then(function (value) {
                 this.setVat(value);
+                this.select();
             }.bind(this));
         },
 
@@ -779,6 +784,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 discount
             ).then(function (value) {
                 this.setDiscount(value);
+                this.select();
             }.bind(this));
         },
 

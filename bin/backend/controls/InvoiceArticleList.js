@@ -533,7 +533,8 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
          * @param {Object} Article
          */
         $onArticleSelect: function (Article) {
-            if (this.$selectedArticle) {
+            if (this.$selectedArticle &&
+                this.$selectedArticle != Article) {
                 this.$selectedArticle.unselect();
             }
 
