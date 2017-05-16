@@ -291,6 +291,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                         title: price
                     });
 
+                    self.$VAT.set({
+                        html: product.vat + '%'
+                    });
+
                     self.hideLoader();
 
                     resolve(product);
