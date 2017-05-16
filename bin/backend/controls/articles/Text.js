@@ -35,7 +35,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Text', [
             this.parent(options);
 
             this.setAttributes({
-                type: 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Text'
+                'class': 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Text'
             });
         },
 

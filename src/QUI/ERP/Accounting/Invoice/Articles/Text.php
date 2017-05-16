@@ -39,11 +39,11 @@ class Text extends QUI\ERP\Accounting\Article
 
     /**
      * @inheritdoc
-     * @return int
+     * @return bool
      */
     public function getQuantity()
     {
-        return 1;
+        return false;
     }
 
     /**

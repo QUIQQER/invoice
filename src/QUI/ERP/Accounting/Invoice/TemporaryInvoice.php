@@ -680,6 +680,17 @@ class TemporaryInvoice extends QUI\QDOM
 
         foreach ($articles as $article) {
             try {
+                if (isset($article['class'])
+                    && class_exists($article['class'])
+                ) {
+                    $Article = new $article['class']($article);
+
+                    if ($Article instanceof QUI\ERP\Accounting\Article) {
+                        $this->addArticle($Article);
+                        continue;
+                    }
+                }
+
                 $Article = new QUI\ERP\Accounting\Article($article);
                 $this->addArticle($Article);
             } catch (QUI\Exception $Exception) {

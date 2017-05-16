@@ -81,8 +81,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             title      : '---',
             unitPrice  : 0,
             vat        : '',
-            params     : false, // mixed value for API Articles
-            type       : 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Article'
+            'class'    : 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Article',
+            params     : false // mixed value for API Articles
         },
 
         initialize: function (options) {

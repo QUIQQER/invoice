@@ -145,9 +145,11 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
          * current articles would be deleted
          *
          * @param {Object|String} list
+         * @return {Promise}
          */
         unserialize: function (list) {
-            var data = {};
+            var self = this,
+                data = {};
 
             if (typeOf(list) === 'string') {
                 try {
@@ -159,18 +161,30 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             }
 
             if (!("articles" in data)) {
-                return;
+                return Promise.resolve();
             }
 
             this.$articles = [];
 
-            var i, len, article;
+            var controls = data.articles.map(function (Article) {
+                return Article.control;
+            }).unique();
 
-            for (i = 0, len = data.articles.length; i < len; i++) {
-                article = data.articles[i];
+            require(controls, function () {
+                var i, len, article, index;
 
-                this.addArticle(new Article(article));
-            }
+                for (i = 0, len = data.articles.length; i < len; i++) {
+                    article = data.articles[i];
+                    index   = controls.indexOf(article.control);
+
+                    if (index === -1) {
+                        self.addArticle(new Article(article));
+                        continue;
+                    }
+
+                    self.addArticle(new arguments[index](article));
+                }
+            });
         },
 
         /**
@@ -269,7 +283,9 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
          */
         save: function () {
             return this.$articles.map(function (Article) {
-                return Article.getAttributes();
+                return Object.merge(Article.getAttributes(), {
+                    control: Article.getType()
+                });
             });
         },
 
@@ -534,7 +550,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
          */
         $onArticleSelect: function (Article) {
             if (this.$selectedArticle &&
-                this.$selectedArticle != Article) {
+                this.$selectedArticle !== Article) {
                 this.$selectedArticle.unselect();
             }
 
