@@ -103,6 +103,14 @@
             <de><![CDATA[Summe]]></de>
             <en><![CDATA[Total]]></en>
         </locale>
+        <locale name="invoice.articleList.article.button.remove">
+            <de><![CDATA[Artikel entfernen]]></de>
+            <en><![CDATA[Remove article]]></en>
+        </locale>
+        <locale name="invoice.articleList.article.button.replace">
+            <de><![CDATA[Artikel ersetzen]]></de>
+            <en><![CDATA[Replace article]]></en>
+        </locale>
 
         <locale name="cutomerData">
             <de><![CDATA[Kundendaten]]></de>
@@ -446,6 +454,22 @@
         <locale name="erp.panel.temporary.invoice.button.data">
             <de><![CDATA[Zu den Rechnungsdaten]]></de>
             <en><![CDATA[To the invoice data]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.replace.article.title">
+            <de><![CDATA[Artikel ersetzen mit...]]></de>
+            <en><![CDATA[Replace article with ...]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.replace.article.text">
+            <de><![CDATA[
+            Wählen Sie bitte die Art des Artikels aus mit welchem Sie den Artikel ersetzen möchten.
+            ]]></de>
+            <en><![CDATA[
+            Please choose the type of the article with which you want to replace.
+            ]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.replace.article.withProduct">
+            <de><![CDATA[Produkt]]></de>
+            <en><![CDATA[Product]]></en>
         </locale>
 
         <locale name="dialog.ti.delete.title">

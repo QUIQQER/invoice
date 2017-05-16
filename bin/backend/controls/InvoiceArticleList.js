@@ -15,6 +15,7 @@
  * @event onCalc [self, {Object} calculation]
  * @event onArticleSelect [self, {Object} Article]
  * @event onArticleUnSelect [self, {Object} Article]
+ * @event onArticleReplaceClick [self, {Object} Article]
  */
 define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
 
@@ -44,6 +45,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             '$onArticleDelete',
             '$onArticleSelect',
             '$onArticleUnSelect',
+            '$onArticleReplace',
             '$calc',
             '$onInject'
         ],
@@ -233,6 +235,7 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                 onDelete  : this.$onArticleDelete,
                 onSelect  : this.$onArticleSelect,
                 onUnSelect: this.$onArticleUnSelect,
+                onReplace : this.$onArticleReplace,
                 onCalc    : this.$calc
             });
 
@@ -243,30 +246,34 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
         /**
          * Replace an article with another
          *
-         * @param {Object} Child
-         * @param {Number} index
+         * @param {Object} NewArticle
+         * @param {Number} position
          */
-        replaceArticle: function (Child, index) {
-            if (typeof Child !== 'object') {
+        replaceArticle: function (NewArticle, position) {
+            if (typeof NewArticle !== 'object') {
                 return;
             }
 
-            if (!(Child instanceof Article)) {
+            if (!(NewArticle instanceof Article)) {
                 return;
             }
 
-            //this.$articles.push(Child);
-
-            Child.setUser(this.$user);
-            Child.setPosition(this.$articles.length);
-
-            Child.addEvents({
-                onDelete  : this.$onArticleDelete,
-                onSelect  : this.$onArticleSelect,
-                onUnSelect: this.$onArticleUnSelect,
-                onCalc    : this.$calc
+            var Wanted = this.$articles.find(function (Article) {
+                return Article.getAttribute('position') === position;
             });
 
+            this.addArticle(NewArticle);
+
+            if (Wanted) {
+                NewArticle.getElm().inject(Wanted.getElm(), 'after');
+                Wanted.remove();
+            }
+
+            NewArticle.setPosition(position);
+
+            this.$recalculatePositions();
+
+            return this.$calc();
         },
 
         /**
@@ -568,6 +575,15 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                 this.$selectedArticle = null;
                 this.fireEvent('articleUnSelect', [this, this.$selectedArticle]);
             }
+        },
+
+        /**
+         * event : on article replace click
+         *
+         * @param Article
+         */
+        $onArticleReplace: function (Article) {
+            this.fireEvent('articleReplaceClick', [this, Article]);
         },
 
         /**

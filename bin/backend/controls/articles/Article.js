@@ -67,6 +67,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             '$onEditVat',
             '$onEditDiscount',
             'openDeleteDialog',
+            '$onReplaceClick',
             'remove',
             'select'
         ],
@@ -203,18 +204,18 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             // edit buttons
             new QUIButton({
-                title : 'Artikel ersetzen', // #locale
+                title : QUILocale.get(lg, 'invoice.articleList.article.button.replace'),
                 icon  : 'fa fa-retweet',
                 styles: {
                     'float': 'none'
                 },
                 events: {
-                    onClick: this.$openReplaceDialog
+                    onClick: this.$onReplaceClick
                 }
             }).inject(this.$Buttons);
 
             new QUIButton({
-                title : 'Artikel löschen', // #locale
+                title : QUILocale.get(lg, 'invoice.articleList.article.button.delete'),
                 icon  : 'fa fa-trash',
                 styles: {
                     'float': 'none'
@@ -243,6 +244,13 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.fireEvent('drop', [this]);
 
             this.destroy();
+        },
+
+        /**
+         * Trigger the replace event
+         */
+        $onReplaceClick: function () {
+            this.fireEvent('replace', [this]);
         },
 
         /**
@@ -511,6 +519,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * select the article
          */
         select: function () {
+            if (!this.$Elm) {
+                return;
+            }
+
             this.$Elm.addClass('quiqqer-invoice-backend-invoiceArticle-select');
             this.fireEvent('select', [this]);
         },
@@ -519,6 +531,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * unselect the article
          */
         unselect: function () {
+            if (!this.$Elm) {
+                return;
+            }
+
             this.$Elm.removeClass('quiqqer-invoice-backend-invoiceArticle-select');
             this.fireEvent('unSelect', [this]);
         },
@@ -543,13 +559,6 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                     onSubmit: this.remove.bind(this)
                 }
             }).open();
-        },
-
-        /**
-         * Opens the delete dialog
-         */
-        openReplaceDialog: function () {
-
         },
 
         /**

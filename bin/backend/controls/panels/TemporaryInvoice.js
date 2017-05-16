@@ -71,6 +71,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             '$onInject',
             '$onDestroy',
             '$onDeleteInvoice',
+            '$onArticleReplaceClick',
             '$clickDelete',
             'toggleSort'
         ],
@@ -404,7 +405,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary'
                     ], function (List, Summary) {
                         self.$ArticleList = new List({
-                            events: {},
+                            events: {
+                                onArticleReplaceClick: self.$onArticleReplaceClick
+                            },
                             styles: {
                                 height: 'calc(100% - 120px)'
                             }
@@ -612,25 +615,28 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.$AddProduct.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            require([
-                'package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWindow',
-                'package/quiqqer/invoice/bin/backend/controls/articles/Article'
-            ], function (Win, Article) {
-                new Win({
-                    events: {
-                        onSubmit: function (Win, article) {
-                            var Instance = new Article(article);
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWindow',
+                    'package/quiqqer/invoice/bin/backend/controls/articles/Article'
+                ], function (Win, Article) {
+                    new Win({
+                        events: {
+                            onSubmit: function (Win, article) {
+                                var Instance = new Article(article);
 
-                            if ("calculated_vatArray" in article) {
-                                Instance.setVat(article.calculated_vatArray.vat);
+                                if ("calculated_vatArray" in article) {
+                                    Instance.setVat(article.calculated_vatArray.vat);
+                                }
+
+                                self.$ArticleList.addArticle(Instance);
+                                resolve(Instance);
                             }
-
-                            self.$ArticleList.addArticle(Instance);
                         }
-                    }
-                }).open();
+                    }).open();
 
-                self.$AddProduct.setAttribute('textimage', 'fa fa-plus');
+                    self.$AddProduct.setAttribute('textimage', 'fa fa-plus');
+                });
             });
         },
 
@@ -1059,6 +1065,84 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          */
         $onDeleteInvoice: function () {
             this.destroy();
+        },
+
+        /**
+         *
+         * @param List
+         * @param Article
+         */
+        $onArticleReplaceClick: function (List, Article) {
+            var self = this;
+
+            var replaceArticle = function (NewArticle) {
+                List.replaceArticle(
+                    NewArticle,
+                    Article.getAttribute('position')
+                );
+
+                NewArticle.select();
+            };
+
+            new QUIConfirm({
+                title    : QUILocale.get(lg, 'erp.panel.temporary.invoice.replace.article.title'),
+                maxHeight: 400,
+                maxWidth : 600,
+                icon     : 'fa fa-retweet',
+                events   : {
+                    onOpen: function (Win) {
+                        Win.getContent().setStyles({
+                            textAlign: 'center'
+                        });
+
+                        Win.getContent().set(
+                            'html',
+                            QUILocale.get(lg, 'erp.panel.temporary.invoice.replace.article.text')
+                        );
+
+                        var Select = new Element('select', {
+                            styles: {
+                                margin: '20px auto 0'
+                            }
+                        }).inject(Win.getContent());
+
+                        new Element('option', {
+                            html : QUILocale.get(lg, 'erp.panel.temporary.invoice.replace.article.withProduct'),
+                            value: 'product'
+                        }).inject(Select);
+
+                        new Element('option', {
+                            html : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd.custom'),
+                            value: 'custom'
+                        }).inject(Select);
+
+                        new Element('option', {
+                            html : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd.text'),
+                            value: 'text'
+                        }).inject(Select);
+                    },
+
+                    onSubmit: function (Win) {
+                        var Select = Win.getContent().getElement('select');
+
+                        if (Select.value === 'product') {
+                            self.openProductSearch().then(replaceArticle);
+                            return;
+                        }
+
+                        if (Select.value === 'text') {
+                            replaceArticle(new TextArticle());
+                            return;
+                        }
+
+                        require([
+                            'package/quiqqer/invoice/bin/backend/controls/articles/Article'
+                        ], function (Article) {
+                            replaceArticle(new Article());
+                        });
+                    }
+                }
+            }).open();
         },
 
         /**
