@@ -4,8 +4,8 @@
  * This file contains package_quiqqer_invoice_ajax_invoices_temporary_list
  */
 
-use QUI\ERP\Accounting\Invoice\TemporaryInvoice;
 use QUI\ERP\Accounting\Invoice\Handler;
+use QUI\ERP\Accounting\Invoice\Settings;
 
 /**
  * Returns temporary invoices list for a grid
@@ -61,7 +61,7 @@ QUI::$Ajax->registerFunction(
         foreach ($data as $key => $entry) {
             $fillFields($data[$key]);
 
-            $data[$key]['id'] = TemporaryInvoice::ID_PREFIX . $data[$key]['id'];
+            $data[$key]['id'] = Settings::getInstance()->getTemporaryInvoicePrefix() . $data[$key]['id'];
 
             // customer data
             if (!empty($entry['customer_id'])) {

@@ -16,6 +16,66 @@ use QUI\Utils\Singleton;
 class Settings extends Singleton
 {
     /**
+     * @var string
+     */
+    protected $invoicePrefix = null;
+
+    /**
+     * @var string
+     */
+    protected $temporaryInvoicePrefix = null;
+
+    /**
+     * Return the invoice prefix
+     * eq: PREFIX-10022 (default = INV-)
+     *
+     * @return string
+     */
+    public function getInvoicePrefix()
+    {
+        if ($this->invoicePrefix !== null) {
+            return $this->invoicePrefix;
+        }
+
+        $Package = QUI::getPackage('quiqqer/invoice');
+        $Config  = $Package->getConfig();
+        $setting = $Config->getValue('invoice', 'prefix');
+
+        $this->invoicePrefix = 'INV-';
+
+        if (!empty($setting)) {
+            $this->invoicePrefix = $setting;
+        }
+
+        return $this->invoicePrefix;
+    }
+
+    /**
+     * Return the temporary invoice prefix
+     * eq: PREFIX-10022 (default = EDIT-)
+     *
+     * @return string
+     */
+    public function getTemporaryInvoicePrefix()
+    {
+        if ($this->temporaryInvoicePrefix !== null) {
+            return $this->temporaryInvoicePrefix;
+        }
+
+        $Package = QUI::getPackage('quiqqer/invoice');
+        $Config  = $Package->getConfig();
+        $setting = $Config->getValue('temporaryInvoice', 'prefix');
+
+        $this->temporaryInvoicePrefix = 'INV-';
+
+        if (!empty($setting)) {
+            $this->temporaryInvoicePrefix = $setting;
+        }
+
+        return $this->temporaryInvoicePrefix;
+    }
+
+    /**
      * Return all available invoice templates
      *
      * @return array

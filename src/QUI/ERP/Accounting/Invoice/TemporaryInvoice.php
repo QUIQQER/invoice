@@ -23,7 +23,7 @@ class TemporaryInvoice extends QUI\QDOM
     /**
      * @var string
      */
-    const ID_PREFIX = 'EDIT-';
+    protected $prefix;
 
     /**
      * @var string
@@ -60,7 +60,8 @@ class TemporaryInvoice extends QUI\QDOM
     {
         $data = $Handler->getTemporaryInvoiceData($id);
 
-        $this->id = (int)str_replace(self::ID_PREFIX, '', $id);
+        $this->prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
+        $this->id     = (int)str_replace($this->prefix, '', $id);
 
         $this->Articles = new ArticleList();
         $this->History  = new Comments();
@@ -98,7 +99,7 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function getId()
     {
-        return self::ID_PREFIX . $this->id;
+        return $this->prefix . $this->id;
     }
 
     /**
@@ -108,7 +109,7 @@ class TemporaryInvoice extends QUI\QDOM
      */
     public function getCleanId()
     {
-        return (int)str_replace(self::ID_PREFIX, '', $this->getId());
+        return (int)str_replace($this->prefix, '', $this->getId());
     }
 
     /**
@@ -519,7 +520,7 @@ class TemporaryInvoice extends QUI\QDOM
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             array(
-                'id_prefix'   => Invoice::ID_PREFIX,
+                'id_prefix'   => Settings::getInstance()->getInvoicePrefix(),
                 'customer_id' => $this->getCustomer()->getId(),
                 'order_id'    => $this->getAttribute('order_id'),
                 'c_user'      => $User->getId(),

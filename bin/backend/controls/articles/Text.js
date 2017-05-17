@@ -23,7 +23,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Text', [
     "use strict";
 
     var lg = 'quiqqer/invoice';
-    
+
     return new Class({
 
         Extends: InvoiceArticle,

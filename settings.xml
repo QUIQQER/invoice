@@ -7,6 +7,17 @@
                 <conf name="template">
                     <type><![CDATA[string]]></type>
                 </conf>
+                <conf name="prefix">
+                    <type><![CDATA[string]]></type>
+                    <defaultvalue><![CDATA[INV-]]></defaultvalue>
+                </conf>
+            </section>
+
+            <section name="temporaryInvoice">
+                <conf name="prefix">
+                    <type><![CDATA[string]]></type>
+                    <defaultvalue><![CDATA[EDIT-]]></defaultvalue>
+                </conf>
             </section>
         </config>
 
@@ -36,6 +47,18 @@
                         >
                             <text>
                                 <locale group="quiqqer/invoice" var="invoice.settings.template"/>
+                            </text>
+                        </input>
+
+                        <input type="text" conf="invoice.prefix">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.invoice.prefix"/>
+                            </text>
+                        </input>
+
+                        <input type="text" conf="temporaryInvoice.prefix">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.temporaryInvoice.prefix"/>
                             </text>
                         </input>
                     </settings>

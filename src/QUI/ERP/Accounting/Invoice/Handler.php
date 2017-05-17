@@ -214,7 +214,9 @@ class Handler extends QUI\Utils\Singleton
      */
     public function get($id)
     {
-        if (strpos($id, TemporaryInvoice::ID_PREFIX) !== false) {
+        $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
+
+        if (strpos($id, $prefix) !== false) {
             return $this->getTemporaryInvoice($id);
         }
 
@@ -243,10 +245,12 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getInvoiceData($id)
     {
+        $prefix = Settings::getInstance()->getInvoicePrefix();
+
         $result = QUI::getDataBase()->fetch(array(
             'from'  => self::invoiceTable(),
             'where' => array(
-                'id' => (int)str_replace(Invoice::ID_PREFIX, '', $id)
+                'id' => (int)str_replace($prefix, '', $id)
             ),
             'limit' => 1
         ));
@@ -298,10 +302,12 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getTemporaryInvoiceData($id)
     {
+        $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
+
         $result = QUI::getDataBase()->fetch(array(
             'from'  => self::temporaryInvoiceTable(),
             'where' => array(
-                'id' => (int)str_replace(TemporaryInvoice::ID_PREFIX, '', $id)
+                'id' => (int)str_replace($prefix, '', $id)
             ),
             'limit' => 1
         ));

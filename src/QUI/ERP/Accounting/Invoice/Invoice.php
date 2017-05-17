@@ -37,7 +37,7 @@ class Invoice extends QUI\QDOM
     /**
      * @var string
      */
-    const ID_PREFIX = 'INV-';
+    protected $prefix;
 
     /**
      * @var int
@@ -54,7 +54,8 @@ class Invoice extends QUI\QDOM
     {
         $this->setAttributes($Handler->getInvoiceData($id));
 
-        $this->id = (int)str_replace(self::ID_PREFIX, '', $id);
+        $this->prefix = Settings::getInstance()->getInvoicePrefix();
+        $this->id     = (int)str_replace($this->prefix, '', $id);
     }
 
     /**
@@ -64,7 +65,7 @@ class Invoice extends QUI\QDOM
      */
     public function getId()
     {
-        return self::ID_PREFIX . $this->id;
+        return $this->prefix . $this->id;
     }
 
     /**
@@ -74,7 +75,7 @@ class Invoice extends QUI\QDOM
      */
     public function getCleanId()
     {
-        return (int)str_replace(self::ID_PREFIX, '', $this->getId());
+        return (int)str_replace($this->prefix, '', $this->getId());
     }
 
 
@@ -280,7 +281,6 @@ class Invoice extends QUI\QDOM
      */
     public function createCredit()
     {
-
     }
 
     /**

@@ -7,6 +7,7 @@ use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Currency\Handler as Currencies;
 use QUI\ERP\Accounting\Payments\Handler as Payments;
+use QUI\ERP\Accounting\Invoice\Settings;
 
 /**
  * Returns invoices list for a grid
@@ -124,7 +125,7 @@ QUI::$Ajax->registerFunction(
 
             // data preparation
             if (!$Invoice->getAttribute('id_prefix')) {
-                $invoiceData['id_prefix'] = Invoice::ID_PREFIX;
+                $invoiceData['id_prefix'] = Settings::getInstance()->getInvoicePrefix();
             }
 
             $invoiceData['id'] = $invoiceData['id_prefix'] . $invoiceData['id'];
