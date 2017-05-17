@@ -66,7 +66,7 @@ class Settings extends Singleton
         $Config  = $Package->getConfig();
         $setting = $Config->getValue('temporaryInvoice', 'prefix');
 
-        $this->temporaryInvoicePrefix = 'INV-';
+        $this->temporaryInvoicePrefix = 'EDIT-';
 
         if (!empty($setting)) {
             $this->temporaryInvoicePrefix = $setting;
