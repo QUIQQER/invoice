@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<events>
+    <event on="onPackageSetup" fire="\QUI\ERP\Accounting\Invoice\EventHandler::onPackageSetup"/>
+</events>

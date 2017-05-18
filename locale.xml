@@ -291,8 +291,8 @@
             <en><![CDATA[Custome no]]></en>
         </locale>
         <locale name="journal.grid.status">
-            <de><![CDATA[Rechnungsstatus]]></de>
-            <en><![CDATA[Accounting Status]]></en>
+            <de><![CDATA[Zahlungsstatus]]></de>
+            <en><![CDATA[Payment status]]></en>
         </locale>
         <locale name="journal.grid.vat">
             <de><![CDATA[MwSt]]></de>
@@ -342,9 +342,9 @@
             <de><![CDATA[Mahnstufe]]></de>
             <en><![CDATA[Dunning level]]></en>
         </locale>
-        <locale name="journal.grid.processing">
-            <de><![CDATA[Bearbeitung]]></de>
-            <en><![CDATA[Processing]]></en>
+        <locale name="journal.grid.processingStatus">
+            <de><![CDATA[Rechnungsstatus]]></de>
+            <en><![CDATA[Processing status]]></en>
         </locale>
         <locale name="journal.grid.comments">
             <de><![CDATA[Bemerkungen]]></de>
@@ -696,6 +696,18 @@
             <en><![CDATA[&nbsp;]]></en>
         </locale>
 
+        <locale name="processing.status.default.1">
+            <de><![CDATA[Neu]]></de>
+            <en><![CDATA[New]]></en>
+        </locale>
+        <locale name="processing.status.default.2">
+            <de><![CDATA[In Bearbeitung]]></de>
+            <en><![CDATA[In processing]]></en>
+        </locale>
+        <locale name="processing.status.default.3">
+            <de><![CDATA[Erledigt]]></de>
+            <en><![CDATA[Done]]></en>
+        </locale>
     </groups>
 
 </locales>

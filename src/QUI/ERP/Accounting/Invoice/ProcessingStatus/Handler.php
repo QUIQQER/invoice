@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file contains QUI\ERP\Accounting\Invoice\ProcessingStatus
+ * This file contains QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler
  */
 
 namespace QUI\ERP\Accounting\Invoice\ProcessingStatus;

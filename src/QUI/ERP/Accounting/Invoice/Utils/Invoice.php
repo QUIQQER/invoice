@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * This file contains QUI\ERP\Accounting\Invoice\Utils\Invoice
+ */
+
 namespace QUI\ERP\Accounting\Invoice\Utils;
 
 use QUI;

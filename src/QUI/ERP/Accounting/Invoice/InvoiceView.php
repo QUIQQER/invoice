@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file contains QUI\ERP\Accounting\Invoice
+ * This file contains QUI\ERP\Accounting\Invoice\InvoiceView
  */
 
 namespace QUI\ERP\Accounting\Invoice;

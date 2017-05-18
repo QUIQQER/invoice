@@ -29,7 +29,7 @@ QUI::$Ajax->registerFunction(
             }
             return $a['id'] > $b['id'] ? 1 : -1;
         });
-        \QUI\System\Log::writeRecursive($result);
+
         return $Grid->parseResult($result, count($result));
     },
     false,
