@@ -62,6 +62,17 @@
                             </text>
                         </input>
                     </settings>
+
+                    <settings>
+                        <title>
+                            <locale group="quiqqer/invoice" var="invoice.settings.processingStatus.title"/>
+                        </title>
+
+                        <input type="hidden"
+                               label="false"
+                               data-qui="package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus"
+                        />
+                    </settings>
                 </category>
             </categories>
         </window>

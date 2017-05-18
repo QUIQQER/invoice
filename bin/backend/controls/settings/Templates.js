@@ -1,5 +1,9 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/settings/Templates
+ *
+ * @require qui/QUI
+ * @require qui/controls/Control
+ * @require package/quiqqer/invoice/bin/Invoices
  */
 define('package/quiqqer/invoice/bin/backend/controls/settings/Templates', [
 

@@ -287,12 +287,12 @@ class Invoice extends QUI\QDOM
      * Add a payment to the invoice
      *
      * @param string|int|float $amount - Payment amount
-     * @param PaymentsInterface $Payment - Payment method
+     * @param PaymentsInterface $PaymentMethod - Payment method
      * @param int|string|bool $date - optional, unix timestamp
      *
      * @todo event einführen
      */
-    public function addPayment($amount, PaymentsInterface $Payment, $date = false)
+    public function addPayment($amount, PaymentsInterface $PaymentMethod, $date = false)
     {
         // @todo permissions
 
@@ -304,7 +304,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddPaymentBegin',
-            array($this, $amount, $Payment, $date)
+            array($this, $amount, $PaymentMethod, $date)
         );
 
         $User     = QUI::getUserBySession();
@@ -339,7 +339,7 @@ class Invoice extends QUI\QDOM
 
         $paidData[] = array(
             'amount'  => $amount,
-            'payment' => $Payment->getName(),
+            'payment' => $PaymentMethod->getName(),
             'date'    => $date
         );
 
@@ -353,21 +353,21 @@ class Invoice extends QUI\QDOM
                 array(
                     'username' => $User->getName(),
                     'uid'      => $User->getId(),
-                    'payment'  => $Payment->getTitle()
+                    'payment'  => $PaymentMethod->getTitle()
                 )
             )
         );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddPayment',
-            array($this, $amount, $Payment, $date)
+            array($this, $amount, $PaymentMethod, $date)
         );
 
         $this->calculatePayments();
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddPaymentEnd',
-            array($this, $amount, $Payment, $date)
+            array($this, $amount, $PaymentMethod, $date)
         );
     }
 

@@ -1,0 +1,14 @@
+
+.quiqqer-invoice-processing-status-window table {
+    border: none;
+}
+
+.quiqqer-invoice-processing-status-window td {
+    padding: 8px 0;
+}
+
+.quiqqer-invoice-processing-status-window [type="color"] {
+    padding: 0;
+    height: 31px;
+    border: none;
+}

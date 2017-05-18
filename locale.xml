@@ -220,6 +220,19 @@
             <de><![CDATA[Standard Rechnungstemplate]]></de>
             <en><![CDATA[Default invoice template]]></en>
         </locale>
+        <locale name="invoice.settings.invoice.prefix">
+            <de><![CDATA[Präfix für Rechnungsnummern]]></de>
+            <en><![CDATA[Prefix for invoice numbers]]></en>
+        </locale>
+        <locale name="invoice.settings.temporaryInvoice.prefix">
+            <de><![CDATA[Präfix für nicht gebuchte Rechnungsnummern]]></de>
+            <en><![CDATA[Prefix for unbooked invoice numbers]]></en>
+        </locale>
+
+        <locale name="invoice.settings.processingStatus.title">
+            <de><![CDATA[Rechnungsstatus]]></de>
+            <en><![CDATA[Invoice status]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -549,6 +562,48 @@
                 The User does not have an address. Please create a new address for the user. <br />
                 This address also serves as an invoice address
             ]]></en>
+        </locale>
+
+        <locale name="processingStatus.grid.id">
+            <de><![CDATA[ID]]></de>
+            <en><![CDATA[ID]]></en>
+        </locale>
+        <locale name="processingStatus.grid.color">
+            <de><![CDATA[Farbe]]></de>
+            <en><![CDATA[Color]]></en>
+        </locale>
+
+        <locale name="dialog.processingStatus.delete.title">
+            <de><![CDATA[Rechnungsstatus entfernen]]></de>
+            <en><![CDATA[Remove invoice status]]></en>
+        </locale>
+        <locale name="dialog.processingStatus.delete.text">
+            <de><![CDATA[Rechnungsstatus wirklich entfernen?]]></de>
+            <en><![CDATA[Really remove invoice status?]]></en>
+        </locale>
+        <locale name="dialog.processingStatus.delete.information" html="true">
+            <de><![CDATA[
+            Folgender Rechnungsstatus wird entfernt:<br />
+            <strong>#[id] - [title]</strong>
+            <br /><br />
+            Der Rechnungsstatus ist nicht wiederherstellbar.
+            ]]></de>
+            <en><![CDATA[
+            The following invoice status will be removed: <br />
+            <strong>#[id] - [title]</strong>
+            <br /><br />
+            The invoice status is not recoverable.
+            ]]></en>
+        </locale>
+
+        <locale name="dialog.processingStatus.create.title">
+            <de><![CDATA[Rechnungsstatus hinzufügen]]></de>
+            <en><![CDATA[Create invoice status]]></en>
+        </locale>
+
+        <locale name="dialog.processingStatus.edit.title">
+            <de><![CDATA[Rechnunsstatus bearbeiten]]></de>
+            <en><![CDATA[Edit invoice status]]></en>
         </locale>
     </groups>
 

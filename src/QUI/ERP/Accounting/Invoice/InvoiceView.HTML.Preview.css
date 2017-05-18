@@ -1,43 +1,6 @@
-
 @page {
     margin: 27mm 16mm 27mm 16mm;
     size: 7in 9.25in;
-}
-
-
-/* define default page and names pages: cover, blank, frontmatter */
-
-@page :left {
-    @top-left {
-        font: 11pt "Gill Sans", serif;
-        content: "Cascading Style Sheets";
-        vertical-align: bottom;
-        padding-bottom: 2em;
-    }
-
-    @bottom-left {
-        font: 11pt "Gill Sans", serif;
-        content: counter(page);
-        padding-top: 2em;
-        vertical-align: top;
-    }
-}
-
-@page :right {
-    @top-right {
-        font: 11pt "Gill Sans", serif;
-        content: string(header, first);
-        vertical-align: bottom;
-        padding-bottom: 2em;
-    }
-
-    @bottom-right {
-        font: 11pt "Gill Sans", serif;
-        content: counter(page);
-        text-align: right;
-        vertical-align: top;
-        padding-top: 2em;
-    }
 }
 
 footer.invoice-footer {
