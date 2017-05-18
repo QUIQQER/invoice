@@ -12,3 +12,12 @@
     height: 31px;
     border: none;
 }
+
+.quiqqer-invoice-processing-status-color {
+    display: block;
+    left: -5px;
+    line-height: 27px;
+    padding: 0 0 0 5px;
+    position: relative;
+    width: calc(100% + 5px);
+}

@@ -53,3 +53,10 @@
     border-top: 1px solid #DEDEDE;
     padding: 5px 0;
 }
+
+.journal-total {
+    bottom: 0;
+    display: none;
+    opacity: 0;
+    position: absolute;
+}

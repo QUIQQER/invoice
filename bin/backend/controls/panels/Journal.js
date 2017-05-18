@@ -42,6 +42,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
         Binds: [
             'refresh',
+            'showTotal',
             '$onCreate',
             '$onDestroy',
             '$onResize',
@@ -64,6 +65,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.$Grid   = null;
             this.$Status = null;
+            this.$Total  = null;
 
             this.addEvents({
                 onCreate: this.$onCreate,
@@ -171,9 +173,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
 
             // Grid
-            var Container = new Element('div').inject(
-                this.getContent()
-            );
+            var Container = new Element('div').inject(this.getContent());
 
             var Actions = new QUIButton({
                 name      : 'actions',
@@ -369,6 +369,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 onRefresh: this.refresh,
                 onClick  : this.$refreshButtonStatus
             });
+
+            this.$Total = new Element('div', {
+                'class': 'journal-total'
+            }).inject(this.getContent());
         },
 
         /**
@@ -630,6 +634,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     resolve();
                 });
             });
+        },
+
+        showTotal: function () {
+
         }
     });
 });

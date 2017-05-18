@@ -53,6 +53,16 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
             var self = this;
 
             ProcessingStatus.getList().then(function (result) {
+                for (var i = 0, len = result.data.length; i < len; i++) {
+                    result.data[i].colorNode = new Element('span', {
+                        html   : result.data[i].color,
+                        'class': 'quiqqer-invoice-processing-status-color',
+                        styles : {
+                            backgroundColor: result.data[i].color
+                        }
+                    });
+                }
+
                 self.$Grid.setData(result);
                 self.$refreshButtonStatus();
             });
@@ -109,8 +119,8 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                     width    : 60
                 }, {
                     header   : QUILocale.get(lg, 'processingStatus.grid.color'),
-                    dataIndex: 'color',
-                    dataType : 'string',
+                    dataIndex: 'colorNode',
+                    dataType : 'node',
                     width    : 60
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'title'),

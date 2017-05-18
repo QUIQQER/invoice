@@ -281,6 +281,8 @@ class Invoice extends QUI\QDOM
      */
     public function createCreditNote()
     {
+        // Temporäre Rechnung erstellen
+
     }
 
     /**
