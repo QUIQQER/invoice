@@ -206,8 +206,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
 
             Actions.appendChild({
-                name  : 'createCredit',
-                text  : QUILocale.get(lg, 'journal.btn.createCredit'),
+                name  : 'createCreditNote',
+                text  : QUILocale.get(lg, 'journal.btn.createCreditNote'),
                 icon  : 'fa fa-clipboard',
                 events: {
                     onClick: function () {

@@ -12,14 +12,6 @@
     right: 0;
 }
 
-.invoice-data [type="date"] {
-    border-width: 0 1px 0 0;
-}
-
-.invoice-data [type="time"] {
-    border-width: 0;
-}
-
 /** Preview
  ========================================== */
 

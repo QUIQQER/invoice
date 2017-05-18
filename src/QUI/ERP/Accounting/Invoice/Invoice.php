@@ -279,7 +279,7 @@ class Invoice extends QUI\QDOM
     /**
      * @todo Gutschrift
      */
-    public function createCredit()
+    public function createCreditNote()
     {
     }
 

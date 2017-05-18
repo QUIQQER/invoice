@@ -252,7 +252,7 @@
             <de><![CDATA[Rechnung kopieren]]></de>
             <en><![CDATA[Copy Invoice]]></en>
         </locale>
-        <locale name="journal.btn.createCredit">
+        <locale name="journal.btn.createCreditNote">
             <de><![CDATA[Gutschrift erstellen]]></de>
             <en><![CDATA[Create credit memo]]></en>
         </locale>

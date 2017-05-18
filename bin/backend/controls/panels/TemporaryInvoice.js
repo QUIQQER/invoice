@@ -267,14 +267,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }
 
                 QUIFormUtils.setDataToForm({
-                    date_date       : dateDate,
-                    date_time       : dateTime,
+                    date            : dateDate,
                     time_for_payment: self.getAttribute('time_for_payment'),
                     project_name    : self.getAttribute('project_name'),
                     editor_id       : self.getAttribute('editor_id')
                 }, Form);
 
                 return QUI.parse(Container);
+            }).then(function () {
+                return new Promise(function (resolve, reject) {
+                    var Form = self.getContent().getElement('form');
+
+                    require(['utils/Controls'], function (ControlUtils) {
+                        ControlUtils.parse(Form).then(resolve);
+                    }, reject);
+                });
             }).then(function () {
                 var Content = self.getContent();
 
@@ -828,12 +835,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             var data     = this.getAttribute('data') || {};
 
             // timefields
-            if ("date_date" in formData &&
-                "date_time" in formData) {
-                this.setAttribute(
-                    'date',
-                    formData.date_date + ' ' + formData.date_time
-                );
+            if ("date" in formData) {
+                this.setAttribute('date', formData.date + ' 00:00:00');
             }
 
             [
