@@ -168,7 +168,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             // Buttons
             this.addButton({
-                text     : 'Summe anzeigen', // #locale
+                text     : QUILocale.get(lg, 'journal.btn.total'),
                 textimage: 'fa fa-calculator'
             });
 
@@ -328,11 +328,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataIndex: 'order_id',
                     dataType : 'date',
                     width    : 130
-                    // }, {
-                    //     header: QUILocale.get(lg, 'journal.grid.dunning'),
-                    //     dataIndex: 'dunning_level',
-                    //     dataType: 'integer',
-                    //     width: 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.processing'),
                     dataIndex: 'processing_status',

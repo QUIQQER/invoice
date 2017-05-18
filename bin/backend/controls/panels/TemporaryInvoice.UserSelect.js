@@ -5,7 +5,12 @@
  *
  * @require qui/QUI
  * @require qui/controls/Control
+ * @require qui/controls/buttons/Button
  * @require controls/users/address/Display
+ * @require controls/users/search/Window
+ * @require Users
+ * @require Locale
+ * @require css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect.css
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect', [
 
@@ -25,14 +30,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
     return new Class({
 
         Extends: QUIControl,
-        Type: 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect',
+        Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect',
 
         Binds: [
             'openUserSearch'
         ],
 
         options: {
-            userId: false,
+            userId   : false,
             addressId: false
         },
 
@@ -156,13 +161,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 for (var i = 0, len = address.length; i < len; i++) {
                     new Element('option', {
-                        html: address[i].text,
+                        html : address[i].text,
                         value: address[i].id
                     }).inject(Select);
                 }
 
                 new QUIButton({
-                    text: QUILocale.get('quiqqer/system', 'accept'),
+                    text  : QUILocale.get('quiqqer/system', 'accept'),
                     styles: {
                         'float': 'none'
                     },
@@ -194,10 +199,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                         var Address = new Display({
                             addressId: self.getAttribute('addressId'),
-                            userId: self.getAttribute('userId'),
-                            events: {
+                            userId   : self.getAttribute('userId'),
+                            events   : {
                                 onLoadError: reject,
-                                onLoad: function () {
+                                onLoad     : function () {
                                     var scrollSize = self.$Container.getScrollSize();
 
                                     moofx(self.getElm()).animate({
@@ -209,7 +214,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                                         }
                                     });
                                 },
-                                onClick: function () {
+                                onClick    : function () {
                                     self.getElm().setStyle('height', null);
                                     self.openUserSearch();
                                 }
@@ -230,7 +235,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          */
         getValue: function () {
             return {
-                userId: this.getAttribute('userId'),
+                userId   : this.getAttribute('userId'),
                 addressId: this.getAttribute('addressId')
             };
         },
@@ -285,7 +290,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             return new Promise(function (resolve) {
                 moofx(Container).animate({
                     opacity: 0,
-                    top: -50
+                    top    : -50
                 }, {
                     duration: 200,
                     callback: function () {
@@ -309,7 +314,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             return new Promise(function (resolve) {
                 moofx(Container).animate({
                     opacity: 1,
-                    top: 0
+                    top    : 0
                 }, {
                     duration: 200,
                     callback: resolve

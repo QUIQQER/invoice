@@ -5,9 +5,15 @@
  *
  * @require qui/QUI
  * @require qui/controls/desktop/Panel
+ * @require qui/controls/buttons/Button
  * @require qui/controls/buttons/Select
+ * @require qui/controls/windows/Confirm
  * @require controls/grid/Grid
  * @require package/quiqqer/invoice/bin/Invoices
+ * @require Locale
+ * @require Mustache
+ * @require text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html
+ * @require css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
@@ -85,7 +91,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         },
 
         /**
-         *
+         * refresh the button status
+         * disabled or enabled
          */
         $refreshButtonStatus: function () {
             if (!this.$Grid) {
@@ -135,7 +142,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         $onCreate: function () {
             // Buttons
             this.addButton({
-                text     : 'Summe anzeigen', //#locale
+                text     : QUILocale.get(lg, 'journal.btn.total'),
                 textimage: 'fa fa-calculator'
             });
 

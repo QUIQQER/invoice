@@ -268,6 +268,10 @@
             <de><![CDATA[Rechnung öffnen]]></de>
             <en><![CDATA[Open invoice]]></en>
         </locale>
+        <locale name="journal.btn.total">
+            <de><![CDATA[Summe anzeigen]]></de>
+            <en><![CDATA[Show total]]></en>
+        </locale>
 
         <locale name="temporary.btn.deleteInvoice">
             <de><![CDATA[Rechnung löschen]]></de>
