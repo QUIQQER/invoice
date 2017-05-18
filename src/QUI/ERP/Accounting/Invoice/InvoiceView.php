@@ -56,16 +56,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function previewHTML()
     {
-        $output = '';
-
-        $output .= '<style>';
-        $output .= file_get_contents(dirname(__FILE__) . '/InvoiceView.HTML.Preview.css');
-        $output .= '</style>';
-        $output .= $this->getHTMLHeader();
-        $output .= $this->getHTMLBody();
-        $output .= $this->getHTMLFooter();
-
-        return $output;
+        return $this->getTemplate()->renderPreview();
     }
 
     /**
@@ -75,9 +66,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function toHTML()
     {
-        return $this->getHTMLHeader() .
-               $this->getHTMLBody() .
-               $this->getHTMLFooter();
+        return $this->getTemplate()->render();
     }
 
     /**
@@ -111,10 +100,12 @@ class InvoiceView extends QUI\QDOM
             'marginBottom' => 80 // dies muss variabel sein
         ));
 
+        $Template = $this->getTemplate();
+
         try {
-            $Document->setHeaderHTML($this->getHTMLHeader());
-            $Document->setContentHTML($this->getHTMLBody());
-            $Document->setFooterHTML($this->getHTMLFooter());
+            $Document->setHeaderHTML($Template->getHTMLHeader());
+            $Document->setContentHTML($Template->getHTMLBody());
+            $Document->setFooterHTML($Template->getHTMLFooter());
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
         }
@@ -122,15 +113,34 @@ class InvoiceView extends QUI\QDOM
         return $Document;
     }
 
+    /**
+     * Return the template package
+     *
+     * @return QUI\Package\Package
+     */
+    protected function getTemplatePackage()
+    {
+        $template = $this->getAttribute('template');
+        $Settings = Settings::getInstance();
 
-    //region Template Output Helper
+        if (empty($template)) {
+            $template = $Settings->getDefaultTemplate();
+        }
+
+        return QUI::getPackage($template);
+    }
 
     /**
-     * @return QUI\Interfaces\Template\EngineInterface
+     * @return QUI\ERP\Utils\Template
      */
-    protected function getHTMLEngine()
+    protected function getTemplate()
     {
-        $Engine   = QUI::getTemplateManager()->getEngine();
+        $Template = new QUI\ERP\Utils\Template(
+            $this->getTemplatePackage(),
+            QUI\ERP\Utils\Template::TYPE_INVOICE
+        );
+
+        $Engine   = $Template->getEngine();
         $Customer = $this->Invoice->getCustomer();
         $Editor   = $this->Invoice->getEditor();
 
@@ -143,7 +153,6 @@ class InvoiceView extends QUI\QDOM
         } catch (QUI\Exception $Exception) {
             $Address = null;
         }
-
 
         // list calculation
         $Calc     = new QUI\ERP\Accounting\Calc($Customer);
@@ -159,93 +168,6 @@ class InvoiceView extends QUI\QDOM
             'Address'     => $Address
         ));
 
-        return $Engine;
+        return $Template;
     }
-
-    /**
-     * Return the html header
-     *
-     * @return string
-     */
-    protected function getHTMLHeader()
-    {
-        return $this->getTemplate('/template/header');
-    }
-
-    /**
-     * Return the html body
-     *
-     * @return string
-     */
-    protected function getHTMLBody()
-    {
-        return $this->getTemplate('/template/body');
-    }
-
-    /**
-     * Return the html body
-     *
-     * @return string
-     */
-    protected function getHTMLFooter()
-    {
-        return $this->getTemplate('/template/footer');
-    }
-
-    /**
-     * Helper for template check
-     *
-     * @param $template
-     * @return string
-     */
-    protected function getTemplate($template)
-    {
-        $path = $this->getTemplatePath();
-        $file = $path . $template;
-
-        if (!file_exists($file . '.html')) {
-            $file = QUI::getPackage('quiqqer/invoice')->getDir() . $template;
-        }
-
-        $cssFile  = $file . '.css';
-        $htmlFile = $file . '.html';
-
-        $Output = new QUI\Output();
-        $Output->setSetting('use-system-image-paths', true);
-
-        $output = '';
-
-        if (file_exists($cssFile)) {
-            $output .= '<style>' . file_get_contents($cssFile) . '</style>';
-        }
-
-        $output .= $this->getHTMLEngine()->fetch($htmlFile);
-
-        return $Output->parse($output);
-    }
-
-    /**
-     * Return the template path
-     *
-     * @return string
-     */
-    protected function getTemplatePath()
-    {
-        $template = $this->getAttribute('template');
-        $Settings = Settings::getInstance();
-
-        if (empty($template)) {
-            $template = $Settings->getDefaultTemplate();
-        }
-
-        $templatePath = OPT_DIR . $template;
-
-        if (!is_dir($templatePath)) {
-            $templatePath = OPT_DIR . $Settings->getDefaultTemplate();
-        }
-
-        return $templatePath;
-    }
-
-    //endregion
 }
