@@ -54,9 +54,47 @@
     padding: 5px 0;
 }
 
+/** Total Display
+ ================================================= */
+
 .journal-total {
-    bottom: 0;
+    background: #fff;
+    border-top: 2px solid #DEDEDE;
+    bottom: -20px;
     display: none;
+    float: left;
+    height: 100px;
+    left: 0;
     opacity: 0;
     position: absolute;
+    width: 100%;
+    z-index: 100;
+}
+
+.journal-total header,
+.journal-total-row {
+    clear: both;
+    float: left;
+    width: 100%;
+}
+
+.journal-total header > div,
+.journal-total-row > div {
+    float: left;
+    line-height: 25px;
+    padding: 0 10px;
+    text-align: right;
+    width: 25%;
+}
+
+.journal-total-row > div:first-child {
+    text-align: left;
+}
+
+.journal-total-row:nth-child(even) {
+    background: #f7f7f7;
+}
+
+.journal-total-row:hover {
+    background: #eaeff4;
 }

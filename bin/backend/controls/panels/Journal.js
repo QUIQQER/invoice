@@ -13,6 +13,7 @@
  * @require Locale
  * @require Mustache
  * @require text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html
+ * @require text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.Total.html
  * @require css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
@@ -28,9 +29,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'Mustache',
 
     'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html',
+    'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.Total.html',
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
 
-], function (QUI, QUIPanel, QUIButton, QUISelect, QUIConfirm, Grid, Invoices, QUILocale, Mustache, templateInvoiceDetails) {
+], function (QUI, QUIPanel, QUIButton, QUISelect, QUIConfirm, Grid, Invoices, QUILocale, Mustache, templateInvoiceDetails, templateTotal) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -42,7 +44,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
         Binds: [
             'refresh',
+            'toggleTotal',
             'showTotal',
+            'closeTotal',
             '$onCreate',
             '$onDestroy',
             '$onResize',
@@ -86,8 +90,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.Loader.show();
 
             Invoices.getList().then(function (result) {
-                this.$Grid.setData(result);
+                this.$Grid.setData(result.grid);
                 this.$refreshButtonStatus();
+
+                console.log(result.total);
+
+                this.$Total.set(
+                    'html',
+                    Mustache.render(templateTotal, result.total)
+                );
+
                 this.Loader.hide();
             }.bind(this));
         },
@@ -144,8 +156,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         $onCreate: function () {
             // Buttons
             this.addButton({
+                name     : 'total',
                 text     : QUILocale.get(lg, 'journal.btn.total'),
-                textimage: 'fa fa-calculator'
+                textimage: 'fa fa-calculator',
+                events   : {
+                    onClick: this.toggleTotal
+                }
             });
 
             this.$Status = new QUISelect({
@@ -169,7 +185,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
 
             this.getContent().setStyles({
-                padding: 10
+                padding : 10,
+                position: 'relative'
             });
 
             // Grid
@@ -369,6 +386,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 onRefresh: this.refresh,
                 onClick  : this.$refreshButtonStatus
             });
+
 
             this.$Total = new Element('div', {
                 'class': 'journal-total'
@@ -636,8 +654,68 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
         },
 
-        showTotal: function () {
+        /**
+         * Toggle the total display
+         */
+        toggleTotal: function () {
+            if (parseInt(this.$Total.getStyle('opacity')) === 1) {
+                this.hideTotal();
+                return;
+            }
 
+            this.showTotal();
+        },
+
+        /**
+         * Show the total display
+         */
+        showTotal: function () {
+            this.getButtons('total').setActive();
+            this.getContent().setStyle('overflow', 'hidden');
+
+            return new Promise(function (resolve) {
+                this.$Total.setStyles({
+                    display: 'inline-block',
+                    opacity: 0
+                });
+
+                this.$Grid.setHeight(this.getContent().getSize().y - 130);
+
+                moofx(this.$Total).animate({
+                    bottom : 1,
+                    opacity: 1
+                }, {
+                    duration: 200,
+                    callback: resolve
+                });
+            }.bind(this));
+        },
+
+        /**
+         * Hide the total display
+         */
+        hideTotal: function () {
+            var self = this;
+
+            this.getButtons('total').setNormal();
+
+            return new Promise(function (resolve) {
+                self.$Grid.setHeight(self.getContent().getSize().y - 20);
+
+                moofx(self.$Total).animate({
+                    bottom : -20,
+                    opacity: 0
+                }, {
+                    duration: 200,
+                    callback: function () {
+                        self.$Total.setStyles({
+                            display: 'none'
+                        });
+
+                        resolve();
+                    }
+                });
+            });
         }
     });
 });

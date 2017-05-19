@@ -3,6 +3,7 @@
 /**
  * This file contains package_quiqqer_invoice_ajax_invoices_list
  */
+
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Currency\Handler as Currencies;
@@ -143,6 +144,11 @@ QUI::$Ajax->registerFunction(
             $invoiceData['display_paid']     = $Currency->format($invoiceData['paid']);
             $invoiceData['display_toPay']    = $Currency->format($invoiceData['toPay']);
 
+            $invoiceData['calculated_nettosum'] = $invoiceData['nettosum'];
+            $invoiceData['calculated_sum']      = $invoiceData['sum'];
+            $invoiceData['calculated_subsum']   = $invoiceData['subsum'];
+            $invoiceData['calculated_paid']     = $invoiceData['paid'];
+            $invoiceData['calculated_toPay']    = $invoiceData['toPay'];
 
             // vat information
             $vatArray = $invoiceData['vat_array'];
@@ -156,9 +162,10 @@ QUI::$Ajax->registerFunction(
                 return $data['sum'];
             }, $vatArray);
 
-            $invoiceData['vat']            = implode('; ', $vat);
-            $invoiceData['display_vatsum'] = $Currency->format(array_sum($vatSum));
-
+            $invoiceData['vat']               = implode('; ', $vat);
+            $invoiceData['display_vatsum']    = $Currency->format(array_sum($vatSum));
+            $invoiceData['calculated_vat']    = $vatSum;
+            $invoiceData['calculated_vatsum'] = array_sum($vatSum);
 
             // customer data
             $customerData = json_decode($invoiceData['customer_data'], true);
@@ -173,7 +180,10 @@ QUI::$Ajax->registerFunction(
             $result[] = $invoiceData;
         }
 
-        return $Grid->parseResult($result, $Invoices->count());
+        return array(
+            'grid'  => $Grid->parseResult($result, $Invoices->count()),
+            'total' => QUI\ERP\Accounting\Calc::calculateTotal($result)
+        );
     },
     array('params'),
     'Permission::checkAdminUser'
