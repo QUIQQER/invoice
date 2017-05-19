@@ -89,7 +89,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         refresh: function () {
             this.Loader.show();
 
-            Invoices.getList().then(function (result) {
+            Invoices.getList({
+                perPage: this.$Grid.options.perPage,
+                page   : this.$Grid.options.page
+            }).then(function (result) {
                 this.$Grid.setData(result.grid);
                 this.$refreshButtonStatus();
 
