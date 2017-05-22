@@ -96,7 +96,13 @@ class Invoice extends QUI\QDOM
      */
     public function getArticles()
     {
-        return new ArticleListUnique($this->getAttribute('articles'));
+        $articles = $this->getAttribute('articles');
+
+        if (is_string($articles)) {
+            $articles = json_decode($articles, true);
+        }
+
+        return new ArticleListUnique($articles);
     }
 
     /**

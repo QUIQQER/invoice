@@ -609,6 +609,91 @@
             <de><![CDATA[Rechnunsstatus bearbeiten]]></de>
             <en><![CDATA[Edit invoice status]]></en>
         </locale>
+
+        <locale name="erp.panel.invoice.data">
+            <de><![CDATA[Daten]]></de>
+            <en><![CDATA[Data]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.articles">
+            <de><![CDATA[Artikel]]></de>
+            <en><![CDATA[Articles]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.history">
+            <de><![CDATA[Verlauf]]></de>
+            <en><![CDATA[History]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.comments">
+            <de><![CDATA[Kommentare]]></de>
+            <en><![CDATA[Comments]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.payments">
+            <de><![CDATA[Zahlungen]]></de>
+            <en><![CDATA[Payments]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.title">
+            <de><![CDATA[Rechnung: #[id]]]></de>
+            <en><![CDATA[Invoice: #[id]]]></en>
+        </locale>
+
+        <locale name="erp.panel.invoice.data.title">
+            <de><![CDATA[Rechnungsdaten]]></de>
+            <en><![CDATA[Invoice data]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.date">
+            <de><![CDATA[Rechnungs-Datum]]></de>
+            <en><![CDATA[Invoice date]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.payment">
+            <de><![CDATA[Bezahlung]]></de>
+            <en><![CDATA[Payment]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.projectName">
+            <de><![CDATA[Projektname]]></de>
+            <en><![CDATA[Projectname]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.orderedBy">
+            <de><![CDATA[Bestellt durch]]></de>
+            <en><![CDATA[Ordered by]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.orderedBy">
+            <de><![CDATA[Bestellt durch]]></de>
+            <en><![CDATA[Ordered by]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.editor">
+            <de><![CDATA[Bearbeiter]]></de>
+            <en><![CDATA[Editor]]></en>
+        </locale>
+
+        <locale name="erp.panel.invoice.data.payment">
+            <de><![CDATA[Bezahlung]]></de>
+            <en><![CDATA[Payment]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.paymentMethod">
+            <de><![CDATA[Bezahlungsart]]></de>
+            <en><![CDATA[Payment method]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.termOfPayment">
+            <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
+            <en><![CDATA[Term of Payment (in days)]]></en>
+        </locale>
+
+        <locale name="erp.panel.invoice.data.invoiceText">
+            <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
+            <en><![CDATA[Additional invoice text]]></en>
+        </locale>
+
+        <locale name="journal.payments.date">
+            <de><![CDATA[Datum]]></de>
+            <en><![CDATA[Date]]></en>
+        </locale>
+        <locale name="journal.payments.amount">
+            <de><![CDATA[Betrag]]></de>
+            <en><![CDATA[Amount]]></en>
+        </locale>
+        <locale name="journal.payments.paymentMethod">
+            <de><![CDATA[Bezahlmethoden]]></de>
+            <en><![CDATA[Payment methode]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">

@@ -1,0 +1,22 @@
+.quiqqer-invoice-comments {
+    float: left;
+    width: 100%;
+}
+
+.quiqqer-invoice-comments-comment {
+    background: #f7f7f7;
+    float: left;
+    margin-bottom: 5px;
+    padding: 10px;
+    width: 100%;
+}
+
+.quiqqer-invoice-comments-comment-date {
+    float: left;
+}
+
+.quiqqer-invoice-comments-comment-message {
+    clear: both;
+    float: left;
+    width: 100%;
+}

@@ -10,10 +10,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
     'qui/utils/Form',
     'Mustache',
     'package/quiqqer/payments/bin/backend/Payments',
+    'package/quiqqer/invoice/bin/Invoices',
 
     'text!package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment.html'
 
-], function (QUI, QUIControl, QUIFormUtils, Mustache, Payments, template) {
+], function (QUI, QUIControl, QUIFormUtils, Mustache, Payments, Invoices, template) {
     "use strict";
 
     return new Class({
@@ -65,14 +66,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
          * event: on inject
          */
         $onInject: function () {
-            Payments.getPayments().then(function (payments) {
+            Promise.all([
+                Payments.getPayments(),
+                Invoices.get(this.getAttribute('invoiceId'))
+            ]).then(function (result) {
+                var payments = result[0],
+                    invoice  = result[1];
+
                 var Payments  = this.getElm().getElement('[name="payment_method"]');
                 var DateInput = this.getElm().getElement('[name="date"]');
+                var Amount    = this.getElm().getElement('[name="amount"]');
 
                 new Element('option', {
                     html : '',
                     value: ''
                 }).inject(Payments);
+
+                Amount.value = invoice.toPay;
 
                 for (var payment in payments) {
                     if (!payments.hasOwnProperty(payment)) {

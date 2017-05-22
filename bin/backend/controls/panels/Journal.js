@@ -56,7 +56,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             '$onPDFExportButtonClick',
             '$onAddPaymentButtonClick',
             '$onClickCopyInvoice',
-            '$onClickInvoiceDetails'
+            '$onClickInvoiceDetails',
+            '$onClickOpenInvoice'
         ],
 
         initialize: function (options) {
@@ -95,8 +96,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             }).then(function (result) {
                 this.$Grid.setData(result.grid);
                 this.$refreshButtonStatus();
-
-                console.log(result.total);
 
                 this.$Total.set(
                     'html',
@@ -255,8 +254,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     textimage: 'fa fa-file-o',
                     disabled : true,
                     events   : {
-                        onClick: function () {
-                        }
+                        onClick: this.$onClickOpenInvoice
                     }
                 }, {
                     name     : 'pdfExport',
@@ -578,6 +576,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
         },
 
+        /**
+         * event: on click open invoice
+         *
+         * @return {Promise}
+         */
+        $onClickOpenInvoice: function () {
+            var selected = this.$Grid.getSelectedData();
+
+            if (!selected.length) {
+                return Promise.resolve();
+            }
+
+            return this.openInvoice(selected[0].id);
+        },
+
         //endregion
 
         /**
@@ -607,6 +620,28 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     // document.getElements('#' + id).destroy();
                     resolve();
                 }).delay(1000, this);
+            });
+        },
+
+        /**
+         * Open an invoice panel
+         *
+         * @param {Number} invoiceId - ID of the invoice
+         * @return {Promise}
+         */
+        openInvoice: function (invoiceId) {
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/controls/panels/Invoice',
+                    'utils/Panels'
+                ], function (InvoicePanel, PanelUtils) {
+                    var Panel = new InvoicePanel({
+                        invoiceId: invoiceId
+                    });
+
+                    PanelUtils.openPanelInTasks(Panel);
+                    resolve(Panel);
+                });
             });
         },
 

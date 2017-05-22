@@ -340,6 +340,23 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                     article  : JSON.encode(article)
                 });
             });
+        },
+
+        /**
+         * Return the articles from an invoice as HTML
+         *
+         * @param {String|Number} invoiceId
+         * @return {Promise}
+         */
+        getArticlesHtml: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_articleHtml', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
         }
     });
 });

@@ -17,6 +17,8 @@ QUI::$Ajax->registerFunction(
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $Invoice  = $Invoices->get($invoiceId);
 
+        QUI\ERP\Accounting\Calc::calculateInvoicePayments($Invoice);
+
         $attributes = $Invoice->toArray();
         $Currency   = $Invoice->getCurrency();
 

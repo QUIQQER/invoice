@@ -121,7 +121,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     });
 
                     PanelUtils.openPanelInTasks(Panel);
-                    resolve();
+                    resolve(Panel);
                 });
             });
         },
