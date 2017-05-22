@@ -16,6 +16,8 @@ define('package/quiqqer/invoice/bin/backend/controls/Comments', [
 ], function (QUI, QUIControl, Mustache, QUILocale, template) {
     "use strict";
 
+    var lg = 'quiqqer/invoice';
+
     return new Class({
 
         Extends: QUIControl,
@@ -84,7 +86,8 @@ define('package/quiqqer/invoice/bin/backend/controls/Comments', [
 
             this.$Elm.set({
                 html: Mustache.render(template, {
-                    comments: comments
+                    comments      : comments,
+                    textNoComments: QUILocale.get(lg, 'comments.message.no.comments')
                 })
             });
         },

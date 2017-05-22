@@ -275,22 +275,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     width    : 120
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.netto'),
-                    dataIndex: 'nettosum',
+                    dataIndex: 'display_nettosum',
                     dataType : 'string',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.vat'),
                     dataIndex: 'display_vatsum',
                     dataType : 'string',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.sum'),
-                    dataIndex: 'sum',
+                    dataIndex: 'display_sum',
                     dataType : 'string',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
-                    dataIndex: 'payment_method',
+                    dataIndex: 'payment_title',
                     dataType : 'string',
                     width    : 120
                 }, {
@@ -307,12 +310,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get(lg, 'journal.grid.paid'),
                     dataIndex: 'display_paid',
                     dataType : 'string',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.open'),
                     dataIndex: 'display_missing',
                     dataType : 'string',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.brutto'),
                     dataIndex: 'isbrutto',

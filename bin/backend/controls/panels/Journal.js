@@ -304,17 +304,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     header   : QUILocale.get(lg, 'journal.grid.netto'),
                     dataIndex: 'display_nettosum',
                     dataType : 'currency',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.vat'),
                     dataIndex: 'display_vatsum',
                     dataType : 'currency',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.sum'),
                     dataIndex: 'display_sum',
                     dataType : 'currency',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
                     dataIndex: 'payment_title',
@@ -334,12 +337,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     header   : QUILocale.get(lg, 'journal.grid.paid'),
                     dataIndex: 'display_paid',
                     dataType : 'currency',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.open'),
                     dataIndex: 'display_toPay',
                     dataType : 'currency',
-                    width    : 80
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.brutto'),
                     dataIndex: 'isbrutto',

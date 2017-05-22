@@ -694,6 +694,11 @@
             <de><![CDATA[Bezahlmethoden]]></de>
             <en><![CDATA[Payment methode]]></en>
         </locale>
+
+        <locale name="comments.message.no.comments">
+            <de><![CDATA[Keine Daten vorhanden]]></de>
+            <en><![CDATA[No data available]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
