@@ -538,6 +538,28 @@
             ]]></en>
         </locale>
 
+        <locale name="dialog.invoice.createCreditNote.title">
+            <de><![CDATA[Gutschrift erstellen]]></de>
+            <en><![CDATA[Create credit]]></en>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.text">
+            <de><![CDATA[Gutschrift für Rechnung #[invoiceId] erstellen]]></de>
+            <en><![CDATA[Create credit for invoice #[invoiceId]]]></en>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.information" html="true">
+            <de><![CDATA[
+                Möchten Sie wirklich eine Gutschrift für die Rechnung #[invoiceId] erstellen?<br />
+                Es wird ein Rechnungsentwurf erstellt welchen Sie direkt nach der Erstellung bearbeiten können.
+            ]]></de>
+            <en><![CDATA[
+                Do you really want to create a credit for the invoice #[invoiceId]? <br />
+                It will create an invoice draft which you can edit immediately after the creation.
+            ]]></en>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.submit">
+            <de><![CDATA[Gutschrift erstellen]]></de>
+            <en><![CDATA[Create credit]]></en>
+        </locale>
 
         <locale name="dialog.delete.article.title">
             <de><![CDATA[Artikel wirklich löschen?]]></de>
@@ -705,6 +727,10 @@
         <locale name="message.invoice.save.successfully">
             <de><![CDATA[Der Rechnungsentwurf wurde erfolgreich gespeichert.]]></de>
             <en><![CDATA[The invoice was successfully saved.]]></en>
+        </locale>
+        <locale name="message.create.credit">
+            <de><![CDATA[Gutschrift erstellt aus [invoiceId]]]></de>
+            <en><![CDATA[Create Credit from [invoiceId]]]></en>
         </locale>
 
         <locale name="exception.invoice.verification.customer">

@@ -17,27 +17,27 @@ use QUI;
 class InvoiceView extends QUI\QDOM
 {
     /**
-     * @var Invoice|TemporaryInvoice
+     * @var Invoice|InvoiceTemporary
      */
     protected $Invoice;
 
     /**
      * InvoiceView constructor.
      *
-     * @param Invoice|TemporaryInvoice $Invoice
+     * @param Invoice|InvoiceTemporary $Invoice
      *
      * @throws Exception
      */
     public function __construct($Invoice)
     {
         if ($Invoice instanceof Invoice
-            || $Invoice instanceof TemporaryInvoice
+            || $Invoice instanceof InvoiceTemporary
         ) {
             $this->Invoice = $Invoice;
             return;
         }
 
-        throw new Exception('$Invoice must be an instance of Invoice or TemporaryInvoice');
+        throw new Exception('$Invoice must be an instance of Invoice or InvoiceTemporary');
     }
 
     /**

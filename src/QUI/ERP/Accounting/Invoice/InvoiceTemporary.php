@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file contains QUI\ERP\Accounting\Invoice\TemporaryInvoice
+ * This file contains QUI\ERP\Accounting\Invoice\InvoiceTemporary
  */
 
 namespace QUI\ERP\Accounting\Invoice;
@@ -11,14 +11,14 @@ use QUI\Utils\Security\Orthos;
 use QUI\ERP\Accounting\ArticleList;
 
 /**
- * Class TemporaryInvoice
+ * Class InvoiceTemporary
  * - Temporary Invoice / Invoice class
  * - A temporary invoice is a non posted invoice, it is not a real invoice
  * - To create a correct invoice from the temporary invoice, the post method must be used
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class TemporaryInvoice extends QUI\QDOM
+class InvoiceTemporary extends QUI\QDOM
 {
     /**
      * @var string
@@ -29,6 +29,11 @@ class TemporaryInvoice extends QUI\QDOM
      * @var string
      */
     protected $id;
+
+    /**
+     * @var int
+     */
+    protected $type;
 
     /**
      * @var array
@@ -62,6 +67,7 @@ class TemporaryInvoice extends QUI\QDOM
 
         $this->prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
         $this->id     = (int)str_replace($this->prefix, '', $id);
+        $this->type   = Handler::TYPE_INVOICE_TEMPORARY;
 
         $this->Articles = new ArticleList();
         $this->History  = new Comments();
@@ -383,7 +389,7 @@ class TemporaryInvoice extends QUI\QDOM
      * Copy the temporary invoice
      *
      * @param null $User
-     * @return TemporaryInvoice
+     * @return InvoiceTemporary
      */
     public function copy($User = null)
     {
@@ -520,6 +526,7 @@ class TemporaryInvoice extends QUI\QDOM
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             array(
+                'type'        => Handler::TYPE_INVOICE,
                 'id_prefix'   => Settings::getInstance()->getInvoicePrefix(),
                 'customer_id' => $this->getCustomer()->getId(),
                 'order_id'    => $this->getAttribute('order_id'),

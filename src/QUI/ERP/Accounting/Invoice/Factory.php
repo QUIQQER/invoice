@@ -21,7 +21,7 @@ class Factory extends QUI\Utils\Singleton
      * Creates a new temporary invoice
      *
      * @param QUI\Interfaces\Users\User|null $User
-     * @return TemporaryInvoice
+     * @return InvoiceTemporary
      */
     public function createInvoice($User = null)
     {

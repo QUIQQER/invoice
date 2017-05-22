@@ -7,6 +7,8 @@
             <field type="INT NOT NULL">id</field>
             <field type="VARCHAR(10)">id_prefix</field>
             <field type="INT NOT NULL">customer_id</field>
+            <field type="INT(3) NOT NULL">type</field>
+
             <field type="INT NULL">order_id</field>
             <field type="INT NULL">ordered_by</field>
             <field type="VARCHAR(200) NOT NULL">ordered_by_name</field>
@@ -67,6 +69,7 @@
         <table name="invoice_temporary">
             <field type="INT NOT NULL">id</field>
             <field type="INT NOT NULL">customer_id</field>
+            <field type="INT(3) NOT NULL">type</field>
 
             <field type="INT NOT NULL">invoice_address_id</field>
             <field type="TEXT NULL">invoice_address</field>

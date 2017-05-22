@@ -54,9 +54,14 @@ Entwickler
 
 #### Invoice Events
 
+- onQuiqqerInvoiceCreateCreditNote [Invoice]
+- onQuiqqerInvoiceCancel [Invoice]
+- onQuiqqerInvoiceStorno [Invoice] (Same as cancel, alias)
+
+- onQuiqqerInvoicePaymentStatusChanged [Invoice, (int) $newStatus, (int) $oldStatus]
+
 - onQuiqqerInvoiceAddComment [Invoice, message]
 - onQuiqqerInvoiceAddHistory [Invoice, message]
-- onQuiqqerInvoiceCancel [Invoice]
 
 - onQuiqqerInvoiceCopyBegin [Invoice]
 - onQuiqqerInvoiceCopy [Invoice]
@@ -82,8 +87,6 @@ Entwickler
     QUI\ERP\Accounting\Payments\Api\PaymentsInterface, 
     $date
 ]
-
-
 
 #### Temporary Invoice Events
 

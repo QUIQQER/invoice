@@ -122,11 +122,32 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_create', function (newId) {
-                    self.fireEvent('copyInvoice', [self, newId]);
+                    self.fireEvent('createInvoice', [self, newId]);
                     resolve(newId);
                 }, {
                     'package': 'quiqqer/invoice',
                     onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Create a new temporary invoice
+         *
+         * @returns {Promise}
+         */
+        createCreditNote: function (invoiceId) {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_createCreditNote', function (newId) {
+                    self.fireEvent('createCreditNote', [self, newId]);
+                    resolve(newId);
+                }, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject,
+                    invoiceId: invoiceId,
                     showError: false
                 });
             });

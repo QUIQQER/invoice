@@ -57,7 +57,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             '$onAddPaymentButtonClick',
             '$onClickCopyInvoice',
             '$onClickInvoiceDetails',
-            '$onClickOpenInvoice'
+            '$onClickOpenInvoice',
+            '$onClickCreateCredit'
         ],
 
         initialize: function (options) {
@@ -236,8 +237,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 text  : QUILocale.get(lg, 'journal.btn.createCreditNote'),
                 icon  : 'fa fa-clipboard',
                 events: {
-                    onClick: function () {
-                    }
+                    onClick: this.$onClickCreateCredit
                 }
             });
 
@@ -246,7 +246,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 pagination           : true,
                 accordion            : true,
                 autoSectionToggle    : false,
-                toggleiconTitle      : 'HUHU',
+                openAccordionOnClick : false,
+                toggleiconTitle      : '',
                 accordionLiveRenderer: this.$onClickInvoiceDetails,
                 buttons              : [Actions, {
                     name     : 'open',
@@ -608,6 +609,58 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             }
 
             return this.openInvoice(selected[0].id);
+        },
+
+        /**
+         * Opens the create credit dialog
+         */
+        $onClickCreateCredit: function () {
+            var selected = this.$Grid.getSelectedData();
+
+            if (!selected.length) {
+                return Promise.resolve();
+            }
+
+            var self      = this,
+                invoiceId = selected[0].id;
+
+            return new Promise(function (resolve) {
+
+                new QUIConfirm({
+                    icon       : 'fa fa-clipboard',
+                    texticon   : 'fa fa-clipboard',
+                    title      : QUILocale.get(lg, 'dialog.invoice.createCreditNote.title', {
+                        invoiceId: invoiceId
+                    }),
+                    text       : QUILocale.get(lg, 'dialog.invoice.createCreditNote.text', {
+                        invoiceId: invoiceId
+                    }),
+                    information: QUILocale.get(lg, 'dialog.invoice.createCreditNote.information', {
+                        invoiceId: invoiceId
+                    }),
+                    autoclose  : false,
+                    ok_button  : {
+                        text     : QUILocale.get(lg, 'dialog.invoice.createCreditNote.submit'),
+                        textimage: 'fa fa-clipboard'
+                    },
+                    maxHeight  : 400,
+                    maxWidth   : 600,
+                    events     : {
+                        onSubmit: function (Win) {
+                            Win.Loader.show();
+
+                            Invoices.createCreditNote(invoiceId).then(function (newId) {
+                                return self.openTemporaryInvoice(newId);
+                            }).then(function () {
+                                Win.close();
+                            });
+                        },
+
+                        onCancel: resolve
+                    }
+                }).open();
+
+            });
         },
 
         //endregion

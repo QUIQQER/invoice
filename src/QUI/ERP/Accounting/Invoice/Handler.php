@@ -33,6 +33,33 @@ class Handler extends QUI\Utils\Singleton
     const TABLE_TEMPORARY_INVOICE = 'invoice_temporary';
 
     /**
+     * @var int
+     */
+    const TYPE_INVOICE = 1;
+
+    /**
+     * @var int
+     */
+    const TYPE_INVOICE_TEMPORARY = 2;
+
+    /**
+     * @var int
+     */
+    const TYPE_INVOICE_CREDIT_NOTE = 3;
+
+    /**
+     * Alias for cancel
+     * @var int
+     */
+    const TYPE_INVOICE_STORNO = 4;
+
+    /**
+     * @var int
+     */
+    const TYPE_INVOICE_CANCEL = 4;
+
+
+    /**
      * Tables
      */
 
@@ -211,8 +238,8 @@ class Handler extends QUI\Utils\Singleton
      * Return an Invoice
      * Alias for getInvoice()
      *
-     * @param string $id - ID of the Invoice or TemporaryInvoice
-     * @return TemporaryInvoice|Invoice
+     * @param string $id - ID of the Invoice or InvoiceTemporary
+     * @return InvoiceTemporary|Invoice
      *
      * @throws Exception
      */
@@ -288,13 +315,13 @@ class Handler extends QUI\Utils\Singleton
      * Return a temporary invoice
      *
      * @param string $id - ID of the Invoice
-     * @return TemporaryInvoice
+     * @return InvoiceTemporary
      *
      * @throws Exception
      */
     public function getTemporaryInvoice($id)
     {
-        return new TemporaryInvoice($id, $this);
+        return new InvoiceTemporary($id, $this);
     }
 
     /**

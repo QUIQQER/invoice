@@ -8,7 +8,7 @@ namespace QUI\ERP\Accounting\Invoice\Utils;
 
 use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
-use QUI\ERP\Accounting\Invoice\TemporaryInvoice;
+use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 
 /**
  * Class Invoice
@@ -22,10 +22,10 @@ class Invoice
     /**
      * Return all fields, attributes which are still missing to post the invoice
      *
-     * @param TemporaryInvoice $Invoice
+     * @param InvoiceTemporary $Invoice
      * @return array
      */
-    public static function getMissingAttributes(TemporaryInvoice $Invoice)
+    public static function getMissingAttributes(InvoiceTemporary $Invoice)
     {
         $Articles = $Invoice->getArticles();
         $Articles->calc();

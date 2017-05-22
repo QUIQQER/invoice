@@ -61,11 +61,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             });
 
             Invoices.addEvents({
-                onDeleteInvoice: this.$onInvoicesChange,
-                onSaveInvoice  : this.$onInvoicesChange,
-                onCreateInvoice: this.$onInvoicesChange,
-                onCopyInvoice  : this.$onInvoicesChange,
-                onPostInvoice  : this.$onInvoicesChange
+                onDeleteInvoice : this.$onInvoicesChange,
+                onSaveInvoice   : this.$onInvoicesChange,
+                onCreateInvoice : this.$onInvoicesChange,
+                onCopyInvoice   : this.$onInvoicesChange,
+                onPostInvoice   : this.$onInvoicesChange,
+                createCreditNote: this.$onInvoicesChange
             });
         },
 
@@ -422,11 +423,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          */
         $onDestroy: function () {
             Invoices.removeEvents({
-                onDeleteInvoice: this.$onInvoicesChange,
-                onCreateInvoice: this.$onInvoicesChange,
-                onSaveInvoice  : this.$onInvoicesChange,
-                onCopyInvoice  : this.$onInvoicesChange,
-                onPostInvoice  : this.$onInvoicesChange
+                onDeleteInvoice : this.$onInvoicesChange,
+                onCreateInvoice : this.$onInvoicesChange,
+                onSaveInvoice   : this.$onInvoicesChange,
+                onCopyInvoice   : this.$onInvoicesChange,
+                onPostInvoice   : this.$onInvoicesChange,
+                createCreditNote: this.$onInvoicesChange
             });
         },
 
