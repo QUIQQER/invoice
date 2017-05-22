@@ -1,13 +1,15 @@
 <?php
 
 /**
- * This file contains package_quiqqer_invoice_ajax_invoices_list
+ * This file contains package_quiqqer_invoice_ajax_invoices_get
  */
 
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+
 /**
- * Returns invoices list for a grid
+ * Returns the invoice as array
  *
- * @param string $params - JSON query params
+ * @param string $invoiceId - ID of the invoice
  *
  * @return array
  */
@@ -24,6 +26,10 @@ QUI::$Ajax->registerFunction(
 
         $attributes['display_subsum'] = $Currency->format($attributes['subsum']);
         $attributes['display_sum']    = $Currency->format($attributes['sum']);
+        $attributes['vatsum']         = QUI\ERP\Accounting\Calc::calculateTotalVatOfInvoice($attributes['vat_array']);
+        $attributes['display_vatsum'] = $Currency->format($attributes['vatsum']);
+
+        $attributes['articles'] = InvoiceUtils::formatArticlesArray($attributes['articles']);
 
         return $attributes;
     },

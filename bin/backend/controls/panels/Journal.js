@@ -572,11 +572,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     }
                 }
 
+                var list = articles.articles;
+
+                for (var i = 0, len = list.length; i < len; i++) {
+                    list[i].position  = i + 1;
+                    list[i].articleNo = list[i].articleNo || '---';
+                }
+
                 ParentNode.set('html', Mustache.render(templateInvoiceDetails, {
-                    articles    : articles.articles,
-                    calculations: articles.calculations,
-                    sum         : result.display_sum,
-                    subSum      : result.display_subsum
+                    articles       : list,
+                    calculations   : articles.calculations,
+                    display_sum    : result.display_sum,
+                    display_subsum : result.display_subsum,
+                    display_vatsum : result.display_vatsum,
+                    textPosition   : '#',
+                    textArticleNo  : QUILocale.get(lg, 'invoice.products.articleNo'),
+                    textDescription: QUILocale.get(lg, 'invoice.products.description'),
+                    textQuantity   : QUILocale.get(lg, 'invoice.products.quantity'),
+                    textUnitPrice  : QUILocale.get(lg, 'invoice.products.unitPrice'),
+                    textTotalPrice : QUILocale.get(lg, 'invoice.products.price')
                 }));
             });
         },

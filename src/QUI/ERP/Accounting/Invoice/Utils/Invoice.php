@@ -141,10 +141,56 @@ class Invoice
 
             case 'invoice_address_country':
                 return $Locale->get($lg, 'exception.invoice.verification.country');
-
         }
 
         throw new Exception('Missing Field not found: ' . $missingAttribute);
+    }
+
+    /**
+     * @param array|string $articles
+     * @return array|string
+     */
+    public static function formatArticlesArray($articles)
+    {
+        $isString = is_string($articles);
+
+        if ($isString) {
+            $articles = json_decode($articles, true);
+        }
+
+        $currency = $articles['calculations']['currencyData'];
+
+        try {
+            $Currency = QUI\ERP\Currency\Handler::getCurrency($currency['code']);
+        } catch (QUI\Exception $Exception) {
+            $Currency = QUI\ERP\Defaults::getCurrency();
+        }
+
+        $fields = array(
+            'calculated_basisPrice',
+            'calculated_price',
+            'calculated_sum',
+            'calculated_nettoBasisPrice',
+            'calculated_nettoPrice',
+            'calculated_nettoSubSum',
+            'calculated_nettoSum',
+            'unitPrice',
+            'sum'
+        );
+
+        foreach ($articles['articles'] as $key => $article) {
+            foreach ($fields as $field) {
+                if (isset($article[$field])) {
+                    $articles['articles'][$key]['display_' . $field] = $Currency->format($article[$field]);
+                }
+            }
+        }
+
+        if ($isString) {
+            return json_encode($articles);
+        }
+
+        return $articles;
     }
 
     /**
@@ -163,5 +209,4 @@ class Invoice
             throw new Exception($eMessage, $eCode, $eContext);
         }
     }
-
 }
