@@ -9,13 +9,12 @@
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_reversal',
-    function ($invoiceId) {
+    function ($invoiceId, $reason) {
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $Invoice = $Handler->getInvoice($invoiceId);
-        $Invoice->reversal();
 
-
+        return $Invoice->reversal($reason);
     },
-    array('invoiceId'),
+    array('invoiceId', 'reason'),
     'Permission::checkAdminUser'
 );

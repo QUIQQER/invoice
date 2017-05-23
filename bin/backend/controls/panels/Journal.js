@@ -105,15 +105,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         // gutschrift
                         case 3:
                             Icon.addClass('fa fa-clipboard');
+                            Icon.set('title', QUILocale.get(lg, 'invoice.type.creditNote'));
                             break;
 
                         // storno
                         case 4:
-                            Icon.addClass('fa fa-ban');
+                            Icon.addClass('fa fa-check-circle-o');
+                            Icon.set('title', QUILocale.get(lg, 'invoice.type.reversal'));
+                            break;
+
+                        case 5:
+                            Icon.addClass('fa fa-times-circle-o');
+                            Icon.set('title', QUILocale.get(lg, 'invoice.type.cancel'));
                             break;
 
                         default:
                             Icon.addClass('fa fa-file-text-o');
+                            Icon.set('title', QUILocale.get(lg, 'invoice.type.invoice'));
                     }
 
                     entry.display_type = Icon;
@@ -244,7 +252,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             Actions.appendChild({
                 name  : 'cancel',
                 text  : QUILocale.get(lg, 'journal.btn.cancelInvoice'),
-                icon  : 'fa fa-ban',
+                icon  : 'fa fa-times-circle-o',
                 events: {
                     onClick: this.$onClickReversal
                 }
@@ -733,17 +741,53 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         text     : QUILocale.get(lg, 'dialog.invoice.reversal.submit'),
                         textimage: 'fa fa-ban'
                     },
-                    maxHeight  : 400,
-                    maxWidth   : 600,
+                    maxHeight  : 500,
+                    maxWidth   : 750,
                     events     : {
+                        onOpen  : function (Win) {
+                            var Container = Win.getContent().getElement('.textbody');
+
+                            // #locale
+                            var Label = new Element('label', {
+                                html  : '<span>Stornierungsgrund</span>',
+                                styles: {
+                                    display   : 'block',
+                                    fontWeight: 'bold',
+                                    marginTop : 20,
+                                    width     : 'calc(100% - 100px)'
+                                }
+                            }).inject(Container);
+
+                            var Reason = new Element('textarea', {
+                                name       : 'reason',
+                                autofocus  : true,
+                                placeholder: 'Bitte geben Sie einen Stornierungsgrund ein.',
+                                styles     : {
+                                    height   : 160,
+                                    marginTop: 10,
+                                    width    : '100%'
+                                }
+                            }).inject(Label);
+
+                            Reason.focus();
+                        },
                         onSubmit: function (Win) {
                             Win.Loader.show();
 
-                            // Invoices.reversalInvoice(invoiceId).then(function (newId) {
-                            //     return self.openTemporaryInvoice(newId);
-                            // }).then(function () {
-                            //     Win.close();
-                            // });
+                            Invoices.reversalInvoice(
+                                invoiceId,
+                                Win.getContent().getElement('[name="reason"]').value
+                            ).then(function () {
+                                return self.refresh();
+                            }).then(function () {
+                                Win.close();
+                            }).catch(function (Error) {
+                                Win.Loader.hide();
+
+                                QUI.getMessageHandler().then(function (MH) {
+                                    MH.addError(Error.getMessage());
+                                });
+                            });
                         },
 
                         onCancel: resolve

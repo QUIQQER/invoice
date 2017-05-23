@@ -185,10 +185,12 @@ class Invoice extends QUI\QDOM
      * Cancel the invoice
      * (Reversal, Storno, Cancel)
      *
+     * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
+     * @return int - ID of the new
      * @throws Exception
      */
-    public function reversal($PermissionUser = null)
+    public function reversal($reason, $PermissionUser = null)
     {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
@@ -198,6 +200,13 @@ class Invoice extends QUI\QDOM
             'quiqqer.invoice.reversal',
             $PermissionUser
         );
+
+        if (empty($reason)) {
+            throw new Exception(array(
+                'quiqqer/invoice',
+                'exception.missing.reason.in.reversal'
+            ));
+        }
 
         // if invoice is parted paid, it could not be canceled
         $this->getPaidStatusInformation();
@@ -259,22 +268,34 @@ class Invoice extends QUI\QDOM
             'quiqqerInvoiceReversalEnd',
             array($this)
         );
+
+        return $CreditNote->getId();
     }
 
     /**
      * Alias for reversal
+     *
+     * @param string $reason
+     * @param null|QUI\Interfaces\Users\User $PermissionUser
+     * @return int - ID of the new
+     * @throws Exception
      */
-    public function cancellation()
+    public function cancellation($reason, $PermissionUser = null)
     {
-        $this->reversal();
+        return $this->reversal($reason, $PermissionUser);
     }
 
     /**
      * Alias for reversal
+     *
+     * @param string $reason
+     * @param null|QUI\Interfaces\Users\User $PermissionUser
+     * @return int - ID of the new
+     * @throws Exception
      */
-    public function storno()
+    public function storno($reason, $PermissionUser = null)
     {
-        $this->reversal();
+        return $this->reversal($reason, $PermissionUser);
     }
 
     /**

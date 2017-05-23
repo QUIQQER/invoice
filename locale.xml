@@ -233,6 +233,23 @@
             <de><![CDATA[Rechnungsstatus]]></de>
             <en><![CDATA[Invoice status]]></en>
         </locale>
+
+        <locale name="invoice.type.creditNote">
+            <de><![CDATA[Gutschrift]]></de>
+            <en><![CDATA[Credit Note]]></en>
+        </locale>
+        <locale name="invoice.type.reversal">
+            <de><![CDATA[Stornorechnung]]></de>
+            <en><![CDATA[Cancellation invoice]]></en>
+        </locale>
+        <locale name="invoice.type.cancel">
+            <de><![CDATA[Stornierte Rechnung]]></de>
+            <en><![CDATA[Canceled invoice]]></en>
+        </locale>
+        <locale name="invoice.type.invoice">
+            <de><![CDATA[Rechnung]]></de>
+            <en><![CDATA[Invoice]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -808,6 +825,10 @@
         <locale name="exception.parted.invoice.cant.be.canceled">
             <de><![CDATA[Eine Rechnung mit Teilzahlung kann nicht storniert werden.]]></de>
             <en><![CDATA[An invoice with partial payment can not be canceled.]]></en>
+        </locale>
+        <locale name="exception.missing.reason.in.reversal">
+            <de><![CDATA[Bitte geben Sie einen Grund für die Stornierung an.]]></de>
+            <en><![CDATA[Please provide a reason for the cancellation.]]></en>
         </locale>
 
         <locale name="history.message.addPayment">

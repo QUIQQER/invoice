@@ -32,18 +32,78 @@ class Invoice
 
         $missing = array();
 
-        // user and user-address check
-        $customerId = $Invoice->getAttribute('customer_id');
-        $addressId  = $Invoice->getAttribute('invoice_address_id');
-        $Customer   = null;
-        $Address    = null;
+        // address / customer fields
+        $missing = array_merge(
+            $missing,
+            self::getMissingAddressFields($Invoice)
+        );
 
-        if (empty($customerId)) {
-            $missing[] = 'customer_id';
+        //articles
+        if (!$Articles->count()) {
+            $missing[] = 'article';
         }
 
-        if (empty($addressId)) {
-            $missing[] = 'invoice_address_id';
+        // payment
+        try {
+            $Payments = QUI\ERP\Accounting\Payments\Handler::getInstance();
+            $Payments->getPayment($Invoice->getAttribute('payment_method'));
+        } catch (QUI\ERP\Accounting\Payments\Exception $Exception) {
+            $missing[] = 'payment';
+        }
+
+        $missing = array_unique($missing);
+
+        return $missing;
+    }
+
+    /**
+     * Return the missing fields
+     * - if something is missing in the address
+     *
+     * @param InvoiceTemporary $Invoice
+     * @return array
+     */
+    protected static function getMissingAddressFields(InvoiceTemporary $Invoice)
+    {
+        $address  = $Invoice->getAttribute('invoice_address');
+        $missing  = array();
+        $Customer = null;
+        $Address  = null;
+
+        $addressNeedles = array(
+            'firstname',
+            'lastname',
+            'street_no',
+            'zip',
+            'city',
+            'country'
+        );
+
+        if (!empty($address)) {
+            $address = json_decode($address, true);
+
+            foreach ($addressNeedles as $addressNeedle) {
+                if (!isset($address[$addressNeedle])) {
+                    $missing[] = 'invoice_address_' . $addressNeedle;
+                    continue;
+                }
+
+                try {
+                    self::verificateField($address[$addressNeedle]);
+                } catch (QUI\Exception $Exception) {
+                    $missing[] = 'invoice_address_' . $addressNeedle;
+                }
+            }
+
+            return $missing;
+        }
+
+        $customerId = $Invoice->getAttribute('customer_id');
+        $addressId  = $Invoice->getAttribute('invoice_address_id');
+
+        //customer
+        if (empty($customerId)) {
+            $missing[] = 'customer_id';
         }
 
         try {
@@ -63,16 +123,12 @@ class Invoice
             $missing[] = 'invoice_address_id';
         }
 
-        if ($Address) {
-            $addressNeedles = array(
-                'firstname',
-                'lastname',
-                'street_no',
-                'zip',
-                'city',
-                'country'
-            );
+        // address
+        if (empty($addressId) && empty($address)) {
+            $missing[] = 'invoice_address_id';
+        }
 
+        if ($Address) {
             foreach ($addressNeedles as $addressNeedle) {
                 try {
                     self::verificateField($Address->getAttribute($addressNeedle));
@@ -81,20 +137,6 @@ class Invoice
                 }
             }
         }
-
-        if (!$Articles->count()) {
-            $missing[] = 'article';
-        }
-
-        // payment
-        try {
-            $Payments = QUI\ERP\Accounting\Payments\Handler::getInstance();
-            $Payments->getPayment($Invoice->getAttribute('payment_method'));
-        } catch (QUI\ERP\Accounting\Payments\Exception $Exception) {
-            $missing[] = 'payment';
-        }
-
-        $missing = array_unique($missing);
 
         return $missing;
     }

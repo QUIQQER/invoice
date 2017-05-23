@@ -335,7 +335,16 @@ class InvoiceTemporary extends QUI\QDOM
 
             $invoiceAddress = $Address->toJSON();
         } catch (QUI\Exception $Exception) {
-            QUI\System\Log::addNotice($Exception->getMessage());
+            $invoiceAddress      = $this->getAttribute('invoice_address');
+            $invoiceAddressCheck = false;
+
+            if (is_string($invoiceAddress)) {
+                $invoiceAddressCheck = json_decode($invoiceAddress, true);
+            }
+
+            if (!$invoiceAddressCheck) {
+                QUI\System\Log::addNotice($Exception->getMessage());
+            }
         }
 
         // payment
@@ -577,12 +586,20 @@ class InvoiceTemporary extends QUI\QDOM
             $isBrutto = 1;
         }
 
-        // address // @todo must be variable
-        $Address = $Customer->getAddress(
-            (int)$this->getAttribute('invoice_address_id')
-        );
+        // address
+        try {
+            $Address = $Customer->getAddress(
+                (int)$this->getAttribute('invoice_address_id')
+            );
 
-        $invoiceAddress = $Address->toJSON();
+            $invoiceAddress = $Address->toJSON();
+        } catch (QUI\Exception $Exception) {
+            $invoiceAddress = $this->getAttribute('invoice_address');
+            QUI\System\Log::writeRecursive($invoiceAddress);
+            if (!$invoiceAddress) {
+                throw $Exception;
+            }
+        }
 
         // customerData
         $customerData = array(

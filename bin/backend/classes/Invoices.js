@@ -157,9 +157,10 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * Cancellation of an invoice
          *
          * @param {String|Number} invoiceId
+         * @param {String} reason
          * @returns {Promise}
          */
-        reversalInvoice: function (invoiceId) {
+        reversalInvoice: function (invoiceId, reason) {
             var self = this;
 
             return new Promise(function (resolve, reject) {
@@ -170,6 +171,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                     'package': 'quiqqer/invoice',
                     onError  : reject,
                     invoiceId: invoiceId,
+                    reason   : reason,
                     showError: false
                 });
             });
