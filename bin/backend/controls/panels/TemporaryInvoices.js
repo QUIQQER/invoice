@@ -77,6 +77,30 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             this.Loader.show();
 
             return Invoices.getTemporaryInvoicesList().then(function (result) {
+                result.data = result.data.map(function (entry) {
+                    var Icon = new Element('span');
+
+                    switch (parseInt(entry.type)) {
+                        // gutschrift
+                        case 3:
+                            Icon.addClass('fa fa-clipboard');
+                            break;
+
+                        // storno
+                        case 4:
+                            Icon.addClass('fa fa-ban');
+                            break;
+
+                        default:
+                            Icon.addClass('fa fa-file-text-o');
+                    }
+
+                    entry.display_type = Icon;
+                    entry.opener       = '&nbsp;';
+
+                    return entry;
+                });
+
                 this.$Grid.setData(result);
 
                 var Copy = this.$Grid.getButtons().filter(function (Btn) {
@@ -235,6 +259,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     }
                 }],
                 columnModel: [{
+                    header   : QUILocale.get(lg, 'journal.grid.type'),
+                    dataIndex: 'display_type',
+                    dataType : 'node',
+                    width    : 30
+                }, {
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
                     dataType : 'integer',

@@ -154,9 +154,41 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Cancellation of an invoice
+         *
+         * @param {String|Number} invoiceId
+         * @returns {Promise}
+         */
+        reversalInvoice: function (invoiceId) {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_reversal', function (reversalId) {
+                    self.fireEvent('createCreditNote', [self, invoiceId, reversalId]);
+                    resolve(invoiceId, reversalId);
+                }, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject,
+                    invoiceId: invoiceId,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Alias for reversalInvoice
+         *
+         * @param {String|Number} invoiceId
+         * @return {Promise}
+         */
+        cancellationInvoice: function (invoiceId) {
+            return this.reversalInvoice(invoiceId);
+        },
+
+        /**
          * Delete a temporary invoice
          *
-         * @param {String} invoiceId
+         * @param {String|Number} invoiceId
          * @returns {Promise}
          */
         deleteInvoice: function (invoiceId) {

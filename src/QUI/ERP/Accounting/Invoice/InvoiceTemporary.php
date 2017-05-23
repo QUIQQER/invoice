@@ -67,7 +67,6 @@ class InvoiceTemporary extends QUI\QDOM
 
         $this->prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
         $this->id     = (int)str_replace($this->prefix, '', $id);
-        $this->type   = Handler::TYPE_INVOICE_TEMPORARY;
 
         $this->Articles = new ArticleList();
         $this->History  = new Comments();
@@ -95,6 +94,20 @@ class InvoiceTemporary extends QUI\QDOM
             $this->Comments = Comments::unserialize($data['comments']);
         }
 
+
+        // invoice type
+        $this->type = Handler::TYPE_INVOICE_TEMPORARY;
+
+        switch ((int)$data['type']) {
+            case Handler::TYPE_INVOICE:
+            case Handler::TYPE_INVOICE_TEMPORARY:
+            case Handler::TYPE_INVOICE_CREDIT_NOTE:
+            case Handler::TYPE_INVOICE_REVERSAL:
+                $this->type = (int)$data['type'];
+                break;
+        }
+
+        // database attributes
         $this->setAttributes($data);
     }
 
@@ -116,6 +129,20 @@ class InvoiceTemporary extends QUI\QDOM
     public function getCleanId()
     {
         return (int)str_replace($this->prefix, '', $this->getId());
+    }
+
+    /**
+     * Return the invoice type
+     * - Handler::TYPE_INVOICE
+     * - Handler::TYPE_INVOICE_TEMPORARY
+     * - Handler::TYPE_INVOICE_CREDIT_NOTE
+     * - Handler::TYPE_INVOICE_REVERSAL
+     *
+     * @return int
+     */
+    public function getInvoiceType()
+    {
+        return $this->type;
     }
 
     /**
@@ -205,14 +232,61 @@ class InvoiceTemporary extends QUI\QDOM
     //endregion
 
     /**
+     * Change the invoice type
+     *
+     * The following types can be used:
+     * - Handler::TYPE_INVOICE_TEMPORARY:
+     * - Handler::TYPE_INVOICE_CREDIT_NOTE:
+     * - Handler::TYPE_INVOICE_REVERSAL:
+     *
+     * @param string|integer $type
+     * @param QUI\Interfaces\Users\User|null $PermissionUser - optional
+     */
+    public function setInvoiceType($type, $PermissionUser = null)
+    {
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.temporary.edit',
+            $PermissionUser
+        );
+
+        $type = (int)$type;
+
+        switch ($type) {
+            case Handler::TYPE_INVOICE_TEMPORARY:
+            case Handler::TYPE_INVOICE_CREDIT_NOTE:
+            case Handler::TYPE_INVOICE_REVERSAL:
+                break;
+
+            default:
+                return;
+        }
+
+        $this->type = $type;
+
+        $this->addHistory(
+            QUI::getLocale()->get(
+                'quiqqer/invoice',
+                'history.message.temporaryInvoice.type.changed',
+                array(
+                    'type' => $type
+                )
+            )
+        );
+    }
+
+    /**
      * Save the current temporary invoice data to the database
      *
-     * @param QUI\Interfaces\Users\User|null $User
+     * @param QUI\Interfaces\Users\User|null $PermissionUser
      * @throws QUI\Permissions\Exception
      */
-    public function save($User = null)
+    public function save($PermissionUser = null)
     {
-        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.edit', $User);
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.temporary.edit',
+            $PermissionUser
+        );
+
         $this->checkLocked();
 
         QUI::getEvents()->fireEvent(
@@ -306,12 +380,13 @@ class InvoiceTemporary extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
-                'customer_id'  => (int)$this->getAttribute('customer_id'),
-                'order_id'     => (int)$this->getAttribute('order_id'),
-                'project_name' => $projectName,
+                'type'                    => $this->getInvoiceType(),
 
+                // user relationships
+                'customer_id'             => (int)$this->getAttribute('customer_id'),
                 'editor_id'               => $editorId,
                 'editor_name'             => $editorName,
+                'order_id'                => (int)$this->getAttribute('order_id'),
                 'ordered_by'              => $orderedBy,
                 'ordered_by_name'         => $orderedByName,
 
@@ -326,7 +401,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'delivery_address_id'     => '',
                 'delivery_address'        => '',
 
-                // processing status
+                // processing
                 'time_for_payment'        => $timeForPayment,
                 'paid_status'             => '', // nicht in gui
                 'paid_date'               => '', // nicht in gui
@@ -341,6 +416,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'history'                 => $this->History->toJSON(),
                 'comments'                => $this->Comments->toJSON(),
                 'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
+                'project_name'            => $projectName,
 
                 // Calc data
                 'isbrutto'                => $isBrutto,
@@ -364,12 +440,20 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Delete the temporary invoice
      *
-     * @param QUI\Interfaces\Users\User|null $User
+     * @param QUI\Interfaces\Users\User|null $PermissionUser
      * @throws QUI\Permissions\Exception
      */
-    public function delete($User = null)
+    public function delete($PermissionUser = null)
     {
-        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.delete', $User);
+        if ($PermissionUser === null) {
+            $PermissionUser = QUI::getUserBySession();
+        }
+
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.temporary.delete',
+            $PermissionUser
+        );
+
         $this->checkLocked();
 
         QUI::getEvents()->fireEvent(
@@ -379,20 +463,27 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getDataBase()->delete(
             Handler::getInstance()->temporaryInvoiceTable(),
-            array(
-                'id' => $this->getCleanId()
-            )
+            array('id' => $this->getCleanId())
         );
     }
 
     /**
      * Copy the temporary invoice
      *
-     * @param null $User
+     * @param null|QUI\Interfaces\Users\User $PermissionUser
      * @return InvoiceTemporary
      */
-    public function copy($User = null)
+    public function copy($PermissionUser = null)
     {
+        if ($PermissionUser === null) {
+            $PermissionUser = QUI::getUserBySession();
+        }
+
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.temporary.copy',
+            $PermissionUser
+        );
+
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceCopy',
             array($this)
@@ -400,7 +491,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
-        $New     = $Factory->createInvoice($User);
+        $New     = $Factory->createInvoice($PermissionUser);
 
         $currentData = QUI::getDataBase()->fetch(array(
             'from'  => $Handler->temporaryInvoiceTable(),
@@ -436,17 +527,21 @@ class InvoiceTemporary extends QUI\QDOM
      * Creates an invoice from the temporary invoice
      * Its post the invoice
      *
-     * @param QUI\Interfaces\Users\User|null $User
+     * @param QUI\Interfaces\Users\User|null $PermissionUser
      * @return Invoice
      * @throws Exception|QUI\Permissions\Exception|QUI\Exception
      */
-    public function post($User = null)
+    public function post($PermissionUser = null)
     {
-        if ($User === null) {
-            $User = QUI::getUserBySession();
+        if ($PermissionUser === null) {
+            $PermissionUser = QUI::getUserBySession();
         }
 
-        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.post', $User);
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.post',
+            $PermissionUser
+        );
+
         $this->checkLocked();
 
         QUI::getEvents()->fireEvent(
@@ -463,6 +558,7 @@ class InvoiceTemporary extends QUI\QDOM
         // data
         $listCalculations = $this->Articles->getCalculations();
 
+        $User     = QUI::getUserBySession();
         $date     = date('y-m-d H:i:s');
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
         $Customer = $this->getCustomer();
@@ -522,38 +618,48 @@ class InvoiceTemporary extends QUI\QDOM
             array($this)
         );
 
+        $type = $this->getInvoiceType();
+
+        if ($type === Handler::TYPE_INVOICE_TEMPORARY) {
+            $type = Handler::TYPE_INVOICE;
+        }
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             array(
-                'type'        => Handler::TYPE_INVOICE,
-                'id_prefix'   => Settings::getInstance()->getInvoicePrefix(),
-                'customer_id' => $this->getCustomer()->getId(),
-                'order_id'    => $this->getAttribute('order_id'),
-                'c_user'      => $User->getId(),
-                'c_username'  => $User->getUsername(),
+                'type'                    => $type,
+                'id_prefix'               => Settings::getInstance()->getInvoicePrefix(),
 
-                'editor_id'       => $editorId,
-                'editor_name'     => $editorName,
-                'ordered_by'      => $orderedBy,
-                'ordered_by_name' => $orderedByName,
+                // user relationships
+                'c_user'                  => $User->getId(),
+                'c_username'              => $User->getName(),
+                'editor_id'               => $editorId,
+                'editor_name'             => $editorName,
+                'order_id'                => $this->getAttribute('order_id'),
+                'ordered_by'              => $orderedBy,
+                'ordered_by_name'         => $orderedByName,
+                'customer_id'             => $this->getCustomer()->getId(),
+                'customer_data'           => json_encode($customerData),
 
-                'hash'         => $this->getAttribute('hash'),
-                'project_name' => $this->getAttribute('project_name'),
+                // addresses
+                'invoice_address'         => $invoiceAddress,
+                'delivery_address'        => $this->getAttribute('delivery_address'),
 
-                'invoice_address'  => $invoiceAddress,
-                'delivery_address' => $this->getAttribute('delivery_address'),
+                // payments
+                'payment_method'          => $this->getAttribute('payment_method'),
+                'payment_data'            => '', // <!-- muss verschlüsselt sein -->
+                'payment_time'            => '',
+                'time_for_payment'        => (int)$this->getAttribute('time_for_payment'),
 
-                'payment_method'   => $this->getAttribute('payment_method'),
-                'payment_data'     => '', // <!-- muss verschlüsselt sein -->
-                'payment_time'     => '',
-                'time_for_payment' => (int)$this->getAttribute('time_for_payment'),
+                // paid status
+                'paid_status'             => Invoice::PAYMENT_STATUS_OPEN,
+                'paid_date'               => '',
+                'paid_data'               => '',
 
-                'paid_status'   => Invoice::PAYMENT_STATUS_OPEN,
-                'paid_date'     => '',
-                'paid_data'     => '',
-                'customer_data' => json_encode($customerData),
-
+                // data
+                'hash'                    => $this->getAttribute('hash'),
+                'project_name'            => $this->getAttribute('project_name'),
                 'date'                    => $date,
                 'data'                    => $this->getAttribute('data'),
                 'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
@@ -561,7 +667,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'history'                 => $this->getHistory()->toJSON(),
                 'comments'                => $this->getComments()->toJSON(),
 
-                // Calc data
+                // calculation data
                 'isbrutto'                => $isBrutto,
                 'currency_data'           => json_encode($listCalculations['currencyData']),
                 'nettosum'                => $listCalculations['nettoSum'],
@@ -574,7 +680,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         $newId = QUI::getDataBase()->getPDO()->lastInsertId();
 
-        $this->delete($User);
+        $this->delete(QUI::getUsers()->getSystemUser());
         $Invoice = $Handler->getInvoice($newId);
 
         QUI::getEvents()->fireEvent(
@@ -588,12 +694,12 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Alias for post()
      *
-     * @param null $User
+     * @param null|QUI\Interfaces\Users\User $PermissionUser
      * @return Invoice
      */
-    public function createInvoice($User = null)
+    public function createInvoice($PermissionUser = null)
     {
-        return $this->post($User);
+        return $this->post($PermissionUser);
     }
 
     /**
@@ -618,9 +724,10 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function toArray()
     {
-        $attributes       = $this->getAttributes();
-        $attributes['id'] = $this->getId();
+        $attributes = $this->getAttributes();
 
+        $attributes['id']       = $this->getId();
+        $attributes['type']     = $this->getInvoiceType();
         $attributes['articles'] = $this->Articles->toArray();
 
         return $attributes;

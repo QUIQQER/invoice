@@ -58,7 +58,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             '$onClickCopyInvoice',
             '$onClickInvoiceDetails',
             '$onClickOpenInvoice',
-            '$onClickCreateCredit'
+            '$onClickCreateCredit',
+            '$onClickReversal'
         ],
 
         initialize: function (options) {
@@ -95,7 +96,34 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 perPage: this.$Grid.options.perPage,
                 page   : this.$Grid.options.page
             }).then(function (result) {
-                this.$Grid.setData(result.grid);
+                var gridData = result.grid;
+
+                gridData.data = gridData.data.map(function (entry) {
+                    var Icon = new Element('span');
+
+                    switch (parseInt(entry.type)) {
+                        // gutschrift
+                        case 3:
+                            Icon.addClass('fa fa-clipboard');
+                            break;
+
+                        // storno
+                        case 4:
+                            Icon.addClass('fa fa-ban');
+                            break;
+
+                        default:
+                            Icon.addClass('fa fa-file-text-o');
+                    }
+
+                    entry.display_type = Icon;
+                    entry.opener       = '&nbsp;';
+
+                    return entry;
+                });
+
+
+                this.$Grid.setData(gridData);
                 this.$refreshButtonStatus();
 
                 this.$Total.set(
@@ -216,10 +244,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             Actions.appendChild({
                 name  : 'cancel',
                 text  : QUILocale.get(lg, 'journal.btn.cancelInvoice'),
-                icon  : 'fa fa-remove',
+                icon  : 'fa fa-ban',
                 events: {
-                    onClick: function () {
-                    }
+                    onClick: this.$onClickReversal
                 }
             });
 
@@ -267,6 +294,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     }
                 }],
                 columnModel          : [{
+                    header   : '&nbsp;',
+                    dataIndex: 'opener',
+                    dataType : 'int',
+                    width    : 30
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.type'),
+                    dataIndex: 'display_type',
+                    dataType : 'node',
+                    width    : 30
+                }, {
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
                     dataType : 'integer',
@@ -371,11 +408,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataIndex: 'processing',
                     dataType : 'string',
                     width    : 150
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.comments'),
-                    dataIndex: 'comments',
-                    dataType : 'string',
-                    width    : 100
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentData'),
                     dataIndex: 'payment_data',
@@ -613,6 +645,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
         /**
          * Opens the create credit dialog
+         *
+         * @return {Promise}
          */
         $onClickCreateCredit: function () {
             var selected = this.$Grid.getSelectedData();
@@ -654,6 +688,62 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                             }).then(function () {
                                 Win.close();
                             });
+                        },
+
+                        onCancel: resolve
+                    }
+                }).open();
+
+            });
+        },
+
+        /**
+         * Opens the reversal dialog
+         * - Invoice cancel
+         * - Storno
+         *
+         * @return {Promise}
+         */
+        $onClickReversal: function () {
+            var selected = this.$Grid.getSelectedData();
+
+            if (!selected.length) {
+                return Promise.resolve();
+            }
+
+            var self      = this,
+                invoiceId = selected[0].id;
+
+            return new Promise(function (resolve) {
+
+                new QUIConfirm({
+                    icon       : 'fa fa-ban',
+                    texticon   : 'fa fa-ban',
+                    title      : QUILocale.get(lg, 'dialog.invoice.reversal.title', {
+                        invoiceId: invoiceId
+                    }),
+                    text       : QUILocale.get(lg, 'dialog.invoice.reversal.text', {
+                        invoiceId: invoiceId
+                    }),
+                    information: QUILocale.get(lg, 'dialog.invoice.reversal.information', {
+                        invoiceId: invoiceId
+                    }),
+                    autoclose  : false,
+                    ok_button  : {
+                        text     : QUILocale.get(lg, 'dialog.invoice.reversal.submit'),
+                        textimage: 'fa fa-ban'
+                    },
+                    maxHeight  : 400,
+                    maxWidth   : 600,
+                    events     : {
+                        onSubmit: function (Win) {
+                            Win.Loader.show();
+
+                            // Invoices.reversalInvoice(invoiceId).then(function (newId) {
+                            //     return self.openTemporaryInvoice(newId);
+                            // }).then(function () {
+                            //     Win.close();
+                            // });
                         },
 
                         onCancel: resolve

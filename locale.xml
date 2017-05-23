@@ -282,6 +282,10 @@
             <en><![CDATA[Create invoice]]></en>
         </locale>
 
+        <locale name="journal.grid.type">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
         <locale name="journal.grid.invoiceNo">
             <de><![CDATA[Rech.-Nr]]></de>
             <en><![CDATA[Invoice no]]></en>
@@ -359,8 +363,8 @@
             <en><![CDATA[Payment data]]></en>
         </locale>
         <locale name="journal.grid.hash">
-            <de><![CDATA[Hash]]></de>
-            <en><![CDATA[Hash]]></en>
+            <de><![CDATA[Eindeutige ID]]></de>
+            <en><![CDATA[Unique ID]]></en>
         </locale>
 
         <locale name="journal.paidstatus.all">
@@ -561,6 +565,29 @@
             <en><![CDATA[Create credit]]></en>
         </locale>
 
+        <locale name="dialog.invoice.reversal.title">
+            <de><![CDATA[Rechnung stornieren]]></de>
+            <en><![CDATA[Invoice reversal]]></en>
+        </locale>
+        <locale name="dialog.invoice.reversal.text">
+            <de><![CDATA[Möchten Sie die Rechnung wirklich stornieren?]]></de>
+            <en><![CDATA[Are you sure you want to cancel the invoice?]]></en>
+        </locale>
+        <locale name="dialog.invoice.reversal.information" html="true">
+            <de><![CDATA[
+            Folgende Rechnung wird storniert #[invoiceId].<br />
+            Bitte beachten Sie, dieser Vorgang kann nicht wieder rückgängig gemacht werden.
+            ]]></de>
+            <en><![CDATA[
+            The following invoice will be canceled #[invoiceId].<br />
+            Please consider, this operation can not be undone.
+            ]]></en>
+        </locale>
+        <locale name="dialog.invoice.reversal.submit">
+            <de><![CDATA[Stornierung ausführen]]></de>
+            <en><![CDATA[Execute cancellation]]></en>
+        </locale>
+
         <locale name="dialog.delete.article.title">
             <de><![CDATA[Artikel wirklich löschen?]]></de>
             <en><![CDATA[Delete the article?]]></en>
@@ -728,9 +755,13 @@
             <de><![CDATA[Der Rechnungsentwurf wurde erfolgreich gespeichert.]]></de>
             <en><![CDATA[The invoice was successfully saved.]]></en>
         </locale>
+        <locale name="message.create.credit.from">
+            <de><![CDATA[Gutschrift erstellt aus Rechnung #[invoiceId]]]></de>
+            <en><![CDATA[Create Credit Note from Invoice #[invoiceId]]]></en>
+        </locale>
         <locale name="message.create.credit">
-            <de><![CDATA[Gutschrift erstellt aus [invoiceId]]]></de>
-            <en><![CDATA[Create Credit from [invoiceId]]]></en>
+            <de><![CDATA[Gutschrift erstellt. Gutschrift ID #[invoiceId]]]></de>
+            <en><![CDATA[Create Credit. New Credit Note ID #[invoiceId]]]></en>
         </locale>
 
         <locale name="exception.invoice.verification.customer">
@@ -774,6 +805,11 @@
             <en><![CDATA[The invoice has no payment method.]]></en>
         </locale>
 
+        <locale name="exception.parted.invoice.cant.be.canceled">
+            <de><![CDATA[Eine Rechnung mit Teilzahlung kann nicht storniert werden.]]></de>
+            <en><![CDATA[An invoice with partial payment can not be canceled.]]></en>
+        </locale>
+
         <locale name="history.message.addPayment">
             <de><![CDATA[Zahlung hinzugefügt. Von [username] #[uid]. Zahlungsweise: [payment].]]></de>
             <en><![CDATA[Add payment. From [username] #[uid]. Payment method: [payment].]]></en>
@@ -790,9 +826,17 @@
             <de><![CDATA[Rechnung kopiert von [username] #[uid].]]></de>
             <en><![CDATA[Invoice copied by [username] #[uid].]]></en>
         </locale>
-        <locale name="history.message.cancel">
+        <locale name="history.message.reversal">
             <de><![CDATA[Rechnung storniert von [username] #[uid].]]></de>
             <en><![CDATA[Invoice canceled by [username] #[uid].]]></en>
+        </locale>
+        <locale name="history.message.reversal.created">
+            <de><![CDATA[Gutschrift für Stornierung erstellt. ID #[creditNoteId]]]></de>
+            <en><![CDATA[Credit note for cancellation created. ID #[creditNoteId]]]></en>
+        </locale>
+        <locale name="history.message.temporaryInvoice.type.changed">
+            <de><![CDATA[Rechnungstyp geändert in [type]]]></de>
+            <en><![CDATA[Invoice type changed to [type]]]></en>
         </locale>
 
         <locale name="pdf.export.name">

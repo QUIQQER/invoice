@@ -22,11 +22,12 @@ class Invoice extends QUI\QDOM
     const PAYMENT_STATUS_OPEN = 0;
     const PAYMENT_STATUS_PAID = 1;
     const PAYMENT_STATUS_PART = 2;
-    const PAYMENT_STATUS_CANCEL = 3;
-    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     const PAYMENT_STATUS_ERROR = 4;
-    const PAYMENT_STATUS_CREATE_CREDIT = 5;
     const PAYMENT_STATUS_DEBIT = 11;
+
+    //    const PAYMENT_STATUS_CANCEL = 3;
+    //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
+    //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
     const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
     const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
@@ -64,6 +65,15 @@ class Invoice extends QUI\QDOM
         $this->prefix = Settings::getInstance()->getInvoicePrefix();
         $this->id     = (int)str_replace($this->prefix, '', $id);
         $this->type   = Handler::TYPE_INVOICE;
+
+        switch ((int)$this->getAttribute('type')) {
+            case Handler::TYPE_INVOICE:
+            case Handler::TYPE_INVOICE_TEMPORARY:
+            case Handler::TYPE_INVOICE_CREDIT_NOTE:
+            case Handler::TYPE_INVOICE_REVERSAL:
+                $this->type = (int)$this->getAttribute('type');
+                break;
+        }
     }
 
     /**
@@ -157,16 +167,60 @@ class Invoice extends QUI\QDOM
     }
 
     /**
-     * Storno
+     * Return the invoice type
+     *
+     * - Handler::TYPE_INVOICE
+     * - Handler::TYPE_INVOICE_TEMPORARY
+     * - Handler::TYPE_INVOICE_CREDIT_NOTE
+     * - Handler::TYPE_INVOICE_CANCEL
+     *
+     * @return int
      */
-    public function cancel()
+    public function getInvoiceType()
     {
+        return $this->type;
+    }
+
+    /**
+     * Cancel the invoice
+     * (Reversal, Storno, Cancel)
+     *
+     * @param null|QUI\Interfaces\Users\User $PermissionUser
+     * @throws Exception
+     */
+    public function reversal($PermissionUser = null)
+    {
+        if ($PermissionUser === null) {
+            $PermissionUser = QUI::getUserBySession();
+        }
+
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.reversal',
+            $PermissionUser
+        );
+
+        // if invoice is parted paid, it could not be canceled
+        $this->getPaidStatusInformation();
+
+        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PART) {
+            throw new Exception(array(
+                'quiqqer/invoice',
+                'exception.parted.invoice.cant.be.canceled'
+            ));
+        }
+
         $User = QUI::getUserBySession();
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceReversal',
+            array($this)
+        );
+
 
         $this->addHistory(
             QUI::getLocale()->get(
                 'quiqqer/invoice',
-                'history.message.cancel',
+                'history.message.reversal',
                 array(
                     'username' => $User->getName(),
                     'uid'      => $User->getId()
@@ -174,28 +228,53 @@ class Invoice extends QUI\QDOM
             )
         );
 
+        $CreditNote = $this->createCreditNote(QUI::getUsers()->getSystemUser());
+        $CreditNote->setInvoiceType(Handler::TYPE_INVOICE_REVERSAL);
+        $CreditNote->save(QUI::getUsers()->getSystemUser());
+        $CreditNote->post(QUI::getUsers()->getSystemUser());
 
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoiceCancel',
-            array($this)
+        $this->addHistory(
+            QUI::getLocale()->get(
+                'quiqqer/invoice',
+                'history.message.reversal.created',
+                array(
+                    'username'     => $User->getName(),
+                    'uid'          => $User->getId(),
+                    'creditNoteId' => $CreditNote->getId()
+                )
+            )
         );
 
-        // @todo wenn umgesetzt wird, vorher mor fragen
-        // -> Gutschrift erzeugen
+        // set the invoice status
+        $this->type = Handler::TYPE_INVOICE_CANCEL;
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->invoiceTable(),
+            array('type' => $this->type),
+            array('id' => $this->getCleanId())
+        );
 
 
         QUI::getEvents()->fireEvent(
-            'quiqqerInvoiceCancelEnd',
+            'quiqqerInvoiceReversalEnd',
             array($this)
         );
     }
 
     /**
-     * Alias for cancel
+     * Alias for reversal
+     */
+    public function cancellation()
+    {
+        $this->reversal();
+    }
+
+    /**
+     * Alias for reversal
      */
     public function storno()
     {
-        $this->cancel();
+        $this->reversal();
     }
 
     /**
@@ -210,7 +289,10 @@ class Invoice extends QUI\QDOM
             $PermissionUser = QUI::getUserBySession();
         }
 
-        // @todo permissions
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.copy',
+            $PermissionUser
+        );
 
 
         $User = QUI::getUserBySession();
@@ -253,7 +335,7 @@ class Invoice extends QUI\QDOM
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
             array(
-                'type'                    => $this->type,
+                'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
                 'customer_id'             => $currentData['customer_id'],
                 'invoice_address_id'      => '',
                 'invoice_address'         => $currentData['invoice_address'],
@@ -262,18 +344,18 @@ class Invoice extends QUI\QDOM
                 'order_id'                => $currentData['order_id'],
                 'project_name'            => $currentData['project_name'],
                 'payment_method'          => $currentData['payment_method'],
-                'payment_data'            => $currentData['payment_data'],
-                'payment_time'            => $currentData['payment_time'],
+                'payment_data'            => '',
+                'payment_time'            => '',
                 'time_for_payment'        => $currentData['time_for_payment'],
-                'paid_status'             => $currentData['paid_status'],
-                'paid_date'               => $currentData['paid_date'],
-                'paid_data'               => $currentData['paid_data'],
+                'paid_status'             => self::PAYMENT_STATUS_OPEN,
+                'paid_date'               => '',
+                'paid_data'               => '',
                 'date'                    => $currentData['date'],
                 'data'                    => $currentData['data'],
                 'additional_invoice_text' => $currentData['additional_invoice_text'],
                 'articles'                => $currentData['articles'],
-                'history'                 => $currentData['history'],
-                'comments'                => $currentData['comments'],
+                'history'                 => '',
+                'comments'                => '',
                 'customer_data'           => $currentData['customer_data'],
                 'isbrutto'                => $currentData['isbrutto'],
                 'currency_data'           => $currentData['currency_data'],
@@ -299,14 +381,18 @@ class Invoice extends QUI\QDOM
     }
 
     /**
-     * Create a credit note, set the invoice to credit note set
+     * Create a credit note, set the invoice to credit note
+     * - Gutschrift
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @return Invoice
+     * @return InvoiceTemporary
      */
     public function createCreditNote($PermissionUser = null)
     {
-        // @todo permissions
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.createCreditNote',
+            $PermissionUser
+        );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCreateCreditNote',
@@ -330,22 +416,21 @@ class Invoice extends QUI\QDOM
         }
 
         $Copy->addHistory(
-            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit', array(
+            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', array(
                 'invoiceParentId' => $this->getId()
             ))
         );
 
+        $Copy->setInvoiceType(Handler::TYPE_INVOICE_CREDIT_NOTE);
         $Copy->save(QUI::getUsers()->getSystemUser());
 
-//        QUI::getDataBase()->update(
-//            Handler::getInstance()->invoiceTable(),
-//            array(
-//                'paid_status' => self::PAYMENT_STATUS_CREATE_CREDIT
-//            ),
-//            array('id' => $this->getCleanId())
-//        );
+        $this->addHistory(
+            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit', array(
+                'invoiceParentId' => $Copy->getId()
+            ))
+        );
 
-        return $Copy;
+        return Handler::getInstance()->getTemporaryInvoice($Copy->getId());
     }
 
     /**
@@ -354,20 +439,26 @@ class Invoice extends QUI\QDOM
      * @param string|int|float $amount - Payment amount
      * @param PaymentsInterface $PaymentMethod - Payment method
      * @param int|string|bool $date - optional, unix timestamp
-     *
-     * @todo event einführen
+     * @param null|QUI\Interfaces\Users\User $PermissionUser
      */
-    public function addPayment($amount, PaymentsInterface $PaymentMethod, $date = false)
+    public function addPayment($amount, PaymentsInterface $PaymentMethod, $date = false, $PermissionUser = null)
     {
-        // @todo permissions
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.addPayment',
+            $PermissionUser
+        );
 
 
         QUI\ERP\Accounting\Calc::calculateInvoicePayments($this);
 
-        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PAID
-            || $this->getAttribute('paid_status') == self::PAYMENT_STATUS_CANCEL
-            || $this->getAttribute('paid_status') == self::PAYMENT_STATUS_CREATE_CREDIT
+        if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
         ) {
+            return;
+        }
+
+        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PAID) {
             return;
         }
 
@@ -461,13 +552,6 @@ class Invoice extends QUI\QDOM
             case self::PAYMENT_STATUS_DEBIT:
                 break;
 
-            // If we need something for these cases,
-            // we have an independent block
-            case self::PAYMENT_STATUS_CREATE_CREDIT:
-            case self::PAYMENT_STATUS_CANCEL:
-            case self::PAYMENT_STATUS_STORNO:
-                break;
-
             default:
                 $this->setAttribute('paid_status', self::PAYMENT_STATUS_ERROR);
         }
@@ -508,10 +592,14 @@ class Invoice extends QUI\QDOM
      * Add a comment to the invoice
      *
      * @param string $comment
+     * @param null|QUI\Interfaces\Users\User $PermissionUser
      */
-    public function addComment($comment)
+    public function addComment($comment, $PermissionUser = null)
     {
-        // @todo permissions
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.addComment',
+            $PermissionUser
+        );
 
         $User     = QUI::getUserBySession();
         $comments = $this->getAttribute('comments');

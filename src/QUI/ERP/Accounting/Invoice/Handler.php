@@ -43,20 +43,30 @@ class Handler extends QUI\Utils\Singleton
     const TYPE_INVOICE_TEMPORARY = 2;
 
     /**
+     * Gutschrift / Credit note
      * @var int
      */
     const TYPE_INVOICE_CREDIT_NOTE = 3;
 
+    // Storno types
+
     /**
-     * Alias for cancel
+     * Reversal, storno, cancellation
+     */
+    const TYPE_INVOICE_REVERSAL = 4;
+
+    /**
+     * Alias for reversal
      * @var int
      */
     const TYPE_INVOICE_STORNO = 4;
 
     /**
+     * Status für alte stornierte Rechnung
+     *
      * @var int
      */
-    const TYPE_INVOICE_CANCEL = 4;
+    const TYPE_INVOICE_CANCEL = 5;
 
 
     /**

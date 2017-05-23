@@ -131,13 +131,13 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
-     * @return QUI\ERP\Utils\Template
+     * @return Utils\Template
      */
     protected function getTemplate()
     {
-        $Template = new QUI\ERP\Utils\Template(
+        $Template = new Utils\Template(
             $this->getTemplatePackage(),
-            QUI\ERP\Utils\Template::TYPE_INVOICE
+            $this->Invoice
         );
 
         $Engine   = $Template->getEngine();
