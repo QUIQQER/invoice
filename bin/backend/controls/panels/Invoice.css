@@ -6,3 +6,7 @@
     text-align: right !important;
     padding-right: 5px;
 }
+
+.journal-grid-cancel {
+    text-decoration: line-through;
+}

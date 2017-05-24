@@ -117,6 +117,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         case 5:
                             Icon.addClass('fa fa-times-circle-o');
                             Icon.set('title', QUILocale.get(lg, 'invoice.type.cancel'));
+                            entry.className = 'journal-grid-cancel';
                             break;
 
                         default:
@@ -172,7 +173,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             })[0];
 
             if (selected.length) {
-                if (selected[0].paid_status === 1) {
+                if (selected[0].paid_status === 1 ||
+                    selected[0].paid_status === 5) {
                     Payment.disable();
                 } else {
                     Payment.enable();
@@ -372,7 +374,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentTerm'),
                     dataIndex: 'time_for_payment',
-                    dataType : 'string',
+                    dataType : 'date',
                     width    : 120
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentDate'),

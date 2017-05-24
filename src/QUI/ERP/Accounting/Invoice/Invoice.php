@@ -7,6 +7,7 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
+use QUI\Permissions\Permission;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Accounting\Payments\Api\PaymentsInterface;
 use QUI\ERP\Money\Price;
@@ -23,6 +24,7 @@ class Invoice extends QUI\QDOM
     const PAYMENT_STATUS_PAID = 1;
     const PAYMENT_STATUS_PART = 2;
     const PAYMENT_STATUS_ERROR = 4;
+    const PAYMENT_STATUS_CANCELED = 5;
     const PAYMENT_STATUS_DEBIT = 11;
 
     //    const PAYMENT_STATUS_CANCEL = 3;
@@ -53,6 +55,11 @@ class Invoice extends QUI\QDOM
     protected $id;
 
     /**
+     * @var array
+     */
+    protected $data = array();
+
+    /**
      * Invoice constructor.
      *
      * @param $id
@@ -73,6 +80,10 @@ class Invoice extends QUI\QDOM
             case Handler::TYPE_INVOICE_REVERSAL:
                 $this->type = (int)$this->getAttribute('type');
                 break;
+        }
+
+        if ($this->getAttribute('data')) {
+            $this->data = json_decode($this->getAttribute('data'), true);
         }
     }
 
@@ -196,7 +207,7 @@ class Invoice extends QUI\QDOM
             $PermissionUser = QUI::getUserBySession();
         }
 
-        QUI\Permissions\Permission::checkPermission(
+        Permission::checkPermission(
             'quiqqer.invoice.reversal',
             $PermissionUser
         );
@@ -217,6 +228,14 @@ class Invoice extends QUI\QDOM
                 'exception.parted.invoice.cant.be.canceled'
             ));
         }
+
+        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_CANCELED) {
+            throw new Exception(array(
+                'quiqqer/invoice',
+                'exception.canceled.invoice.cant.be.canceled'
+            ));
+        }
+
 
         $User = QUI::getUserBySession();
 
@@ -240,7 +259,12 @@ class Invoice extends QUI\QDOM
         $CreditNote = $this->createCreditNote(QUI::getUsers()->getSystemUser());
         $CreditNote->setInvoiceType(Handler::TYPE_INVOICE_REVERSAL);
         $CreditNote->save(QUI::getUsers()->getSystemUser());
-        $CreditNote->post(QUI::getUsers()->getSystemUser());
+
+        try {
+            Permission::checkPermission('quiqqer.invoice.canEditCancelInvoice', $PermissionUser);
+        } catch (QUI\Exception $Exception) {
+            $CreditNote->post(QUI::getUsers()->getSystemUser());
+        }
 
         $this->addHistory(
             QUI::getLocale()->get(
@@ -257,11 +281,19 @@ class Invoice extends QUI\QDOM
         // set the invoice status
         $this->type = Handler::TYPE_INVOICE_CANCEL;
 
+        $this->data['canceledId'] = $CreditNote->getId();
+
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            array('type' => $this->type),
+            array(
+                'type'        => $this->type,
+                'data'        => json_encode($this->data),
+                'paid_status' => self::PAYMENT_STATUS_CANCELED
+            ),
             array('id' => $this->getCleanId())
         );
+
+        $this->addComment($reason, QUI::getUsers()->getSystemUser());
 
 
         QUI::getEvents()->fireEvent(
@@ -310,7 +342,7 @@ class Invoice extends QUI\QDOM
             $PermissionUser = QUI::getUserBySession();
         }
 
-        QUI\Permissions\Permission::checkPermission(
+        Permission::checkPermission(
             'quiqqer.invoice.copy',
             $PermissionUser
         );
@@ -367,7 +399,7 @@ class Invoice extends QUI\QDOM
                 'payment_method'          => $currentData['payment_method'],
                 'payment_data'            => '',
                 'payment_time'            => '',
-                'time_for_payment'        => $currentData['time_for_payment'],
+                'time_for_payment'        => '',
                 'paid_status'             => self::PAYMENT_STATUS_OPEN,
                 'paid_date'               => '',
                 'paid_data'               => '',
@@ -410,7 +442,7 @@ class Invoice extends QUI\QDOM
      */
     public function createCreditNote($PermissionUser = null)
     {
-        QUI\Permissions\Permission::checkPermission(
+        Permission::checkPermission(
             'quiqqer.invoice.createCreditNote',
             $PermissionUser
         );
@@ -442,12 +474,53 @@ class Invoice extends QUI\QDOM
             ))
         );
 
+        // credit note extra text
+        $localeCode = QUI::getLocale()->getLocalesByLang(
+            QUI::getLocale()->getCurrent()
+        );
+
+        $Formatter = new \IntlDateFormatter(
+            $localeCode[0],
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::NONE
+        );
+
+        $currentDate = $this->getAttribute('date');
+
+        if (!$currentDate) {
+            $currentDate = time();
+        } else {
+            $currentDate = strtotime($currentDate);
+        }
+
+        $message = QUI::getLocale()->get(
+            'quiqqer/invoice',
+            'message.invoice.creditNote.additionalInvoiceText',
+            array(
+                'id'   => $this->getId(),
+                'date' => $Formatter->format($currentDate)
+            )
+        );
+
+        $additionalText = $Copy->getAttribute('additional_invoice_text');
+
+        if (!empty($additionalText)) {
+            $additionalText .= '<br />';
+        }
+
+        $additionalText .= $message;
+
+        // saving copy
+        $Copy->setData('originalId', $this->getCleanId());
+        $Copy->setAttribute('date', date('Y-m-d H:i:s'));
+        $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setInvoiceType(Handler::TYPE_INVOICE_CREDIT_NOTE);
         $Copy->save(QUI::getUsers()->getSystemUser());
 
         $this->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit', array(
-                'invoiceParentId' => $Copy->getId()
+                'invoiceParentId' => $this->getId(),
+                'invoiceId'       => $Copy->getId()
             ))
         );
 
@@ -464,7 +537,7 @@ class Invoice extends QUI\QDOM
      */
     public function addPayment($amount, PaymentsInterface $PaymentMethod, $date = false, $PermissionUser = null)
     {
-        QUI\Permissions\Permission::checkPermission(
+        Permission::checkPermission(
             'quiqqer.invoice.addPayment',
             $PermissionUser
         );
@@ -479,7 +552,9 @@ class Invoice extends QUI\QDOM
             return;
         }
 
-        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PAID) {
+        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PAID ||
+            $this->getAttribute('paid_status') == self::PAYMENT_STATUS_CANCELED
+        ) {
             return;
         }
 
@@ -571,6 +646,7 @@ class Invoice extends QUI\QDOM
             case self::PAYMENT_STATUS_PART:
             case self::PAYMENT_STATUS_ERROR:
             case self::PAYMENT_STATUS_DEBIT:
+            case self::PAYMENT_STATUS_CANCELED:
                 break;
 
             default:
@@ -617,7 +693,7 @@ class Invoice extends QUI\QDOM
      */
     public function addComment($comment, $PermissionUser = null)
     {
-        QUI\Permissions\Permission::checkPermission(
+        Permission::checkPermission(
             'quiqqer.invoice.addComment',
             $PermissionUser
         );

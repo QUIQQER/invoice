@@ -25,6 +25,16 @@ QUI::$Ajax->registerFunction(
         $Locale   = QUI::getLocale();
         $Payments = Payments::getInstance();
 
+        $localeCode = QUI::getLocale()->getLocalesByLang(
+            QUI::getLocale()->getCurrent()
+        );
+
+        $DateFormatter = new \IntlDateFormatter(
+            $localeCode[0],
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::NONE
+        );
+
         $query           = $Grid->parseDBParams(json_decode($params, true));
         $query['select'] = 'id';
 
@@ -97,7 +107,8 @@ QUI::$Ajax->registerFunction(
             }
 
 
-            $invoiceData['date'] = date('Y-m-d', strtotime($Invoice->getAttribute('date')));
+            $invoiceData['date']             = $DateFormatter->format(strtotime($Invoice->getAttribute('date')));
+            $invoiceData['time_for_payment'] = $DateFormatter->format(strtotime($Invoice->getAttribute('time_for_payment')));
 
             if ($Invoice->getAttribute('paid_date')) {
                 $invoiceData['paid_date'] = date('Y-m-d', $Invoice->getAttribute('paid_date'));

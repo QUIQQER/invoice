@@ -174,9 +174,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             ).then(function () {
                 return Invoices.postInvoice(self.getAttribute('invoiceId'));
             }).then(function (newInvoiceId) {
-                console.log(newInvoiceId);
-
-                self.close();
+                self.destroy();
             }).catch(function (err) {
                 console.error(err);
                 console.error(err.getMessage());

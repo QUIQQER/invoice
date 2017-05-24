@@ -22,6 +22,10 @@
     font-weight: bold;
 }
 
+.payment-status-5 {
+
+}
+
 .payment-status-11 {
     color: purple;
     font-weight: bold;
@@ -31,6 +35,11 @@
     text-align: right !important;
     padding-right: 5px;
     padding-left: 0 !important;
+}
+
+.journal-grid-cancel {
+    opacity: 0.3;
+    text-decoration: line-through;
 }
 
 /** Invoice details

@@ -244,7 +244,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_post', function (id) {
                     self.fireEvent('postInvoice', [self, invoiceId, id]);
-                    resolve(id);
+                    resolve(invoiceId, id);
                 }, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,

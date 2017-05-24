@@ -38,6 +38,11 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * @var array
      */
+    protected $data = array();
+
+    /**
+     * @var array
+     */
     protected $articles = array();
 
     /**
@@ -94,6 +99,13 @@ class InvoiceTemporary extends QUI\QDOM
             $this->Comments = Comments::unserialize($data['comments']);
         }
 
+        // invoice extra data
+        $this->data = json_decode($data['data'], true);
+
+        if (!is_array($this->data)) {
+            $this->data = array();
+        }
+
 
         // invoice type
         $this->type = Handler::TYPE_INVOICE_TEMPORARY;
@@ -108,6 +120,8 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         // database attributes
+        $data['time_for_payment'] = (int)$data['time_for_payment'];
+
         $this->setAttributes($data);
     }
 
@@ -299,7 +313,6 @@ class InvoiceTemporary extends QUI\QDOM
 
         // attributes
         $projectName    = '';
-        $invoiceAddress = '';
         $timeForPayment = '';
         $paymentMethod  = '';
         $date           = '';
@@ -420,7 +433,7 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // invoice data
                 'date'                    => $date,
-                'data'                    => '',
+                'data'                    => json_encode($this->data),
                 'articles'                => $this->Articles->toJSON(),
                 'history'                 => $this->History->toJSON(),
                 'comments'                => $this->Comments->toJSON(),
@@ -595,7 +608,7 @@ class InvoiceTemporary extends QUI\QDOM
             $invoiceAddress = $Address->toJSON();
         } catch (QUI\Exception $Exception) {
             $invoiceAddress = $this->getAttribute('invoice_address');
-            QUI\System\Log::writeRecursive($invoiceAddress);
+
             if (!$invoiceAddress) {
                 throw $Exception;
             }
@@ -629,6 +642,19 @@ class InvoiceTemporary extends QUI\QDOM
             $orderedBy     = $OrderedBy->getId();
             $orderedByName = $OrderedBy->getName();
         }
+
+        // time for payment
+        $paymentTime = (int)$this->getAttribute('time_for_payment');
+
+        $timeForPayment = date(
+            'Y-m-d',
+            strtotime(
+                date('Y-m-d') . ' 00:00 + ' . $paymentTime . ' days'
+            )
+        );
+
+        $timeForPayment .= ' 23:59.59';
+
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePost',
@@ -667,7 +693,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'payment_method'          => $this->getAttribute('payment_method'),
                 'payment_data'            => '', // <!-- muss verschlüsselt sein -->
                 'payment_time'            => '',
-                'time_for_payment'        => (int)$this->getAttribute('time_for_payment'),
+                'time_for_payment'        => $timeForPayment,
 
                 // paid status
                 'paid_status'             => Invoice::PAYMENT_STATUS_OPEN,
@@ -678,7 +704,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'hash'                    => $this->getAttribute('hash'),
                 'project_name'            => $this->getAttribute('project_name'),
                 'date'                    => $date,
-                'data'                    => $this->getAttribute('data'),
+                'data'                    => json_encode($this->data),
                 'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
                 'articles'                => $this->getArticles()->toJSON(),
                 'history'                 => $this->getHistory()->toJSON(),
@@ -695,7 +721,27 @@ class InvoiceTemporary extends QUI\QDOM
             )
         );
 
-        $newId = QUI::getDataBase()->getPDO()->lastInsertId();
+        $newId = QUI::getDataBase()->getPDO()->lastInsertId('id');
+
+
+        // if temporary invoice was a credit note
+        // add history entry to original invoice
+        if (isset($this->data['originalId'])) {
+            try {
+                $Parent = $Handler->getInvoice($this->data['originalId']);
+                $Parent->addHistory(
+                    QUI::getLocale()->get(
+                        'quiqqer/invoice',
+                        'message.create.credit.post',
+                        array(
+                            'invoiceId' => $this->getId()
+                        )
+                    )
+                );
+            } catch (Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
+            }
+        }
 
         $this->delete(QUI::getUsers()->getSystemUser());
         $Invoice = $Handler->getInvoice($newId);
@@ -888,6 +934,36 @@ class InvoiceTemporary extends QUI\QDOM
             'quiqqerInvoiceTemporaryInvoiceAddHistory',
             array($this, $message)
         );
+    }
+
+    //endregion
+
+    //region Data
+
+    /**
+     * Set a data value
+     *
+     * @param string $key
+     * @param mixed $value
+     */
+    public function setData($key, $value)
+    {
+        $this->data[$key] = $value;
+    }
+
+    /**
+     * Return a data field
+     *
+     * @param string $key
+     * @return bool|mixed
+     */
+    public function getData($key)
+    {
+        if (isset($this->data[$key])) {
+            return $this->data[$key];
+        }
+
+        return false;
     }
 
     //endregion

@@ -179,6 +179,10 @@
             <de><![CDATA[<span class="payment-status-4">error</span>]]></de>
             <en><![CDATA[<span class="payment-status-4">error</span>]]></en>
         </locale>
+        <locale name="payment.status.5" html="true">
+            <de><![CDATA[<span class="payment-status-5">storniert</span>]]></de>
+            <en><![CDATA[<span class="payment-status-5">canceled</span>]]></en>
+        </locale>
         <locale name="payment.status.11" html="true">
             <de><![CDATA[<span class="payment-status-11">Lastschrift</span>]]></de>
             <en><![CDATA[<span class="payment-status-11">Debit</span>]]></en>
@@ -331,13 +335,13 @@
             <de><![CDATA[Zahlungsart]]></de>
             <en><![CDATA[Payment method]]></en>
         </locale>
+        <locale name="journal.grid.timeForPayment">
+            <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
+            <en><![CDATA[Payment term (days)]]></en>
+        </locale>
         <locale name="journal.grid.paymentDate">
             <de><![CDATA[Zahlungsdatum]]></de>
             <en><![CDATA[Payment date]]></en>
-        </locale>
-        <locale name="journal.grid.paymentTerm">
-            <de><![CDATA[Zahlungsziel]]></de>
-            <en><![CDATA[Term of payment]]></en>
         </locale>
         <locale name="journal.grid.paid">
             <de><![CDATA[bezahlt]]></de>
@@ -777,8 +781,16 @@
             <en><![CDATA[Create Credit Note from Invoice #[invoiceId]]]></en>
         </locale>
         <locale name="message.create.credit">
-            <de><![CDATA[Gutschrift erstellt. Gutschrift ID #[invoiceId]]]></de>
-            <en><![CDATA[Create Credit. New Credit Note ID #[invoiceId]]]></en>
+            <de><![CDATA[Gutschrift erstellt. Neue Gutschrift ID #[invoiceId]]]></de>
+            <en><![CDATA[Create Credit Note. New Credit Note ID #[invoiceId]]]></en>
+        </locale>
+        <locale name="message.create.credit.post">
+            <de><![CDATA[Gutschrift gebucht. Gutschrift ID #[invoiceId]]]></de>
+            <en><![CDATA[Post Credit Note. Credit Note ID #[invoiceId]]]></en>
+        </locale>
+        <locale name="message.invoice.creditNote.additionalInvoiceText" html="true">
+            <de><![CDATA[Gutschrift zu Rechnung #[id] vom [date]]]></de>
+            <en><![CDATA[Credit Note to invoice #[id] from [date]]]></en>
         </locale>
 
         <locale name="exception.invoice.verification.customer">
@@ -825,6 +837,10 @@
         <locale name="exception.parted.invoice.cant.be.canceled">
             <de><![CDATA[Eine Rechnung mit Teilzahlung kann nicht storniert werden.]]></de>
             <en><![CDATA[An invoice with partial payment can not be canceled.]]></en>
+        </locale>
+        <locale name="exception.canceled.invoice.cant.be.canceled">
+            <de><![CDATA[Eine Stornorechnung kann nicht storniert werden.]]></de>
+            <en><![CDATA[A canceled invoice can not be canceled.]]></en>
         </locale>
         <locale name="exception.missing.reason.in.reversal">
             <de><![CDATA[Bitte geben Sie einen Grund für die Stornierung an.]]></de>

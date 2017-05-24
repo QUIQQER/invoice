@@ -327,8 +327,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'string',
                     width    : 120
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentTerm'),
-                    dataIndex: 'payment_time',
+                    header   : QUILocale.get(lg, 'journal.grid.timeForPayment'),
+                    dataIndex: 'time_for_payment',
                     dataType : 'string',
                     width    : 120
                 }, {
@@ -498,7 +498,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     return Invoices.postInvoice(selected.id);
                 }
 
-                QUI.getMessageHandler().then(function (MH) {
+                return QUI.getMessageHandler().then(function (MH) {
                     for (var i in missing) {
                         if (missing.hasOwnProperty(i)) {
                             MH.addError(missing[i]);
