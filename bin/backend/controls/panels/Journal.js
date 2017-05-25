@@ -21,10 +21,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'qui/QUI',
     'qui/controls/desktop/Panel',
     'qui/controls/buttons/Button',
+    'qui/controls/buttons/Separator',
     'qui/controls/buttons/Select',
     'qui/controls/windows/Confirm',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
+    'package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter',
     'Locale',
     'Mustache',
 
@@ -32,7 +34,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.Total.html',
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
 
-], function (QUI, QUIPanel, QUIButton, QUISelect, QUIConfirm, Grid, Invoices, QUILocale, Mustache, templateInvoiceDetails, templateTotal) {
+], function (QUI, QUIPanel, QUIButton, QUISeparator, QUISelect, QUIConfirm, Grid, Invoices, TimeFilter,
+             QUILocale, Mustache, templateInvoiceDetails, templateTotal) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -70,9 +73,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.parent(options);
 
-            this.$Grid   = null;
-            this.$Status = null;
-            this.$Total  = null;
+            this.$Grid       = null;
+            this.$Status     = null;
+            this.$TimeFilter = null;
+            this.$Total      = null;
 
             this.addEvents({
                 onCreate: this.$onCreate,
@@ -224,13 +228,35 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.addButton(this.$Status);
 
+            var Separator = new QUISeparator();
+            this.addButton(Separator);
 
+            Separator.getElm().setStyles({
+                'float': 'right'
+            });
+
+            this.$TimeFilter = new TimeFilter({
+                name  : 'timeFilter',
+                styles: {
+                    'float': 'right'
+                },
+                events: {
+                    onChange: function (Filter, From, To) {
+                        console.log(Intl.DateTimeFormat('de-DE').format(From));
+                        console.log(Intl.DateTimeFormat('de-DE').format(To));
+                        this.refresh();
+                    }.bind(this)
+                }
+            });
+
+            this.addButton(this.$TimeFilter);
+
+            // Grid
             this.getContent().setStyles({
                 padding : 10,
                 position: 'relative'
             });
 
-            // Grid
             var Container = new Element('div').inject(this.getContent());
 
             var Actions = new QUIButton({

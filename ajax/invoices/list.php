@@ -19,7 +19,7 @@ use QUI\ERP\Accounting\Invoice\Settings;
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_list',
-    function ($params) {
+    function ($params, $filter) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $Grid     = new QUI\Utils\Grid();
         $Locale   = QUI::getLocale();
@@ -35,11 +35,15 @@ QUI::$Ajax->registerFunction(
             \IntlDateFormatter::NONE
         );
 
-        $query           = $Grid->parseDBParams(json_decode($params, true));
-        $query['select'] = 'id';
+        if (!isset($filter) || !is_array($filter)) {
+            $filter = array();
+        }
 
         $result = array();
-        $data   = $Invoices->search($query);
+        $query  = $Grid->parseDBParams(json_decode($params, true));
+
+        $query['select'] = 'id';
+        $data            = $Invoices->search($query);
 
         $needleFields = array(
             'customer_id',
@@ -196,6 +200,6 @@ QUI::$Ajax->registerFunction(
             'total' => QUI\ERP\Accounting\Calc::calculateTotal($result)
         );
     },
-    array('params'),
+    array('params', 'filter'),
     'Permission::checkAdminUser'
 );

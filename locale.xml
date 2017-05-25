@@ -254,6 +254,32 @@
             <de><![CDATA[Rechnung]]></de>
             <en><![CDATA[Invoice]]></en>
         </locale>
+
+        <locale name="quarter.1">
+            <de><![CDATA[1. Quartal]]></de>
+            <en><![CDATA[1st quarter]]></en>
+        </locale>
+        <locale name="quarter.2">
+            <de><![CDATA[2. Quartal]]></de>
+            <en><![CDATA[2nd quarter]]></en>
+        </locale>
+        <locale name="quarter.3">
+            <de><![CDATA[3. Quartal]]></de>
+            <en><![CDATA[3rd quarter]]></en>
+        </locale>
+        <locale name="quarter.4">
+            <de><![CDATA[4. Quartal]]></de>
+            <en><![CDATA[4th quarter]]></en>
+        </locale>
+
+        <locale name="halfYear.1">
+            <de><![CDATA[1 Halbjahr]]></de>
+            <en><![CDATA[1 half year]]></en>
+        </locale>
+        <locale name="halfYear.2">
+            <de><![CDATA[2 Halbjahr]]></de>
+            <en><![CDATA[2 half year]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -411,6 +437,31 @@
         <locale name="journal.paidstatus.debit">
             <de><![CDATA[Status: Lastschrift]]></de>
             <en><![CDATA[Status: direct debit]]></en>
+        </locale>
+
+        <locale name="journal.timeFilter.month">
+            <de><![CDATA[Monat]]></de>
+            <en><![CDATA[Month]]></en>
+        </locale>
+        <locale name="journal.timeFilter.quarter">
+            <de><![CDATA[Quartal]]></de>
+            <en><![CDATA[Quarter]]></en>
+        </locale>
+        <locale name="journal.timeFilter.halfYear">
+            <de><![CDATA[Halbjahr]]></de>
+            <en><![CDATA[Half-Year]]></en>
+        </locale>
+        <locale name="journal.timeFilter.year">
+            <de><![CDATA[Jahr]]></de>
+            <en><![CDATA[Year]]></en>
+        </locale>
+        <locale name="journal.timeFilter.period">
+            <de><![CDATA[Zeitspanne]]></de>
+            <en><![CDATA[Period of time]]></en>
+        </locale>
+        <locale name="journal.timeFilter.period.select">
+            <de><![CDATA[[from] bis [to]]]></de>
+            <en><![CDATA[[from] to [to]]]></en>
         </locale>
 
         <locale name="erp.panel.temporary.invoice.title">
