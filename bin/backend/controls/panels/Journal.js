@@ -10,6 +10,7 @@
  * @require qui/controls/windows/Confirm
  * @require controls/grid/Grid
  * @require package/quiqqer/invoice/bin/Invoices
+ * @require package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter
  * @require Locale
  * @require Mustache
  * @require text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html
@@ -96,9 +97,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         refresh: function () {
             this.Loader.show();
 
-            Invoices.getList({
+            if (!this.$Grid) {
+                return;
+            }
+
+            Invoices.search({
                 perPage: this.$Grid.options.perPage,
                 page   : this.$Grid.options.page
+            }, {
+                from       : this.$TimeFilter.getValue().from,
+                to         : this.$TimeFilter.getValue().to,
+                paid_status: [
+                    this.$Status.getValue()
+                ]
             }).then(function (result) {
                 var gridData = result.grid;
 
@@ -219,12 +230,35 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 }
             });
 
-            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.all'), 'all');
-            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.open'), 'open');
-            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.paid'), 'paid');
-            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.partial'), 'partial');
-            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.canceled'), 'canceled');
-            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.debit'), 'debit');
+            this.$Status.appendChild(
+                QUILocale.get(lg, 'journal.paidstatus.all'),
+                ''
+            );
+
+            this.$Status.appendChild(
+                QUILocale.get(lg, 'journal.paidstatus.open'),
+                Invoices.PAYMENT_STATUS_OPEN
+            );
+
+            this.$Status.appendChild(
+                QUILocale.get(lg, 'journal.paidstatus.paid'),
+                Invoices.PAYMENT_STATUS_PAID
+            );
+
+            this.$Status.appendChild(
+                QUILocale.get(lg, 'journal.paidstatus.partial'),
+                Invoices.PAYMENT_STATUS_PART
+            );
+
+            this.$Status.appendChild(
+                QUILocale.get(lg, 'journal.paidstatus.canceled'),
+                Invoices.PAYMENT_STATUS_CANCELED
+            );
+
+            this.$Status.appendChild(
+                QUILocale.get(lg, 'journal.paidstatus.debit'),
+                Invoices.PAYMENT_STATUS_DEBIT
+            );
 
             this.addButton(this.$Status);
 
@@ -241,11 +275,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'float': 'right'
                 },
                 events: {
-                    onChange: function (Filter, From, To) {
-                        console.log(Intl.DateTimeFormat('de-DE').format(From));
-                        console.log(Intl.DateTimeFormat('de-DE').format(To));
-                        this.refresh();
-                    }.bind(this)
+                    onChange: this.refresh
                 }
             });
 
@@ -495,7 +525,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             var value = this.$Status.getValue();
 
             if (value === '' || !value) {
-                this.$Status.setValue('all');
+                this.$Status.setValue('');
             }
         },
 

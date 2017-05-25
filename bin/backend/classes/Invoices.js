@@ -23,6 +23,13 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         Extends: QUIDOM,
         Type   : 'package/quiqqer/invoice/bin/backend/classes/Invoices',
 
+        PAYMENT_STATUS_OPEN    : 0,
+        PAYMENT_STATUS_PAID    : 1,
+        PAYMENT_STATUS_PART    : 2,
+        PAYMENT_STATUS_ERROR   : 4,
+        PAYMENT_STATUS_CANCELED: 5,
+        PAYMENT_STATUS_DEBIT   : 11,
+
         initialize: function (options) {
             this.parent(options);
         },
@@ -55,6 +62,25 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_list', resolve, {
                     'package': 'quiqqer/invoice',
                     params   : JSON.encode(params),
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Search invoices
+         *
+         * @param {Object} params - Grid Query Params
+         * @param {Object} filter - Filter
+         * @returns {Promise}
+         */
+        search: function (params, filter) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_search', resolve, {
+                    'package': 'quiqqer/invoice',
+                    params   : JSON.encode(params),
+                    filter   : JSON.encode(filter),
                     onError  : reject,
                     showError: false
                 });

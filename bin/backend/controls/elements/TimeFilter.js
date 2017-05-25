@@ -95,7 +95,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
             this.$Select.inject(this.$Elm);
             this.$Next.inject(this.$Elm);
 
-            this.refresh();
+            this.$triggerChange();
 
             return this.$Elm;
         },
@@ -169,9 +169,13 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
          * @return {{from: number, to: number}}
          */
         getValue: function () {
+            if (!this.$To) {
+                this.$To = new Date();
+            }
+
             return {
-                from: Math.floor(this.$Current.now() / 1000),
-                to  : Math.floor(this.$Current.now() / 1000)
+                from: Math.floor(this.$Current.getTime() / 1000),
+                to  : Math.floor(this.$To.getTime() / 1000)
             };
         },
 
@@ -249,6 +253,9 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                     To.setFullYear(year, 12, 0);
                     break;
             }
+
+            this.$Current = From;
+            this.$To      = To;
 
             this.fireEvent('change', [this, From, To]);
         },
