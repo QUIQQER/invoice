@@ -121,7 +121,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // database attributes
         $data['time_for_payment'] = (int)$data['time_for_payment'];
-
+        
         $this->setAttributes($data);
     }
 

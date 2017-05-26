@@ -260,9 +260,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     dateTime = time[1];
                 }
 
-                if (!dateTime || dateTime === '') {
-                    dateTime = '00:00:00';
-                }
+                console.log(self.getAttribute('time_for_payment'));
 
                 QUIFormUtils.setDataToForm({
                     date            : dateDate,
@@ -295,8 +293,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 var OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
 
                 Data.addEvent('onChange', function () {
-                    self.setAttribute('customer_id', Data.getValue().userId);
+                    var userId = Data.getValue().userId;
+
+                    self.setAttribute('customer_id', userId);
                     self.setAttribute('invoice_address_id', Data.getValue().addressId);
+
+                    Invoices.getPaymentTime(userId).then(function (paymentTime) {
+                        self.setAttribute('time_for_payment', paymentTime);
+                        Content.getElement('[name="time_for_payment"]').value = paymentTime;
+                    });
                 });
 
                 // editor

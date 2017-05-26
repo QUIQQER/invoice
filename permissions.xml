@@ -37,4 +37,8 @@
         <defaultvalue>0</defaultvalue>
     </permission>
 
+    <permission name="quiqqer.invoice.timeForPayment" type="int">
+        <defaultvalue>0</defaultvalue>
+    </permission>
+
 </permissions>

@@ -69,6 +69,24 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Return the time for payment value
+         *
+         * @param {Number|String} userId - ID of the user
+         * @return {Promise}
+         */
+        getPaymentTime: function (userId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_getTimeForPayment', resolve, {
+                    'package': 'quiqqer/invoice',
+                    uid      : userId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+
+        },
+
+        /**
          * Search invoices
          *
          * @param {Object} params - Grid Query Params
