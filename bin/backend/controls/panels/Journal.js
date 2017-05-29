@@ -180,7 +180,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             })[0];
 
             var PDF = buttons.filter(function (Button) {
-                return Button.getAttribute('name') === 'pdfExport';
+                return Button.getAttribute('name') === 'printPdf';
             })[0];
 
             var Open = buttons.filter(function (Button) {
@@ -351,9 +351,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         onClick: this.$onClickOpenInvoice
                     }
                 }, {
-                    name     : 'pdfExport',
+                    name     : 'printPdf',
                     text     : QUILocale.get(lg, 'journal.btn.pdf'),
-                    textimage: 'fa fa-file-pdf-o',
+                    textimage: 'fa fa-print',
                     disabled : true,
                     events   : {
                         onClick: this.$onPDFExportButtonClick
@@ -557,13 +557,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return;
             }
 
-            selectedData = selectedData[0];
-
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            this.downloadPdf(selectedData.id).then(function () {
-                Button.setAttribute('textimage', 'fa fa-file-pdf-o');
+            selectedData = selectedData[0];
+
+            require([
+                'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
+            ], function (PrintDialog) {
+                new PrintDialog({
+                    invoiceId: selectedData.id
+                }).open();
+
+                Button.setAttribute('textimage', 'fa fa-print');
             });
+
+
+            /*
+             selectedData = selectedData[0];
+
+             this.downloadPdf(selectedData.id).then(function () {
+             Button.setAttribute('textimage', 'fa fa-file-pdf-o');
+             });
+
+             */
         },
 
         /**

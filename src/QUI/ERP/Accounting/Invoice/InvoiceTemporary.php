@@ -121,7 +121,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // database attributes
         $data['time_for_payment'] = (int)$data['time_for_payment'];
-        
+
         $this->setAttributes($data);
     }
 
@@ -575,11 +575,8 @@ class InvoiceTemporary extends QUI\QDOM
 
         // check all current data
         $this->validate();
-        $this->Articles->calc();
 
         // data
-        $listCalculations = $this->Articles->getCalculations();
-
         $User     = QUI::getUserBySession();
         $date     = date('y-m-d H:i:s');
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
@@ -615,11 +612,13 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         // customerData
-        $customerData = array(
-            'erp.isNettoUser' => $Customer->getAttribute('quiqqer.erp.isNettoUser'),
-            'erp.euVatId'     => $Customer->getAttribute('quiqqer.erp.euVatId'),
-            'erp.taxNumber'   => $Customer->getAttribute('quiqqer.erp.taxNumber'),
-        );
+        $ErpCustomer = QUI\ERP\User::convertUserToErpUser($Customer);
+
+        $customerData                    = $ErpCustomer->getAttributes();
+        $customerData['erp.isNettoUser'] = $Customer->getAttribute('quiqqer.erp.isNettoUser');
+        $customerData['erp.euVatId']     = $Customer->getAttribute('quiqqer.erp.euVatId');
+        $customerData['erp.taxNumber']   = $Customer->getAttribute('quiqqer.erp.taxNumber');
+
 
         // Editor
         $Editor     = $this->getEditor();
@@ -667,6 +666,11 @@ class InvoiceTemporary extends QUI\QDOM
             $type = Handler::TYPE_INVOICE;
         }
 
+        // article calc
+        $this->Articles->setUser($Customer);
+        $this->Articles->calc();
+        $listCalculations = $this->Articles->getCalculations();
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
@@ -706,7 +710,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'date'                    => $date,
                 'data'                    => json_encode($this->data),
                 'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
-                'articles'                => $this->getArticles()->toJSON(),
+                'articles'                => $this->Articles->toUniqueList()->toJSON(),
                 'history'                 => $this->getHistory()->toJSON(),
                 'comments'                => $this->getComments()->toJSON(),
 

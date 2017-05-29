@@ -140,10 +140,9 @@ class InvoiceView extends QUI\QDOM
             $this->Invoice
         );
 
-        $Engine   = $Template->getEngine();
-        $Customer = $this->Invoice->getCustomer();
-        $Editor   = $this->Invoice->getEditor();
-
+        $Engine    = $Template->getEngine();
+        $Customer  = $this->Invoice->getCustomer();
+        $Editor    = $this->Invoice->getEditor();
         $addressId = $this->Invoice->getAttribute('invoice_address_id');
 
         $this->setAttributes($this->Invoice->getAttributes());
@@ -155,10 +154,12 @@ class InvoiceView extends QUI\QDOM
         }
 
         // list calculation
-        $Calc     = new QUI\ERP\Accounting\Calc($Customer);
         $Articles = $this->Invoice->getArticles();
 
-        $Articles->calc($Calc);
+        if (get_class($Articles) !== QUI\ERP\Accounting\ArticleListUnique::class) {
+            $Articles->setUser($Customer);
+            $Articles = $Articles->toUniqueList();
+        }
 
         $Engine->assign(array(
             'this'        => $this,

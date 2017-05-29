@@ -398,8 +398,14 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                 },
                 events  : {
                     blur: function (event) {
-                        event.target.setStyle('display', 'none');
-                        event.target.destroy();
+                        require([
+                            'package/quiqqer/calendar-controls/bin/Scheduler'
+                        ], function (Scheduler) {
+                            Scheduler.getScheduler().destroyCalendar();
+
+                            event.target.setStyle('display', 'none');
+                            event.target.destroy();
+                        });
                     }
                 }
             }).inject(document.body);

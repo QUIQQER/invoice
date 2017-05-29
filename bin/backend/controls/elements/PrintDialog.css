@@ -1,0 +1,17 @@
+.quiqqer-invoice-printDialog {
+    padding: 10px !important;
+}
+
+.quiqqer-invoice-printDialog form {
+    float: left;
+    width: 100%;
+}
+
+.quiqqer-invoice-printDialog form table {
+    border: none;
+    padding: 0;
+}
+
+.quiqqer-invoice-printDialog select {
+    width: 100%;
+}

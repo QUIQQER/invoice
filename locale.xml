@@ -288,8 +288,8 @@
             <en><![CDATA[Payment book]]></en>
         </locale>
         <locale name="journal.btn.pdf">
-            <de><![CDATA[PDF Rechnung]]></de>
-            <en><![CDATA[PDF Invoice]]></en>
+            <de><![CDATA[Drucken / PDF]]></de>
+            <en><![CDATA[Print / PDF]]></en>
         </locale>
         <locale name="journal.btn.cancelInvoice">
             <de><![CDATA[Rechnung stornieren]]></de>
@@ -505,7 +505,7 @@
             <en><![CDATA[Invoice data]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoiceDate">
-            <de><![CDATA[Rechnungs-Datum]]></de>
+            <de><![CDATA[Rechnungsdatum]]></de>
             <en><![CDATA[Invoice date]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoicePayment">
@@ -761,7 +761,7 @@
             <en><![CDATA[Invoice data]]></en>
         </locale>
         <locale name="erp.panel.invoice.data.date">
-            <de><![CDATA[Rechnungs-Datum]]></de>
+            <de><![CDATA[Rechnungsdatum]]></de>
             <en><![CDATA[Invoice date]]></en>
         </locale>
         <locale name="erp.panel.invoice.data.payment">
@@ -819,6 +819,52 @@
         <locale name="comments.message.no.comments">
             <de><![CDATA[Keine Daten vorhanden]]></de>
             <en><![CDATA[No data available]]></en>
+        </locale>
+
+        <locale name="dialog.print.title">
+            <de><![CDATA[Drucken / PDF]]></de>
+            <en><![CDATA[Print / PDF]]></en>
+        </locale>
+        <locale name="dialog.print.data.id">
+            <de><![CDATA[Rechnungs-ID]]></de>
+            <en><![CDATA[Invoice ID]]></en>
+        </locale>
+        <locale name="dialog.print.data.number">
+            <de><![CDATA[Rechnungsnummer]]></de>
+            <en><![CDATA[Invoice Number]]></en>
+        </locale>
+        <locale name="dialog.print.data.template">
+            <de><![CDATA[Rechnungstemplate]]></de>
+            <en><![CDATA[Invoice template]]></en>
+        </locale>
+        <locale name="dialog.print.data.output">
+            <de><![CDATA[Ausgabe]]></de>
+            <en><![CDATA[Output]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.print">
+            <de><![CDATA[Drucken]]></de>
+            <en><![CDATA[Print]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.pdf">
+            <de><![CDATA[Als PDF speichern]]></de>
+            <en><![CDATA[Save as PDF]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.email">
+            <de><![CDATA[Als E-Mail verschicken]]></de>
+            <en><![CDATA[Send as E-Mail]]></en>
+        </locale>
+
+        <locale name="dialog.print.data.output.print.btn">
+            <de><![CDATA[Drucken]]></de>
+            <en><![CDATA[Print]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.pdf.btn">
+            <de><![CDATA[Speichern]]></de>
+            <en><![CDATA[Save]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.email.btn">
+            <de><![CDATA[Senden]]></de>
+            <en><![CDATA[Send]]></en>
         </locale>
     </groups>
 

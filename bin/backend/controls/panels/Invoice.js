@@ -165,6 +165,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
                         var data = self.getAttribute('data');
 
+                        data.textInvoiceRecipient = QUILocale.get(lg, 'cutomerData');
+                        data.textCustomer         = QUILocale.get(lg, 'customer');
+                        data.textCompany          = QUILocale.get(lg, 'company');
+                        data.textStreet           = QUILocale.get(lg, 'street');
+                        data.textZip              = QUILocale.get(lg, 'zip');
+                        data.textCity             = QUILocale.get(lg, 'city');
+
                         data.textInvoiceData = QUILocale.get(lg, 'erp.panel.invoice.data.title');
                         data.textInvoiceDate = QUILocale.get(lg, 'erp.panel.invoice.data.date');
                         data.textProjectName = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
@@ -180,6 +187,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         Container.set({
                             html: Mustache.render(template, data)
                         });
+
+                        try {
+                            var Form    = Container.getElement('form'),
+                                address = JSON.decode(data.invoice_address);
+
+                            Form.elements.customer.value  = address.salutation + ' ' + address.firstname + ' ' + address.lastname;
+                            Form.elements.company.value   = address.company;
+                            Form.elements.street_no.value = address.street_no;
+                            Form.elements.zip.value       = address.zip;
+                            Form.elements.city.value      = address.city;
+
+                            console.warn(address);
+
+                        } catch (e) {
+                            console.error(e);
+                        }
 
                         resolve();
                     });

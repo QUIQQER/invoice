@@ -2,6 +2,67 @@
     <table class="data-table data-table-flexbox invoice-data">
         <thead>
         <tr>
+            <th>{{textInvoiceRecipient}}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textCustomer}}">
+                        {{textCustomer}}
+                    </span>
+                    <input type="text" class="field-container-field" name="customer" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                <span class="field-container-item" title="{{textCompany}}">
+                    {{textCompany}}
+                </span>
+                    <input type="text" class="field-container-field" name="company" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                <span class="field-container-item" title="{{textStreet}}">
+                    {{textStreet}}
+                </span>
+                    <input type="text" class="field-container-field" name="street_no" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                <span class="field-container-item" title="{{textZip}}">
+                    {{textZip}}
+                </span>
+                    <input type="text" class="field-container-field" name="zip" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                <span class="field-container-item" title="{{textCity}}">
+                    {{textCity}}
+                </span>
+                    <input type="text" class="field-container-field" name="city" disabled/>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="data-table data-table-flexbox invoice-data">
+        <thead>
+        <tr>
             <th>{{textInvoiceData}}</th>
         </tr>
         </thead>

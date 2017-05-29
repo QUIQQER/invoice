@@ -159,6 +159,54 @@ class Invoice extends QUI\QDOM
     }
 
     /**
+     * @return QUI\ERP\User
+     */
+    public function getCustomer()
+    {
+        $invoiceAddress = $this->getAttribute('invoice_address');
+        $customerData   = $this->getAttribute('customer_data');
+
+        if (is_string($customerData)) {
+            $customerData = json_decode($customerData, true);
+        }
+
+        // address
+        if (is_string($invoiceAddress)) {
+            $invoiceAddress = json_decode($invoiceAddress, true);
+        }
+
+        $userData = $customerData;
+
+        if (!isset($userData['isCompany'])) {
+            $userData['isCompany'] = false;
+
+            if (isset($invoiceAddress['company'])) {
+                $userData['isCompany'] = true;
+            }
+        }
+
+        $userData['address'] = $invoiceAddress;
+
+        return new QUI\ERP\User($userData);
+    }
+
+    /**
+     * @return QUI\ERP\User
+     */
+    public function getEditor()
+    {
+        return new QUI\ERP\User(array(
+            'id'        => '',
+            'country'   => '',
+            'username'  => '',
+            'firstname' => '',
+            'lastname'  => '',
+            'lang'      => '',
+            'isCompany' => ''
+        ));
+    }
+
+    /**
      * Return the payment paid status information
      * - How many has already been paid
      * - How many must be paid

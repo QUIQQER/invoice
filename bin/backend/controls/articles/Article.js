@@ -279,8 +279,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             return new Promise(function (resolve, reject) {
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_calc', function (product) {
                     var unitPrice = self.$Formatter.format(product.unitPrice);
-                    var price     = self.$Formatter.format(product.calculated_nettoSubSum);
-                    var total     = self.$Formatter.format(product.calculated_nettoSum);
+                    var price     = self.$Formatter.format(product.calculated.nettoSubSum);
+                    var total     = self.$Formatter.format(product.calculated.nettoSum);
 
                     self.$calculations = product;
 

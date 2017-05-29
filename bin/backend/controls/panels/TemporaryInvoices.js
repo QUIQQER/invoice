@@ -192,16 +192,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             var self = this;
 
             // Buttons
-            this.addButton({
-                text     : QUILocale.get(lg, 'journal.btn.total'),
-                textimage: 'fa fa-calculator'
-            });
 
+            // Grid
             this.getContent().setStyles({
                 padding: 10
             });
 
-            // Grid
             var Container = new Element('div').inject(
                 this.getContent()
             );
