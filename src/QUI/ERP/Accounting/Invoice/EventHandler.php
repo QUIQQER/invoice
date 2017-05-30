@@ -9,6 +9,8 @@ namespace QUI\ERP\Accounting\Invoice;
 use QUI;
 use QUI\Package\Package;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus;
+use QUI\ERP\Products\Handler\Fields;
+use QUI\ERP\Products\Handler\Search;
 
 /**
  * Class EventHandler
@@ -58,5 +60,51 @@ class EventHandler
 
         // Erledigt
         $Factory->createProcessingStatus(3, '#228b22', $getLocaleTranslations('processing.status.default.3'));
+    }
+
+    /**
+     * event: on package setup
+     * only for the quiqqer/products
+     * extend products with a product invoice text field
+     *
+     * @param Package $Package
+     */
+    public static function onProductsPackageSetup(Package $Package)
+    {
+        if ($Package->getName() != 'quiqqer/products') {
+            return;
+        }
+
+        try {
+            // if the Field exists, we doesn't needed to create it
+            Fields::getField(Handler::INVOICE_PRODUCT_TEXT_ID);
+            return;
+        } catch (QUI\ERP\Products\Field\Exception $Exception) {
+        }
+
+        try {
+            Fields::createField(array(
+                'id'            => Handler::INVOICE_PRODUCT_TEXT_ID,
+                'type'          => 'InputMultiLang',
+                'prefix'        => '',
+                'suffix'        => '',
+                'priority'      => 3,
+                'systemField'   => 0,
+                'standardField' => 1,
+                'requiredField' => 0,
+                'publicField'   => 0,
+                'search_type'   => Search::SEARCHTYPE_TEXT,
+                'options'       => array(
+                    'maxLength' => 255,
+                    'minLength' => 3
+                ),
+                'titles'        => array(
+                    'de' => 'Produkt Rechnungstext',
+                    'en' => 'Invoice product text'
+                )
+            ));
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::addAlert($Exception->getMessage());
+        }
     }
 }
