@@ -99,8 +99,8 @@ class EventHandler
                     'minLength' => 3
                 ),
                 'titles'        => array(
-                    'de' => 'Produkt Rechnungstext',
-                    'en' => 'Invoice product text'
+                    'de' => 'Rechnungstext',
+                    'en' => 'Invoice text'
                 )
             ));
         } catch (QUI\Exception $Exception) {

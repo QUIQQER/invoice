@@ -37,12 +37,28 @@ QUI::$Ajax->registerFunction(
                 $Field->setValue($value);
             }
 
+            // look if the invoice text field has values
+            try {
+                $Description = $Product->getField(Fields::FIELD_SHORT_DESC);
+                $InvoiceText = $Product->getField(
+                    QUI\ERP\Accounting\Invoice\Handler::INVOICE_PRODUCT_TEXT_ID
+                );
+
+                if (!$InvoiceText->isEmpty()) {
+                    $Description->setValue($InvoiceText->getValue());
+                }
+            } catch (QUI\Exception $Exception) {
+                \QUI\System\Log::addNotice($Exception->getMessage());
+            }
+
+
             // create unique product, to create the ERP Article, so invoice can work with it
             $Unique = $Product->createUniqueProduct($User);
 
             if (isset($attributes['quantity'])) {
                 $Unique->setQuantity($attributes['quantity']);
             }
+
 
             $Unique->calc();
 

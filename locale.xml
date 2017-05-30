@@ -1008,4 +1008,10 @@
         </locale>
     </groups>
 
+    <groups name="quiqqer/products">
+        <locale name="products.field.102.title">
+            <de><![CDATA[Rechnungstext]]></de>
+            <en><![CDATA[Invoice text]]></en>
+        </locale>
+    </groups>
 </locales>
