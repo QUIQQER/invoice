@@ -83,7 +83,23 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                     showError: false
                 });
             });
+        },
 
+        /**
+         * Is the user a netto or brutto user?
+         *
+         * @param userId
+         * @return {Promise}
+         */
+        isNetto: function (userId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_isNetto', resolve, {
+                    'package': 'quiqqer/invoice',
+                    uid      : userId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
         },
 
         /**

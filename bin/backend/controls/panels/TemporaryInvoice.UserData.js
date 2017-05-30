@@ -71,7 +71,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             this.$rows          = [];
             this.$extrasAreOpen = false;
             this.$oldUserId     = false;
-
         },
 
         /**
@@ -106,6 +105,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             this.$rows          = this.$Table.getElements('.closable');
             this.$AddressRow    = this.$Table.getElement('.address-row');
             this.$AddressSelect = this.$Table.getElement('[name="address"]');
+            this.$triggerChange = null;
 
             this.$AddressSelect.addEvent('change', function () {
                 self.setAddressId(this.value);
@@ -161,6 +161,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 this.$AddressRow.setStyle('display', 'none');
 
                 return Promise.resolve();
+            }
+
+            if (this.$CustomerSelect.getValue() === '' &&
+                this.getAttribute('userId')) {
+                this.$CustomerSelect.addItem(this.getAttribute('userId'));
             }
 
             var TemporaryUser;
@@ -222,7 +227,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             }
 
             return this.refresh().then(function () {
-                self.fireEvent('change', [self]);
+                self.$fireChange();
                 self.$AddressSelect.fireEvent('change');
             }, function () {
                 self.setAttribute('userId', self.$oldUserId);
@@ -247,7 +252,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     self.$City.set('value', address.city);
 
                     self.setAttribute('addressId', addressId);
-                    self.fireEvent('change', [self]);
+                    self.$fireChange();
 
                     resolve(address);
                 }, {
@@ -308,11 +313,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          * event on import
          */
         $onImport: function () {
+            var CustomerSelect = this.$Elm.getElements('[name="customer"]');
+
             QUI.parse(this.$Elm).then(function () {
                 var self = this;
 
                 this.$CustomerSelect = QUI.Controls.getById(
-                    this.$Elm.getElement('[name="customer"]').get('data-quiid')
+                    CustomerSelect.get('data-quiid')
                 );
 
                 this.$CustomerSelect.addEvents({
@@ -325,6 +332,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     this.$CustomerSelect.addItem(this.getAttribute('userId'));
                 }
             }.bind(this));
+        },
+
+        /**
+         * fire the change event
+         */
+        $fireChange: function () {
+            if (this.$triggerChange) {
+                clearTimeout(this.$triggerChange);
+            }
+
+            this.$triggerChange = (function () {
+                this.fireEvent('change', [this]);
+            }).delay(100, this);
         },
 
         /**

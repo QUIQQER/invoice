@@ -260,8 +260,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     dateTime = time[1];
                 }
 
-                console.log(self.getAttribute('time_for_payment'));
-
                 QUIFormUtils.setDataToForm({
                     date            : dateDate,
                     time_for_payment: self.getAttribute('time_for_payment'),
@@ -298,9 +296,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.setAttribute('customer_id', userId);
                     self.setAttribute('invoice_address_id', Data.getValue().addressId);
 
-                    Invoices.getPaymentTime(userId).then(function (paymentTime) {
-                        self.setAttribute('time_for_payment', paymentTime);
+                    Promise.all([
+                        Invoices.getPaymentTime(userId),
+                        Invoices.isNetto(userId)
+                    ]).then(function (result) {
+                        var paymentTime = result[0];
+                        var isNetto     = result[1];
+
                         Content.getElement('[name="time_for_payment"]').value = paymentTime;
+
+                        self.setAttribute('isbrutto', !isNetto);
+                        self.setAttribute('time_for_payment', paymentTime);
+                        self.refresh();
                     });
                 });
 
