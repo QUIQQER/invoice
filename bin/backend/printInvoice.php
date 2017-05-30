@@ -32,23 +32,29 @@ echo '
 <head>
     <style>
         body, html {
-            margin: 0;
-            padding: 0;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+ 
+        @page {
+            margin: 0 !important;
         }
         
-        canvas {
-            max-width: 100%;
-            max-width: 100%;
+        .container {
+            padding: 2.5em;
+            width: calc(100% - 5em);
         }
     </style>
 </head>
 <body>
-    <img 
-        id="pdfDocument" 
-        src="' . $streamFile . '"  
-        style="max-width: 100%;"
-       
-    />
+    <div class="container">
+        <img 
+            id="pdfDocument" 
+            src="' . $streamFile . '"  
+            style="max-width: 100%;"
+           
+        />
+    </div>
     <script>
         var i, len, parts;
         
