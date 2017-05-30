@@ -42,6 +42,11 @@
     text-decoration: line-through;
 }
 
+.journal-grid-overdue {
+    color: red;
+    font-weight: bold;
+}
+
 /** Invoice details
  ================================================= */
 

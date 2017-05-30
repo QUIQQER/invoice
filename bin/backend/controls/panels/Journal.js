@@ -143,6 +143,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     entry.display_type = Icon;
                     entry.opener       = '&nbsp;';
 
+                    if ("overdue" in entry && entry.overdue) {
+                        entry.className = 'journal-grid-overdue';
+                    }
+
                     return entry;
                 });
 

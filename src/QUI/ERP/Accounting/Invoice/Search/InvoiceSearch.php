@@ -16,7 +16,6 @@ use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\ERP\Currency\Handler as Currencies;
 use QUI\ERP\Accounting\Payments\Handler as Payments;
 
-
 /**
  * Class Search
  * - Searches invoices
@@ -140,7 +139,6 @@ class InvoiceSearch extends Singleton
             case 'id DESC':
                 $this->order = $order;
                 break;
-
         }
     }
 
@@ -396,7 +394,7 @@ class InvoiceSearch extends Singleton
             'nettosum',
             'order_id',
             'orderdate',
-            'paidstatus',
+            'paid_status',
             'paid_date',
             'processing',
             'payment_data',
@@ -451,8 +449,10 @@ class InvoiceSearch extends Singleton
             }
 
 
+            $timeForPayment = strtotime($Invoice->getAttribute('time_for_payment'));
+
             $invoiceData['date']             = $DateFormatter->format(strtotime($Invoice->getAttribute('date')));
-            $invoiceData['time_for_payment'] = $DateFormatter->format(strtotime($Invoice->getAttribute('time_for_payment')));
+            $invoiceData['time_for_payment'] = $DateFormatter->format($timeForPayment);
 
             if ($Invoice->getAttribute('paid_date')) {
                 $invoiceData['paid_date'] = date('Y-m-d', $Invoice->getAttribute('paid_date'));
@@ -530,6 +530,14 @@ class InvoiceSearch extends Singleton
             }
 
             $invoiceData['taxId'] = $customerData['erp.taxNumber'];
+
+            // overdue check
+            if (time() > $timeForPayment &&
+                $Invoice->getAttribute('paid_status') != Invoice::PAYMENT_STATUS_PAID &&
+                $Invoice->getAttribute('paid_status') != Invoice::PAYMENT_STATUS_CANCELED
+            ) {
+                $invoiceData['overdue'] = 1;
+            }
 
             // internal cache
             // wird genutzt damit calc und display nicht doppelt abfragen machen
