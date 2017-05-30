@@ -34,7 +34,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 
         Binds: [
             '$onOpen',
-            '$onOutputChange'
+            '$onOutputChange',
+            '$onPrintFinish'
         ],
 
         options: {
@@ -98,7 +99,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                         invoiceNumber    : invoiceData.id_prefix + invoiceData.id,
                         textInvoiceNumber: QUILocale.get(lg, 'dialog.print.data.number'),
                         textOutput       : QUILocale.get(lg, 'dialog.print.data.output'),
-                        textTemplate     : QUILocale.get(lg, 'dialog.print.data.template')
+                        textTemplate     : QUILocale.get(lg, 'dialog.print.data.template'),
+                        textEmail        : QUILocale.get('quiqqer/quiqqer', 'recipient')
                     })
                 });
 
@@ -184,9 +186,46 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
          * @return {Promise}
          */
         print: function () {
+            var self      = this,
+                invoiceId = this.getAttribute('invoiceId');
+
             return new Promise(function (resolve) {
-                resolve();
+                var id = 'print-invoice-' + invoiceId;
+
+                new Element('iframe', {
+                    src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/printInvoice.php?' + Object.toQueryString({
+                        invoiceId: invoiceId,
+                        oid      : self.getId()
+                    }),
+                    id    : id,
+                    styles: {
+                        position: 'absolute',
+                        top     : -200,
+                        left    : -200,
+                        width   : 50,
+                        height  : 50
+                    }
+                }).inject(document.body);
+
+                self.addEvent('onPrintFinish', function (self, pId) {
+                    if (pId === invoiceId) {
+                        resolve();
+                    }
+                });
             });
+        },
+
+        /**
+         * event: on print finish
+         *
+         * @param {String|Number} id
+         */
+        $onPrintFinish: function (id) {
+            this.fireEvent('printFinish', [this, id]);
+
+            (function () {
+                document.getElements('#print-invoice-' + id).destroy();
+            }).delay(1000);
         },
 
         /**
@@ -195,14 +234,16 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
          * @return {Promise}
          */
         saveAsPdf: function () {
-            var invoiceId = this.getAttribute('invoiceId');
+            var self      = this,
+                invoiceId = this.getAttribute('invoiceId');
 
             return new Promise(function (resolve) {
                 var id = 'download-invoice-' + invoiceId;
 
                 new Element('iframe', {
                     src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/downloadInvoice.php?' + Object.toQueryString({
-                        invoiceId: invoiceId
+                        invoiceId: invoiceId,
+                        oid      : self.getId()
                     }),
                     id    : id,
                     styles: {
@@ -215,9 +256,9 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 }).inject(document.body);
 
                 (function () {
-                    // document.getElements('#' + id).destroy();
+                    document.getElements('#' + id).destroy();
                     resolve();
-                }).delay(1000, this);
+                }).delay(2000, this);
             });
         },
 
@@ -227,8 +268,33 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
          * @return {Promise}
          */
         sendAsEmail: function () {
+            var self      = this,
+                invoiceId = this.getAttribute('invoiceId'),
+                recipient = this.getElm().getElement('[name="recipient"]').value;
+
             return new Promise(function (resolve) {
-                resolve();
+                var id = 'mail-invoice-' + invoiceId;
+
+                new Element('iframe', {
+                    src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/sendInvoice.php?' + Object.toQueryString({
+                        invoiceId: invoiceId,
+                        oid      : self.getId(),
+                        recipient: recipient
+                    }),
+                    id    : id,
+                    styles: {
+                        position: 'absolute',
+                        top     : -200,
+                        left    : -200,
+                        width   : 50,
+                        height  : 50
+                    }
+                }).inject(document.body);
+
+                (function () {
+                    document.getElements('#' + id).destroy();
+                    resolve();
+                }).delay(2000, this);
             });
         },
 
@@ -238,6 +304,10 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
          * @return {Promise}
          */
         $onOutputChange: function () {
+            var Recipient = this.getElm().getElement('[name="recipient"]');
+
+            Recipient.getParent('tr').setStyle('display', 'none');
+
             switch (this.$Output.getValue()) {
                 case 'print':
                     this.$onChangeToPrint();
@@ -278,10 +348,15 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
          * event: on output change -> to Email
          */
         $onChangeToEmail: function () {
-            var Submit = this.getButton('submit');
+            var Submit    = this.getButton('submit');
+            var Recipient = this.getElm().getElement('[name="recipient"]');
+
+            Recipient.getParent('tr').setStyle('display', null);
 
             Submit.setAttribute('text', QUILocale.get(lg, 'dialog.print.data.output.email.btn'));
             Submit.setAttribute('textimage', 'fa fa-envelope-o');
+
+            Recipient.focus();
         }
     });
 });

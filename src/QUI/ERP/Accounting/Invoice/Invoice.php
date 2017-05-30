@@ -731,6 +731,27 @@ class Invoice extends QUI\QDOM
         }
     }
 
+    /**
+     * Send the invoice to a recipient
+     *
+     * @param string $recipient - The recipient email address
+     */
+    public function sendTo($recipient)
+    {
+        $View    = $this->getView();
+        $pdfFile = $View->toPDF()->createPDF();
+
+        $Mailer = QUI::getMailManager()->getMailer();
+        $Mailer->setSubject('Rechnungs Nr:' . $this->getId());
+        $Mailer->addRecipient($recipient);
+        $Mailer->setBody($View->toHTML());
+        $Mailer->addAttachment($pdfFile);
+
+        $Mailer->send();
+
+        unlink($pdfFile);
+    }
+
     //region Comments & History
 
     /**
