@@ -140,6 +140,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                             Icon.set('title', QUILocale.get(lg, 'invoice.type.invoice'));
                     }
 
+                    switch (parseInt(entry.isbrutto)) {
+                        case 1:
+                            entry.display_isbrutto = new Element('span', {
+                                'class': 'fa fa-minus'
+                            });
+                            break;
+
+                        case 2:
+                            entry.display_isbrutto = new Element('span', {
+                                'class': 'fa fa-check'
+                            });
+                            break;
+                    }
+
                     entry.display_type = Icon;
                     entry.opener       = '&nbsp;';
 
@@ -455,8 +469,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.brutto'),
-                    dataIndex: 'isbrutto',
-                    dataType : 'integer',
+                    dataIndex: 'display_isbrutto',
+                    dataType : 'node',
                     width    : 50
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.taxId'),

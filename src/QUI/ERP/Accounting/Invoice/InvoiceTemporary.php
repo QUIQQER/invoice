@@ -319,10 +319,8 @@ class InvoiceTemporary extends QUI\QDOM
 
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
 
-        if ($this->getCustomer()
-            && !QUI\ERP\Utils\User::isNettoUser($this->getCustomer())
-        ) {
-            $isBrutto = 1;
+        if ($this->getCustomer()) {
+            $isBrutto = QUI\ERP\Utils\User::getBruttoNettoUserStatus($this->getCustomer());
         }
 
         if ($this->getAttribute('project_name')) {
@@ -590,10 +588,8 @@ class InvoiceTemporary extends QUI\QDOM
             $date = $this->getAttribute('date');
         }
 
-        if ($Customer
-            && !QUI\ERP\Utils\User::isNettoUser($this->getCustomer())
-        ) {
-            $isBrutto = 1;
+        if ($Customer) {
+            $isBrutto = QUI\ERP\Utils\User::getBruttoNettoUserStatus($this->getCustomer());
         }
 
         // address
