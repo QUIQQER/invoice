@@ -165,7 +165,6 @@ class InvoiceSearch extends Singleton
         // select display invoices
         $invoices = $this->executeQueryParams($this->getQuery());
 
-
         // count
         $count = $this->executeQueryParams($this->getQueryCount());
         $count = (int)$count[0]['count'];

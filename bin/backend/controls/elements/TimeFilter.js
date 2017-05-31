@@ -132,7 +132,11 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                 case 'half-year':
                     this.$type = 'half-year';
 
-                    var halfYear = Math.round(this.$Current.getMonth() / 6);
+                    var halfYear = 2;
+
+                    if (this.$Current.getMonth() < 6) {
+                        halfYear = 1;
+                    }
 
                     text = QUILocale.get(lg, 'halfYear.' + halfYear);
                     text = text + ' ' + this.$Current.getFullYear();
@@ -223,10 +227,19 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
             var year  = this.$Current.getFullYear(),
                 month = this.$Current.getMonth();
 
+            var getDaysInMonth = function (m, y) {
+                m = m + 1;
+                return m === 2 ? y & 3 || !(y % 25) && y & 15 ? 28 : 29 : 30 + (m + (m >> 3) & 1);
+            };
+
             switch (this.$type) {
                 case 'month':
                     From.setFullYear(year, month, 1);
-                    To.setFullYear(year, month + 1, 0);
+                    To.setFullYear(
+                        year,
+                        month,
+                        getDaysInMonth(month, year)
+                    );
                     break;
 
                 case 'quarter':
@@ -235,24 +248,45 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                     month = quarter * 3 - 3;
 
                     From.setFullYear(year, month, 1);
-                    To.setFullYear(year, month + 3, 0);
+
+                    To.setFullYear(
+                        year,
+                        month + 2,
+                        getDaysInMonth(month + 2, year)
+                    );
                     break;
 
                 case 'half-year':
-                    if (this.$Current.getMonth() <= 6) {
+                    if (this.$Current.getMonth() < 6) {
                         From.setFullYear(year, 0, 1);
-                        To.setFullYear(year, 6, 0);
+
+                        To.setFullYear(
+                            year,
+                            5,
+                            getDaysInMonth(5, year)
+                        );
                     } else {
                         From.setFullYear(year, 6, 1);
-                        To.setFullYear(year, 12, 0);
+
+                        To.setFullYear(
+                            year,
+                            11,
+                            getDaysInMonth(11, year)
+                        );
                     }
                     break;
 
                 case 'year':
                     From.setFullYear(year, 0, 1);
-                    To.setFullYear(year, 12, 0);
+                    To.setFullYear(
+                        year,
+                        11,
+                        getDaysInMonth(11, year)
+                    );
                     break;
             }
+
+            To.setHours(23);
 
             this.$Current = From;
             this.$To      = To;
@@ -324,7 +358,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
          * Show next quarter
          */
         nextQuarter: function () {
-            this.$Current.setMonth(this.$Current.getMonth() + 3);
+            this.$Current.setMonth(this.$Current.getMonth() + 4); // date month is so curios
             this.$triggerChange();
         },
 
@@ -332,7 +366,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
          * Show previous quarter
          */
         previousQuarter: function () {
-            this.$Current.setMonth(this.$Current.getMonth() - 3);
+            this.$Current.setMonth(this.$Current.getMonth() - 2);
             this.$triggerChange();
         },
 
@@ -340,7 +374,14 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
          * Show next half year
          */
         nextHalfYear: function () {
-            this.$Current.setMonth(this.$Current.getMonth() + 6);
+            console.info(this.$Current.getMonth());
+            if (this.$Current.getMonth() < 6) {
+                this.$Current.setMonth(11);
+            } else {
+                this.$Current.setMonth(0);
+                this.$Current.setFullYear(this.$Current.getFullYear() + 1);
+            }
+
             this.$triggerChange();
         },
 

@@ -14,7 +14,6 @@ use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 
-
 /**
  * Class Template
  *
@@ -107,7 +106,7 @@ class Template
         }
 
         if ($this->Invoice->getInvoiceType() === Handler::TYPE_INVOICE_REVERSAL) {
-            return 'Reversal';
+            return 'Canceled';
         }
 
         return 'Invoice';
