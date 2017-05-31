@@ -17,8 +17,10 @@
         </div>
         {{#quantity}}
         <div class="journal-invoice-details-article-quantity">{{quantity}}</div>
-        <div class="journal-invoice-details-article-netto">{{display_calculated_price}}</div>
-        <div class="journal-invoice-details-article-brutto">{{display_calculated_sum}}</div>
+        <div class="journal-invoice-details-article-netto">
+            {{display_unitPrice}}
+        </div>
+        <div class="journal-invoice-details-article-brutto">{{display_sum}}</div>
         {{/quantity}}
     </div>
     {{/articles}}
