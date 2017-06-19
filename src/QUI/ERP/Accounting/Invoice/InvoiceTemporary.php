@@ -361,7 +361,7 @@ class InvoiceTemporary extends QUI\QDOM
         // payment
         try {
             if ($this->getAttribute('payment_method')) {
-                $Payments = QUI\ERP\Accounting\Payments\Handler::getInstance();
+                $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
                 $Payment  = $Payments->getPayment($this->getAttribute('payment_method'));
 
                 $paymentMethod = $Payment->getName();

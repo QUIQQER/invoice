@@ -19,6 +19,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     var lg = 'quiqqer/invoice';
 
     return new Class({
+
         Extends: QUIPanel,
         Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/Invoice',
 
@@ -161,8 +162,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     require([
                         'text!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.Data.html'
                     ], function (template) {
-                        console.log(self.getAttribute('data'));
-
                         var data = self.getAttribute('data');
 
                         data.textInvoiceRecipient = QUILocale.get(lg, 'cutomerData');
@@ -197,9 +196,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             Form.elements.street_no.value = address.street_no;
                             Form.elements.zip.value       = address.zip;
                             Form.elements.city.value      = address.city;
-
-                            console.warn(address);
-
                         } catch (e) {
                             console.error(e);
                         }
@@ -222,8 +218,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             this.Loader.show();
             this.getCategory('articles').setActive();
-
-            console.warn(self.getAttribute('data').id);
 
             return Promise.all([
                 this.$closeCategory(),

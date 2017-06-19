@@ -8,7 +8,7 @@ use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Settings;
 
 use QUI\ERP\Currency\Handler as Currencies;
-use QUI\ERP\Accounting\Payments\Handler as Payments;
+use QUI\ERP\Accounting\Payments\Payments as Payments;
 
 /**
  * Returns temporary invoices list for a grid

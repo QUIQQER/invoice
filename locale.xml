@@ -776,10 +776,6 @@
             <de><![CDATA[Bestellt durch]]></de>
             <en><![CDATA[Ordered by]]></en>
         </locale>
-        <locale name="erp.panel.invoice.data.orderedBy">
-            <de><![CDATA[Bestellt durch]]></de>
-            <en><![CDATA[Ordered by]]></en>
-        </locale>
         <locale name="erp.panel.invoice.data.editor">
             <de><![CDATA[Bearbeiter]]></de>
             <en><![CDATA[Editor]]></en>

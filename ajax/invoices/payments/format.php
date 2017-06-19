@@ -17,7 +17,7 @@ QUI::$Ajax->registerFunction(
 
         $Locale   = QUI::getLocale();
         $Currency = QUI\ERP\Defaults::getCurrency();
-        $Payments = QUI\ERP\Accounting\Payments\Handler::getInstance();
+        $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
 
 
         foreach ($payments as $payment) {

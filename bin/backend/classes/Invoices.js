@@ -269,7 +269,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
-         * Delete a temporary invoice
+         * Save a temporary invoice
          *
          * @param {String} invoiceId
          * @param {Object} data

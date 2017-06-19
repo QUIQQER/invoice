@@ -4,7 +4,7 @@
  * This file contains package_quiqqer_invoice_ajax_invoices_addPayment
  */
 
-use QUI\ERP\Accounting\Payments\Handler as Payments;
+use QUI\ERP\Accounting\Payments\Payments as Payments;
 
 /**
  * Add a payment to an invoice

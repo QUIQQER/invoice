@@ -14,7 +14,7 @@ use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\Settings;
 
 use QUI\ERP\Currency\Handler as Currencies;
-use QUI\ERP\Accounting\Payments\Handler as Payments;
+use QUI\ERP\Accounting\Payments\Payments as Payments;
 
 /**
  * Class Search
