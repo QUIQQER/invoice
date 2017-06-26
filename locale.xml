@@ -140,6 +140,10 @@
             <de><![CDATA[Ort]]></de>
             <en><![CDATA[City]]></en>
         </locale>
+        <locale name="country">
+            <de><![CDATA[Land]]></de>
+            <en><![CDATA[Country]]></en>
+        </locale>
 
         <locale name="invoice.temporary.extend.view.open">
             <de><![CDATA[Erweiterte Ansicht öffnen]]></de>
@@ -923,7 +927,7 @@
             <en><![CDATA[The invoice has no articles.]]></en>
         </locale>
         <locale name="exception.invoice.verification.missingPayment">
-            <de><![CDATA[Die Rechnung besitzt keine Bezahlmethod.]]></de>
+            <de><![CDATA[Die Rechnung besitzt keine Bezahlmethode.]]></de>
             <en><![CDATA[The invoice has no payment method.]]></en>
         </locale>
 

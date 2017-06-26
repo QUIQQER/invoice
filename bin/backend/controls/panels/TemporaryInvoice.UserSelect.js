@@ -111,7 +111,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 self.$Container.set({
                     html: '<div class="fa fa-user"></div>' +
-                    '<div>Kunden auswählen</div>'
+                    '<div>Kunden auswählen</div>' // #locale
                 });
 
                 var click = function () {

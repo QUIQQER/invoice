@@ -512,7 +512,7 @@ class InvoiceSearch extends Singleton
                 return $data['text'] . ': ' . $Currency->format($data['sum']);
             }, $vatArray);
 
-            $vatSum = array_map(function ($data) use ($Currency) {
+            $vatSum = array_map(function ($data) {
                 return $data['sum'];
             }, $vatArray);
 

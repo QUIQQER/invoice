@@ -769,7 +769,7 @@ class InvoiceTemporary extends QUI\QDOM
      * Verificate / Validate the invoice
      * Can the invoice be posted?
      *
-     * @throws QUI\Exception|Exception
+     * @throws QUI\ERP\Accounting\Invoice\Exception
      */
     public function validate()
     {

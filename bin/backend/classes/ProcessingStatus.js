@@ -4,10 +4,6 @@
  * @require qui/QUI
  * @require qui/classes/DOM
  * @require Ajax
- *
- * @event onCreateInvoice [self, invoiceId]
- * @event onDeleteInvoice [self, invoiceId]
- * @event onCopyInvoice [self, invoiceId, newId]
  */
 define('package/quiqqer/invoice/bin/backend/classes/ProcessingStatus', [
 
