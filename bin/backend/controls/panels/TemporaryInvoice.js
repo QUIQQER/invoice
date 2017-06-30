@@ -381,14 +381,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     value: ''
                 }).inject(Payments);
 
-                for (var payment in payments) {
-                    if (!payments.hasOwnProperty(payment)) {
-                        continue;
-                    }
-
+                for (var i = 0, len = payments.length; i < len; i++) {
                     new Element('option', {
-                        html : payments[payment].title,
-                        value: payment
+                        html : payments[i].title,
+                        value: payments[i].id
                     }).inject(Payments);
                 }
 
