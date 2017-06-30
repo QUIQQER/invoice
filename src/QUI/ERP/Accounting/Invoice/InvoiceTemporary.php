@@ -51,12 +51,12 @@ class InvoiceTemporary extends QUI\QDOM
     protected $Articles;
 
     /**
-     * @var Comments
+     * @var QUI\ERP\Comments
      */
     protected $Comments;
 
     /**
-     * @var Comments
+     * @var QUI\ERP\Comments
      */
     protected $History;
 
@@ -74,8 +74,8 @@ class InvoiceTemporary extends QUI\QDOM
         $this->id     = (int)str_replace($this->prefix, '', $id);
 
         $this->Articles = new ArticleList();
-        $this->History  = new Comments();
-        $this->Comments = new Comments();
+        $this->History  = new QUI\ERP\Comments();
+        $this->Comments = new QUI\ERP\Comments();
 
         if (isset($data['articles'])) {
             $articles = json_decode($data['articles'], true);
@@ -92,11 +92,11 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         if (isset($data['history'])) {
-            $this->History = Comments::unserialize($data['history']);
+            $this->History = QUI\ERP\Comments::unserialize($data['history']);
         }
 
         if (isset($data['comments'])) {
-            $this->Comments = Comments::unserialize($data['comments']);
+            $this->Comments = QUI\ERP\Comments::unserialize($data['comments']);
         }
 
         // invoice extra data
@@ -613,7 +613,7 @@ class InvoiceTemporary extends QUI\QDOM
         $customerData                    = $ErpCustomer->getAttributes();
         $customerData['erp.isNettoUser'] = $Customer->getAttribute('quiqqer.erp.isNettoUser');
         $customerData['erp.euVatId']     = $Customer->getAttribute('quiqqer.erp.euVatId');
-        $customerData['erp.taxNumber']   = $Customer->getAttribute('quiqqer.erp.taxNumber');
+        $customerData['erp.taxId']       = $Customer->getAttribute('quiqqer.erp.taxId');
 
 
         // Editor
@@ -884,7 +884,7 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Return the comments list object
      *
-     * @return Comments
+     * @return QUI\ERP\Comments
      */
     public function getComments()
     {
@@ -914,7 +914,7 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Return the history list object
      *
-     * @return Comments
+     * @return QUI\ERP\Comments
      */
     public function getHistory()
     {

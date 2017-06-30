@@ -7,7 +7,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     'qui/controls/desktop/Panel',
     'qui/controls/buttons/Button',
     'package/quiqqer/invoice/bin/Invoices',
-    'package/quiqqer/invoice/bin/backend/controls/Comments',
+    'package/quiqqer/erp/bin/backend/controls/Comments',
     'Locale',
     'Mustache',
 

@@ -769,7 +769,7 @@ class Invoice extends QUI\QDOM
 
         $User     = QUI::getUserBySession();
         $comments = $this->getAttribute('comments');
-        $Comments = Comments::unserialize($comments);
+        $Comments = QUI\ERP\Comments::unserialize($comments);
 
         $Comments->addComment($comment);
 
@@ -806,7 +806,7 @@ class Invoice extends QUI\QDOM
     public function addHistory($comment)
     {
         $history = $this->getAttribute('history');
-        $History = Comments::unserialize($history);
+        $History = QUI\ERP\Comments::unserialize($history);
 
         $History->addComment($comment);
 

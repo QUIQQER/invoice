@@ -816,11 +816,6 @@
             <en><![CDATA[Payment methode]]></en>
         </locale>
 
-        <locale name="comments.message.no.comments">
-            <de><![CDATA[Keine Daten vorhanden]]></de>
-            <en><![CDATA[No data available]]></en>
-        </locale>
-
         <locale name="dialog.print.title">
             <de><![CDATA[Drucken / PDF]]></de>
             <en><![CDATA[Print / PDF]]></en>

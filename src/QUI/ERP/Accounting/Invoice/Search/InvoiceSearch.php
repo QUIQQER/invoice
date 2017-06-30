@@ -524,11 +524,11 @@ class InvoiceSearch extends Singleton
             // customer data
             $customerData = json_decode($invoiceData['customer_data'], true);
 
-            if (empty($customerData['erp.taxNumber'])) {
-                $customerData['erp.taxNumber'] = Handler::EMPTY_VALUE;
+            if (empty($customerData['erp.taxId'])) {
+                $customerData['erp.taxId'] = Handler::EMPTY_VALUE;
             }
 
-            $invoiceData['taxId'] = $customerData['erp.taxNumber'];
+            $invoiceData['taxId'] = $customerData['erp.taxId'];
 
             // overdue check
             if (time() > $timeForPayment &&
