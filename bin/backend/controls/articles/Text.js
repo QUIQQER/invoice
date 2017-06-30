@@ -11,6 +11,7 @@
 define('package/quiqqer/invoice/bin/backend/controls/articles/Text', [
 
     'package/quiqqer/invoice/bin/backend/controls/articles/Article',
+    'qui/controls/buttons/Button',
     'Locale',
     'Ajax',
     'Mustache',
@@ -18,8 +19,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Text', [
     'text!package/quiqqer/invoice/bin/backend/controls/articles/Text.html',
     'css!package/quiqqer/invoice/bin/backend/controls/articles/Text.css'
 
-], function (InvoiceArticle, QUILocale, QUIAjax, Mustache, template) {
+], function (InvoiceArticle, QUIButton, QUILocale, QUIAjax, Mustache, template) {
     "use strict";
+
+    var lg = 'quiqqer/invoice';
 
     return new Class({
 
@@ -35,7 +38,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Text', [
             this.parent(options);
 
             this.setAttributes({
-                type: 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Text'
+                'class': 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Text'
             });
         },
 
@@ -50,11 +53,15 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Text', [
             this.$Elm.addClass('quiqqer-invoice-backend-invoiceArticleText');
 
             this.$Elm.set({
-                html: Mustache.render(template)
+                html  : Mustache.render(template),
+                events: {
+                    click: this.select
+                }
             });
 
             this.$Position = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticleText-pos');
             this.$Text     = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticleText-text');
+            this.$Buttons  = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticleText-buttons');
 
             this.$Loader = new Element('div', {
                 html  : '<span class="fa fa-spinner fa-spin"></span>',
@@ -89,6 +96,31 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Text', [
 
             this.setTitle(this.getAttribute('title'));
             this.setDescription(this.getAttribute('description'));
+
+            // edit buttons
+            new QUIButton({
+                title : QUILocale.get(lg, 'invoice.articleList.article.button.replace'),
+                icon  : 'fa fa-retweet',
+                styles: {
+                    'float': 'none'
+                },
+                events: {
+                    onClick: this.$onReplaceClick
+                }
+            }).inject(this.$Buttons);
+
+            new QUIButton({
+                title : QUILocale.get(lg, 'invoice.articleList.article.button.delete'),
+                icon  : 'fa fa-trash',
+                styles: {
+                    'float': 'none'
+                },
+                events: {
+                    onClick: this.openDeleteDialog
+                }
+            }).inject(this.$Buttons);
+
+            this.$created = true;
 
             return this.$Elm;
         },

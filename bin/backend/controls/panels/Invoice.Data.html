@@ -1,0 +1,190 @@
+<form>
+    <table class="data-table data-table-flexbox invoice-data">
+        <thead>
+        <tr>
+            <th>{{textInvoiceRecipient}}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textCustomer}}">
+                        {{textCustomer}}
+                    </span>
+                    <input type="text" class="field-container-field" name="customer" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                <span class="field-container-item" title="{{textCompany}}">
+                    {{textCompany}}
+                </span>
+                    <input type="text" class="field-container-field" name="company" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                <span class="field-container-item" title="{{textStreet}}">
+                    {{textStreet}}
+                </span>
+                    <input type="text" class="field-container-field" name="street_no" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                <span class="field-container-item" title="{{textZip}}">
+                    {{textZip}}
+                </span>
+                    <input type="text" class="field-container-field" name="zip" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                <span class="field-container-item" title="{{textCity}}">
+                    {{textCity}}
+                </span>
+                    <input type="text" class="field-container-field" name="city" disabled/>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="data-table data-table-flexbox invoice-data">
+        <thead>
+        <tr>
+            <th>{{textInvoiceData}}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textInvoiceDate}}">
+                        {{textInvoiceDate}}
+                    </span>
+                    <input class="field-container-field"
+                           type="text"
+                           name="date"
+                           value="{{date}}"
+                           disabled
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textProjectName}}">
+                        {{textProjectName}}
+                    </span>
+                    <input class="field-container-field"
+                           type="text"
+                           name="project_name"
+                           value="{{project_name}}"
+                           disabled
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textOrderedBy}}">
+                        {{textOrderedBy}}
+                    </span>
+                    <input class="field-container-field"
+                           type="text"
+                           name="orderedBy"
+                           value="{{ordered_by}}"
+                           disabled
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textEditor}}">
+                        {{textEditor}}
+                    </span>
+                    <input class="field-container-field"
+                           type="text"
+                           name="editor"
+                           value="{{editor_username}}"
+                           disabled
+                    />
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="data-table data-table-flexbox invoice-data">
+        <thead>
+        <tr>
+            <th>{{textInvoicePayment}}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textInvoicePaymentMethod}}">
+                        {{textInvoicePaymentMethod}}
+                    </span>
+                    <input class="field-container-field"
+                           type="text"
+                           name="payment_method"
+                           value="{{payment_method}}"
+                           disabled
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textTermOfPayment}}">
+                        {{textTermOfPayment}}
+                    </span>
+                    <input class="field-container-field"
+                           type="text"
+                           name="time_for_payment"
+                           value="{{time_for_payment}}"
+                           disabled
+                    />
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="data-table data-table-flexbox invoice-text">
+        <thead>
+        <tr>
+            <th>{{textInvoiceText}}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>
+                {{{additional_invoice_text}}}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</form>

@@ -1,0 +1,19 @@
+.timefilter-period-select {
+    background: #FFFFFF;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    height: 280px;
+    outline: none;
+    position: absolute;
+    z-index: 1000;
+}
+
+.timefilter-period-select .dhx_cal_container {
+    box-shadow: none !important;
+}
+
+.timefilter-period-select-calendarContainer {
+    float: left;
+    height: 230px;
+    margin: 10px 0 0 10px;
+    width: calc(50% - 20px)
+}

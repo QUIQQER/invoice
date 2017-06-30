@@ -1,0 +1,178 @@
+.payment-status-0 {
+    color: blue;
+    font-weight: bold;
+}
+
+.payment-status-1 {
+    color: green;
+    font-weight: bold;
+}
+
+.payment-status-2 {
+    color: orange;
+    font-weight: bold;
+}
+
+.payment-status-3 {
+    text-decoration: line-through;
+}
+
+.payment-status-4 {
+    color: red;
+    font-weight: bold;
+}
+
+.payment-status-5 {
+
+}
+
+.payment-status-11 {
+    color: purple;
+    font-weight: bold;
+}
+
+.payment-status-amountCell {
+    text-align: right !important;
+    padding-right: 5px;
+    padding-left: 0 !important;
+}
+
+.journal-grid-cancel {
+    opacity: 0.3;
+    text-decoration: line-through;
+}
+
+.journal-grid-overdue {
+    color: red;
+    font-weight: bold;
+}
+
+/** Invoice details
+ ================================================= */
+
+.journal-invoice-details,
+.journal-invoice-details-header,
+.journal-invoice-details-article,
+.journal-invoice-details-calculation {
+    float: left;
+    width: 100%;
+}
+
+.journal-invoice-details-header-pos,
+.journal-invoice-details-header-articleNo,
+.journal-invoice-details-header-description,
+.journal-invoice-details-header-quantity,
+.journal-invoice-details-header-netto,
+.journal-invoice-details-header-brutto {
+    border-bottom: 1px solid #dedede;
+    margin-bottom: 5px !important;
+}
+
+.journal-invoice-details-header-pos,
+.journal-invoice-details-header-articleNo,
+.journal-invoice-details-header-description,
+.journal-invoice-details-header-quantity,
+.journal-invoice-details-header-netto,
+.journal-invoice-details-header-brutto,
+.journal-invoice-details-article-pos,
+.journal-invoice-details-article-articleNo,
+.journal-invoice-details-article-description,
+.journal-invoice-details-article-quantity,
+.journal-invoice-details-article-netto,
+.journal-invoice-details-article-brutto {
+    float: left;
+    padding: 0 5px 5px 5px;
+}
+
+.journal-invoice-details-article {
+    padding: 0 0 5px;
+}
+
+.journal-invoice-details-header-pos,
+.journal-invoice-details-article-pos {
+    width: 20px;
+}
+
+.journal-invoice-details-header-articleNo,
+.journal-invoice-details-article-articleNo {
+    width: 100px;
+}
+
+.journal-invoice-details-header-description,
+.journal-invoice-details-article-description {
+    width: 300px;
+}
+
+.journal-invoice-details-article-description .description {
+    clear: both;
+    display: block;
+}
+
+.journal-invoice-details-header-quantity,
+.journal-invoice-details-article-quantity {
+    text-align: right;
+    width: 100px;
+}
+
+.journal-invoice-details-header-netto,
+.journal-invoice-details-article-netto,
+.journal-invoice-details-header-brutto,
+.journal-invoice-details-article-brutto {
+    text-align: right;
+    width: 160px;
+}
+
+.journal-invoice-details-calculation {
+    border-top: 1px solid #DEDEDE;
+    padding: 5px 0;
+}
+
+.journal-invoice-details-calculation-container {
+    text-align: right;
+    width: 840px;
+}
+
+/** Total Display
+ ================================================= */
+
+.journal-total {
+    background: #fff;
+    border-top: 2px solid #DEDEDE;
+    bottom: -20px;
+    display: none;
+    float: left;
+    height: 100px;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+}
+
+.journal-total header,
+.journal-total-row {
+    clear: both;
+    float: left;
+    width: 100%;
+}
+
+.journal-total header > div,
+.journal-total-row > div {
+    float: left;
+    line-height: 25px;
+    padding: 0 10px;
+    text-align: right;
+    width: 25%;
+}
+
+.journal-total-row > div:first-child {
+    text-align: left;
+}
+
+.journal-total-row:nth-child(even) {
+    background: #f7f7f7;
+}
+
+.journal-total-row:hover {
+    background: #eaeff4;
+}

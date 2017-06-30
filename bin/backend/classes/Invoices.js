@@ -23,6 +23,13 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         Extends: QUIDOM,
         Type   : 'package/quiqqer/invoice/bin/backend/classes/Invoices',
 
+        PAYMENT_STATUS_OPEN    : 0,
+        PAYMENT_STATUS_PAID    : 1,
+        PAYMENT_STATUS_PART    : 2,
+        PAYMENT_STATUS_ERROR   : 4,
+        PAYMENT_STATUS_CANCELED: 5,
+        PAYMENT_STATUS_DEBIT   : 11,
+
         initialize: function (options) {
             this.parent(options);
         },
@@ -55,6 +62,74 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_list', resolve, {
                     'package': 'quiqqer/invoice',
                     params   : JSON.encode(params),
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Return the time for payment value
+         *
+         * @param {Number|String} userId - ID of the user
+         * @return {Promise}
+         */
+        getPaymentTime: function (userId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_getTimeForPayment', resolve, {
+                    'package': 'quiqqer/invoice',
+                    uid      : userId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Is the user a netto or brutto user?
+         *
+         * @param userId
+         * @return {Promise}
+         */
+        isNetto: function (userId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_isNetto', resolve, {
+                    'package': 'quiqqer/invoice',
+                    uid      : userId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Search invoices
+         *
+         * @param {Object} params - Grid Query Params
+         * @param {Object} filter - Filter
+         * @returns {Promise}
+         */
+        search: function (params, filter) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_search', resolve, {
+                    'package': 'quiqqer/invoice',
+                    params   : JSON.encode(params),
+                    filter   : JSON.encode(filter),
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Returns the invoice templates
+         *
+         * @return {Promise}
+         */
+        getTemplates: function () {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_settings_templates', resolve, {
+                    'package': 'quiqqer/invoice',
                     onError  : reject,
                     showError: false
                 });
@@ -104,9 +179,10 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          */
         createInvoice: function () {
             var self = this;
+
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_create', function (newId) {
-                    self.fireEvent('copyInvoice', [self, newId]);
+                    self.fireEvent('createInvoice', [self, newId]);
                     resolve(newId);
                 }, {
                     'package': 'quiqqer/invoice',
@@ -117,9 +193,64 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Create a new temporary invoice
+         *
+         * @returns {Promise}
+         */
+        createCreditNote: function (invoiceId) {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_createCreditNote', function (newId) {
+                    self.fireEvent('createCreditNote', [self, newId]);
+                    resolve(newId);
+                }, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject,
+                    invoiceId: invoiceId,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Cancellation of an invoice
+         *
+         * @param {String|Number} invoiceId
+         * @param {String} reason
+         * @returns {Promise}
+         */
+        reversalInvoice: function (invoiceId, reason) {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_reversal', function (reversalId) {
+                    self.fireEvent('createCreditNote', [self, invoiceId, reversalId]);
+                    resolve(invoiceId, reversalId);
+                }, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject,
+                    invoiceId: invoiceId,
+                    reason   : reason,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Alias for reversalInvoice
+         *
+         * @param {String|Number} invoiceId
+         * @return {Promise}
+         */
+        cancellationInvoice: function (invoiceId) {
+            return this.reversalInvoice(invoiceId);
+        },
+
+        /**
          * Delete a temporary invoice
          *
-         * @param {String} invoiceId
+         * @param {String|Number} invoiceId
          * @returns {Promise}
          */
         deleteInvoice: function (invoiceId) {
@@ -138,7 +269,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
-         * Delete a temporary invoice
+         * Save a temporary invoice
          *
          * @param {String} invoiceId
          * @param {Object} data
@@ -162,6 +293,134 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Post a invoice
+         *
+         * @param {String} invoiceId
+         * @return {Promise}
+         */
+        postInvoice: function (invoiceId) {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_post', function (id) {
+                    self.fireEvent('postInvoice', [self, invoiceId, id]);
+                    resolve(invoiceId, id);
+                }, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Copy a invoice
+         *
+         * @param {String} invoiceId
+         * @return {Promise}
+         */
+        copyInvoice: function (invoiceId) {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_copy', function (id) {
+                    self.fireEvent('copyInvoice', [self, invoiceId, id]);
+                    resolve(id);
+                }, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Add a payment to an invoice
+         *
+         * @param {Number|String} invoiceId
+         * @param {Number} amount
+         * @param {String} paymentMethod
+         * @param {Number|String} [date]
+         */
+        addPaymentToInvoice: function (invoiceId, amount, paymentMethod, date) {
+            var self = this;
+
+            date = date || false;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_addPayment', function (id) {
+                    self.fireEvent('addPaymentToInvoice', [self, invoiceId, id]);
+                    resolve(id);
+                }, {
+                    'package'    : 'quiqqer/invoice',
+                    invoiceId    : invoiceId,
+                    amount       : amount,
+                    paymentMethod: paymentMethod,
+                    date         : date,
+                    onError      : reject,
+                    showError    : false
+                });
+            });
+        },
+
+        /**
+         * Return the invoice html
+         *
+         * @param {String} invoiceId
+         * @param {Object} data
+         * @returns {Promise}
+         */
+        getInvoiceHtml: function (invoiceId, data) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_html', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    data     : JSON.encode(data),
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Return the invoice html
+         *
+         * @param {String} invoiceId
+         * @param {Object} data
+         * @returns {Promise}
+         */
+        getInvoicePreviewHtml: function (invoiceId, data) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_previewhtml', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    data     : JSON.encode(data),
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Return the missing attributes of an invoice
+         *
+         * @param invoiceId
+         * @return {Promise}
+         */
+        getMissingAttributes: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_missing', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Copy a temporary invoice
          *
          * @param {String} invoiceId
@@ -174,6 +433,39 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                     self.fireEvent('copyInvoice', [self, invoiceId, newId]);
                     resolve(newId);
                 }, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Return the article summary
+         *
+         * @param {Object} article - Article attributes
+         * @return {Promise}
+         */
+        getArticleSummary: function (article) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_summary', resolve, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject,
+                    article  : JSON.encode(article)
+                });
+            });
+        },
+
+        /**
+         * Return the articles from an invoice as HTML
+         *
+         * @param {String|Number} invoiceId
+         * @return {Promise}
+         */
+        getArticlesHtml: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_articleHtml', resolve, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
                     onError  : reject,

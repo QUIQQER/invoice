@@ -4,8 +4,11 @@
  * This file contains package_quiqqer_invoice_ajax_invoices_temporary_list
  */
 
-use QUI\ERP\Accounting\Invoice\TemporaryInvoice;
 use QUI\ERP\Accounting\Invoice\Handler;
+use QUI\ERP\Accounting\Invoice\Settings;
+
+use QUI\ERP\Currency\Handler as Currencies;
+use QUI\ERP\Accounting\Payments\Payments as Payments;
 
 /**
  * Returns temporary invoices list for a grid
@@ -19,6 +22,7 @@ QUI::$Ajax->registerFunction(
     function ($params) {
         $Invoices = Handler::getInstance();
         $Grid     = new QUI\Utils\Grid();
+        $Payments = Payments::getInstance();
 
         $data = $Invoices->searchTemporaryInvoices(
             $Grid->parseDBParams(json_decode($params, true))
@@ -33,16 +37,16 @@ QUI::$Ajax->registerFunction(
             'c_user',
             'c_username',
             'paidstatus',
-            'display_nettosum',
+            'nettosum',
             'display_vatsum',
-            'display_sum',
+            'sum',
             'payment_method',
             'payment_time',
             'paid_date',
             'display_paid',
             'display_missing',
             'isbrutto',
-            'taxid',
+            'taxId',
             'order_id',
             'processing_status',
             'comments',
@@ -61,7 +65,22 @@ QUI::$Ajax->registerFunction(
         foreach ($data as $key => $entry) {
             $fillFields($data[$key]);
 
-            $data[$key]['id'] = TemporaryInvoice::ID_PREFIX . $data[$key]['id'];
+            $data[$key]['id'] = Settings::getInstance()->getTemporaryInvoicePrefix() . $data[$key]['id'];
+
+            try {
+                $Currency = Currencies::getCurrency($data[$key]['currency_data']);
+            } catch (QUI\Exception $Exception) {
+                $Currency = QUI\ERP\Defaults::getCurrency();
+            }
+
+            // payment
+            try {
+                $data[$key]['payment_title'] = $Payments->getPayment($data[$key]['payment_method'])
+                    ->getTitle();
+            } catch (QUI\Exception $Exception) {
+                $data[$key]['payment_title'] = Handler::EMPTY_VALUE;
+            }
+
 
             // customer data
             if (!empty($entry['customer_id'])) {
@@ -85,6 +104,11 @@ QUI::$Ajax->registerFunction(
                     $data[$key]['c_username'] = Handler::EMPTY_VALUE;
                 }
             }
+
+            // format
+            $data[$key]['display_nettosum'] = $Currency->format($data[$key]['nettosum']);
+            $data[$key]['display_sum']      = $Currency->format($data[$key]['sum']);
+            $data[$key]['display_subsum']   = $Currency->format($data[$key]['subsum']);
         }
 
         return $Grid->parseResult($data, $Invoices->countTemporaryInvoices());

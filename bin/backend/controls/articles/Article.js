@@ -7,18 +7,39 @@
  * @require qui/QUI
  * @require qui/controls/Control
  * @require qui/controls/buttons/Button
+ * @require qui/controls/windows/Confirm
+ * @require package/quiqqer/erp/bin/backend/utils/Discount
+ * @require package/quiqqer/erp/bin/backend/utils/Money
  * @require Mustache
  * @require Locale
  * @require Ajax
  * @require Editors
  * @require text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html
  * @require css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css
+ *
+ * @event onCalc [self]
+ * @event onSelect [self]
+ * @event onUnSelect [self]
+ *
+ * @event onDelete [self]
+ * @event onRemove [self]
+ * @event onDrop [self]
+ *
+ * @event onSetTitle [self]
+ * @event onSetDescription [self]
+ * @event onSetPosition [self]
+ * @event onSetQuantity [self]
+ * @event onSetUnitPrice [self]
+ * @event onSetVat [self]
  */
 define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
     'qui/QUI',
     'qui/controls/Control',
     'qui/controls/buttons/Button',
+    'qui/controls/windows/Confirm',
+    'package/quiqqer/erp/bin/backend/utils/Discount',
+    'package/quiqqer/erp/bin/backend/utils/Money',
     'Mustache',
     'Locale',
     'Ajax',
@@ -27,8 +48,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
     'text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html',
     'css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css'
 
-], function (QUI, QUIControl, QUIButton, Mustache, QUILocale, QUIAjax, Editors, template) {
+], function (QUI, QUIControl, QUIButton, QUIConfirm, DiscountUtils, MoneyUtils, Mustache, QUILocale, QUIAjax, Editors, template) {
     "use strict";
+
+    var lg = 'quiqqer/invoice';
 
     return new Class({
 
@@ -39,24 +62,36 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             '$onEditTitle',
             '$onEditDescription',
             '$onEditQuantity',
-            '$onUnitPriceQuantity'
+            '$onEditArticleNo',
+            '$onEditUnitPriceQuantity',
+            '$onEditVat',
+            '$onEditDiscount',
+            'openDeleteDialog',
+            '$onReplaceClick',
+            'remove',
+            'select'
         ],
 
         options: {
-            position   : 0,
-            title      : '---',
+            articleNo  : '',
             description: '---',
-            quantity   : 1,
-            unitPrice  : 0,
+            discount   : '-',
+            position   : 0,
             price      : 0,
+            quantity   : 1,
+            title      : '---',
+            unitPrice  : 0,
             vat        : '',
-            params     : false, // mixed value for API Articles
-            type       : 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Article'
+            'class'    : 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Article',
+            params     : false // mixed value for API Articles
         },
 
         initialize: function (options) {
             this.setAttributes(this.__proto__.options); // set the default values
             this.parent(options);
+
+            this.$user         = {};
+            this.$calculations = {};
 
             this.$Position  = null;
             this.$Quantity  = null;
@@ -73,6 +108,16 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.$Loader  = null;
             this.$created = false;
 
+            // discount
+            if (options && "discount" in options) {
+                this.setAttribute(
+                    'discount',
+                    DiscountUtils.parseToString(
+                        DiscountUtils.unserialize(options.discount)
+                    )
+                );
+            }
+
             // admin format
             this.$Formatter = QUILocale.getNumberFormatter({
                 style   : 'currency',
@@ -87,23 +132,35 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          */
         create: function () {
             this.$Elm = this.parent();
-
             this.$Elm.addClass('quiqqer-invoice-backend-invoiceArticle');
 
             this.$Elm.set({
-                html: Mustache.render(template)
+                html      : Mustache.render(template),
+                'tabindex': -1,
+                styles    : {
+                    outline: 'none'
+                },
+                events    : {
+                    click: this.select
+                }
             });
 
             this.$Position  = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-pos');
+            this.$ArticleNo = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-articleNo');
             this.$Text      = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-text');
             this.$Quantity  = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-quantity');
             this.$UnitPrice = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-unitPrice');
             this.$Price     = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-price');
             this.$VAT       = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-vat');
+            this.$Discount  = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-discount');
             this.$Total     = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-total');
+            this.$Buttons   = this.$Elm.getElement('.quiqqer-invoice-backend-invoiceArticle-buttons');
 
+            this.$ArticleNo.addEvent('click', this.$onEditArticleNo);
             this.$Quantity.addEvent('click', this.$onEditQuantity);
-            this.$UnitPrice.addEvent('click', this.$onUnitPriceQuantity);
+            this.$UnitPrice.addEvent('click', this.$onEditUnitPriceQuantity);
+            this.$VAT.addEvent('click', this.$onEditVat);
+            this.$Discount.addEvent('click', this.$onEditDiscount);
 
             this.$Loader = new Element('div', {
                 html  : '<span class="fa fa-spinner fa-spin"></span>',
@@ -136,16 +193,73 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.$Title.addEvent('click', this.$onEditTitle);
             this.$Description.addEvent('click', this.$onEditDescription);
 
-            this.setQuantity(this.getAttribute('quantity'));
-            this.setUnitPrice(this.getAttribute('unitPrice'));
+            this.setArticleNo(this.getAttribute('articleNo'));
             this.setVat(this.getAttribute('vat'));
             this.setTitle(this.getAttribute('title'));
             this.setDescription(this.getAttribute('description'));
+
+            this.setQuantity(this.getAttribute('quantity'));
+            this.setUnitPrice(this.getAttribute('unitPrice'));
+            this.setDiscount(this.getAttribute('discount'));
+
+            // edit buttons
+            new QUIButton({
+                title : QUILocale.get(lg, 'invoice.articleList.article.button.replace'),
+                icon  : 'fa fa-retweet',
+                styles: {
+                    'float': 'none'
+                },
+                events: {
+                    onClick: this.$onReplaceClick
+                }
+            }).inject(this.$Buttons);
+
+            new QUIButton({
+                title : QUILocale.get(lg, 'invoice.articleList.article.button.delete'),
+                icon  : 'fa fa-trash',
+                styles: {
+                    'float': 'none'
+                },
+                events: {
+                    onClick: this.openDeleteDialog
+                }
+            }).inject(this.$Buttons);
 
             this.$created = true;
             this.calc();
 
             return this.$Elm;
+        },
+
+        /**
+         * Deletes the article and destroy the Node
+         *
+         * @fires onDelete [self]
+         * @fires onRemove [self]
+         * @fires onDrop [self]
+         */
+        remove: function () {
+            this.fireEvent('delete', [this]);
+            this.fireEvent('remove', [this]);
+            this.fireEvent('drop', [this]);
+
+            this.destroy();
+        },
+
+        /**
+         * Trigger the replace event
+         */
+        $onReplaceClick: function () {
+            this.fireEvent('replace', [this]);
+        },
+
+        /**
+         * Set the user data for the article
+         *
+         * @param {Object} user
+         */
+        setUser: function (user) {
+            this.$user = user;
         },
 
         /**
@@ -164,10 +278,11 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_calc', function (product) {
+                    var unitPrice = self.$Formatter.format(product.unitPrice);
+                    var price     = self.$Formatter.format(product.calculated.nettoSubSum);
+                    var total     = self.$Formatter.format(product.calculated.nettoSum);
 
-                    var total     = self.$Formatter.format(product.calculated_sum);
-                    var unitPrice = self.$Formatter.format(product.calculated_basisPrice);
-                    var price     = self.$Formatter.format(product.calculated_price);
+                    self.$calculations = product;
 
                     self.$Total.set({
                         html : total,
@@ -184,15 +299,31 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                         title: price
                     });
 
+                    self.$VAT.set({
+                        html: product.vat + '%'
+                    });
+
                     self.hideLoader();
 
                     resolve(product);
+
+                    self.fireEvent('calc', [self]);
                 }, {
                     'package': 'quiqqer/invoice',
                     onError  : reject,
-                    params   : JSON.encode(self.getAttributes())
+                    params   : JSON.encode(self.getAttributes()),
+                    user     : JSON.encode(self.$user)
                 });
             });
+        },
+
+        /**
+         * Return the current calculations
+         *
+         * @returns {{}|*}
+         */
+        getCalculations: function () {
+            return this.$calculations;
         },
 
         /**
@@ -207,6 +338,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (title === '') {
                 this.$Title.set('html', '&nbsp;');
             }
+
+            this.fireEvent('setTitle', [this]);
         },
 
         /**
@@ -221,6 +354,24 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (description === '') {
                 this.$Description.set('html', '&nbsp;');
             }
+
+            this.fireEvent('setDescription', [this]);
+        },
+
+        /**
+         * Set the Article-No
+         *
+         * @param {String} articleNo
+         */
+        setArticleNo: function (articleNo) {
+            this.setAttribute('articleNo', articleNo);
+            this.$ArticleNo.set('html', articleNo);
+
+            if (articleNo === '') {
+                this.$ArticleNo.set('html', '&nbsp;');
+            }
+
+            this.fireEvent('setArticleNo', [this]);
         },
 
         /**
@@ -234,6 +385,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (this.$Position) {
                 this.$Position.getChildren('span').set('html', this.getAttribute('position'));
             }
+
+            this.fireEvent('setPosition', [this]);
         },
 
         /**
@@ -249,6 +402,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 this.$Quantity.set('html', this.getAttribute('quantity'));
             }
 
+            this.fireEvent('setQuantity', [this]);
+
             return this.calc();
         },
 
@@ -256,6 +411,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * Set the product unit price
          *
          * @param {Number} price
+         * @return {Promise}
          */
         setUnitPrice: function (price) {
             this.setAttribute('unitPrice', parseFloat(price));
@@ -263,25 +419,86 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             if (this.$UnitPrice) {
                 this.$UnitPrice.set('html', this.getAttribute('unitPrice'));
             }
+
+            this.fireEvent('setUnitPrice', [this]);
+
+            return this.calc();
         },
 
         /**
          * Set the product unit price
          *
          * @param {Number|String} vat
+         * @return {Promise}
          */
         setVat: function (vat) {
-            this.setAttribute('vat', parseFloat(vat));
+            if (vat === '-' || vat === '') {
+                this.setAttribute('vat', '');
+                this.$VAT.set('html', '-');
+
+                return this.calc();
+            }
+
+            vat = parseInt(vat);
+
+            if (vat > 100 || vat < 0) {
+                return Promise.resolve();
+            }
+
+            this.setAttribute('vat', vat);
 
             if (this.$VAT) {
                 vat = this.getAttribute('vat');
-
-                if (!vat) {
-                    vat = '-';
-                }
+                vat = vat + '%';
 
                 this.$VAT.set('html', vat);
             }
+
+            this.fireEvent('setVat', [this]);
+
+            return this.calc();
+        },
+
+        /**
+         * Set the discount
+         *
+         * @param {String|Number} discount - 100 = 100€, 100€ = 100€ or 10% =  calculation
+         */
+        setDiscount: function (discount) {
+            var self  = this,
+                value = '',
+                type  = '';
+
+            if (discount === '' || !discount) {
+                discount = '-';
+            }
+
+            if (typeOf(discount) === 'string' && discount.match('%')) {
+                type = '%';
+            }
+
+            var Prom;
+
+            if (discount && type === '%') {
+                Prom = Promise.reolve(discount);
+            } else if (discount) {
+                Prom = MoneyUtils.validatePrice(discount);
+            } else {
+                Prom = Promise.reolve('-');
+            }
+
+            return Prom.then(function (discount) {
+                if (discount && type === '%') {
+                    value = discount + type;
+                } else if (discount) {
+                    value = self.$Formatter.format(discount) + type;
+                } else {
+                    value = '-';
+                }
+
+                self.setAttribute('discount', discount);
+                self.$Discount.set('html', value);
+            }).then(this.calc.bind(this));
         },
 
         /**
@@ -296,6 +513,52 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          */
         hideLoader: function () {
             this.$Loader.setStyle('display', 'none');
+        },
+
+        /**
+         * select the article
+         */
+        select: function () {
+            if (!this.$Elm) {
+                return;
+            }
+
+            this.$Elm.addClass('quiqqer-invoice-backend-invoiceArticle-select');
+            this.fireEvent('select', [this]);
+        },
+
+        /**
+         * unselect the article
+         */
+        unselect: function () {
+            if (!this.$Elm) {
+                return;
+            }
+
+            this.$Elm.removeClass('quiqqer-invoice-backend-invoiceArticle-select');
+            this.fireEvent('unSelect', [this]);
+        },
+
+        /**
+         * Dialogs
+         */
+
+        /**
+         * Opens the delete dialog
+         */
+        openDeleteDialog: function () {
+            new QUIConfirm({
+                icon       : 'fa fa-trash',
+                texticon   : 'fa fa-trash',
+                title      : QUILocale.get(lg, 'dialog.delete.article.title'),
+                information: QUILocale.get(lg, 'dialog.delete.article.information'),
+                text       : QUILocale.get(lg, 'dialog.delete.article.text'),
+                maxHeight  : 400,
+                maxWidth   : 600,
+                events     : {
+                    onSubmit: this.remove.bind(this)
+                }
+            }).open();
         },
 
         /**
@@ -459,6 +722,19 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
         },
 
         /**
+         * event: on Article-Number edit
+         */
+        $onEditArticleNo: function () {
+            this.$createEditField(
+                this.$ArticleNo,
+                this.getAttribute('articleNo')
+            ).then(function (value) {
+                this.setArticleNo(value);
+                this.select();
+            }.bind(this));
+        },
+
+        /**
          * event : on quantity edit
          */
         $onEditQuantity: function () {
@@ -468,19 +744,56 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 'number'
             ).then(function (value) {
                 this.setQuantity(value);
+                this.select();
             }.bind(this));
         },
 
         /**
          * event : on quantity edit
          */
-        $onUnitPriceQuantity: function () {
+        $onEditUnitPriceQuantity: function () {
             this.$createEditField(
                 this.$UnitPrice,
                 this.getAttribute('unitPrice'),
                 'number'
             ).then(function (value) {
                 this.setUnitPrice(value);
+                this.select();
+            }.bind(this));
+        },
+
+        /**
+         * event: on edit VAT
+         */
+        $onEditVat: function () {
+            this.$createEditField(
+                this.$VAT,
+                this.getAttribute('vat'),
+                'number'
+            ).then(function (value) {
+                this.setVat(value);
+                this.select();
+            }.bind(this));
+        },
+
+        /**
+         * event: on edit discount
+         */
+        $onEditDiscount: function () {
+            var discount = this.getAttribute('discount');
+
+            if (discount === '-' || discount === false || !discount) {
+                discount = '';
+            } else if (!discount.toString().match('%')) {
+                discount = parseFloat(discount);
+            }
+
+            this.$createEditField(
+                this.$Discount,
+                discount
+            ).then(function (value) {
+                this.setDiscount(value);
+                this.select();
             }.bind(this));
         },
 
@@ -490,9 +803,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * @param {HTMLDivElement} Container
          * @param {String} [value] - preselected value
          * @param {String} [type] - edit input type
+         * @param {Object} [inputAttributes] - input attributes
          * @returns {Promise}
          */
-        $createEditField: function (Container, value, type) {
+        $createEditField: function (Container, value, type, inputAttributes) {
             type = type || 'text';
 
             return new Promise(function (resolve) {
@@ -510,6 +824,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                         width     : '100%'
                     }
                 }).inject(Container);
+
+                if (typeof inputAttributes !== 'undefined') {
+                    Edit.set(inputAttributes);
+                }
 
                 Edit.focus();
 

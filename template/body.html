@@ -1,0 +1,139 @@
+<style>
+    .invoice-company,
+    .invoice-customer,
+    .invoice-articles {
+        clear: both;
+        display: block;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    .invoice-articles {
+        margin-top: 60px;
+        width: 100%;
+    }
+
+    .invoice-customer address {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-style: normal;
+    }
+
+    .invoice-data {
+        float: right;
+    }
+
+    .invoice-additional {
+        clear: both;
+        margin-top: 40px;
+    }
+
+    .articles-article {
+        border-bottom: 1px solid #DDDDDD;
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    .articles-header {
+        font-size: 20px;
+    }
+
+    /** header
+     ========================================== */
+    .articles-article-header {
+        color: #999999;
+        font-size: 12px;
+        line-height: 30px;
+    }
+
+    .articles-article-header-pos,
+    .articles-article-header-quantity {
+        text-align: center;
+    }
+
+    .articles-article-header-information {
+        text-align: left;
+    }
+
+    .articles-article-header-price,
+    .articles-article-header-unitprice {
+        text-align: right;
+    }
+
+    /** articles
+     ========================================== */
+
+    .articles-article-pos,
+    .articles-article-quantity {
+        text-align: center;
+        vertical-align: top;
+    }
+
+    .articles-article-information-title {
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .articles-article-information-description {
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .articles-article-unitprice {
+        text-align: right;
+        vertical-align: top;
+    }
+
+    .articles-article-price {
+        /*color: #e91d2c;*/
+        text-align: right;
+        vertical-align: top;
+    }
+
+    /** sum
+     ========================================== */
+
+    .articles-sum {
+        float: right;
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .articles-sum-row-subsum-text {
+        border-bottom: 1px solid #999999;
+    }
+
+    .articles-sum-row-subsum-value {
+        border-bottom: 1px solid #999999;
+    }
+
+    .articles-sum-row-sum-text {
+        border-bottom: 3px double #999999;
+    }
+
+    .articles-sum-row-sum-value {
+        border-bottom: 3px double #999999;
+    }
+</style>
+
+<div class="invoice-customer">
+    {if $Address}
+    {$Address->getDisplay()}
+    {/if}
+</div>
+
+
+<div class="invoice-data">
+    Beleg-Nummer: {$this->getId()}<br/>
+    Datum: {$this->getAttribute('date')}<br/>
+    {if $Customer}
+    Kunden-Nummer: {$Customer->getId()}<br/>
+    {/if}
+    Bearbeiter:
+</div>
+
+<div class="invoice-articles">
+    {$ArticleList->toHTML()}
+</div>
+
+<div class="invoice-additional">
+    {$this->getAttribute('additional_invoice_text')}
+</div>

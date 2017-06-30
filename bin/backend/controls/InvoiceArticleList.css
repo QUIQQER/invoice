@@ -1,6 +1,6 @@
 .quiqqer-invoice-backend-invoiceItems {
     display: block;
-    min-height: 300px;
+    /*min-height: 300px;*/
     min-width: 1000px;
     position: relative;
     width: 100%;
@@ -10,6 +10,14 @@
     background: #DEDEDE;
     float: left;
     margin-bottom: 5px;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceItems-items {
+    display: inline-block;
+    height: calc(100% - 30px);
+    overflow: auto;
+    position: relative;
     width: 100%;
 }
 
@@ -23,7 +31,7 @@
 }
 
 .quiqqer-invoice-backend-invoiceItems-header-description {
-    width: calc(100% - 700px);
+    width: calc(100% - 800px);
 }
 
 .quiqqer-invoice-backend-invoiceItems-header-quantity {
@@ -35,6 +43,7 @@
 .quiqqer-invoice-backend-invoiceItems-header-unitPrice,
 .quiqqer-invoice-backend-invoiceItems-header-price,
 .quiqqer-invoice-backend-invoiceItems-header-vat,
+.quiqqer-invoice-backend-invoiceItems-header-discount,
 .quiqqer-invoice-backend-invoiceItems-header-total {
     overflow: hidden;
     text-align: right;

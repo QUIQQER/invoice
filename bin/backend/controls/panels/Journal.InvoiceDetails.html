@@ -1,0 +1,40 @@
+<div class="journal-invoice-details">
+    <div class="journal-invoice-details-header">
+        <div class="journal-invoice-details-header-pos">{{textPosition}}</div>
+        <div class="journal-invoice-details-header-articleNo">{{textArticleNo}}</div>
+        <div class="journal-invoice-details-header-description">{{{textDescription}}}</div>
+        <div class="journal-invoice-details-header-quantity">{{{textQuantity}}}</div>
+        <div class="journal-invoice-details-header-netto">{{{textUnitPrice}}}</div>
+        <div class="journal-invoice-details-header-brutto">{{{textTotalPrice}}}</div>
+    </div>
+    {{#articles}}
+    <div class="journal-invoice-details-article">
+        <div class="journal-invoice-details-article-pos">{{position}}</div>
+        <div class="journal-invoice-details-article-articleNo">{{articleNo}}</div>
+        <div class="journal-invoice-details-article-description">
+            <span class="title">{{title}}</span>
+            <span class="description">{{{description}}}</span>
+        </div>
+        {{#quantity}}
+        <div class="journal-invoice-details-article-quantity">{{quantity}}</div>
+        <div class="journal-invoice-details-article-netto">
+            {{display_unitPrice}}
+        </div>
+        <div class="journal-invoice-details-article-brutto">{{display_sum}}</div>
+        {{/quantity}}
+    </div>
+    {{/articles}}
+
+    <div class="journal-invoice-details-calculation">
+        <div class="journal-invoice-details-calculation-container">
+            <span>Zwischensumme:</span>
+            <span>{{display_subsum}}</span>
+            <br/>
+            <span>Mwst:</span>
+            <span>{{display_vatsum}}</span>
+            <br/>
+            <span>Gesamtsumme</span>:
+            <span>{{display_sum}}</span>
+        </div>
+    </div>
+</div>

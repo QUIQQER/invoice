@@ -16,6 +16,27 @@
             <en><![CDATA[Create Invoices]]></en>
         </locale>
 
+        <locale name="permission.quiqqer.invoice._header">
+            <de><![CDATA[Shop - Rechnungssystem]]></de>
+            <en><![CDATA[Shop - Invoice]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.create">
+            <de><![CDATA[Darf Rechnungen erstellen.]]></de>
+            <en><![CDATA[Is allowed to create invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.edit">
+            <de><![CDATA[Darf Rechnungen editieren.]]></de>
+            <en><![CDATA[Is allowed to edit invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.delete">
+            <de><![CDATA[Darf Rechnungen löschen.]]></de>
+            <en><![CDATA[Is allowed to delete invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.post">
+            <de><![CDATA[Darf Rechnungen buchen.]]></de>
+            <en><![CDATA[Is allowed to post invoices.]]></en>
+        </locale>
+
         <locale name="paidstatus.open">
             <de><![CDATA[offen]]></de>
             <en><![CDATA[open]]></en>
@@ -70,9 +91,25 @@
             <de><![CDATA[MwSt.]]></de>
             <en><![CDATA[VAT]]></en>
         </locale>
+        <locale name="invoice.products.table.vat">
+            <de><![CDATA[MwSt. Satz]]></de>
+            <en><![CDATA[VAT rate]]></en>
+        </locale>
+        <locale name="invoice.products.discount">
+            <de><![CDATA[Rabatt]]></de>
+            <en><![CDATA[Discount]]></en>
+        </locale>
         <locale name="invoice.products.sum">
             <de><![CDATA[Summe]]></de>
             <en><![CDATA[Total]]></en>
+        </locale>
+        <locale name="invoice.articleList.article.button.remove">
+            <de><![CDATA[Artikel entfernen]]></de>
+            <en><![CDATA[Remove article]]></en>
+        </locale>
+        <locale name="invoice.articleList.article.button.replace">
+            <de><![CDATA[Artikel ersetzen]]></de>
+            <en><![CDATA[Replace article]]></en>
         </locale>
 
         <locale name="cutomerData">
@@ -103,6 +140,10 @@
             <de><![CDATA[Ort]]></de>
             <en><![CDATA[City]]></en>
         </locale>
+        <locale name="country">
+            <de><![CDATA[Land]]></de>
+            <en><![CDATA[Country]]></en>
+        </locale>
 
         <locale name="invoice.temporary.extend.view.open">
             <de><![CDATA[Erweiterte Ansicht öffnen]]></de>
@@ -113,6 +154,136 @@
             <en><![CDATA[Close the extended view]]></en>
         </locale>
 
+        <locale name="netto">
+            <de><![CDATA[Netto]]></de>
+            <en><![CDATA[Net]]></en>
+        </locale>
+        <locale name="brutto">
+            <de><![CDATA[Brutto]]></de>
+            <en><![CDATA[Gross]]></en>
+        </locale>
+
+        <locale name="payment.status.0" html="true">
+            <de><![CDATA[<span class="payment-status-0">offen</span>]]></de>
+            <en><![CDATA[<span class="payment-status-0">open</span>]]></en>
+        </locale>
+        <locale name="payment.status.1" html="true">
+            <de><![CDATA[<span class="payment-status-1">bezahlt</span>]]></de>
+            <en><![CDATA[<span class="payment-status-1">paid</span>]]></en>
+        </locale>
+        <locale name="payment.status.2" html="true">
+            <de><![CDATA[<span class="payment-status-2">Teilzahlung</span>]]></de>
+            <en><![CDATA[<span class="payment-status-2">part payment</span>]]></en>
+        </locale>
+        <locale name="payment.status.3" html="true">
+            <de><![CDATA[<span class="payment-status-3">storniert</span>]]></de>
+            <en><![CDATA[<span class="payment-status-3">canceled</span>]]></en>
+        </locale>
+        <locale name="payment.status.4" html="true">
+            <de><![CDATA[<span class="payment-status-4">error</span>]]></de>
+            <en><![CDATA[<span class="payment-status-4">error</span>]]></en>
+        </locale>
+        <locale name="payment.status.5" html="true">
+            <de><![CDATA[<span class="payment-status-5">storniert</span>]]></de>
+            <en><![CDATA[<span class="payment-status-5">canceled</span>]]></en>
+        </locale>
+        <locale name="payment.status.11" html="true">
+            <de><![CDATA[<span class="payment-status-11">Lastschrift</span>]]></de>
+            <en><![CDATA[<span class="payment-status-11">Debit</span>]]></en>
+        </locale>
+        <locale name="dunning.level.0" html="true">
+            <de><![CDATA[---]]></de>
+            <en><![CDATA[---]]></en>
+        </locale>
+        <locale name="dunning.level.1" html="true">
+            <de><![CDATA[Zahlungserinnerung]]></de>
+            <en><![CDATA[Payment reminding]]></en>
+        </locale>
+        <locale name="dunning.level.2" html="true">
+            <de><![CDATA[Erste Mahnung]]></de>
+            <en><![CDATA[Dunning]]></en>
+        </locale>
+        <locale name="dunning.level.3" html="true">
+            <de><![CDATA[Zweite Mahnung]]></de>
+            <en><![CDATA[Second dunning]]></en>
+        </locale>
+        <locale name="dunning.level.4" html="true">
+            <de><![CDATA[Im Inkasso Verfahren]]></de>
+            <en><![CDATA[Encashment]]></en>
+        </locale>
+
+        <locale name="window.erp.title">
+            <de><![CDATA[Shop]]></de>
+            <en><![CDATA[Shop]]></en>
+        </locale>
+        <locale name="window.erp.invoice.title">
+            <de><![CDATA[Rechnungen]]></de>
+            <en><![CDATA[Invoices]]></en>
+        </locale>
+        <locale name="invoice.settings.title">
+            <de><![CDATA[Allgemeine Rechnungseinstellungen]]></de>
+            <en><![CDATA[General invoice settings]]></en>
+        </locale>
+        <locale name="invoice.settings.template">
+            <de><![CDATA[Standard Rechnungstemplate]]></de>
+            <en><![CDATA[Default invoice template]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.prefix">
+            <de><![CDATA[Präfix für Rechnungsnummern]]></de>
+            <en><![CDATA[Prefix for invoice numbers]]></en>
+        </locale>
+        <locale name="invoice.settings.temporaryInvoice.prefix">
+            <de><![CDATA[Präfix für nicht gebuchte Rechnungsnummern]]></de>
+            <en><![CDATA[Prefix for unbooked invoice numbers]]></en>
+        </locale>
+
+        <locale name="invoice.settings.processingStatus.title">
+            <de><![CDATA[Rechnungsstatus]]></de>
+            <en><![CDATA[Invoice status]]></en>
+        </locale>
+
+        <locale name="invoice.type.creditNote">
+            <de><![CDATA[Gutschrift]]></de>
+            <en><![CDATA[Credit Note]]></en>
+        </locale>
+        <locale name="invoice.type.reversal">
+            <de><![CDATA[Stornorechnung]]></de>
+            <en><![CDATA[Cancellation invoice]]></en>
+        </locale>
+        <locale name="invoice.type.cancel">
+            <de><![CDATA[Stornierte Rechnung]]></de>
+            <en><![CDATA[Canceled invoice]]></en>
+        </locale>
+        <locale name="invoice.type.invoice">
+            <de><![CDATA[Rechnung]]></de>
+            <en><![CDATA[Invoice]]></en>
+        </locale>
+
+        <locale name="quarter.1">
+            <de><![CDATA[1. Quartal]]></de>
+            <en><![CDATA[1st quarter]]></en>
+        </locale>
+        <locale name="quarter.2">
+            <de><![CDATA[2. Quartal]]></de>
+            <en><![CDATA[2nd quarter]]></en>
+        </locale>
+        <locale name="quarter.3">
+            <de><![CDATA[3. Quartal]]></de>
+            <en><![CDATA[3rd quarter]]></en>
+        </locale>
+        <locale name="quarter.4">
+            <de><![CDATA[4. Quartal]]></de>
+            <en><![CDATA[4th quarter]]></en>
+        </locale>
+
+        <locale name="halfYear.1">
+            <de><![CDATA[1 Halbjahr]]></de>
+            <en><![CDATA[1 half year]]></en>
+        </locale>
+        <locale name="halfYear.2">
+            <de><![CDATA[2 Halbjahr]]></de>
+            <en><![CDATA[2 half year]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -121,8 +292,8 @@
             <en><![CDATA[Payment book]]></en>
         </locale>
         <locale name="journal.btn.pdf">
-            <de><![CDATA[PDF Rechnung]]></de>
-            <en><![CDATA[PDF Invoice]]></en>
+            <de><![CDATA[Drucken / PDF]]></de>
+            <en><![CDATA[Print / PDF]]></en>
         </locale>
         <locale name="journal.btn.cancelInvoice">
             <de><![CDATA[Rechnung stornieren]]></de>
@@ -132,9 +303,25 @@
             <de><![CDATA[Rechnung kopieren]]></de>
             <en><![CDATA[Copy Invoice]]></en>
         </locale>
-        <locale name="journal.btn.createCredit">
+        <locale name="journal.btn.createCreditNote">
             <de><![CDATA[Gutschrift erstellen]]></de>
             <en><![CDATA[Create credit memo]]></en>
+        </locale>
+        <locale name="journal.btn.post">
+            <de><![CDATA[Rechnung buchen]]></de>
+            <en><![CDATA[Post invoice]]></en>
+        </locale>
+        <locale name="journal.btn.actions">
+            <de><![CDATA[Aktionen]]></de>
+            <en><![CDATA[Actions]]></en>
+        </locale>
+        <locale name="journal.btn.open">
+            <de><![CDATA[Rechnung öffnen]]></de>
+            <en><![CDATA[Open invoice]]></en>
+        </locale>
+        <locale name="journal.btn.total">
+            <de><![CDATA[Summe anzeigen]]></de>
+            <en><![CDATA[Show total]]></en>
         </locale>
 
         <locale name="temporary.btn.deleteInvoice">
@@ -146,6 +333,10 @@
             <en><![CDATA[Create invoice]]></en>
         </locale>
 
+        <locale name="journal.grid.type">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
         <locale name="journal.grid.invoiceNo">
             <de><![CDATA[Rech.-Nr]]></de>
             <en><![CDATA[Invoice no]]></en>
@@ -159,8 +350,8 @@
             <en><![CDATA[Custome no]]></en>
         </locale>
         <locale name="journal.grid.status">
-            <de><![CDATA[Rechnungsstatus]]></de>
-            <en><![CDATA[Accounting Status]]></en>
+            <de><![CDATA[Zahlungsstatus]]></de>
+            <en><![CDATA[Payment status]]></en>
         </locale>
         <locale name="journal.grid.vat">
             <de><![CDATA[MwSt]]></de>
@@ -174,13 +365,13 @@
             <de><![CDATA[Zahlungsart]]></de>
             <en><![CDATA[Payment method]]></en>
         </locale>
+        <locale name="journal.grid.timeForPayment">
+            <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
+            <en><![CDATA[Payment term (days)]]></en>
+        </locale>
         <locale name="journal.grid.paymentDate">
             <de><![CDATA[Zahlungsdatum]]></de>
             <en><![CDATA[Payment date]]></en>
-        </locale>
-        <locale name="journal.grid.paymentTerm">
-            <de><![CDATA[Zahlungsziel]]></de>
-            <en><![CDATA[Term of payment]]></en>
         </locale>
         <locale name="journal.grid.paid">
             <de><![CDATA[bezahlt]]></de>
@@ -198,7 +389,7 @@
             <de><![CDATA[Netto]]></de>
             <en><![CDATA[Net]]></en>
         </locale>
-        <locale name="journal.grid.taxid">
+        <locale name="journal.grid.taxId">
             <de><![CDATA[Umsatzsteuer ID]]></de>
             <en><![CDATA[Tax ID]]></en>
         </locale>
@@ -210,9 +401,9 @@
             <de><![CDATA[Mahnstufe]]></de>
             <en><![CDATA[Dunning level]]></en>
         </locale>
-        <locale name="journal.grid.processing">
-            <de><![CDATA[Bearbeitung]]></de>
-            <en><![CDATA[Processing]]></en>
+        <locale name="journal.grid.processingStatus">
+            <de><![CDATA[Rechnungsstatus]]></de>
+            <en><![CDATA[Processing status]]></en>
         </locale>
         <locale name="journal.grid.comments">
             <de><![CDATA[Bemerkungen]]></de>
@@ -223,8 +414,8 @@
             <en><![CDATA[Payment data]]></en>
         </locale>
         <locale name="journal.grid.hash">
-            <de><![CDATA[Hash]]></de>
-            <en><![CDATA[Hash]]></en>
+            <de><![CDATA[Eindeutige ID]]></de>
+            <en><![CDATA[Unique ID]]></en>
         </locale>
 
         <locale name="journal.paidstatus.all">
@@ -252,6 +443,31 @@
             <en><![CDATA[Status: direct debit]]></en>
         </locale>
 
+        <locale name="journal.timeFilter.month">
+            <de><![CDATA[Monat]]></de>
+            <en><![CDATA[Month]]></en>
+        </locale>
+        <locale name="journal.timeFilter.quarter">
+            <de><![CDATA[Quartal]]></de>
+            <en><![CDATA[Quarter]]></en>
+        </locale>
+        <locale name="journal.timeFilter.halfYear">
+            <de><![CDATA[Halbjahr]]></de>
+            <en><![CDATA[Half-Year]]></en>
+        </locale>
+        <locale name="journal.timeFilter.year">
+            <de><![CDATA[Jahr]]></de>
+            <en><![CDATA[Year]]></en>
+        </locale>
+        <locale name="journal.timeFilter.period">
+            <de><![CDATA[Zeitspanne]]></de>
+            <en><![CDATA[Period of time]]></en>
+        </locale>
+        <locale name="journal.timeFilter.period.select">
+            <de><![CDATA[[from] bis [to]]]></de>
+            <en><![CDATA[[from] to [to]]]></en>
+        </locale>
+
         <locale name="erp.panel.temporary.invoice.title">
             <de><![CDATA[Rechnungsentwürfe]]></de>
             <en><![CDATA[Invoice drafts]]></en>
@@ -268,6 +484,10 @@
             <de><![CDATA[Text]]></de>
             <en><![CDATA[Text]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.button.article.sort.text">
+            <de><![CDATA[Artikel sortieren]]></de>
+            <en><![CDATA[Sort articles]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.data">
             <de><![CDATA[Rechnungsdaten]]></de>
             <en><![CDATA[Invoice data]]></en>
@@ -278,19 +498,35 @@
         </locale>
         <locale name="erp.panel.temporary.invoice.category.review">
             <de><![CDATA[Überprüfung]]></de>
-            <en><![CDATA[Review]]></en>
+            <en><![CDATA[Validation]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.review.btnGoto">
+            <de><![CDATA[Zur Überprüfung]]></de>
+            <en><![CDATA[For validation]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoiceData">
             <de><![CDATA[Rechnungsdaten]]></de>
             <en><![CDATA[Invoice data]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoiceDate">
-            <de><![CDATA[Rechnung Datum]]></de>
-            <en><![CDATA[Invoice Date]]></en>
+            <de><![CDATA[Rechnungsdatum]]></de>
+            <en><![CDATA[Invoice date]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoicePayment">
+            <de><![CDATA[Bezahlung]]></de>
+            <en><![CDATA[Payment]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textPaymentMethod">
+            <de><![CDATA[Bezahlungsart]]></de>
+            <en><![CDATA[Payment type]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textTermOfPayment">
             <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
             <en><![CDATA[Term of Payment (in days)]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textEditor">
+            <de><![CDATA[Bearbeiter]]></de>
+            <en><![CDATA[Editor]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textProjectName">
             <de><![CDATA[Projektname]]></de>
@@ -299,6 +535,38 @@
         <locale name="erp.panel.temporary.invoice.category.data.textOrderedBy">
             <de><![CDATA[Bestellt durch]]></de>
             <en><![CDATA[Ordered by]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoiceText">
+            <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
+            <en><![CDATA[Additional invoice text]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.deleteButton.title">
+            <de><![CDATA[Rechnung löschen]]></de>
+            <en><![CDATA[Delete Invoice]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.button.nextToArticles">
+            <de><![CDATA[Artikel verwalten]]></de>
+            <en><![CDATA[Manage articles]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.button.data">
+            <de><![CDATA[Zu den Rechnungsdaten]]></de>
+            <en><![CDATA[To the invoice data]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.replace.article.title">
+            <de><![CDATA[Artikel ersetzen mit...]]></de>
+            <en><![CDATA[Replace article with ...]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.replace.article.text">
+            <de><![CDATA[
+            Wählen Sie bitte die Art des Artikels aus mit welchem Sie den Artikel ersetzen möchten.
+            ]]></de>
+            <en><![CDATA[
+            Please choose the type of the article with which you want to replace.
+            ]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.replace.article.withProduct">
+            <de><![CDATA[Produkt]]></de>
+            <en><![CDATA[Product]]></en>
         </locale>
 
         <locale name="dialog.ti.delete.title">
@@ -331,6 +599,268 @@
             the data of the invoice <b> [id] </ b> will be copied to it.
             ]]></en>
         </locale>
+        <locale name="dialog.invoice.copy.title">
+            <de><![CDATA[Rechnung kopieren]]></de>
+            <en><![CDATA[Copy invoice]]></en>
+        </locale>
+        <locale name="dialog.invoice.copy.text">
+            <de><![CDATA[Möchten Sie die Rechnung wirklich kopieren?]]></de>
+            <en><![CDATA[Are you sure you want to copy the invoice?]]></en>
+        </locale>
+        <locale name="dialog.invoice.copy.information" html="true">
+            <de><![CDATA[
+            Es wird ein neuer Rechnungsentwurf erstellt und
+            die Daten der Rechnung <b>[id]</b> werden in diesen kopiert.
+            ]]></de>
+            <en><![CDATA[
+            A new temporary invoice is created and
+            the data of the invoice <b> [id] </ b> will be copied to it.
+            ]]></en>
+        </locale>
+
+        <locale name="dialog.invoice.createCreditNote.title">
+            <de><![CDATA[Gutschrift erstellen]]></de>
+            <en><![CDATA[Create credit]]></en>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.text">
+            <de><![CDATA[Gutschrift für Rechnung #[invoiceId] erstellen]]></de>
+            <en><![CDATA[Create credit for invoice #[invoiceId]]]></en>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.information" html="true">
+            <de><![CDATA[
+                Möchten Sie wirklich eine Gutschrift für die Rechnung #[invoiceId] erstellen?<br />
+                Es wird ein Rechnungsentwurf erstellt welchen Sie direkt nach der Erstellung bearbeiten können.
+            ]]></de>
+            <en><![CDATA[
+                Do you really want to create a credit for the invoice #[invoiceId]? <br />
+                It will create an invoice draft which you can edit immediately after the creation.
+            ]]></en>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.submit">
+            <de><![CDATA[Gutschrift erstellen]]></de>
+            <en><![CDATA[Create credit]]></en>
+        </locale>
+
+        <locale name="dialog.invoice.reversal.title">
+            <de><![CDATA[Rechnung stornieren]]></de>
+            <en><![CDATA[Invoice reversal]]></en>
+        </locale>
+        <locale name="dialog.invoice.reversal.text">
+            <de><![CDATA[Möchten Sie die Rechnung wirklich stornieren?]]></de>
+            <en><![CDATA[Are you sure you want to cancel the invoice?]]></en>
+        </locale>
+        <locale name="dialog.invoice.reversal.information" html="true">
+            <de><![CDATA[
+            Folgende Rechnung wird storniert #[invoiceId].<br />
+            Bitte beachten Sie, dieser Vorgang kann nicht wieder rückgängig gemacht werden.
+            ]]></de>
+            <en><![CDATA[
+            The following invoice will be canceled #[invoiceId].<br />
+            Please consider, this operation can not be undone.
+            ]]></en>
+        </locale>
+        <locale name="dialog.invoice.reversal.submit">
+            <de><![CDATA[Stornierung ausführen]]></de>
+            <en><![CDATA[Execute cancellation]]></en>
+        </locale>
+
+        <locale name="dialog.delete.article.title">
+            <de><![CDATA[Artikel wirklich löschen?]]></de>
+            <en><![CDATA[Delete the article?]]></en>
+        </locale>
+        <locale name="dialog.delete.article.text">
+            <de><![CDATA[Möchten Sie den Artikel wirklich löschen?]]></de>
+            <en><![CDATA[Are you sure you want to delete the article?]]></en>
+        </locale>
+        <locale name="dialog.delete.article.information">
+            <de><![CDATA[Der Artikel wird unwiderruflich gelöscht.]]></de>
+            <en><![CDATA[The article is irrevocably deleted.]]></en>
+        </locale>
+
+        <locale name="dialog.create.address.title">
+            <de><![CDATA[Rechnungsadresse anlegen]]></de>
+            <en><![CDATA[Create invoice address]]></en>
+        </locale>
+
+        <locale name="invoice.create.address.message" html="true">
+            <de><![CDATA[
+                Der Benutzer besitzt keine Adresse. Bitte legen Sie für den Benutzer eine neue Adresse an.<br />
+                Diese Adresse dient gleichzeitig auch als Rechnungsadresse
+            ]]></de>
+            <en><![CDATA[
+                The User does not have an address. Please create a new address for the user. <br />
+                This address also serves as an invoice address
+            ]]></en>
+        </locale>
+
+        <locale name="processingStatus.grid.id">
+            <de><![CDATA[ID]]></de>
+            <en><![CDATA[ID]]></en>
+        </locale>
+        <locale name="processingStatus.grid.color">
+            <de><![CDATA[Farbe]]></de>
+            <en><![CDATA[Color]]></en>
+        </locale>
+
+        <locale name="dialog.processingStatus.delete.title">
+            <de><![CDATA[Rechnungsstatus entfernen]]></de>
+            <en><![CDATA[Remove invoice status]]></en>
+        </locale>
+        <locale name="dialog.processingStatus.delete.text">
+            <de><![CDATA[Rechnungsstatus wirklich entfernen?]]></de>
+            <en><![CDATA[Really remove invoice status?]]></en>
+        </locale>
+        <locale name="dialog.processingStatus.delete.information" html="true">
+            <de><![CDATA[
+            Folgender Rechnungsstatus wird entfernt:<br />
+            <strong>#[id] - [title]</strong>
+            <br /><br />
+            Der Rechnungsstatus ist nicht wiederherstellbar.
+            ]]></de>
+            <en><![CDATA[
+            The following invoice status will be removed: <br />
+            <strong>#[id] - [title]</strong>
+            <br /><br />
+            The invoice status is not recoverable.
+            ]]></en>
+        </locale>
+
+        <locale name="dialog.processingStatus.create.title">
+            <de><![CDATA[Rechnungsstatus hinzufügen]]></de>
+            <en><![CDATA[Create invoice status]]></en>
+        </locale>
+
+        <locale name="dialog.processingStatus.edit.title">
+            <de><![CDATA[Rechnunsstatus bearbeiten]]></de>
+            <en><![CDATA[Edit invoice status]]></en>
+        </locale>
+
+        <locale name="erp.panel.invoice.data">
+            <de><![CDATA[Daten]]></de>
+            <en><![CDATA[Data]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.articles">
+            <de><![CDATA[Artikel]]></de>
+            <en><![CDATA[Articles]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.history">
+            <de><![CDATA[Verlauf]]></de>
+            <en><![CDATA[History]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.comments">
+            <de><![CDATA[Kommentare]]></de>
+            <en><![CDATA[Comments]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.payments">
+            <de><![CDATA[Zahlungen]]></de>
+            <en><![CDATA[Payments]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.title">
+            <de><![CDATA[Rechnung: #[id]]]></de>
+            <en><![CDATA[Invoice: #[id]]]></en>
+        </locale>
+
+        <locale name="erp.panel.invoice.data.title">
+            <de><![CDATA[Rechnungsdaten]]></de>
+            <en><![CDATA[Invoice data]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.date">
+            <de><![CDATA[Rechnungsdatum]]></de>
+            <en><![CDATA[Invoice date]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.payment">
+            <de><![CDATA[Bezahlung]]></de>
+            <en><![CDATA[Payment]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.projectName">
+            <de><![CDATA[Projektname]]></de>
+            <en><![CDATA[Projectname]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.orderedBy">
+            <de><![CDATA[Bestellt durch]]></de>
+            <en><![CDATA[Ordered by]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.editor">
+            <de><![CDATA[Bearbeiter]]></de>
+            <en><![CDATA[Editor]]></en>
+        </locale>
+
+        <locale name="erp.panel.invoice.data.payment">
+            <de><![CDATA[Bezahlung]]></de>
+            <en><![CDATA[Payment]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.paymentMethod">
+            <de><![CDATA[Bezahlungsart]]></de>
+            <en><![CDATA[Payment method]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.termOfPayment">
+            <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
+            <en><![CDATA[Term of Payment (in days)]]></en>
+        </locale>
+
+        <locale name="erp.panel.invoice.data.invoiceText">
+            <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
+            <en><![CDATA[Additional invoice text]]></en>
+        </locale>
+
+        <locale name="journal.payments.date">
+            <de><![CDATA[Datum]]></de>
+            <en><![CDATA[Date]]></en>
+        </locale>
+        <locale name="journal.payments.amount">
+            <de><![CDATA[Betrag]]></de>
+            <en><![CDATA[Amount]]></en>
+        </locale>
+        <locale name="journal.payments.paymentMethod">
+            <de><![CDATA[Bezahlmethoden]]></de>
+            <en><![CDATA[Payment methode]]></en>
+        </locale>
+
+        <locale name="dialog.print.title">
+            <de><![CDATA[Drucken / PDF]]></de>
+            <en><![CDATA[Print / PDF]]></en>
+        </locale>
+        <locale name="dialog.print.data.id">
+            <de><![CDATA[Rechnungs-ID]]></de>
+            <en><![CDATA[Invoice ID]]></en>
+        </locale>
+        <locale name="dialog.print.data.number">
+            <de><![CDATA[Rechnungsnummer]]></de>
+            <en><![CDATA[Invoice Number]]></en>
+        </locale>
+        <locale name="dialog.print.data.template">
+            <de><![CDATA[Rechnungstemplate]]></de>
+            <en><![CDATA[Invoice template]]></en>
+        </locale>
+        <locale name="dialog.print.data.output">
+            <de><![CDATA[Ausgabe]]></de>
+            <en><![CDATA[Output]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.print">
+            <de><![CDATA[Drucken]]></de>
+            <en><![CDATA[Print]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.pdf">
+            <de><![CDATA[Als PDF speichern]]></de>
+            <en><![CDATA[Save as PDF]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.email">
+            <de><![CDATA[Als E-Mail verschicken]]></de>
+            <en><![CDATA[Send as E-Mail]]></en>
+        </locale>
+
+        <locale name="dialog.print.data.output.print.btn">
+            <de><![CDATA[Drucken]]></de>
+            <en><![CDATA[Print]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.pdf.btn">
+            <de><![CDATA[Speichern]]></de>
+            <en><![CDATA[Save]]></en>
+        </locale>
+        <locale name="dialog.print.data.output.email.btn">
+            <de><![CDATA[Senden]]></de>
+            <en><![CDATA[Send]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
@@ -338,6 +868,145 @@
             <de><![CDATA[Der Rechnungsentwurf wurde erfolgreich gespeichert.]]></de>
             <en><![CDATA[The invoice was successfully saved.]]></en>
         </locale>
+        <locale name="message.create.credit.from">
+            <de><![CDATA[Gutschrift erstellt aus Rechnung #[invoiceId]]]></de>
+            <en><![CDATA[Create Credit Note from Invoice #[invoiceId]]]></en>
+        </locale>
+        <locale name="message.create.credit">
+            <de><![CDATA[Gutschrift erstellt. Neue Gutschrift ID #[invoiceId]]]></de>
+            <en><![CDATA[Create Credit Note. New Credit Note ID #[invoiceId]]]></en>
+        </locale>
+        <locale name="message.create.credit.post">
+            <de><![CDATA[Gutschrift gebucht. Gutschrift ID #[invoiceId]]]></de>
+            <en><![CDATA[Post Credit Note. Credit Note ID #[invoiceId]]]></en>
+        </locale>
+        <locale name="message.invoice.creditNote.additionalInvoiceText" html="true">
+            <de><![CDATA[Gutschrift zu Rechnung #[id] vom [date]]]></de>
+            <en><![CDATA[Credit Note to invoice #[id] from [date]]]></en>
+        </locale>
+
+        <locale name="exception.invoice.verification.customer">
+            <de><![CDATA[Der Rechnung wurde noch kein Kunde zugewiesen.]]></de>
+            <en><![CDATA[No customer has yet been assigned to the invoice.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.address">
+            <de><![CDATA[Der Rechnung wurde noch keine Rechnungsaddresse zugewiesen.]]></de>
+            <en><![CDATA[No invoice address has yet been assigned to the invoice.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.firstname">
+            <de><![CDATA[Der Vornamen des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The first name of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.lastname">
+            <de><![CDATA[Der Vornamen des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The last name of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.street_no">
+            <de><![CDATA[Die Strasse des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The street of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.zip">
+            <de><![CDATA[Die Postleitzahl des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The zip of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.city">
+            <de><![CDATA[Die Stadt des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The city of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.country">
+            <de><![CDATA[Das Land des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <en><![CDATA[The country of the invoice recipient is incorrect.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.empty.articles">
+            <de><![CDATA[Die Rechnung besitzt keine Artikel.]]></de>
+            <en><![CDATA[The invoice has no articles.]]></en>
+        </locale>
+        <locale name="exception.invoice.verification.missingPayment">
+            <de><![CDATA[Die Rechnung besitzt keine Bezahlmethode.]]></de>
+            <en><![CDATA[The invoice has no payment method.]]></en>
+        </locale>
+
+        <locale name="exception.parted.invoice.cant.be.canceled">
+            <de><![CDATA[Eine Rechnung mit Teilzahlung kann nicht storniert werden.]]></de>
+            <en><![CDATA[An invoice with partial payment can not be canceled.]]></en>
+        </locale>
+        <locale name="exception.canceled.invoice.cant.be.canceled">
+            <de><![CDATA[Eine Stornorechnung kann nicht storniert werden.]]></de>
+            <en><![CDATA[A canceled invoice can not be canceled.]]></en>
+        </locale>
+        <locale name="exception.missing.reason.in.reversal">
+            <de><![CDATA[Bitte geben Sie einen Grund für die Stornierung an.]]></de>
+            <en><![CDATA[Please provide a reason for the cancellation.]]></en>
+        </locale>
+
+        <locale name="history.message.addPayment">
+            <de><![CDATA[Zahlung hinzugefügt. Von [username] #[uid]. Zahlungsweise: [payment].]]></de>
+            <en><![CDATA[Add payment. From [username] #[uid]. Payment method: [payment].]]></en>
+        </locale>
+        <locale name="history.message.edit">
+            <de><![CDATA[Rechnung verändert von [username] #[uid].]]></de>
+            <en><![CDATA[Invoice changed by [username] #[uid].]]></en>
+        </locale>
+        <locale name="history.message.addComment">
+            <de><![CDATA[Kommentar hinzugefügt von [username] #[uid].]]></de>
+            <en><![CDATA[Comment added by [username] #[uid].]]></en>
+        </locale>
+        <locale name="history.message.copy">
+            <de><![CDATA[Rechnung kopiert von [username] #[uid].]]></de>
+            <en><![CDATA[Invoice copied by [username] #[uid].]]></en>
+        </locale>
+        <locale name="history.message.reversal">
+            <de><![CDATA[Rechnung storniert von [username] #[uid].]]></de>
+            <en><![CDATA[Invoice canceled by [username] #[uid].]]></en>
+        </locale>
+        <locale name="history.message.reversal.created">
+            <de><![CDATA[Gutschrift für Stornierung erstellt. ID #[creditNoteId]]]></de>
+            <en><![CDATA[Credit note for cancellation created. ID #[creditNoteId]]]></en>
+        </locale>
+        <locale name="history.message.temporaryInvoice.type.changed">
+            <de><![CDATA[Rechnungstyp geändert in [type]]]></de>
+            <en><![CDATA[Invoice type changed to [type]]]></en>
+        </locale>
+
+        <locale name="pdf.export.name">
+            <de><![CDATA[Rechnung]]></de>
+            <en><![CDATA[Invoice]]></en>
+        </locale>
+        <locale name="pdf.export.footer.1">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
+        <locale name="pdf.export.footer.2">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
+        <locale name="pdf.export.footer.3">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
+        <locale name="pdf.export.footer.4">
+            <de><![CDATA[&nbsp;]]></de>
+            <en><![CDATA[&nbsp;]]></en>
+        </locale>
+
+        <locale name="processing.status.default.1">
+            <de><![CDATA[Neu]]></de>
+            <en><![CDATA[New]]></en>
+        </locale>
+        <locale name="processing.status.default.2">
+            <de><![CDATA[In Bearbeitung]]></de>
+            <en><![CDATA[In processing]]></en>
+        </locale>
+        <locale name="processing.status.default.3">
+            <de><![CDATA[Erledigt]]></de>
+            <en><![CDATA[Done]]></en>
+        </locale>
     </groups>
 
+    <groups name="quiqqer/products">
+        <locale name="products.field.102.title">
+            <de><![CDATA[Rechnungstext]]></de>
+            <en><![CDATA[Invoice text]]></en>
+        </locale>
+    </groups>
 </locales>

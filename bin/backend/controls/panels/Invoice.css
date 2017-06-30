@@ -1,0 +1,12 @@
+.quiqqer-invoice-invoice input[disabled] {
+    color: #666699;
+}
+
+.journal-grid-amount {
+    text-align: right !important;
+    padding-right: 5px;
+}
+
+.journal-grid-cancel {
+    text-decoration: line-through;
+}

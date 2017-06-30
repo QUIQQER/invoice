@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiqqer>
+    <settings name="ERP">
+
+        <config>
+            <section name="invoice">
+                <conf name="template">
+                    <type><![CDATA[string]]></type>
+                </conf>
+                <conf name="prefix">
+                    <type><![CDATA[string]]></type>
+                    <defaultvalue><![CDATA[INV-]]></defaultvalue>
+                </conf>
+            </section>
+
+            <section name="temporaryInvoice">
+                <conf name="prefix">
+                    <type><![CDATA[string]]></type>
+                    <defaultvalue><![CDATA[EDIT-]]></defaultvalue>
+                </conf>
+            </section>
+        </config>
+
+        <window name="ERP">
+            <title>
+                <locale group="quiqqer/invoice" var="window.erp.title"/>
+            </title>
+            <params>
+                <icon>fa fa-sun-o</icon>
+            </params>
+
+            <categories>
+                <category name="invoice" index="2">
+                    <text>
+                        <locale group="quiqqer/invoice" var="window.erp.invoice.title"/>
+                    </text>
+                    <icon>fa fa-file-text-o</icon>
+
+                    <settings title="invoice" name="invoice">
+                        <title>
+                            <locale group="quiqqer/invoice" var="invoice.settings.title"/>
+                        </title>
+
+                        <input type="hidden"
+                               conf="invoice.template"
+                               data-qui="package/quiqqer/invoice/bin/backend/controls/settings/Templates"
+                        >
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.template"/>
+                            </text>
+                        </input>
+
+                        <input type="text" conf="invoice.prefix">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.invoice.prefix"/>
+                            </text>
+                        </input>
+
+                        <input type="text" conf="temporaryInvoice.prefix">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.temporaryInvoice.prefix"/>
+                            </text>
+                        </input>
+                    </settings>
+
+                    <settings>
+                        <title>
+                            <locale group="quiqqer/invoice" var="invoice.settings.processingStatus.title"/>
+                        </title>
+
+                        <input type="hidden"
+                               label="false"
+                               data-qui="package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus"
+                        />
+                    </settings>
+                </category>
+            </categories>
+        </window>
+
+    </settings>
+</quiqqer>

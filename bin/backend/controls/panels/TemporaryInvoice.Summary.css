@@ -1,0 +1,39 @@
+
+.quiqqer-invoice-backend-temporaryInvoice-summary {
+    background: #FFFFFF;
+    border-top: 2px solid #DEDEDE;
+    float: left;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-summary-pos,
+.quiqqer-invoice-backend-temporaryInvoice-summary-total {
+    border-top: 1px solid #DEDEDE;
+    clear: both;
+    float: left;
+    padding: 5px;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-summary-pos-title,
+.quiqqer-invoice-backend-temporaryInvoice-summary-pos-netto,
+.quiqqer-invoice-backend-temporaryInvoice-summary-pos-brutto,
+.quiqqer-invoice-backend-temporaryInvoice-summary-total-title,
+.quiqqer-invoice-backend-temporaryInvoice-summary-total-vat,
+.quiqqer-invoice-backend-temporaryInvoice-summary-total-netto,
+.quiqqer-invoice-backend-temporaryInvoice-summary-total-brutto {
+    float: left;
+    width: 200px;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-summary-total-vat {
+    width: 400px;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-summary-pos-title {
+    width: calc(100% - 400px);
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-summary-total-title {
+    width: calc(100% - 800px);
+}

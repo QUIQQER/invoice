@@ -1,0 +1,139 @@
+<div class="quiqqer-invoice-address-create">
+    {{{message}}}
+</div>
+
+<form>
+    <table class="data-table data-table-flexbox">
+        <thead>
+        <tr>
+            <th>
+                {{textData}}
+            </th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        {{textCompany}}
+                    </span>
+                    <input type="text"
+                           name="company"
+                           class="field-container-field"
+                           autofocus
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        {{textSalutation}}
+                    </span>
+                    <input type="text"
+                           name="salutation"
+                           class="field-container-field"
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        {{textFirstName}}
+                    </span>
+                    <input type="text"
+                           name="firstname"
+                           class="field-container-field"
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        {{textLastName}}
+                    </span>
+                    <input type="text"
+                           name="lastname"
+                           value=""
+                           class="field-container-field"
+                    />
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="data-table data-table-flexbox">
+        <thead>
+        <tr>
+            <th colspan="2">
+                {{textAddress}}
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        {{textStreet}}
+                    </span>
+                    <input type="text"
+                           name="street_no"
+                           value=""
+                           class="field-container-field"
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        {{textZIP}}
+                    </span>
+                    <input type="text"
+                           name="zip"
+                           value=""
+                           class="field-container-field"
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        {{textCity}}
+                    </span>
+                    <input type="text"
+                           name="city"
+                           value=""
+                           class="field-container-field"
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        {{textCountry}}
+                    </span>
+                    <select name="country" class="field-container-field">
+                        <option value=""></option>
+                    </select>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</form>

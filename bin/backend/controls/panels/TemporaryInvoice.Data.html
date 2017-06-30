@@ -16,19 +16,8 @@
                         {{textInvoiceDate}}
                     </span>
                     <div class="field-container-field">
-                        <input type="date" name="date_date"/>
-                        <input type="time" name="date_time"/>
+                        <input type="date" name="date"/>
                     </div>
-                </label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label class="field-container">
-                    <span class="field-container-item" title="{{textTermOfPayment}}">
-                        {{textTermOfPayment}}
-                    </span>
-                    <input type="number" name="time_for_payment" min="1" max="999" class="field-container-field"/>
                 </label>
             </td>
         </tr>
@@ -45,19 +34,81 @@
         <tr>
             <td>
                 <label class="field-container">
-                <span class="field-container-item" title="{{textOrderedBy}}">
-                    {{textOrderedBy}}
-                </span>
+                    <span class="field-container-item" title="{{textOrderedBy}}">
+                        {{textOrderedBy}}
+                    </span>
                     <span class="field-container-field field-container-field-no-padding">
-                    <input type="hidden"
-                           name="orderedBy"
-                           data-qui="controls/users/Select"
-                           data-qui-options-max="1"
-                           data-qui-options-multiple="0"
-                    />
-                </span>
+                        <input type="hidden"
+                               name="orderedBy"
+                               data-qui="controls/users/Select"
+                               data-qui-options-max="1"
+                               data-qui-options-multiple="0"
+                        />
+                    </span>
                 </label>
             </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textEditor}}">
+                        {{textEditor}}
+                    </span>
+                    <span class="field-container-field field-container-field-no-padding">
+                        <input type="hidden"
+                               name="editorId"
+                               data-qui="controls/users/Select"
+                               data-qui-options-max="1"
+                               data-qui-options-multiple="0"
+                        />
+                    </span>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="data-table data-table-flexbox invoice-data">
+        <thead>
+        <tr>
+            <th>{{textInvoicePayment}}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textPaymentMethod}}">
+                        {{textPaymentMethod}}
+                    </span>
+                    <select class="field-container-field" name="payment_method"></select>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textTermOfPayment}}">
+                        {{textTermOfPayment}}
+                    </span>
+                    <input type="number" name="time_for_payment" min="1" max="999" class="field-container-field"/>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="data-table data-table-flexbox invoice-text">
+        <thead>
+        <tr>
+            <th>{{textInvoiceText}}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td class="additional-invoice-text"></td>
         </tr>
         </tbody>
     </table>

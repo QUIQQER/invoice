@@ -1,0 +1,44 @@
+
+.quiqqer-invoice-sortableClone {
+
+}
+
+.quiqqer-invoice-sortableClone-placeholder {
+    background: #fff;
+    color: #999;
+    cursor: pointer;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-pos,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-articleNo,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-title,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-quantity,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-unitPrice,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-price {
+    float: left;
+    padding: 10px;
+}
+
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-pos {
+    width: 50px;
+}
+
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-articleNo,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-quantity,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-unitPrice,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-price {
+    width: 100px;
+}
+
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-title {
+    width: calc(100% - 800px);
+}
+
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-quantity,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-unitPrice,
+.quiqqer-invoice-backend-invoiceArticlePlaceholder-price {
+    text-align: right;
+}

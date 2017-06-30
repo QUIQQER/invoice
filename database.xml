@@ -5,38 +5,51 @@
 
         <table name="invoice">
             <field type="INT NOT NULL">id</field>
+            <field type="VARCHAR(10)">id_prefix</field>
             <field type="INT NOT NULL">customer_id</field>
+            <field type="INT(3) NOT NULL">type</field>
+
             <field type="INT NULL">order_id</field>
+            <field type="INT NULL">ordered_by</field>
+            <field type="VARCHAR(200) NOT NULL">ordered_by_name</field>
             <!--<field type="int(11) NOT NULL">contract_id</field>--> <!-- wird normal nicht gebraucht, muss in data -->
             <field type="VARCHAR(250) NOT NULL">hash</field>
+            <field type="VARCHAR(250) NULL">project_name</field>
             <field type="timestamp NULL DEFAULT CURRENT_TIMESTAMP">date</field>
+
+            <field type="TEXT NULL">invoice_address</field>
+            <field type="TEXT NULL">delivery_address</field>
 
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
             <field type="DATETIME NULL">payment_time</field>
-            <field type="TEXT NULL">payment_address</field>
-            <field type="TEXT NULL">delivery_address</field>
-            <field type="INT(3) NULL">time_for_payment</field>
+            <field type="DATETIME NULL">time_for_payment</field>
 
             <field type="INT(2) NOT NULL">paid_status</field>
             <field type="INT(11) NULL">paid_date</field>
             <field type="TEXT NULL">paid_data</field>
 
             <field type="INT(1) DEFAULT 0">canceled</field> <!-- storno -->
+            <field type="TEXT NULL">canceled_data</field> <!-- storno grund -->
             <field type="INT NOT NULL">c_user</field>
+            <field type="VARCHAR(200) NOT NULL">c_username</field>
+            <field type="INT NOT NULL">editor_id</field>
+            <field type="VARCHAR(200) NOT NULL">editor_name</field>
             <field type="TEXT NULL">data</field>
+            <field type="TEXT NULL">additional_invoice_text</field>
             <field type="TEXT NOT NULL">articles</field>
-            <!--<field type="TEXT NULL">comments</field>--> <!-- als Modul auslagern -->
             <field type="TEXT NULL">history</field>
+            <field type="TEXT NULL">comments</field>
             <field type="TEXT NULL">customer_data</field>
             <field type="FLOAT NOT NULL">isbrutto</field>
 
             <field type="TEXT NOT NULL">currency_data</field>
 
             <field type="FLOAT NOT NULL">nettosum</field>
+            <field type="FLOAT NOT NULL">nettosubsum</field>
             <field type="FLOAT NOT NULL">subsum</field>
             <field type="FLOAT NOT NULL">sum</field>
-            <field type="TEXT NOT NULL">vat_data</field>
+            <field type="TEXT NOT NULL">vat_array</field>
 
             <!--<field type="text NOT NULL">shipping</field>--> <!-- auslagern -> eigenes modul -->
 
@@ -56,36 +69,48 @@
         <table name="invoice_temporary">
             <field type="INT NOT NULL">id</field>
             <field type="INT NOT NULL">customer_id</field>
-            <field type="INT NOT NULL">address_id</field>
+            <field type="INT(3) NOT NULL">type</field>
+
+            <field type="INT NOT NULL">invoice_address_id</field>
+            <field type="TEXT NULL">invoice_address</field>
+
+            <field type="INT NOT NULL">delivery_address_id</field>
+            <field type="TEXT NULL">delivery_address</field>
+
             <field type="INT NULL">order_id</field>
+            <field type="INT NULL">ordered_by</field>
+            <field type="VARCHAR(200) NOT NULL">ordered_by_name</field>
+
             <field type="VARCHAR(40) NOT NULL">hash</field>
             <field type="VARCHAR(250) NULL">project_name</field>
 
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
             <field type="DATETIME NULL">payment_time</field>
-            <field type="TEXT NULL">payment_address</field>
-            <field type="TEXT NULL">delivery_address</field>
             <field type="INT(3) NULL">time_for_payment</field>
 
             <field type="INT(2) NOT NULL">paid_status</field>
             <field type="INT(11) NULL">paid_date</field>
             <field type="TEXT NULL">paid_data</field>
 
-            <field type="INT(1) DEFAULT 0">canceled</field> <!-- storno -->
             <field type="timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP">date</field>
             <field type="INT(11) NOT NULL">c_user</field>
+            <field type="INT(11) NOT NULL">editor_id</field>
+            <field type="VARCHAR(200) NOT NULL">editor_name</field>
             <field type="TEXT NULL">data</field>
+            <field type="TEXT NULL">additional_invoice_text</field>
             <field type="TEXT NOT NULL">articles</field>
             <field type="TEXT NULL">history</field>
+            <field type="TEXT NULL">comments</field>
             <field type="TEXT NULL">customer_data</field>
             <field type="FLOAT NOT NULL">isbrutto</field>
             <field type="TEXT NOT NULL">currency_data</field>
 
             <field type="FLOAT NOT NULL">nettosum</field>
+            <field type="FLOAT NOT NULL">nettosubsum</field>
             <field type="FLOAT NOT NULL">subsum</field>
             <field type="FLOAT NOT NULL">sum</field>
-            <field type="TEXT NOT NULL">vat_data</field>
+            <field type="TEXT NOT NULL">vat_array</field>
 
             <field type="INT(5) NOT NULL">processing_status</field> <!-- variable machen, prozess status verwaltung -->
 
