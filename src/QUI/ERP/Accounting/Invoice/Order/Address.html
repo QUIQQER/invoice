@@ -1,0 +1,60 @@
+<section class="quiqqer-order-step-address">
+    <header>
+        <h1>{locale group="quiqqer/order" var="ordering.step.title.Address"}</h1>
+    </header>
+
+    <div class="quiqqer-order-step-address-description">
+        <div class="quiqqer-order-step-address-description-text">
+            {locale group="quiqqer/order" var="ordering.step.title.Address.description"}
+        </div>
+
+        <button name="create" class="quiqqer-order-step-address-description-button">
+            <span class="fa fa-plus"></span>
+            <span>{locale group="quiqqer/order" var="ordering.step.title.Address.addButton"}</span>
+        </button>
+    </div>
+
+    <div class="quiqqer-order-step-address-list">
+        {if $User->getId()}
+        {* Logged in user *}
+
+        {foreach $addresses as $Address}
+        <div class="quiqqer-order-step-address-list-entry">
+            <header>
+                <label>
+                    <span class="fa fa-address-card-o"></span>
+                    {locale group="quiqqer/order" var="ordering.step.title.Address.invoiceAddress.title"}
+                    <input type="radio"
+                           name="address_invoice"
+                           value="{$Address->getId()}"
+                           {if $selectedAddressId == $Address->getId()}checked="checked"{/if}
+                    >
+                </label>
+            </header>
+            <address>
+                {$Address->render()}
+            </address>
+            <div class="quiqqer-order-step-address-list-entry-buttons">
+                <button type="submit" name="edit" value="{$Address->getId()}">
+                    <span class="fa fa-edit"></span>
+                    <span>
+                        {locale group="quiqqer/order" var="ordering.step.title.Address.editButton"}
+                    </span>
+                </button>
+                <button type="submit" name="delete" value="{$Address->getId()}">
+                    <span class="fa fa-trash"></span>
+                    <span>
+                        {locale group="quiqqer/order" var="ordering.step.title.Address.deleteButton"}
+                    </span>
+                </button>
+            </div>
+        </div>
+        {/foreach}
+
+        {else}
+        {* Unregistered user*}
+
+        {/if}
+
+    </div>
+</section>

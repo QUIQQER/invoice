@@ -11,6 +11,7 @@
 
         <provider>
             <erp src="\QUI\ERP\Accounting\Invoice\ErpProvider"/>
+            <orderProcess src="\QUI\ERP\Accounting\Invoice\OrderProcessProvider"/>
         </provider>
 
     </package>
