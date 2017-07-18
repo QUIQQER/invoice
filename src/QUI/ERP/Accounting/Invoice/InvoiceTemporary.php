@@ -364,7 +364,7 @@ class InvoiceTemporary extends QUI\QDOM
                 $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
                 $Payment  = $Payments->getPayment($this->getAttribute('payment_method'));
 
-                $paymentMethod = $Payment->getName();
+                $paymentMethod = $Payment->getId();
             }
         } catch (QUI\ERP\Accounting\Payments\Exception $Exception) {
             QUI\System\Log::addNotice($Exception->getMessage());

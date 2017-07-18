@@ -853,7 +853,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                             var Reason = new Element('textarea', {
                                 name       : 'reason',
                                 autofocus  : true,
-                                placeholder: 'Bitte geben Sie einen Stornierungsgrund ein.',
+                                placeholder: 'Bitte geben Sie einen Stornierungsgrund ein.', // #locale
                                 styles     : {
                                     height   : 160,
                                     marginTop: 10,

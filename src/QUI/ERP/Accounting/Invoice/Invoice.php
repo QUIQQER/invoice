@@ -144,7 +144,7 @@ class Invoice extends QUI\QDOM
         $currency = $this->getAttribute('currency_data');
 
         if (!$currency) {
-            QUI\ERP\Defaults::getCurrency();
+            return QUI\ERP\Defaults::getCurrency();
         }
 
         if (is_string($currency)) {
@@ -152,7 +152,7 @@ class Invoice extends QUI\QDOM
         }
 
         if (!$currency || !isset($currency['code'])) {
-            QUI\ERP\Defaults::getCurrency();
+            return QUI\ERP\Defaults::getCurrency();
         }
 
         return QUI\ERP\Currency\Handler::getCurrency($currency['code']);
