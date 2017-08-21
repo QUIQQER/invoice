@@ -22,8 +22,8 @@
 
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
-            <field type="DATETIME NULL">payment_time</field>
-            <field type="DATETIME NULL">time_for_payment</field>
+            <field type="DATETIME NULL DEFAULT NULL">payment_time</field>
+            <field type="DATETIME NULL DEFAULT NULL">time_for_payment</field>
 
             <field type="INT(2) NOT NULL">paid_status</field>
             <field type="INT(11) NULL">paid_date</field>
@@ -86,7 +86,7 @@
 
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
-            <field type="DATETIME NULL">payment_time</field>
+            <field type="DATETIME NULL DEFAULT NULL">payment_time</field>
             <field type="INT(3) NULL">time_for_payment</field>
 
             <field type="INT(2) NOT NULL">paid_status</field>
