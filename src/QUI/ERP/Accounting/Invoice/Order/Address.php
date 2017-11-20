@@ -26,15 +26,16 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
     {
         parent::__construct($attributes);
 
-        $this->addCSSFile(dirname(__FILE__) . '/Address.css');
+        $this->addCSSFile(dirname(__FILE__).'/Address.css');
     }
 
     /**
+     * @param null|QUI\Locale $Locale
      * @return string
      */
-    public function getName()
+    public function getName($Locale = null)
     {
-        return 'address';
+        return 'Address';
     }
 
     /**
@@ -146,7 +147,7 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
             'selectedAddressId' => $selectedAddressId
         ));
 
-        return $Engine->fetch(dirname(__FILE__) . '/Address.html');
+        return $Engine->fetch(dirname(__FILE__).'/Address.html');
     }
 
     /**
@@ -166,7 +167,7 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
             'countries' => QUI\Countries\Manager::getList()
         ));
 
-        return $Engine->fetch(dirname(__FILE__) . '/Address.Edit.html');
+        return $Engine->fetch(dirname(__FILE__).'/Address.Edit.html');
     }
 
     /**
@@ -185,7 +186,7 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
             'Address' => $Address
         ));
 
-        return $Engine->fetch(dirname(__FILE__) . '/Address.Delete.html');
+        return $Engine->fetch(dirname(__FILE__).'/Address.Delete.html');
     }
 
     /**
@@ -211,7 +212,7 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
             'countries'      => QUI\Countries\Manager::getList()
         ));
 
-        return $Engine->fetch(dirname(__FILE__) . '/Address.Create.html');
+        return $Engine->fetch(dirname(__FILE__).'/Address.Create.html');
     }
 
     /**
