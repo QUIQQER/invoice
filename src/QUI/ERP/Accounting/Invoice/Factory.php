@@ -7,7 +7,6 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Class Factory
@@ -35,7 +34,7 @@ class Factory extends QUI\Utils\Singleton
             Handler::getInstance()->temporaryInvoiceTable(),
             array(
                 'c_user' => $User->getId(),
-                'hash'   => Uuid::uuid1()->toString()
+                'hash'   => QUI\Utils\Uuid::get()
             )
         );
 

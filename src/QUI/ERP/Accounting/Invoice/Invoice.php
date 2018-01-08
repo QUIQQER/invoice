@@ -94,7 +94,7 @@ class Invoice extends QUI\QDOM
      */
     public function getId()
     {
-        return $this->prefix . $this->id;
+        return $this->prefix.$this->id;
     }
 
     /**
@@ -742,7 +742,7 @@ class Invoice extends QUI\QDOM
         $pdfFile = $View->toPDF()->createPDF();
 
         $Mailer = QUI::getMailManager()->getMailer();
-        $Mailer->setSubject('Rechnungs Nr:' . $this->getId());
+        $Mailer->setSubject('Rechnungs Nr:'.$this->getId()); // @todo #locale
         $Mailer->addRecipient($recipient);
         $Mailer->setBody($View->toHTML());
         $Mailer->addAttachment($pdfFile);

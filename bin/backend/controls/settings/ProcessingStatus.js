@@ -20,6 +20,7 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
     var lg = 'quiqqer/invoice';
 
     return new Class({
+
         Extends: QUIControl,
         Type   : 'package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
 
