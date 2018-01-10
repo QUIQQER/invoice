@@ -215,7 +215,7 @@ class Invoice extends QUI\QDOM
      */
     public function getPaidStatusInformation()
     {
-        QUI\ERP\Accounting\Calc::calculateInvoicePayments($this);
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
 
         return array(
             'paidData' => $this->getAttribute('paid_data'),
@@ -591,7 +591,7 @@ class Invoice extends QUI\QDOM
         );
 
 
-        QUI\ERP\Accounting\Calc::calculateInvoicePayments($this);
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
 
         if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
             || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
