@@ -2,4 +2,8 @@
 <events>
     <event on="onPackageSetup" fire="\QUI\ERP\Accounting\Invoice\EventHandler::onPackageSetup"/>
     <event on="onPackageSetup" fire="\QUI\ERP\Accounting\Invoice\EventHandler::onProductsPackageSetup"/>
+
+    <event on="onTransactionCreate"
+           fire="\QUI\ERP\Accounting\Invoice\EventHandler::onTransactionCreate"
+    />
 </events>

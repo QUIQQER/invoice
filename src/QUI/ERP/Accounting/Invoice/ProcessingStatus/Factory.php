@@ -22,7 +22,7 @@ class Factory extends QUI\Utils\Singleton
      * @param string|integer $id - processing ID
      * @param string $color - color of the status
      * @param array $title - title
-     * @throws Exception
+     * @throws Exception|QUI\Exception
      * @todo permissions
      */
     public function createProcessingStatus($id, $color, array $title)
@@ -62,7 +62,7 @@ class Factory extends QUI\Utils\Singleton
 
         QUI\Translator::addUserVar(
             'quiqqer/invoice',
-            'processing.status.' . $id,
+            'processing.status.'.$id,
             $data
         );
 

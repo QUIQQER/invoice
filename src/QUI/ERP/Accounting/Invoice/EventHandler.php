@@ -11,6 +11,7 @@ use QUI\Package\Package;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus;
 use QUI\ERP\Products\Handler\Fields;
 use QUI\ERP\Products\Handler\Search;
+use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 
 /**
  * Class EventHandler
@@ -23,6 +24,7 @@ class EventHandler
      * event: on package setup
      *
      * @param Package $Package
+     * @throws QUI\Exception
      */
     public static function onPackageSetup(Package $Package)
     {
@@ -78,6 +80,7 @@ class EventHandler
         try {
             // if the Field exists, we doesn't needed to create it
             Fields::getField(Handler::INVOICE_PRODUCT_TEXT_ID);
+
             return;
         } catch (QUI\ERP\Products\Field\Exception $Exception) {
         }
@@ -105,6 +108,27 @@ class EventHandler
             ));
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::addAlert($Exception->getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param Transaction $Transaction
+     */
+    public static function onTransactionCreate(Transaction $Transaction)
+    {
+        $hash = $Transaction->getHash();
+
+        try {
+            $Invoice = Handler::getInstance()->getInvoiceByHash($hash);
+        } catch (Exception $Exception) {
+            return;
+        }
+
+        try {
+            $Invoice->addTransaction($Transaction);
+        } catch (Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
         }
     }
 }

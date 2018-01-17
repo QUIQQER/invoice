@@ -65,6 +65,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @param $id
      * @param Handler $Handler
+     * @throws Exception
      */
     public function __construct($id, Handler $Handler)
     {
@@ -83,7 +84,7 @@ class InvoiceTemporary extends QUI\QDOM
             if ($articles) {
                 try {
                     $this->Articles = new ArticleList($articles);
-                } catch (QUI\Exception $Exception) {
+                } catch (QUI\ERP\Exception $Exception) {
                     QUI\System\Log::addError($Exception->getMessage());
                 }
             }
@@ -132,7 +133,7 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function getId()
     {
-        return $this->prefix . $this->id;
+        return $this->prefix.$this->id;
     }
 
     /**
@@ -255,6 +256,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @param string|integer $type
      * @param QUI\Interfaces\Users\User|null $PermissionUser - optional
+     * @throws QUI\Permissions\Exception
      */
     public function setInvoiceType($type, $PermissionUser = null)
     {
@@ -292,7 +294,9 @@ class InvoiceTemporary extends QUI\QDOM
      * Save the current temporary invoice data to the database
      *
      * @param QUI\Interfaces\Users\User|null $PermissionUser
+     *
      * @throws QUI\Permissions\Exception
+     * @throws QUI\Lock\Exception
      */
     public function save($PermissionUser = null)
     {
@@ -461,7 +465,9 @@ class InvoiceTemporary extends QUI\QDOM
      * Delete the temporary invoice
      *
      * @param QUI\Interfaces\Users\User|null $PermissionUser
+     *
      * @throws QUI\Permissions\Exception
+     * @throws QUI\Lock\Exception
      */
     public function delete($PermissionUser = null)
     {
@@ -492,6 +498,9 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
      * @return InvoiceTemporary
+     *
+     * @throws QUI\Permissions\Exception
+     * @throws Exception
      */
     public function copy($PermissionUser = null)
     {
@@ -549,7 +558,10 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @param QUI\Interfaces\Users\User|null $PermissionUser
      * @return Invoice
-     * @throws Exception|QUI\Permissions\Exception|QUI\Exception
+     *
+     * @throws Exception
+     * @throws QUI\Permissions\Exception
+     * @throws QUI\Exception
      */
     public function post($PermissionUser = null)
     {
@@ -644,11 +656,11 @@ class InvoiceTemporary extends QUI\QDOM
         $timeForPayment = date(
             'Y-m-d',
             strtotime(
-                date('Y-m-d') . ' 00:00 + ' . $paymentTime . ' days'
+                date('Y-m-d').' 00:00 + '.$paymentTime.' days'
             )
         );
 
-        $timeForPayment .= ' 23:59.59';
+        $timeForPayment .= ' 23:59:59';
 
 
         QUI::getEvents()->fireEvent(
@@ -759,6 +771,10 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
      * @return Invoice
+     *
+     * @throws Exception
+     * @throws QUI\Permissions\Exception
+     * @throws QUI\Exception
      */
     public function createInvoice($PermissionUser = null)
     {
@@ -895,6 +911,9 @@ class InvoiceTemporary extends QUI\QDOM
      * Add a comment
      *
      * @param string $message
+     *
+     * @throws QUI\Permissions\Exception
+     * @throws QUI\Lock\Exception
      */
     public function addComment($message)
     {
@@ -973,11 +992,13 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Lock the invoice
      * Invoice can't be edited
+     *
+     * @throws QUI\Lock\Exception
      */
     public function lock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key     = 'temporary-invoice-'.$this->getId();
 
         QUI\Lock\Locker::lock($Package, $key);
     }
@@ -985,11 +1006,13 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Unlock the invoice
      * Invoice can be edited
+     *
+     * @throws QUI\Lock\Exception
      */
     public function unlock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key     = 'temporary-invoice-'.$this->getId();
 
         QUI\Lock\Locker::unlock($Package, $key);
     }
@@ -1002,7 +1025,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function isLocked()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key     = 'temporary-invoice-'.$this->getId();
 
         return QUI\Lock\Locker::isLocked($Package, $key);
     }
@@ -1010,12 +1033,12 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Check, if the item is locked
      *
-     * @throws QUI\Exception
+     * @throws QUI\Lock\Exception
      */
     public function checkLocked()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key     = 'temporary-invoice-'.$this->getId();
 
         QUI\Lock\Locker::checkLocked($Package, $key);
     }

@@ -102,6 +102,10 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param string $invoiceId - ID of a temporary Invoice
      * @param QUI\Interfaces\Users\User|null $User
+     *
+     * @throws
+     * @throws QUI\Permissions\Exception
+     * @throws QUI\Lock\Exception
      */
     public function delete($invoiceId, $User = null)
     {
@@ -255,7 +259,7 @@ class Handler extends QUI\Utils\Singleton
      * @param string $id - ID of the Invoice or InvoiceTemporary
      * @return InvoiceTemporary|Invoice
      *
-     * @throws Exception
+     * @throws
      */
     public function get($id)
     {
@@ -274,11 +278,39 @@ class Handler extends QUI\Utils\Singleton
      * @param string $id - ID of the Invoice
      * @return Invoice
      *
-     * @throw Exception
+     * @throws QUI\ERP\Accounting\Invoice\Exception
      */
     public function getInvoice($id)
     {
         return new Invoice($id, $this);
+    }
+
+    /**
+     * Return an Invoice by hash
+     *
+     * @param string $hash - Hash of the Invoice
+     * @return Invoice
+     * @throws Exception
+     */
+    public function getInvoiceByHash($hash)
+    {
+        $result = QUI::getDataBase()->fetch(array(
+            'select' => 'id',
+            'from'   => self::invoiceTable(),
+            'where'  => array(
+                'id' => $hash
+            ),
+            'limit'  => 1
+        ));
+
+        if (!isset($result[0])) {
+            throw new Exception(
+                array('quiqqer/invoice', 'exception.invoice.not.found'),
+                404
+            );
+        }
+
+        return $this->getInvoice($result[0]['id']);
     }
 
     /**
@@ -328,7 +360,7 @@ class Handler extends QUI\Utils\Singleton
      * @param string $id - ID of the Invoice
      * @return InvoiceTemporary
      *
-     * @throws Exception
+     * @throws
      */
     public function getTemporaryInvoice($id)
     {
