@@ -103,9 +103,10 @@ class Handler extends QUI\Utils\Singleton
      * @param string $invoiceId - ID of a temporary Invoice
      * @param QUI\Interfaces\Users\User|null $User
      *
-     * @throws
+     * @throws Exception
      * @throws QUI\Permissions\Exception
      * @throws QUI\Lock\Exception
+     * @throws QUI\Exception
      */
     public function delete($invoiceId, $User = null)
     {
@@ -278,7 +279,7 @@ class Handler extends QUI\Utils\Singleton
      * @param string $id - ID of the Invoice
      * @return Invoice
      *
-     * @throws QUI\ERP\Accounting\Invoice\Exception
+     * @throws Exception
      */
     public function getInvoice($id)
     {
@@ -360,7 +361,7 @@ class Handler extends QUI\Utils\Singleton
      * @param string $id - ID of the Invoice
      * @return InvoiceTemporary
      *
-     * @throws
+     * @throws Exception
      */
     public function getTemporaryInvoice($id)
     {

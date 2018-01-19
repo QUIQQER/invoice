@@ -297,6 +297,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @throws QUI\Permissions\Exception
      * @throws QUI\Lock\Exception
+     * @throws QUI\Exception
      */
     public function save($PermissionUser = null)
     {
@@ -317,7 +318,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // attributes
         $projectName    = '';
-        $timeForPayment = '';
+        $timeForPayment = null;
         $paymentMethod  = '';
         $date           = '';
 
@@ -387,12 +388,19 @@ class InvoiceTemporary extends QUI\QDOM
 
         // Ordered By
         $OrderedBy     = $this->getOrderedByUser();
-        $orderedBy     = '';
+        $orderedBy     = (int)$this->getAttribute('customer_id');
         $orderedByName = '';
 
         if ($OrderedBy) {
             $orderedBy     = $OrderedBy->getId();
             $orderedByName = $OrderedBy->getName();
+        } elseif ($orderedBy) {
+            try {
+                $User          = QUI::getUsers()->get($orderedBy);
+                $orderedBy     = $User->getId();
+                $orderedByName = $User->getName();
+            } catch (QUI\Exception $Exception) {
+            }
         }
 
 
@@ -416,22 +424,22 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // payments
                 'payment_method'          => $paymentMethod,
-                'payment_data'            => '',
-                'payment_time'            => '',
+                'payment_data'            => null,
+                'payment_time'            => null,
 
                 // address
                 'invoice_address_id'      => (int)$this->getAttribute('invoice_address_id'),
                 'invoice_address'         => $invoiceAddress,
-                'delivery_address_id'     => '',
-                'delivery_address'        => '',
+                'delivery_address_id'     => null,
+                'delivery_address'        => null,
 
                 // processing
                 'time_for_payment'        => $timeForPayment,
-                'paid_status'             => '', // nicht in gui
-                'paid_date'               => '', // nicht in gui
-                'paid_data'               => '', // nicht in gui
-                'processing_status'       => '',
-                'customer_data'           => '',  // nicht in gui
+                'paid_status'             => Invoice::PAYMENT_STATUS_OPEN, // nicht in gui
+                'paid_date'               => null, // nicht in gui
+                'paid_data'               => '',   // nicht in gui
+                'processing_status'       => null,
+                'customer_data'           => '',   // nicht in gui
 
                 // invoice data
                 'date'                    => $date,
@@ -468,6 +476,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @throws QUI\Permissions\Exception
      * @throws QUI\Lock\Exception
+     * @throws QUI\Exception
      */
     public function delete($PermissionUser = null)
     {
@@ -641,13 +650,21 @@ class InvoiceTemporary extends QUI\QDOM
 
         // Ordered By
         $OrderedBy     = $this->getOrderedByUser();
-        $orderedBy     = '';
+        $orderedBy     = (int)$this->getAttribute('customer_id');
         $orderedByName = '';
+
 
         // use default advisor as editor
         if ($OrderedBy) {
             $orderedBy     = $OrderedBy->getId();
             $orderedByName = $OrderedBy->getName();
+        } elseif ($orderedBy) {
+            try {
+                $User          = QUI::getUsers()->get($orderedBy);
+                $orderedBy     = $User->getId();
+                $orderedByName = $User->getName();
+            } catch (QUI\Exception $Exception) {
+            }
         }
 
         // time for payment
@@ -704,12 +721,12 @@ class InvoiceTemporary extends QUI\QDOM
                 // payments
                 'payment_method'          => $this->getAttribute('payment_method'),
                 'payment_data'            => '', // <!-- muss verschlüsselt sein -->
-                'payment_time'            => '',
+                'payment_time'            => null,
                 'time_for_payment'        => $timeForPayment,
 
                 // paid status
                 'paid_status'             => Invoice::PAYMENT_STATUS_OPEN,
-                'paid_date'               => '',
+                'paid_date'               => null,
                 'paid_data'               => '',
 
                 // data
@@ -914,6 +931,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @throws QUI\Permissions\Exception
      * @throws QUI\Lock\Exception
+     * @throws QUI\Exception
      */
     public function addComment($message)
     {
@@ -994,6 +1012,7 @@ class InvoiceTemporary extends QUI\QDOM
      * Invoice can't be edited
      *
      * @throws QUI\Lock\Exception
+     * @throws QUI\Exception
      */
     public function lock()
     {
@@ -1008,6 +1027,7 @@ class InvoiceTemporary extends QUI\QDOM
      * Invoice can be edited
      *
      * @throws QUI\Lock\Exception
+     * @throws QUI\Exception
      */
     public function unlock()
     {
@@ -1021,6 +1041,8 @@ class InvoiceTemporary extends QUI\QDOM
      * Is the invoice locked?
      *
      * @return false|mixed
+     *
+     * @throws QUI\Exception
      */
     public function isLocked()
     {
@@ -1034,6 +1056,7 @@ class InvoiceTemporary extends QUI\QDOM
      * Check, if the item is locked
      *
      * @throws QUI\Lock\Exception
+     * @throws QUI\Exception
      */
     public function checkLocked()
     {
