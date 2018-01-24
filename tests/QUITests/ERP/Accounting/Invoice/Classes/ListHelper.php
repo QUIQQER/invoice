@@ -29,7 +29,7 @@ class ListHelper
         $calculations = $data['calculations'];
 
         writePhpUnitMessage('Preis Liste');
-        writePhpUnitMessage('== ' . ($calculations['isNetto'] ? 'netto' : 'brutto') . ' =========================');
+        writePhpUnitMessage('== '.($calculations['isNetto'] ? 'netto' : 'brutto').' =========================');
         writePhpUnitMessage();
 
         writePhpUnitMessage('Produkte');
@@ -37,20 +37,20 @@ class ListHelper
         writePhpUnitMessage();
 
         foreach ($data['articles'] as $article) {
-            writePhpUnitMessage($article['quantity'] . 'x ' . $article['title']);
+            writePhpUnitMessage($article['quantity'].'x '.$article['title']);
             writePhpUnitMessage('-------');
 
-            writePhpUnitMessage('Grundpreis: ' . $Currency->format($article['unitPrice'], $Locale));
+            writePhpUnitMessage('Grundpreis: '.$Currency->format($article['unitPrice'], $Locale));
             writePhpUnitMessage();
 
-            writePhpUnitMessage('    Calc Netto Sum: ' . $Currency->format($article['calculated_nettoSum'], $Locale));
-            writePhpUnitMessage('    Calc Price: ' . $Currency->format($article['calculated_price'], $Locale));
-            writePhpUnitMessage('    Calc Sum: ' . $Currency->format($article['calculated_sum'], $Locale));
+            writePhpUnitMessage('    Calc Netto Sum: '.$Currency->format($article['calculated']['nettoSum'], $Locale));
+            writePhpUnitMessage('    Calc Price: '.$Currency->format($article['calculated']['price'], $Locale));
+            writePhpUnitMessage('    Calc Sum: '.$Currency->format($article['calculated']['sum'], $Locale));
 
             writePhpUnitMessage(
-                '    -> Vat ' . $article['calculated_vatArray']['vat'] . '% : ' .
-                $article['calculated_vatArray']['text'] . ' ' .
-                $Currency->format($article['calculated_vatArray']['sum'], $Locale)
+                '    -> Vat '.$article['calculated']['vatArray']['vat'].'% : '.
+                $article['calculated']['vatArray']['text'].' '.
+                $Currency->format($article['calculated']['vatArray']['sum'], $Locale)
             );
 
             writePhpUnitMessage();
@@ -58,8 +58,8 @@ class ListHelper
 
         writePhpUnitMessage();
 
-        writePhpUnitMessage('NettoSubSum: ' . $Currency->format($calculations['nettoSubSum'], $Locale));
-        writePhpUnitMessage('SubSum: ' . $Currency->format($calculations['subSum'], $Locale));
+        writePhpUnitMessage('NettoSubSum: '.$Currency->format($calculations['nettoSubSum'], $Locale));
+        writePhpUnitMessage('SubSum: '.$Currency->format($calculations['subSum'], $Locale));
         writePhpUnitMessage();
         writePhpUnitMessage();
 
@@ -83,16 +83,16 @@ class ListHelper
         writePhpUnitMessage('------');
         writePhpUnitMessage();
 
-        writePhpUnitMessage('nettoSum: ' . $Currency->format($calculations['nettoSum'], $Locale));
+        writePhpUnitMessage('nettoSum: '.$Currency->format($calculations['nettoSum'], $Locale));
         writePhpUnitMessage();
         writePhpUnitMessage('    MwSt.:');
 
         foreach ($calculations['vatArray'] as $vatEntry) {
-            writePhpUnitMessage('    - ' . $vatEntry['text'] . ': ' . $Currency->format($vatEntry['sum'], $Locale));
+            writePhpUnitMessage('    - '.$vatEntry['text'].': '.$Currency->format($vatEntry['sum'], $Locale));
         }
 
         writePhpUnitMessage();
-        writePhpUnitMessage('Sum: ' . $Currency->format($calculations['sum'], $Locale));
+        writePhpUnitMessage('Sum: '.$Currency->format($calculations['sum'], $Locale));
         writePhpUnitMessage();
         writePhpUnitMessage();
     }
