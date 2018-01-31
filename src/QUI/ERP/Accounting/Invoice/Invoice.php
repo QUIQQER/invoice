@@ -460,19 +460,19 @@ class Invoice extends QUI\QDOM
             array(
                 'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
                 'customer_id'             => $currentData['customer_id'],
-                'invoice_address_id'      => '',
+                'invoice_address_id'      => $currentData['invoice_address_id'],
                 'invoice_address'         => $currentData['invoice_address'],
-                'delivery_address_id'     => '',
+                'delivery_address_id'     => $currentData['delivery_address_id'],
                 'delivery_address'        => $currentData['delivery_address'],
                 'order_id'                => $currentData['order_id'],
                 'project_name'            => $currentData['project_name'],
                 'payment_method'          => $currentData['payment_method'],
                 'payment_data'            => '',
-                'payment_time'            => '',
-                'time_for_payment'        => '',
+                'payment_time'            => $currentData['payment_time'],
+                'time_for_payment'        => 0,
                 'paid_status'             => self::PAYMENT_STATUS_OPEN,
-                'paid_date'               => '',
-                'paid_data'               => '',
+                'paid_date'               => null,
+                'paid_data'               => null,
                 'date'                    => $currentData['date'],
                 'data'                    => $currentData['data'],
                 'additional_invoice_text' => $currentData['additional_invoice_text'],
@@ -487,7 +487,7 @@ class Invoice extends QUI\QDOM
                 'subsum'                  => $currentData['subsum'],
                 'sum'                     => $currentData['sum'],
                 'vat_array'               => $currentData['vat_array'],
-                'processing_status'       => ''
+                'processing_status'       => null
             ),
             array('id' => $New->getCleanId())
         );

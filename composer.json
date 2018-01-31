@@ -22,6 +22,7 @@
     "quiqqer\/erp": "1.*|dev-master|dev-dev",
     "quiqqer\/payments": "dev-dev",
     "quiqqer\/invoice-accounting-template": "dev-master|dev-dev",
+    "quiqqer/payment-transactions": "*",
     "ramsey/uuid": "3.*"
   },
   "autoload": {
