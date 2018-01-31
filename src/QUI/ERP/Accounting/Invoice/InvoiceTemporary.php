@@ -65,7 +65,9 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @param $id
      * @param Handler $Handler
+     *
      * @throws Exception
+     * @throws QUI\ERP\Exception
      */
     public function __construct($id, Handler $Handler)
     {
@@ -238,6 +240,8 @@ class InvoiceTemporary extends QUI\QDOM
      * Return a invoice view
      *
      * @return InvoiceView
+     *
+     * @throws Exception
      */
     public function getView()
     {
@@ -256,7 +260,9 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @param string|integer $type
      * @param QUI\Interfaces\Users\User|null $PermissionUser - optional
+     *
      * @throws QUI\Permissions\Exception
+     * @throws QUI\Exception
      */
     public function setInvoiceType($type, $PermissionUser = null)
     {
@@ -509,6 +515,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @return InvoiceTemporary
      *
      * @throws QUI\Permissions\Exception
+     * @throws QUI\Exception
      * @throws Exception
      */
     public function copy($PermissionUser = null)
@@ -962,6 +969,7 @@ class InvoiceTemporary extends QUI\QDOM
      * Add a history entry
      *
      * @param string $message
+     * @throws QUI\Exception
      */
     public function addHistory($message)
     {

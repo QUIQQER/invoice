@@ -20,6 +20,8 @@ class OrderProcessProvider extends AbstractOrderProcessProvider
     /**
      * @param OrderProcessSteps $OrderProcessSteps
      * @param OrderProcess $Order
+     *
+     * @throws \QUI\ERP\Order\Exception
      */
     public function initSteps(OrderProcessSteps $OrderProcessSteps, OrderProcess $Order)
     {

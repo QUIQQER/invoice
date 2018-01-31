@@ -319,7 +319,9 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param string $id
      * @return array
+     *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function getInvoiceData($id)
     {
@@ -362,6 +364,7 @@ class Handler extends QUI\Utils\Singleton
      * @return InvoiceTemporary
      *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function getTemporaryInvoice($id)
     {
@@ -373,7 +376,9 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param string $id
      * @return array
+     *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function getTemporaryInvoiceData($id)
     {

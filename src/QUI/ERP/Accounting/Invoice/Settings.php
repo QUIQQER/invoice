@@ -30,6 +30,8 @@ class Settings extends Singleton
      * eq: PREFIX-10022 (default = INV-)
      *
      * @return string
+     *
+     * @throws QUI\Exception
      */
     public function getInvoicePrefix()
     {
@@ -55,6 +57,8 @@ class Settings extends Singleton
      * eq: PREFIX-10022 (default = EDIT-)
      *
      * @return string
+     *
+     * @throws QUI\Exception
      */
     public function getTemporaryInvoicePrefix()
     {
@@ -79,6 +83,8 @@ class Settings extends Singleton
      * Return all available invoice templates
      *
      * @return array
+     *
+     * @throws QUI\Exception
      */
     public function getAvailableTemplates()
     {
@@ -110,6 +116,8 @@ class Settings extends Singleton
      * Return the default invoice template
      *
      * @return string
+     *
+     * @throws QUI\Exception
      */
     public function getDefaultTemplate()
     {

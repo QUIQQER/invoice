@@ -126,6 +126,8 @@ class Invoice extends QUI\QDOM
      * Return the invoice view
      *
      * @return InvoiceView
+     *
+     * @throws Exception
      */
     public function getView()
     {
@@ -136,6 +138,8 @@ class Invoice extends QUI\QDOM
      * Return the unique article list
      *
      * @return ArticleListUnique
+     *
+     * @throws QUI\ERP\Exception
      */
     public function getArticles()
     {
@@ -176,6 +180,8 @@ class Invoice extends QUI\QDOM
 
     /**
      * @return QUI\ERP\User
+     *
+     * @throws QUI\ERP\Exception
      */
     public function getCustomer()
     {
@@ -208,6 +214,8 @@ class Invoice extends QUI\QDOM
 
     /**
      * @return QUI\ERP\User
+     *
+     * @throws QUI\ERP\Exception
      */
     public function getEditor()
     {
@@ -950,6 +958,8 @@ class Invoice extends QUI\QDOM
      * Add a comment to the history
      *
      * @param string $comment
+     *
+     * @throws QUI\Exception
      */
     public function addHistory($comment)
     {

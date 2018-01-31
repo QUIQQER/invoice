@@ -43,6 +43,7 @@ class Template
      * @param InvoiceTemporary|Invoice $Invoice
      *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function __construct(Package $Template, $Invoice)
     {
@@ -64,8 +65,8 @@ class Template
      */
     public function render()
     {
-        return $this->getHTMLHeader() .
-               $this->getHTMLBody() .
+        return $this->getHTMLHeader().
+               $this->getHTMLBody().
                $this->getHTMLFooter();
     }
 
@@ -78,7 +79,7 @@ class Template
     {
         $output = '';
         $output .= '<style>';
-        $output .= file_get_contents(dirname(__FILE__) . '/Template.Preview.css');
+        $output .= file_get_contents(dirname(__FILE__).'/Template.Preview.css');
         $output .= '</style>';
         $output .= $this->render();
 
@@ -97,6 +98,7 @@ class Template
 
     /**
      * Return the properly template
+     *
      * @return string
      */
     protected function getTemplateType()
@@ -151,8 +153,8 @@ class Template
     protected function getTemplate($template)
     {
         // main folder
-        $htmlFile = $this->getFile($template . '.html');
-        $cssFile  = $this->getFile($template . '.css');
+        $htmlFile = $this->getFile($template.'.html');
+        $cssFile  = $this->getFile($template.'.css');
 
         $Output = new QUI\Output();
         $Output->setSetting('use-system-image-paths', true);
@@ -160,7 +162,7 @@ class Template
         $output = '';
 
         if (file_exists($cssFile)) {
-            $output .= '<style>' . file_get_contents($cssFile) . '</style>';
+            $output .= '<style>'.file_get_contents($cssFile).'</style>';
         }
 
         if (file_exists($htmlFile)) {
@@ -176,35 +178,35 @@ class Template
      *
      * @param $wanted
      * @return string
-     * @throws QUI\ERP\Exception
      */
     public function getFile($wanted)
     {
         $package = $this->Template->getName();
-        $usrPath = USR_DIR . $package . '/template/';
+        $usrPath = USR_DIR.$package.'/template/';
         $type    = $this->getTemplateType();
 
-        if (file_exists($usrPath . $type . '/' . $wanted)) {
-            return $usrPath . $type . '/' . $wanted;
+        if (file_exists($usrPath.$type.'/'.$wanted)) {
+            return $usrPath.$type.'/'.$wanted;
         }
 
-        if (file_exists($usrPath . $wanted)) {
-            return $usrPath . $wanted;
-        }
-
-
-        $optPath = OPT_DIR . $package . '/template/';
-
-        if (file_exists($optPath . $type . '/' . $wanted)) {
-            return $optPath . $type . '/' . $wanted;
-        }
-
-        if (file_exists($optPath . $wanted)) {
-            return $optPath . $wanted;
+        if (file_exists($usrPath.$wanted)) {
+            return $usrPath.$wanted;
         }
 
 
-        QUI\System\Log::addWarning('File not found in ERP Template ' . $wanted);
+        $optPath = OPT_DIR.$package.'/template/';
+
+        if (file_exists($optPath.$type.'/'.$wanted)) {
+            return $optPath.$type.'/'.$wanted;
+        }
+
+        if (file_exists($optPath.$wanted)) {
+            return $optPath.$wanted;
+        }
+
+
+        QUI\System\Log::addWarning('File not found in ERP Template '.$wanted);
+
         return '';
     }
 
