@@ -260,11 +260,17 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
 
     /**
      * Edit an address
+     *
+     * @param array $data - address data
      */
-    protected function editAddress()
+    public function editAddress($data = array())
     {
         if (!isset($_REQUEST['addressId']) || !isset($_REQUEST['editSave'])) {
             return;
+        }
+
+        if (empty($data)) {
+            $data = $_REQUEST;
         }
 
         $User    = QUI::getUserBySession();
@@ -282,8 +288,8 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
         );
 
         foreach ($fields as $field) {
-            if (isset($_REQUEST[$field])) {
-                $Address->setAttribute($field, $_REQUEST[$field]);
+            if (isset($data[$field])) {
+                $Address->setAttribute($field, $data[$field]);
             }
         }
 

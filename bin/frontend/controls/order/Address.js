@@ -27,7 +27,8 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
             '$addClick',
             '$openContainer',
             '$closeContainer',
-            '$clickCreateSubmit'
+            '$clickCreateSubmit',
+            '$clickEditSave'
         ],
 
         initialize: function (options) {
@@ -138,6 +139,7 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
         },
 
         /**
+         * click event - address creation
          *
          * @param {DOMEvent} event
          */
@@ -196,6 +198,8 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
                 Target = Target.getParent('.quiqqer-order-step-address-list-entry');
             }
 
+            var Address = Target;
+
             // open delete dialog
             this.$openContainer(Target).then(function (Container) {
                 Container.addClass(
@@ -232,7 +236,20 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
                             ).then(function () {
                                 return self.$closeContainer(Container);
                             }).then(function () {
-                                self.refresh();
+                                Address.setStyles({
+                                    overflow: 'hidden',
+                                    height  : Address.getSize().y
+                                });
+
+                                moofx(Address).animate({
+                                    height : 0,
+                                    opacity: 0
+                                }, {
+                                    duration: 250,
+                                    callback: function () {
+                                        self.refresh();
+                                    }
+                                });
                             }).catch(function () {
                                 self.$closeContainer(Container);
                                 self.Loader.hide();
@@ -270,13 +287,78 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
         $editClick: function (event) {
             event.stop();
 
-            var Target = event.event.target;
+            var self   = this,
+                Target = event.target;
 
             if (Target.nodeName !== 'button') {
                 Target = Target.getParent('button');
             }
 
-            console.warn(Target);
+            var addressId = Target.getParent('.quiqqer-order-step-address-list-entry')
+                                  .getElement('[name="address_invoice"]').value;
+
+            this.$openContainer(this.getElm()).then(function (Container) {
+                return self.getEditTemplate(addressId).then(function (result) {
+                    Container.addClass(
+                        'quiqqer-order-step-address-container-edit'
+                    );
+
+                    var Content = Container.getElement(
+                        '.quiqqer-order-step-address-container-content'
+                    );
+
+                    new Element('form', {
+                        'class': 'quiqqer-order-step-address-container-edit-message',
+                        html   : result
+                    }).inject(Content);
+
+                    Content.getElement('[name="editSave"]').addEvent('click', self.$clickEditSave);
+                });
+            });
+        },
+
+        /**
+         * event : click -> save the address edit
+         *
+         * @param {DOMEvent} event
+         */
+        $clickEditSave: function (event) {
+            event.stop();
+
+            var self      = this,
+                Target    = event.target,
+                Container = Target.getParent('.quiqqer-order-step-address-container'),
+                Form      = Container.getElement('form');
+
+            this.Loader.show();
+
+            require(['qui/utils/Form'], function (FormUtils) {
+                var formData = FormUtils.getFormData(Form);
+console.warn(formData);
+                QUIAjax.post('package_quiqqer_invoice_ajax_frontend_address_edit', function () {
+                    self.$closeContainer(Container);
+                    self.refresh();
+                }, {
+                    'package': 'quiqqer/invoice',
+                    data     : JSON.encode(formData),
+                    addressId: formData.addressId
+                });
+            });
+        },
+
+        /**
+         * Return the address create template
+         *
+         * @return {Promise}
+         */
+        getEditTemplate: function (addressId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_frontend_address_getEdit', resolve, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject,
+                    addressId: addressId
+                });
+            });
         },
 
         //endregion
