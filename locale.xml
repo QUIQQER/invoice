@@ -861,6 +861,11 @@
             <de><![CDATA[Senden]]></de>
             <en><![CDATA[Send]]></en>
         </locale>
+
+        <locale name="dialog.order.delete.invoiceAddress">
+            <de><![CDATA[Möchten Sie die Adresse wirklich löschen?]]></de>
+            <en><![CDATA[Do you really want to delete the address?]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">

@@ -1,4 +1,6 @@
-<section class="quiqqer-order-step-address">
+<section class="quiqqer-order-step-address"
+         data-qui="package/quiqqer/invoice/bin/frontend/controls/order/Address"
+>
     <header>
         <h1>{locale group="quiqqer/order" var="ordering.step.title.Address"}</h1>
     </header>
@@ -27,7 +29,7 @@
                     <input type="radio"
                            name="address_invoice"
                            value="{$Address->getId()}"
-                           {if $selectedAddressId == $Address->getId()}checked="checked"{/if}
+                           {if $selectedAddressId== $Address->getId()}checked="checked"{/if}
                     >
                 </label>
             </header>

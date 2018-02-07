@@ -48,6 +48,7 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
 
     /**
      * @return string
+     * @throws QUI\Exception
      */
     public function getBody()
     {
@@ -154,6 +155,7 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
      * Return the body for a address edit
      *
      * @return string
+     * @throws QUI\Exception
      */
     protected function getBodyForEdit()
     {
@@ -174,6 +176,7 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
      * Return the body for a address deletion
      *
      * @return string
+     * @throws QUI\Exception
      */
     protected function getBodyForDelete()
     {
@@ -193,6 +196,7 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
      * Return the body for a address creation
      *
      * @return string
+     * @throws QUI\Exception
      */
     protected function getBodyForCreate()
     {
@@ -282,6 +286,8 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
 
     /**
      * Delete an address
+     *
+     * @throws QUI\Exception
      */
     protected function delete()
     {
@@ -343,6 +349,9 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
 
     /**
      * Saves the selected address to the order
+     *
+     * @throws QUI\Permissions\Exception
+     * @throws QUI\Exception
      */
     public function save()
     {

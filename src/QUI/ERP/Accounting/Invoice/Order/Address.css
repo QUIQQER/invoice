@@ -23,6 +23,37 @@
     font-size: 14px;
 }
 
+/** container
+ ================================================== */
+
+.quiqqer-order-step-address-container {
+    background: #fff;
+    border: 1px solid #dedede;
+    height: 100%;
+    left: -50px;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.quiqqer-order-step-address-container-close {
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 40px;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    width: 40px;
+}
+
+.quiqqer-order-step-address-container-content {
+    float: left;
+    margin-top: 40px;
+    width: 100%;
+}
+
 /** Rechnungsadresse
  ================================================== */
 
@@ -64,16 +95,10 @@
     text-align: right;
 }
 
-.quiqqer-order-step-address-list-entry-buttons button {
-    font-size: 12px !important;
-    padding: 0 10px !important;
-}
-
 /** Rechnungsadresse
  ================================================== */
 
 .quiqqer-order-step-address-edit {
-    margin: 0 auto;
     max-width: 600px;
     width: 100%;
 }
@@ -107,7 +132,7 @@
     font-size: 14px !important;
 }
 
-/** Rechnungsadresse
+/** Rechnungsadresse löschen
  ================================================== */
 
 .quiqqer-order-step-address-delete {
@@ -123,4 +148,15 @@
 
 .quiqqer-order-step-address-delete-container address {
     margin: 20px auto;
+}
+
+/** Rechnungsadresse löschen - js
+ ================================================== */
+
+.quiqqer-order-step-address-container-delete {
+    text-align: center;
+}
+
+.quiqqer-order-step-address-container-delete-message {
+    margin-bottom: 20px;
 }
