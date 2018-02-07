@@ -5,10 +5,11 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
 
     'qui/QUI',
     'qui/controls/Control',
+    'qui/controls/loader/Loader',
     'Locale',
     'Ajax'
 
-], function (QUI, QUIControl, QUILocale, QUIAjax) {
+], function (QUI, QUIControl, QUILoader, QUILocale, QUIAjax) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -25,11 +26,14 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
             '$deleteClick',
             '$addClick',
             '$openContainer',
-            '$closeContainer'
+            '$closeContainer',
+            '$clickCreateSubmit'
         ],
 
         initialize: function (options) {
             this.parent(options);
+
+            this.Loader = new QUILoader();
 
             this.addEvents({
                 onImport: this.$onImport
@@ -50,13 +54,38 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
             this.getElm().getElements('[name="create"]').addEvent('click', this.$addClick);
             this.getElm().getElements('[name="delete"]').addEvent('click', this.$deleteClick);
             this.getElm().getElements('[name="edit"]').addEvent('click', this.$editClick);
+
+            this.Loader.inject(this.getElm());
         },
 
         /**
          * Refresh the display
          */
         refresh: function () {
+            var self = this;
 
+            this.Loader.show();
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_frontend_address_get', function (result) {
+                    var Ghost = new Element('div', {
+                        html: result
+                    });
+
+                    self.getElm().set(
+                        'html',
+                        Ghost.getElement('.quiqqer-order-step-address').get('html')
+                    );
+
+                    self.$onImport();
+                    self.Loader.hide();
+                    resolve();
+                }, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject,
+                    orderId  : self.getElm().get('data-orderid')
+                });
+            });
         },
 
         /**
@@ -78,9 +107,75 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
 
         //region add
 
+        /**
+         * event click - create address
+         *
+         * @param event
+         */
         $addClick: function (event) {
             event.stop();
 
+            var self = this;
+
+            // open delete dialog
+            this.$openContainer(this.getElm()).then(function (Container) {
+                return self.getCreateTemplate().then(function (result) {
+                    var Content = Container.getElement('.quiqqer-order-step-address-container-content');
+
+                    new Element('form', {
+                        'class': 'quiqqer-order-step-address-container-create',
+                        html   : result,
+                        events : {
+                            submit: function (event) {
+                                event.stop();
+                            }
+                        }
+                    }).inject(Content);
+
+                    Content.getElement('[type="submit"]').addEvent('click', self.$clickCreateSubmit);
+                });
+            });
+        },
+
+        /**
+         *
+         * @param {DOMEvent} event
+         */
+        $clickCreateSubmit: function (event) {
+            event.stop();
+
+            var self      = this,
+                Target    = event.target,
+                Container = Target.getParent('.quiqqer-order-step-address-container'),
+                Form      = Container.getElement('form');
+
+            this.Loader.show();
+
+            require(['qui/utils/Form'], function (FormUtils) {
+                var formData = FormUtils.getFormData(Form);
+
+                QUIAjax.post('package_quiqqer_invoice_ajax_frontend_address_create', function () {
+                    self.$closeContainer(Container);
+                    self.refresh();
+                }, {
+                    'package': 'quiqqer/invoice',
+                    data     : JSON.encode(formData)
+                });
+            });
+        },
+
+        /**
+         * Return the address create template
+         *
+         * @return {Promise}
+         */
+        getCreateTemplate: function () {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_frontend_address_getCreate', resolve, {
+                    'package': 'quiqqer/invoice',
+                    onError  : reject
+                });
+            });
         },
 
         //region
@@ -107,10 +202,12 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
                     'quiqqer-order-step-address-container-delete'
                 );
 
+                var Content = Container.getElement('.quiqqer-order-step-address-container-content');
+
                 new Element('div', {
                     'class': 'quiqqer-order-step-address-container-delete-message',
                     html   : QUILocale.get(lg, 'dialog.order.delete.invoiceAddress')
-                }).inject(Container);
+                }).inject(Content);
 
                 new Element('button', {
                     'class': 'quiqqer-order-step-address-container-delete-button',
@@ -127,6 +224,8 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
                             Target.setStyle('width', Target.getSize().x);
                             Target.set('html', '<span class="fa fa-spinner fa-spin"></span>');
 
+                            self.Loader.show();
+
                             self.deleteAddress(
                                 Target.getParent('.quiqqer-order-step-address-list-entry')
                                       .getElement('[name="address_invoice"]').value
@@ -136,10 +235,11 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
                                 self.refresh();
                             }).catch(function () {
                                 self.$closeContainer(Container);
+                                self.Loader.hide();
                             });
                         }
                     }
-                }).inject(Container);
+                }).inject(Content);
             });
         },
 

@@ -221,11 +221,17 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
 
     /**
      * Create a new address for the user
+     *
+     * @param array $data - address data
      */
-    protected function createAddress()
+    public function createAddress($data = array())
     {
         if (!isset($_REQUEST['createSave'])) {
             return;
+        }
+
+        if (empty($data)) {
+            $data = $_REQUEST;
         }
 
         /* @var $User QUI\Users\User */
@@ -244,8 +250,8 @@ class Address extends QUI\ERP\Order\Controls\AbstractOrderingStep
         );
 
         foreach ($fields as $field) {
-            if (isset($_REQUEST[$field])) {
-                $Address->setAttribute($field, $_REQUEST[$field]);
+            if (isset($data[$field])) {
+                $Address->setAttribute($field, $data[$field]);
             }
         }
 

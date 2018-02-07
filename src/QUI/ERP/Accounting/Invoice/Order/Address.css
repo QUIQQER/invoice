@@ -1,3 +1,8 @@
+.quiqqer-order-step-address {
+    float: left;
+    width: 100%;
+}
+
 .quiqqer-order-step-address-description {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     float: left;
@@ -50,7 +55,9 @@
 
 .quiqqer-order-step-address-container-content {
     float: left;
+    height: calc(100% - 40px);
     margin-top: 40px;
+    overflow: auto;
     width: 100%;
 }
 
@@ -159,4 +166,12 @@
 
 .quiqqer-order-step-address-container-delete-message {
     margin-bottom: 20px;
+}
+
+/** Rechnungsadresse erstellen
+ ================================================== */
+
+.quiqqer-order-step-address-container-create {
+    float: left;
+    padding: 20px;
 }
