@@ -68,6 +68,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @throws Exception
      * @throws QUI\ERP\Exception
+     * @throws QUI\Exception
      */
     public function __construct($id, Handler $Handler)
     {

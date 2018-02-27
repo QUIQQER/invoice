@@ -399,6 +399,12 @@ class Handler extends QUI\Utils\Singleton
             );
         }
 
+        $canceled = null;
+
+        if (isset($result[0]['canceled'])) {
+            $canceled = (int)$result[0]['canceled'];
+        }
+
         $result[0]['id']                 = (int)$result[0]['id'];
         $result[0]['customer_id']        = (int)$result[0]['customer_id'];
         $result[0]['order_id']           = (int)$result[0]['order_id'];
@@ -407,7 +413,7 @@ class Handler extends QUI\Utils\Singleton
         $result[0]['paid_status']        = (int)$result[0]['paid_status'];
         $result[0]['processing_status']  = (int)$result[0]['processing_status'];
         $result[0]['time_for_payment']   = (int)$result[0]['time_for_payment'];
-        $result[0]['canceled']           = (int)$result[0]['canceled'];
+        $result[0]['canceled']           = $canceled;
         $result[0]['c_user']             = (int)$result[0]['c_user'];
 
         $result[0]['nettosum'] = (float)$result[0]['nettosum'];

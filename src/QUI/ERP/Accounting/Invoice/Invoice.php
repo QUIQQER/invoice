@@ -67,6 +67,7 @@ class Invoice extends QUI\QDOM
      * @param Handler $Handler
      *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function __construct($id, Handler $Handler)
     {
