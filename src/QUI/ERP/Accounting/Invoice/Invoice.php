@@ -73,9 +73,14 @@ class Invoice extends QUI\QDOM
     {
         $this->setAttributes($Handler->getInvoiceData($id));
 
-        $this->prefix = Settings::getInstance()->getInvoicePrefix();
-        $this->id     = (int)str_replace($this->prefix, '', $id);
-        $this->type   = Handler::TYPE_INVOICE;
+        $this->prefix = $this->getAttribute('id_prefix');
+
+        if ($this->prefix === false) {
+            $this->prefix = Settings::getInstance()->getInvoicePrefix();
+        }
+
+        $this->id   = (int)str_replace($this->prefix, '', $id);
+        $this->type = Handler::TYPE_INVOICE;
 
         switch ((int)$this->getAttribute('type')) {
             case Handler::TYPE_INVOICE:
