@@ -34,6 +34,7 @@ class InvoiceView extends QUI\QDOM
             || $Invoice instanceof InvoiceTemporary
         ) {
             $this->Invoice = $Invoice;
+
             return;
         }
 
@@ -56,7 +57,13 @@ class InvoiceView extends QUI\QDOM
      */
     public function previewHTML()
     {
-        return $this->getTemplate()->renderPreview();
+        try {
+            return $this->getTemplate()->renderPreview();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        return '';
     }
 
     /**
@@ -66,13 +73,21 @@ class InvoiceView extends QUI\QDOM
      */
     public function toHTML()
     {
-        return $this->getTemplate()->render();
+        try {
+            return $this->getTemplate()->render();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        return '';
     }
 
     /**
      * Output the invoice as PDF Document
      *
      * @return QUI\HtmlToPdf\Document
+     *
+     * @throws QUI\Exception
      */
     public function toPDF()
     {
@@ -90,7 +105,7 @@ class InvoiceView extends QUI\QDOM
         $date = preg_replace('/[^0-9]/', '_', $date);
         $date = trim($date, '_');
 
-        $fileName = QUI::getLocale()->get('quiqqer/invoice', 'pdf.export.name') . '_';
+        $fileName = QUI::getLocale()->get('quiqqer/invoice', 'pdf.export.name').'_';
         $fileName .= $date;
         $fileName .= '.pdf';
 
@@ -117,6 +132,8 @@ class InvoiceView extends QUI\QDOM
      * Return the template package
      *
      * @return QUI\Package\Package
+     *
+     * @throws QUI\Exception
      */
     protected function getTemplatePackage()
     {
@@ -132,6 +149,9 @@ class InvoiceView extends QUI\QDOM
 
     /**
      * @return Utils\Template
+     *
+     * @throws Exception
+     * @throws QUI\Exception
      */
     protected function getTemplate()
     {
