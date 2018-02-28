@@ -58,7 +58,12 @@ class Invoice extends QUI\QDOM
     /**
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
+
+    /**
+     * @var array
+     */
+    protected $paymentData = [];
 
     /**
      * Invoice constructor.
@@ -93,6 +98,16 @@ class Invoice extends QUI\QDOM
 
         if ($this->getAttribute('data')) {
             $this->data = json_decode($this->getAttribute('data'), true);
+        }
+
+        // invoice payment data
+        if ($this->getAttribute('data')) {
+            $paymentData = QUI\Security\Encryption::decrypt($this->getAttribute('data'));
+            $paymentData = json_decode($paymentData, true);
+
+            if (is_array($paymentData)) {
+                $this->paymentData = $paymentData;
+            }
         }
     }
 

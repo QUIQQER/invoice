@@ -38,12 +38,17 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * @var array
      */
-    protected $articles = array();
+    protected $paymentData = [];
+
+    /**
+     * @var array
+     */
+    protected $articles = [];
 
     /**
      * @var ArticleList
@@ -110,6 +115,13 @@ class InvoiceTemporary extends QUI\QDOM
             $this->data = array();
         }
 
+        // invoice payment data
+        $paymentData = QUI\Security\Encryption::decrypt($data['payment_data']);
+        $paymentData = json_decode($paymentData, true);
+
+        if (is_array($paymentData)) {
+            $this->paymentData = $paymentData;
+        }
 
         // invoice type
         $this->type = Handler::TYPE_INVOICE_TEMPORARY;
@@ -298,7 +310,8 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     /**
-     * Save the current temporary invoice data to the database
+     * Alias for update
+     * (Save the current temporary invoice data to the database)
      *
      * @param QUI\Interfaces\Users\User|null $PermissionUser
      *
@@ -307,6 +320,20 @@ class InvoiceTemporary extends QUI\QDOM
      * @throws QUI\Exception
      */
     public function save($PermissionUser = null)
+    {
+        $this->update($PermissionUser);
+    }
+
+    /**
+     * Save the current temporary invoice data to the database
+     *
+     * @param QUI\Interfaces\Users\User|null $PermissionUser
+     *
+     * @throws QUI\Permissions\Exception
+     * @throws QUI\Lock\Exception
+     * @throws QUI\Exception
+     */
+    public function update($PermissionUser = null)
     {
         QUI\Permissions\Permission::checkPermission(
             'quiqqer.invoice.temporary.edit',
@@ -431,7 +458,7 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // payments
                 'payment_method'          => $paymentMethod,
-                'payment_data'            => null,
+                'payment_data'            => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
                 'payment_time'            => null,
 
                 // address
@@ -728,7 +755,7 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // payments
                 'payment_method'          => $this->getAttribute('payment_method'),
-                'payment_data'            => '', // <!-- muss verschlüsselt sein -->
+                'payment_data'            => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
                 'payment_time'            => null,
                 'time_for_payment'        => $timeForPayment,
 

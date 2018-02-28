@@ -280,6 +280,7 @@ class Handler extends QUI\Utils\Singleton
      * @return Invoice
      *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function getInvoice($id)
     {
@@ -291,7 +292,9 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param string $hash - Hash of the Invoice
      * @return Invoice
+     *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function getInvoiceByHash($hash)
     {

@@ -1014,4 +1014,15 @@
             <en><![CDATA[Invoice text]]></en>
         </locale>
     </groups>
+
+    <groups name="quiqqer/frontend-users">
+        <locale name="profile.data.title" priority="2">
+            <de><![CDATA[Kundendaten]]></de>
+            <en><![CDATA[customer data]]></en>
+        </locale>
+        <locale name="profile.userdata.title" priority="2">
+            <de><![CDATA[Kundendaten]]></de>
+            <en><![CDATA[customer data]]></en>
+        </locale>
+    </groups>
 </locales>
