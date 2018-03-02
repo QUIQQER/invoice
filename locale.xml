@@ -1006,6 +1006,15 @@
             <de><![CDATA[Erledigt]]></de>
             <en><![CDATA[Done]]></en>
         </locale>
+
+        <locale name="user.profile.invoice.address.title">
+            <de><![CDATA[Rechnungsadresse]]></de>
+            <en><![CDATA[Invoice address]]></en>
+        </locale>
+        <locale name="user.profile.invoice.address.description">
+            <de><![CDATA[Wählen Sie bitte hier Ihre standard Rechnungs addresse aus.]]></de>
+            <en><![CDATA[Please select your standard invoice address.]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/products">

@@ -6,4 +6,10 @@
     <event on="onTransactionCreate"
            fire="\QUI\ERP\Accounting\Invoice\EventHandler::onTransactionCreate"
     />
+
+    <event on="onQuiqqer::frontend-users::user-address-top"
+           fire="\QUI\ERP\Accounting\Invoice\EventHandler::onFrontendUsersAddressTop"
+    />
+
+    <event on="onUserSaveBegin" fire="\QUI\ERP\Accounting\Invoice\EventHandler::onUserSaveBegin"/>
 </events>

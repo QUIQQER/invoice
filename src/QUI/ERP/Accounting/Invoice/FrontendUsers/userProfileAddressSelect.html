@@ -1,0 +1,20 @@
+<section class="quiqqer-frontendUsers-userdata-section quiqqer-frontendUsers-userdata-invoiceaddress">
+    <header>
+        <h2>{locale group="quiqqer/invoice" var="user.profile.invoice.address.title"}</h2>
+    </header>
+    <div class="quiqqer-frontendUsers-userdata-invoiceaddress-description">
+        {locale group="quiqqer/invoice" var="user.profile.invoice.address.description"}
+    </div>
+    <label>
+        <select name="quiqqer-frontendUsers-userdata-invoice-address">
+            {foreach $addresses as $Address}
+            <option value="{$Address->getId()}" {if $current == $Address->getId()}selected{/if}>
+                {$Address->getText()}
+            </option>
+            {/foreach}
+        </select>
+        <button type="submit">
+            {locale group='quiqqer/system' var='save'}
+        </button>
+    </label>
+</section>

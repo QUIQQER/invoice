@@ -12,6 +12,7 @@ use QUI\ERP\Accounting\Invoice\ProcessingStatus;
 use QUI\ERP\Products\Handler\Fields;
 use QUI\ERP\Products\Handler\Search;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use Quiqqer\Engine\Collector;
 
 /**
  * Class EventHandler
@@ -112,6 +113,7 @@ class EventHandler
     }
 
     /**
+     * event: on transaction create
      *
      * @param Transaction $Transaction
      */
@@ -121,14 +123,83 @@ class EventHandler
 
         try {
             $Invoice = Handler::getInstance()->getInvoiceByHash($hash);
-        } catch (Exception $Exception) {
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+
             return;
         }
 
         try {
             $Invoice->addTransaction($Transaction);
-        } catch (Exception $Exception) {
-            QUI\System\Log::writeException($Exception);
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+    }
+
+    /**
+     * template event: on frontend users address top
+     *
+     * @param Collector $Collector
+     * @param QUI\Users\User $User
+     */
+    public static function onFrontendUsersAddressTop(Collector $Collector, QUI\Users\User $User)
+    {
+        try {
+            $Engine = QUI::getTemplateManager()->getEngine();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+
+            return;
+        }
+
+        $current = '';
+
+        if ($User->getAttribute('quiqqer.erp.address')) {
+            $current = $User->getAttribute('quiqqer.erp.address');
+        }
+
+        $Engine->assign([
+            'addresses' => $User->getAddressList(),
+            'current'   => $current
+        ]);
+
+        $result = '';
+        $result .= '<style>';
+        $result .= file_get_contents(dirname(__FILE__).'/FrontendUsers/userProfileAddressSelect.css');
+        $result .= '</style>';
+        $result .= $Engine->fetch(dirname(__FILE__).'/FrontendUsers/userProfileAddressSelect.html');
+
+        $Collector->append($result);
+    }
+
+    /**
+     * @param QUI\Users\User $User
+     * @throws QUi\Exception
+     */
+    public static function onUserSaveBegin(QUI\Users\User $User)
+    {
+        $Package = QUI::getPackage('quiqqer/frontend-users');
+        $Config  = $Package->getConfig();
+
+        if (!$Config->get('userProfile', 'useAddressManagement')) {
+            return;
+        }
+
+        $Request   = QUI::getRequest();
+        $addressId = $Request->get('quiqqer-frontendUsers-userdata-invoice-address');
+
+        if (!$addressId) {
+            return;
+        }
+
+        // quiqqer.erp.address
+
+        // look if the address is an address of the user
+        try {
+            $User->getAddress($addressId);
+            $User->setAttribute('quiqqer.erp.address', $addressId);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
         }
     }
 }
