@@ -36,10 +36,10 @@ class Status
         $list = Handler::getInstance()->getList();
 
         if (!isset($list[$id])) {
-            throw new Exception(array(
+            throw new Exception([
                 'quiqqer/invoice',
                 'exception.processingStatus.not.found'
-            ));
+            ]);
         }
 
         $this->id    = (int)$id;
@@ -70,7 +70,7 @@ class Status
             $Locale = QUI::getLocale();
         }
 
-        return $Locale->get('quiqqer/invoice', 'processing.status.' . $this->id);
+        return $Locale->get('quiqqer/invoice', 'processing.status.'.$this->id);
     }
 
     /**
@@ -96,7 +96,7 @@ class Status
         $title = $this->getTitle($Locale);
 
         if ($Locale === null) {
-            $title     = array();
+            $title     = [];
             $Locale    = QUI::getLocale();
             $languages = QUI::availableLanguages();
 
@@ -104,15 +104,15 @@ class Status
                 $title[$language] = $Locale->getByLang(
                     $language,
                     'quiqqer/invoice',
-                    'processing.status.' . $this->getId()
+                    'processing.status.'.$this->getId()
                 );
             }
         }
 
-        return array(
+        return [
             'id'    => $this->getId(),
             'title' => $title,
             'color' => $this->getColor()
-        );
+        ];
     }
 }

@@ -45,7 +45,7 @@ class EventHandler
         $languages = QUI::availableLanguages();
 
         $getLocaleTranslations = function ($key) use ($languages) {
-            $result = array();
+            $result = [];
 
             foreach ($languages as $language) {
                 $result[$language] = QUI::getLocale()->getByLang($language, 'quiqqer/invoice', $key);
@@ -87,7 +87,7 @@ class EventHandler
         }
 
         try {
-            Fields::createField(array(
+            Fields::createField([
                 'id'            => Handler::INVOICE_PRODUCT_TEXT_ID,
                 'type'          => 'InputMultiLang',
                 'prefix'        => '',
@@ -98,15 +98,15 @@ class EventHandler
                 'requiredField' => 0,
                 'publicField'   => 0,
                 'search_type'   => Search::SEARCHTYPE_TEXT,
-                'options'       => array(
+                'options'       => [
                     'maxLength' => 255,
                     'minLength' => 3
-                ),
-                'titles'        => array(
+                ],
+                'titles'        => [
                     'de' => 'Rechnungstext',
                     'en' => 'Invoice text'
-                )
-            ));
+                ]
+            ]);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::addAlert($Exception->getMessage());
         }
@@ -196,8 +196,10 @@ class EventHandler
 
         // look if the address is an address of the user
         try {
-            $User->getAddress($addressId);
+            $Address = $User->getAddress($addressId);
+
             $User->setAttribute('quiqqer.erp.address', $addressId);
+            $User->setAttribute('address', $addressId);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }

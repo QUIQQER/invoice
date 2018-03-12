@@ -1,5 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus
+ * @author www.pcsg.de (Henning Leutz)
  */
 define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus', [
 
@@ -70,6 +71,15 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
         },
 
         /**
+         * resize the grid
+         */
+        resize: function () {
+            this.$Grid.setWidth(
+                this.$Elm.getSize().x
+            );
+        },
+
+        /**
          * event: on import
          */
         $onImport: function () {
@@ -80,16 +90,19 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                 width: '100%'
             });
 
+            var w = this.$Elm.getSize().x;
+
             var Container = new Element('div', {
                 styles: {
                     height: 300,
-                    width : '100%'
+                    width : w
                 }
             }).inject(this.$Elm);
 
 
             this.$Grid = new Grid(Container, {
                 height     : 300,
+                width      : w,
                 buttons    : [{
                     name  : 'add',
                     text  : QUILocale.get('quiqqer/system', 'add'),

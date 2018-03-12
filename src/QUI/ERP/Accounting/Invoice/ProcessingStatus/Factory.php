@@ -29,13 +29,13 @@ class Factory extends QUI\Utils\Singleton
     {
         $list = Handler::getInstance()->getList();
         $id   = (int)$id;
-        $data = array();
+        $data = [];
 
         if (isset($list[$id])) {
-            throw new Exception(array(
+            throw new Exception([
                 'quiqqer/invoice',
                 'exception.processStatus.exists'
-            ));
+            ]);
         }
 
         // config
@@ -77,7 +77,12 @@ class Factory extends QUI\Utils\Singleton
     public function getNextId()
     {
         $list = Handler::getInstance()->getList();
-        $max  = max(array_keys($list));
+
+        if (!count($list)) {
+            return 1;
+        }
+
+        $max = max(array_keys($list));
 
         return $max + 1;
     }
