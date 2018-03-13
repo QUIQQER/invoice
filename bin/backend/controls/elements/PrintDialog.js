@@ -1,14 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog
- *
- * @require qui/QUI
- * @require qui/controls/windows/Confirm
- * @require qui/controls/buttons/Select
- * @require Locale
- * @require Mustache
- * @require package/quiqqer/invoice/bin/Invoices
- * @require text!package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog.html
- * @require css!package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog.css
+ * @author www.pcsg.de (Henning Leutz)
  */
 define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 

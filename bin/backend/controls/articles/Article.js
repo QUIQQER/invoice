@@ -1,21 +1,9 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/articles/Article
+ * @author www.pcsg.de (Henning Leutz)
  *
  * Freies Produkt
  * - Dieses Produkt kann vom Benutzer komplett selbst bestimmt werden
- *
- * @require qui/QUI
- * @require qui/controls/Control
- * @require qui/controls/buttons/Button
- * @require qui/controls/windows/Confirm
- * @require package/quiqqer/erp/bin/backend/utils/Discount
- * @require package/quiqqer/erp/bin/backend/utils/Money
- * @require Mustache
- * @require Locale
- * @require Ajax
- * @require Editors
- * @require text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html
- * @require css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css
  *
  * @event onCalc [self]
  * @event onSelect [self]

@@ -1,9 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/classes/ProcessingStatus
- *
- * @require qui/QUI
- * @require qui/classes/DOM
- * @require Ajax
+ * @author www.pcsg.de (Henning Leutz)
  */
 define('package/quiqqer/invoice/bin/backend/classes/ProcessingStatus', [
 

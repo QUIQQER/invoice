@@ -1,12 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter
- *
- * @require qui/QUI
- * @require qui/controls/Control
- * @require qui/controls/buttons/Button
- * @require qui/controls/buttons/Select
- * @require Locale
- * @require css!package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter.css
+ * @author www.pcsg.de (Henning Leutz)
  *
  * @event onChange [self, {Date} from, {Date} to]
  */

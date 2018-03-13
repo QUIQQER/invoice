@@ -1,5 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment
+ * @author www.pcsg.de (Henning Leutz)
  *
  * @event onLoad [self]
  */

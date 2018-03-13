@@ -1,12 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/address/Create
- *
- * @requires qui/QUI
- * @requires qui/controls/Control
- * @requires Mustache
- * @requires Locale
- * @requires Ajax
- * @requires text!package/quiqqer/invoice/bin/backend/controls/address/Create.html
+ * @author www.pcsg.de (Henning Leutz)
  *
  * @event onLoad [self]
  */

@@ -3,7 +3,10 @@
   "type": "quiqqer-module",
   "description": "",
   "version": "dev-dev",
-  "license": "",
+  "license": [
+    "GPL-3.0+",
+    "PCSG QEL-1.0"
+  ],
   "authors": [
     {
       "name": "Henning Leutz",
