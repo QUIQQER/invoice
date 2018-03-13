@@ -22,8 +22,8 @@
 
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
-            <field type="DATETIME NULL">payment_time</field>
-            <field type="DATETIME NULL">time_for_payment</field>
+            <field type="DATETIME NULL DEFAULT NULL">payment_time</field>
+            <field type="DATETIME NULL DEFAULT NULL">time_for_payment</field>
 
             <field type="INT(2) NOT NULL">paid_status</field>
             <field type="INT(11) NULL">paid_date</field>
@@ -69,24 +69,24 @@
         <table name="invoice_temporary">
             <field type="INT NOT NULL">id</field>
             <field type="INT NOT NULL">customer_id</field>
+            <field type="VARCHAR(40) NOT NULL">hash</field>
             <field type="INT(3) NOT NULL">type</field>
 
-            <field type="INT NOT NULL">invoice_address_id</field>
+            <field type="INT NULL">invoice_address_id</field>
             <field type="TEXT NULL">invoice_address</field>
 
-            <field type="INT NOT NULL">delivery_address_id</field>
+            <field type="INT NULL">delivery_address_id</field>
             <field type="TEXT NULL">delivery_address</field>
 
             <field type="INT NULL">order_id</field>
             <field type="INT NULL">ordered_by</field>
-            <field type="VARCHAR(200) NOT NULL">ordered_by_name</field>
+            <field type="VARCHAR(200) NULL">ordered_by_name</field>
 
-            <field type="VARCHAR(40) NOT NULL">hash</field>
             <field type="VARCHAR(250) NULL">project_name</field>
 
-            <field type="VARCHAR(200) NOT NULL">payment_method</field>
+            <field type="VARCHAR(200) NULL">payment_method</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
-            <field type="DATETIME NULL">payment_time</field>
+            <field type="DATETIME NULL DEFAULT NULL">payment_time</field>
             <field type="INT(3) NULL">time_for_payment</field>
 
             <field type="INT(2) NOT NULL">paid_status</field>
@@ -95,24 +95,24 @@
 
             <field type="timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP">date</field>
             <field type="INT(11) NOT NULL">c_user</field>
-            <field type="INT(11) NOT NULL">editor_id</field>
-            <field type="VARCHAR(200) NOT NULL">editor_name</field>
+            <field type="INT(11) NULL">editor_id</field>
+            <field type="VARCHAR(200) NULL">editor_name</field>
             <field type="TEXT NULL">data</field>
             <field type="TEXT NULL">additional_invoice_text</field>
-            <field type="TEXT NOT NULL">articles</field>
+            <field type="TEXT NULL">articles</field>
             <field type="TEXT NULL">history</field>
             <field type="TEXT NULL">comments</field>
             <field type="TEXT NULL">customer_data</field>
-            <field type="FLOAT NOT NULL">isbrutto</field>
-            <field type="TEXT NOT NULL">currency_data</field>
+            <field type="FLOAT NULL">isbrutto</field>
+            <field type="TEXT NULL">currency_data</field>
 
-            <field type="FLOAT NOT NULL">nettosum</field>
-            <field type="FLOAT NOT NULL">nettosubsum</field>
-            <field type="FLOAT NOT NULL">subsum</field>
-            <field type="FLOAT NOT NULL">sum</field>
-            <field type="TEXT NOT NULL">vat_array</field>
+            <field type="FLOAT NULL">nettosum</field>
+            <field type="FLOAT NULL">nettosubsum</field>
+            <field type="FLOAT NULL">subsum</field>
+            <field type="FLOAT NULL">sum</field>
+            <field type="TEXT NULL">vat_array</field>
 
-            <field type="INT(5) NOT NULL">processing_status</field> <!-- variable machen, prozess status verwaltung -->
+            <field type="INT(5) NULL">processing_status</field> <!-- variable machen, prozess status verwaltung -->
 
             <primary>id</primary>
             <index>customer_id</index>

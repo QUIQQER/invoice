@@ -22,20 +22,20 @@ class Factory extends QUI\Utils\Singleton
      * @param string|integer $id - processing ID
      * @param string $color - color of the status
      * @param array $title - title
-     * @throws Exception
+     * @throws Exception|QUI\Exception
      * @todo permissions
      */
     public function createProcessingStatus($id, $color, array $title)
     {
         $list = Handler::getInstance()->getList();
         $id   = (int)$id;
-        $data = array();
+        $data = [];
 
         if (isset($list[$id])) {
-            throw new Exception(array(
+            throw new Exception([
                 'quiqqer/invoice',
                 'exception.processStatus.exists'
-            ));
+            ]);
         }
 
         // config
@@ -62,7 +62,7 @@ class Factory extends QUI\Utils\Singleton
 
         QUI\Translator::addUserVar(
             'quiqqer/invoice',
-            'processing.status.' . $id,
+            'processing.status.'.$id,
             $data
         );
 
@@ -77,7 +77,12 @@ class Factory extends QUI\Utils\Singleton
     public function getNextId()
     {
         $list = Handler::getInstance()->getList();
-        $max  = max(array_keys($list));
+
+        if (!count($list)) {
+            return 1;
+        }
+
+        $max = max(array_keys($list));
 
         return $max + 1;
     }

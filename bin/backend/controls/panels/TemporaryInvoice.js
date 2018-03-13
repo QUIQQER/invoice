@@ -1,26 +1,8 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice
+ * @author www.pcsg.de (Henning Leutz)
  *
  * Edit a Temporary Invoice and created a posted invoice
- *
- * @require qui/QUI
- * @require qui/controls/desktop/Panel
- * @require qui/controls/buttons/Button
- * @require qui/controls/buttons/ButtonMultiple
- * @require qui/controls/buttons/Separator
- * @require qui/controls/windows/Confirm
- * @require qui/utils/Form
- * @require controls/users/address/Select
- * @require package/quiqqer/invoice/bin/Invoices
- * @require package/quiqqer/invoice/bin/backend/controls/articles/Text
- * @require package/quiqqer/payments/bin/backend/Payments
- * @require Locale
- * @require Mustache
- * @require Users
- * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Data.html
- * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Post.html
- * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Missing.html
- * @require css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 

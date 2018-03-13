@@ -278,8 +278,8 @@ define('package/quiqqer/invoice/bin/backend/classes/Sortable', [
 
             var serial = this.lists.map(function (list) {
                 return list.getChildren().map(params.modifier || function (element) {
-                        return element.get('id');
-                    }, this);
+                    return element.get('id');
+                }, this);
             }, this);
 
             var index = params.index;

@@ -812,8 +812,12 @@
             <en><![CDATA[Amount]]></en>
         </locale>
         <locale name="journal.payments.paymentMethod">
-            <de><![CDATA[Bezahlmethoden]]></de>
-            <en><![CDATA[Payment methode]]></en>
+            <de><![CDATA[Bezahlmethode]]></de>
+            <en><![CDATA[Payment method]]></en>
+        </locale>
+        <locale name="journal.payments.txid">
+            <de><![CDATA[TX-ID]]></de>
+            <en><![CDATA[TX ID]]></en>
         </locale>
 
         <locale name="dialog.print.title">
@@ -860,6 +864,11 @@
         <locale name="dialog.print.data.output.email.btn">
             <de><![CDATA[Senden]]></de>
             <en><![CDATA[Send]]></en>
+        </locale>
+
+        <locale name="dialog.order.delete.invoiceAddress">
+            <de><![CDATA[Möchten Sie die Adresse wirklich löschen?]]></de>
+            <en><![CDATA[Do you really want to delete the address?]]></en>
         </locale>
     </groups>
 
@@ -1001,12 +1010,32 @@
             <de><![CDATA[Erledigt]]></de>
             <en><![CDATA[Done]]></en>
         </locale>
+
+        <locale name="user.profile.invoice.address.title">
+            <de><![CDATA[Rechnungsadresse]]></de>
+            <en><![CDATA[Invoice address]]></en>
+        </locale>
+        <locale name="user.profile.invoice.address.description">
+            <de><![CDATA[Wählen Sie bitte hier Ihre standard Rechnungs addresse aus.]]></de>
+            <en><![CDATA[Please select your standard invoice address.]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/products">
         <locale name="products.field.102.title">
             <de><![CDATA[Rechnungstext]]></de>
             <en><![CDATA[Invoice text]]></en>
+        </locale>
+    </groups>
+
+    <groups name="quiqqer/frontend-users">
+        <locale name="profile.data.title" priority="2">
+            <de><![CDATA[Kundendaten]]></de>
+            <en><![CDATA[customer data]]></en>
+        </locale>
+        <locale name="profile.userdata.title" priority="2">
+            <de><![CDATA[Kundendaten]]></de>
+            <en><![CDATA[customer data]]></en>
         </locale>
     </groups>
 </locales>

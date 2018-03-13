@@ -2,7 +2,7 @@
 
 define('QUIQQER_SYSTEM', true);
 
-require dirname(__FILE__, 5) . '/header.php';
+require_once dirname(dirname(dirname(dirname(dirname(__FILE__))))).'/header.php';
 
 $User = QUI::getUserBySession();
 
@@ -25,7 +25,7 @@ try {
     }
 }
 
-$streamFile = URL_OPT_DIR . 'quiqqer/invoice/bin/backend/printStreamInvoice.php?invoiceId=' . $Invoice->getId();
+$streamFile = URL_OPT_DIR.'quiqqer/invoice/bin/backend/printStreamInvoice.php?invoiceId='.$Invoice->getId();
 
 echo '
 <html>
@@ -50,7 +50,7 @@ echo '
     <div class="container">
         <img 
             id="pdfDocument" 
-            src="' . $streamFile . '"  
+            src="'.$streamFile.'"  
             style="max-width: 100%;"
            
         />

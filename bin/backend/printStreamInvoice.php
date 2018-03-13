@@ -2,7 +2,7 @@
 
 define('QUIQQER_SYSTEM', true);
 
-require dirname(__FILE__, 5) . '/header.php';
+require_once dirname(dirname(dirname(dirname(dirname(__FILE__))))).'/header.php';
 
 $User = QUI::getUserBySession();
 

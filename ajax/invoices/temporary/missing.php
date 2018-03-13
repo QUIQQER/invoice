@@ -19,7 +19,7 @@ QUI::$Ajax->registerFunction(
         $Invoice  = $Invoices->getTemporaryInvoice($invoiceId);
 
         $missed = $Invoice->getMissingAttributes();
-        $result = array();
+        $result = [];
 
         foreach ($missed as $missing) {
             $result[$missing] = InvoiceUtils::getMissingAttributeMessage($missing);
@@ -27,6 +27,6 @@ QUI::$Ajax->registerFunction(
 
         return $result;
     },
-    array('invoiceId'),
+    ['invoiceId'],
     'Permission::checkAdminUser'
 );

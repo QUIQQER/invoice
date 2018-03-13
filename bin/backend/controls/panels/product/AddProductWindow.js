@@ -1,8 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWindow
- *
- * @require qui/QUI
- * @require qui/controls/Control
+ * @author www.pcsg.de (Henning Leutz)
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWindow', [
 

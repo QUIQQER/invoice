@@ -1,0 +1,19 @@
+.quiqqer-frontendUsers-userdata-invoiceaddress button {
+    float: left;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 10px;
+    width: 100px;
+}
+
+.quiqqer-frontendUsers-userdata-invoiceaddress select {
+    float: left;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 10px;
+    width: calc(100% - 100px);
+}
+
+.quiqqer-frontendUsers-userdata-invoiceaddress-description {
+    padding-bottom: 10px;
+}

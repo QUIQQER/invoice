@@ -1,16 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData
- *
- * @require qui/QUI
- * @require qui/controls/Control
- * @require qui/controls/buttons/Button
- * @require controls/users/address/Display
- * @require controls/users/search/Window
- * @require Users
- * @require Locale
- * @require Ajax
- * @require Mustache
- * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData.html
+ * @author www.pcsg.de (Henning Leutz)
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData', [
 

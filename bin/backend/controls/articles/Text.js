@@ -1,12 +1,10 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/articles/Text
+ * @author www.pcsg.de (Henning Leutz)
  *
  * Text Produkt
  * - Dieses "Produkt" benhaltet nur text und hat keine Summe oder Preise
  * - Dieses Produkt wird verwendet für Hinweise auf der Rechnung
- *
- * @require qui/QUI
- * @require qui/controls/Control
  */
 define('package/quiqqer/invoice/bin/backend/controls/articles/Text', [
 

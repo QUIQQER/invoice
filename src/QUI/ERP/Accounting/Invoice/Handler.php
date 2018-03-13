@@ -102,6 +102,11 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param string $invoiceId - ID of a temporary Invoice
      * @param QUI\Interfaces\Users\User|null $User
+     *
+     * @throws Exception
+     * @throws QUI\Permissions\Exception
+     * @throws QUI\Lock\Exception
+     * @throws QUI\Exception
      */
     public function delete($invoiceId, $User = null)
     {
@@ -118,12 +123,12 @@ class Handler extends QUI\Utils\Singleton
      * @param array $params - search params
      * @return array
      */
-    public function search($params = array())
+    public function search($params = [])
     {
-        $query = array(
+        $query = [
             'from'  => $this->invoiceTable(),
             'limit' => 20
-        );
+        ];
 
         if (isset($params['select'])) {
             $query['select'] = $params['select'];
@@ -156,15 +161,15 @@ class Handler extends QUI\Utils\Singleton
      * @param array $queryParams - optional
      * @return int
      */
-    public function count($queryParams = array())
+    public function count($queryParams = [])
     {
-        $query = array(
+        $query = [
             'from'  => $this->invoiceTable(),
-            'count' => array(
+            'count' => [
                 'select' => 'id',
                 'as'     => 'count'
-            )
-        );
+            ]
+        ];
 
         if (isset($queryParams['where'])) {
             $query['where'] = $queryParams['where'];
@@ -189,12 +194,12 @@ class Handler extends QUI\Utils\Singleton
      * @param array $params - search params
      * @return array
      */
-    public function searchTemporaryInvoices($params = array())
+    public function searchTemporaryInvoices($params = [])
     {
-        $query = array(
+        $query = [
             'from'  => $this->temporaryInvoiceTable(),
             'limit' => 20
-        );
+        ];
 
         if (isset($params['where'])) {
             $query['where'] = $params['where'];
@@ -221,15 +226,15 @@ class Handler extends QUI\Utils\Singleton
      * @param array $queryParams - optional
      * @return int
      */
-    public function countTemporaryInvoices($queryParams = array())
+    public function countTemporaryInvoices($queryParams = [])
     {
-        $query = array(
+        $query = [
             'from'  => $this->temporaryInvoiceTable(),
-            'count' => array(
+            'count' => [
                 'select' => 'id',
                 'as'     => 'count'
-            )
-        );
+            ]
+        ];
 
         if (isset($queryParams['where'])) {
             $query['where'] = $queryParams['where'];
@@ -255,7 +260,7 @@ class Handler extends QUI\Utils\Singleton
      * @param string $id - ID of the Invoice or InvoiceTemporary
      * @return InvoiceTemporary|Invoice
      *
-     * @throws Exception
+     * @throws QUI\Exception
      */
     public function get($id)
     {
@@ -274,7 +279,8 @@ class Handler extends QUI\Utils\Singleton
      * @param string $id - ID of the Invoice
      * @return Invoice
      *
-     * @throw Exception
+     * @throws Exception
+     * @throws QUI\Exception
      */
     public function getInvoice($id)
     {
@@ -282,27 +288,59 @@ class Handler extends QUI\Utils\Singleton
     }
 
     /**
+     * Return an Invoice by hash
+     *
+     * @param string $hash - Hash of the Invoice
+     * @return Invoice
+     *
+     * @throws Exception
+     * @throws QUI\Exception
+     */
+    public function getInvoiceByHash($hash)
+    {
+        $result = QUI::getDataBase()->fetch([
+            'select' => 'id',
+            'from'   => self::invoiceTable(),
+            'where'  => [
+                'hash' => $hash
+            ],
+            'limit'  => 1
+        ]);
+
+        if (!isset($result[0])) {
+            throw new Exception(
+                ['quiqqer/invoice', 'exception.invoice.not.found'],
+                404
+            );
+        }
+
+        return $this->getInvoice($result[0]['id']);
+    }
+
+    /**
      * Return the data from an invoice
      *
      * @param string $id
      * @return array
+     *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function getInvoiceData($id)
     {
         $prefix = Settings::getInstance()->getInvoicePrefix();
 
-        $result = QUI::getDataBase()->fetch(array(
+        $result = QUI::getDataBase()->fetch([
             'from'  => self::invoiceTable(),
-            'where' => array(
+            'where' => [
                 'id' => (int)str_replace($prefix, '', $id)
-            ),
+            ],
             'limit' => 1
-        ));
+        ]);
 
         if (!isset($result[0])) {
             throw new Exception(
-                array('quiqqer/invoice', 'exception.invoice.not.found'),
+                ['quiqqer/invoice', 'exception.invoice.not.found'],
                 404
             );
         }
@@ -329,6 +367,7 @@ class Handler extends QUI\Utils\Singleton
      * @return InvoiceTemporary
      *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function getTemporaryInvoice($id)
     {
@@ -340,25 +379,33 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param string $id
      * @return array
+     *
      * @throws Exception
+     * @throws QUI\Exception
      */
     public function getTemporaryInvoiceData($id)
     {
         $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
 
-        $result = QUI::getDataBase()->fetch(array(
+        $result = QUI::getDataBase()->fetch([
             'from'  => self::temporaryInvoiceTable(),
-            'where' => array(
+            'where' => [
                 'id' => (int)str_replace($prefix, '', $id)
-            ),
+            ],
             'limit' => 1
-        ));
+        ]);
 
         if (!isset($result[0])) {
             throw new Exception(
-                array('quiqqer/invoice', 'exception.temporary.invoice.not.found'),
+                ['quiqqer/invoice', 'exception.temporary.invoice.not.found'],
                 404
             );
+        }
+
+        $canceled = null;
+
+        if (isset($result[0]['canceled'])) {
+            $canceled = (int)$result[0]['canceled'];
         }
 
         $result[0]['id']                 = (int)$result[0]['id'];
@@ -369,7 +416,7 @@ class Handler extends QUI\Utils\Singleton
         $result[0]['paid_status']        = (int)$result[0]['paid_status'];
         $result[0]['processing_status']  = (int)$result[0]['processing_status'];
         $result[0]['time_for_payment']   = (int)$result[0]['time_for_payment'];
-        $result[0]['canceled']           = (int)$result[0]['canceled'];
+        $result[0]['canceled']           = $canceled;
         $result[0]['c_user']             = (int)$result[0]['c_user'];
 
         $result[0]['nettosum'] = (float)$result[0]['nettosum'];

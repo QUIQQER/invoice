@@ -11,6 +11,7 @@ use QUI\Permissions\Permission;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Accounting\Payments\Api\PaymentsInterface;
 use QUI\ERP\Money\Price;
+use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 
 /**
  * Class Invoice
@@ -57,21 +58,34 @@ class Invoice extends QUI\QDOM
     /**
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
+
+    /**
+     * @var array
+     */
+    protected $paymentData = [];
 
     /**
      * Invoice constructor.
      *
      * @param $id
      * @param Handler $Handler
+     *
+     * @throws Exception
+     * @throws QUI\Exception
      */
     public function __construct($id, Handler $Handler)
     {
         $this->setAttributes($Handler->getInvoiceData($id));
 
-        $this->prefix = Settings::getInstance()->getInvoicePrefix();
-        $this->id     = (int)str_replace($this->prefix, '', $id);
-        $this->type   = Handler::TYPE_INVOICE;
+        $this->prefix = $this->getAttribute('id_prefix');
+
+        if ($this->prefix === false) {
+            $this->prefix = Settings::getInstance()->getInvoicePrefix();
+        }
+
+        $this->id   = (int)str_replace($this->prefix, '', $id);
+        $this->type = Handler::TYPE_INVOICE;
 
         switch ((int)$this->getAttribute('type')) {
             case Handler::TYPE_INVOICE:
@@ -85,6 +99,16 @@ class Invoice extends QUI\QDOM
         if ($this->getAttribute('data')) {
             $this->data = json_decode($this->getAttribute('data'), true);
         }
+
+        // invoice payment data
+        if ($this->getAttribute('data')) {
+            $paymentData = QUI\Security\Encryption::decrypt($this->getAttribute('data'));
+            $paymentData = json_decode($paymentData, true);
+
+            if (is_array($paymentData)) {
+                $this->paymentData = $paymentData;
+            }
+        }
     }
 
     /**
@@ -94,7 +118,18 @@ class Invoice extends QUI\QDOM
      */
     public function getId()
     {
-        return $this->prefix . $this->id;
+        return $this->prefix.$this->id;
+    }
+
+    /**
+     * Return the hash
+     * (Vorgangsnummer)
+     *
+     * @return string
+     */
+    public function getHash()
+    {
+        return $this->getAttribute('hash');
     }
 
     /**
@@ -112,6 +147,8 @@ class Invoice extends QUI\QDOM
      * Return the invoice view
      *
      * @return InvoiceView
+     *
+     * @throws Exception
      */
     public function getView()
     {
@@ -122,6 +159,8 @@ class Invoice extends QUI\QDOM
      * Return the unique article list
      *
      * @return ArticleListUnique
+     *
+     * @throws QUI\ERP\Exception
      */
     public function getArticles()
     {
@@ -138,6 +177,8 @@ class Invoice extends QUI\QDOM
      * Return the invoice currency
      *
      * @return QUI\ERP\Currency\Currency
+     *
+     * @throws
      */
     public function getCurrency()
     {
@@ -160,6 +201,8 @@ class Invoice extends QUI\QDOM
 
     /**
      * @return QUI\ERP\User
+     *
+     * @throws QUI\ERP\Exception
      */
     public function getCustomer()
     {
@@ -192,10 +235,12 @@ class Invoice extends QUI\QDOM
 
     /**
      * @return QUI\ERP\User
+     *
+     * @throws QUI\ERP\Exception
      */
     public function getEditor()
     {
-        return new QUI\ERP\User(array(
+        return new QUI\ERP\User([
             'id'        => '',
             'country'   => '',
             'username'  => '',
@@ -203,7 +248,7 @@ class Invoice extends QUI\QDOM
             'lastname'  => '',
             'lang'      => '',
             'isCompany' => ''
-        ));
+        ]);
     }
 
     /**
@@ -212,17 +257,19 @@ class Invoice extends QUI\QDOM
      * - How many must be paid
      *
      * @return array
+     *
+     * @throws
      */
     public function getPaidStatusInformation()
     {
-        QUI\ERP\Accounting\Calc::calculateInvoicePayments($this);
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
 
-        return array(
+        return [
             'paidData' => $this->getAttribute('paid_data'),
             'paidDate' => $this->getAttribute('paid_date'),
             'paid'     => $this->getAttribute('paid'),
             'toPay'    => $this->getAttribute('toPay')
-        );
+        ];
     }
 
     /**
@@ -247,7 +294,8 @@ class Invoice extends QUI\QDOM
      * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
      * @return int - ID of the new
-     * @throws Exception
+     *
+     * @throws
      */
     public function reversal($reason, $PermissionUser = null)
     {
@@ -261,27 +309,27 @@ class Invoice extends QUI\QDOM
         );
 
         if (empty($reason)) {
-            throw new Exception(array(
+            throw new Exception([
                 'quiqqer/invoice',
                 'exception.missing.reason.in.reversal'
-            ));
+            ]);
         }
 
         // if invoice is parted paid, it could not be canceled
         $this->getPaidStatusInformation();
 
         if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PART) {
-            throw new Exception(array(
+            throw new Exception([
                 'quiqqer/invoice',
                 'exception.parted.invoice.cant.be.canceled'
-            ));
+            ]);
         }
 
         if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_CANCELED) {
-            throw new Exception(array(
+            throw new Exception([
                 'quiqqer/invoice',
                 'exception.canceled.invoice.cant.be.canceled'
-            ));
+            ]);
         }
 
 
@@ -289,7 +337,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceReversal',
-            array($this)
+            [$this]
         );
 
 
@@ -297,10 +345,10 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.reversal',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId()
-                )
+                ]
             )
         );
 
@@ -318,11 +366,11 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.reversal.created',
-                array(
+                [
                     'username'     => $User->getName(),
                     'uid'          => $User->getId(),
                     'creditNoteId' => $CreditNote->getId()
-                )
+                ]
             )
         );
 
@@ -333,12 +381,12 @@ class Invoice extends QUI\QDOM
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            array(
+            [
                 'type'        => $this->type,
                 'data'        => json_encode($this->data),
                 'paid_status' => self::PAYMENT_STATUS_CANCELED
-            ),
-            array('id' => $this->getCleanId())
+            ],
+            ['id' => $this->getCleanId()]
         );
 
         $this->addComment($reason, QUI::getUsers()->getSystemUser());
@@ -346,7 +394,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceReversalEnd',
-            array($this)
+            [$this]
         );
 
         return $CreditNote->getId();
@@ -358,7 +406,8 @@ class Invoice extends QUI\QDOM
      * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
      * @return int - ID of the new
-     * @throws Exception
+     *
+     * @throws
      */
     public function cancellation($reason, $PermissionUser = null)
     {
@@ -371,7 +420,7 @@ class Invoice extends QUI\QDOM
      * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
      * @return int - ID of the new
-     * @throws Exception
+     * @throws
      */
     public function storno($reason, $PermissionUser = null)
     {
@@ -383,6 +432,8 @@ class Invoice extends QUI\QDOM
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
      * @return InvoiceTemporary
+     *
+     * @throws
      */
     public function copy($PermissionUser = null)
     {
@@ -402,55 +453,55 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.copy',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId()
-                )
+                ]
             )
         );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCopyBegin',
-            array($this)
+            [$this]
         );
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
         $New     = $Factory->createInvoice($User);
 
-        $currentData = QUI::getDataBase()->fetch(array(
+        $currentData = QUI::getDataBase()->fetch([
             'from'  => $Handler->invoiceTable(),
-            'where' => array(
+            'where' => [
                 'id' => $this->getCleanId()
-            ),
+            ],
             'limit' => 1
-        ));
+        ]);
 
         $currentData = $currentData[0];
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCopy',
-            array($this)
+            [$this]
         );
 
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
-            array(
+            [
                 'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
                 'customer_id'             => $currentData['customer_id'],
-                'invoice_address_id'      => '',
+                'invoice_address_id'      => $currentData['invoice_address_id'],
                 'invoice_address'         => $currentData['invoice_address'],
-                'delivery_address_id'     => '',
+                'delivery_address_id'     => $currentData['delivery_address_id'],
                 'delivery_address'        => $currentData['delivery_address'],
                 'order_id'                => $currentData['order_id'],
                 'project_name'            => $currentData['project_name'],
                 'payment_method'          => $currentData['payment_method'],
                 'payment_data'            => '',
-                'payment_time'            => '',
-                'time_for_payment'        => '',
+                'payment_time'            => $currentData['payment_time'],
+                'time_for_payment'        => 0,
                 'paid_status'             => self::PAYMENT_STATUS_OPEN,
-                'paid_date'               => '',
-                'paid_data'               => '',
+                'paid_date'               => null,
+                'paid_data'               => null,
                 'date'                    => $currentData['date'],
                 'data'                    => $currentData['data'],
                 'additional_invoice_text' => $currentData['additional_invoice_text'],
@@ -465,9 +516,9 @@ class Invoice extends QUI\QDOM
                 'subsum'                  => $currentData['subsum'],
                 'sum'                     => $currentData['sum'],
                 'vat_array'               => $currentData['vat_array'],
-                'processing_status'       => ''
-            ),
-            array('id' => $New->getCleanId())
+                'processing_status'       => null
+            ],
+            ['id' => $New->getCleanId()]
         );
 
         $NewTemporaryInvoice = $Handler->getTemporaryInvoice($New->getId());
@@ -475,7 +526,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCopyEnd',
-            array($this, $NewTemporaryInvoice)
+            [$this, $NewTemporaryInvoice]
         );
 
         return $NewTemporaryInvoice;
@@ -487,6 +538,8 @@ class Invoice extends QUI\QDOM
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
      * @return InvoiceTemporary
+     *
+     * @throws
      */
     public function createCreditNote($PermissionUser = null)
     {
@@ -497,7 +550,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCreateCreditNote',
-            array($this)
+            [$this]
         );
 
         $Copy     = $this->copy(QUI::getUsers()->getSystemUser());
@@ -517,9 +570,9 @@ class Invoice extends QUI\QDOM
         }
 
         $Copy->addHistory(
-            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', array(
+            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', [
                 'invoiceParentId' => $this->getId()
-            ))
+            ])
         );
 
         // credit note extra text
@@ -544,10 +597,10 @@ class Invoice extends QUI\QDOM
         $message = QUI::getLocale()->get(
             'quiqqer/invoice',
             'message.invoice.creditNote.additionalInvoiceText',
-            array(
+            [
                 'id'   => $this->getId(),
                 'date' => $Formatter->format($currentDate)
-            )
+            ]
         );
 
         $additionalText = $Copy->getAttribute('additional_invoice_text');
@@ -566,10 +619,10 @@ class Invoice extends QUI\QDOM
         $Copy->save(QUI::getUsers()->getSystemUser());
 
         $this->addHistory(
-            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit', array(
+            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit', [
                 'invoiceParentId' => $this->getId(),
                 'invoiceId'       => $Copy->getId()
-            ))
+            ])
         );
 
         return Handler::getInstance()->getTemporaryInvoice($Copy->getId());
@@ -582,16 +635,21 @@ class Invoice extends QUI\QDOM
      * @param PaymentsInterface $PaymentMethod - Payment method
      * @param int|string|bool $date - optional, unix timestamp
      * @param null|QUI\Interfaces\Users\User $PermissionUser
+     *
+     * @throws
+     * @deprecated use addTransaction
      */
     public function addPayment($amount, PaymentsInterface $PaymentMethod, $date = false, $PermissionUser = null)
     {
+        return;
+
         Permission::checkPermission(
             'quiqqer.invoice.addPayment',
             $PermissionUser
         );
 
 
-        QUI\ERP\Accounting\Calc::calculateInvoicePayments($this);
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
 
         if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
             || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
@@ -609,7 +667,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddPaymentBegin',
-            array($this, $amount, $PaymentMethod, $date)
+            [$this, $amount, $PaymentMethod, $date]
         );
 
         $User     = QUI::getUserBySession();
@@ -642,11 +700,11 @@ class Invoice extends QUI\QDOM
             }
         }
 
-        $paidData[] = array(
+        $paidData[] = [
             'amount'  => $amount,
             'payment' => $PaymentMethod->getName(),
             'date'    => $date
-        );
+        ];
 
         $this->setAttribute('paid_data', json_encode($paidData));
         $this->setAttribute('paid_date', $date);
@@ -655,29 +713,144 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.addPayment',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId(),
                     'payment'  => $PaymentMethod->getTitle()
-                )
+                ]
             )
         );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddPayment',
-            array($this, $amount, $PaymentMethod, $date)
+            [$this, $amount, $PaymentMethod, $date]
         );
 
         $this->calculatePayments();
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddPaymentEnd',
-            array($this, $amount, $PaymentMethod, $date)
+            [$this, $amount, $PaymentMethod, $date]
+        );
+    }
+
+    /**
+     * @param Transaction $Transaction
+     * @throws
+     */
+    public function addTransaction(Transaction $Transaction)
+    {
+        QUI\ERP\Debug::getInstance()->log('Invoice:: add transaction');
+
+        if ($this->getHash() !== $Transaction->getHash()) {
+            return;
+        }
+
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
+
+        if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+        ) {
+            return;
+        }
+
+        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PAID ||
+            $this->getAttribute('paid_status') == self::PAYMENT_STATUS_CANCELED
+        ) {
+            return;
+        }
+
+        QUI\ERP\Debug::getInstance()->log('Order:: add transaction start');
+
+        $User     = QUI::getUserBySession();
+        $paidData = $this->getAttribute('paid_data');
+        $amount   = Price::validatePrice($Transaction->getAmount());
+        $date     = $Transaction->getDate();
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceAddTransactionBegin',
+            [$this, $amount, $Transaction, $date]
+        );
+
+        if (!$amount) {
+            return;
+        }
+
+        if (!is_array($paidData)) {
+            $paidData = json_decode($paidData, true);
+        }
+
+        if ($date === false) {
+            $date = time();
+        }
+
+        function isTxAlreadyAdded($txid, $paidData)
+        {
+            foreach ($paidData as $paidEntry) {
+                if (!isset($paidEntry['txid'])) {
+                    continue;
+                }
+
+                if ($paidEntry['txid'] == $txid) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // already added
+        if (isTxAlreadyAdded($Transaction->getTxId(), $paidData)) {
+            return;
+        }
+
+        $isValidTimeStamp = function ($timestamp) {
+            return ((string)(int)$timestamp === $timestamp)
+                   && ($timestamp <= PHP_INT_MAX)
+                   && ($timestamp >= ~PHP_INT_MAX);
+        };
+
+        if ($isValidTimeStamp($date) === false) {
+            $date = strtotime($date);
+
+            if ($isValidTimeStamp($date) === false) {
+                $date = time();
+            }
+        }
+
+        $this->setAttribute('paid_date', $date);
+
+
+        $this->addHistory(
+            QUI::getLocale()->get(
+                'quiqqer/invoice',
+                'history.message.addPayment',
+                [
+                    'username' => $User->getName(),
+                    'uid'      => $User->getId(),
+                    'txid'     => $Transaction->getTxId()
+                ]
+            )
+        );
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceAddTransaction',
+            [$this, $amount, $Transaction, $date]
+        );
+
+        $this->calculatePayments();
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceAddTransactionEnd',
+            [$this, $amount, $Transaction, $date]
         );
     }
 
     /**
      * Calculates the payments and set the new part payments
+     *
+     * @throws
      */
     protected function calculatePayments()
     {
@@ -686,7 +859,7 @@ class Invoice extends QUI\QDOM
         // old status
         $oldPaidStatus = $this->getAttribute('paid_status');
 
-        QUI\ERP\Accounting\Calc::calculateInvoicePayments($this);
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
 
         switch ($this->getAttribute('paid_status')) {
             case self::PAYMENT_STATUS_OPEN:
@@ -705,28 +878,28 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.edit',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId()
-                )
+                ]
             )
         );
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            array(
+            [
                 'paid_data'   => $this->getAttribute('paid_data'),
                 'paid_date'   => $this->getAttribute('paid_date'),
                 'paid_status' => $this->getAttribute('paid_status')
-            ),
-            array('id' => $this->getCleanId())
+            ],
+            ['id' => $this->getCleanId()]
         );
 
         // Payment Status has changed
         if ($oldPaidStatus != $this->getAttribute('paid_status')) {
             QUI::getEvents()->fireEvent(
                 'onQuiqqerInvoiceAddComment',
-                array($this, $this->getAttribute('paid_status'), $oldPaidStatus)
+                [$this, $this->getAttribute('paid_status'), $oldPaidStatus]
             );
         }
     }
@@ -735,6 +908,8 @@ class Invoice extends QUI\QDOM
      * Send the invoice to a recipient
      *
      * @param string $recipient - The recipient email address
+     *
+     * @throws
      */
     public function sendTo($recipient)
     {
@@ -742,7 +917,7 @@ class Invoice extends QUI\QDOM
         $pdfFile = $View->toPDF()->createPDF();
 
         $Mailer = QUI::getMailManager()->getMailer();
-        $Mailer->setSubject('Rechnungs Nr:' . $this->getId());
+        $Mailer->setSubject('Rechnungs Nr:'.$this->getId()); // @todo #locale
         $Mailer->addRecipient($recipient);
         $Mailer->setBody($View->toHTML());
         $Mailer->addAttachment($pdfFile);
@@ -759,6 +934,8 @@ class Invoice extends QUI\QDOM
      *
      * @param string $comment
      * @param null|QUI\Interfaces\Users\User $PermissionUser
+     *
+     * @throws
      */
     public function addComment($comment, $PermissionUser = null)
     {
@@ -779,22 +956,22 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.addComment',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId()
-                )
+                ]
             )
         );
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            array('comments' => $Comments->toJSON()),
-            array('id' => $this->getCleanId())
+            ['comments' => $Comments->toJSON()],
+            ['id' => $this->getCleanId()]
         );
 
         QUI::getEvents()->fireEvent(
             'onQuiqqerInvoiceAddComment',
-            array($this, $comment)
+            [$this, $comment]
         );
     }
 
@@ -802,6 +979,8 @@ class Invoice extends QUI\QDOM
      * Add a comment to the history
      *
      * @param string $comment
+     *
+     * @throws QUI\Exception
      */
     public function addHistory($comment)
     {
@@ -814,11 +993,11 @@ class Invoice extends QUI\QDOM
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            array('history' => $History->toJSON()),
-            array('id' => $this->getCleanId())
+            ['history' => $History->toJSON()],
+            ['id' => $this->getCleanId()]
         );
 
-        QUI::getEvents()->fireEvent('onQuiqqerInvoiceAddHistory', array($this, $comment));
+        QUI::getEvents()->fireEvent('onQuiqqerInvoiceAddHistory', [$this, $comment]);
     }
 
     //endregion

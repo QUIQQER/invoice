@@ -1,5 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentWindow
+ * @author www.pcsg.de (Henning Leutz)
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentWindow', [
 

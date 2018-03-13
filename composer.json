@@ -3,7 +3,10 @@
   "type": "quiqqer-module",
   "description": "",
   "version": "dev-dev",
-  "license": "",
+  "license": [
+    "GPL-3.0+",
+    "PCSG QEL-1.0"
+  ],
   "authors": [
     {
       "name": "Henning Leutz",
@@ -22,6 +25,8 @@
     "quiqqer\/erp": "1.*|dev-master|dev-dev",
     "quiqqer\/payments": "dev-dev",
     "quiqqer\/invoice-accounting-template": "dev-master|dev-dev",
+    "quiqqer/payment-transactions": "*",
+    "quiqqer/htmltopdf": "1.*|dev-master|dev-dev",
     "ramsey/uuid": "3.*"
   },
   "autoload": {

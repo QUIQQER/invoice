@@ -15,6 +15,6 @@ QUI::$Ajax->registerFunction(
 
         return $Invoice->reversal($reason);
     },
-    array('invoiceId', 'reason'),
+    ['invoiceId', 'reason'],
     'Permission::checkAdminUser'
 );

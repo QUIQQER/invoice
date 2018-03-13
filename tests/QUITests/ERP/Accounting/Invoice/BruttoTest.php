@@ -46,7 +46,6 @@ class BruttoTest extends \PHPUnit_Framework_TestCase
             ))
         );
 
-
         $List->addArticle(
             new QUI\ERP\Accounting\Article(array(
                 'id'          => 11,

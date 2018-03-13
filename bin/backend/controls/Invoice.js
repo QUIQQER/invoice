@@ -1,10 +1,8 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/Invoice
+ * @author www.pcsg.de (Henning Leutz)
  *
  * Displays a posted Invoice
- *
- * @require qui/QUI
- * @require qui/controls/Control
  */
 define('package/quiqqer/invoice/bin/backend/controls/Invoice', [
 
@@ -17,7 +15,7 @@ define('package/quiqqer/invoice/bin/backend/controls/Invoice', [
     return new Class({
 
         Extends: QUIControl,
-        Type: 'package/quiqqer/invoice/bin/backend/controls/Invoice',
+        Type   : 'package/quiqqer/invoice/bin/backend/controls/Invoice',
 
         options: {
             invoiceId: false

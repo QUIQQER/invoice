@@ -1,5 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/Invoice
+ * @author www.pcsg.de (Henning Leutz)
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
@@ -265,8 +266,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         'package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments'
                     ], function (Payments) {
                         new Payments({
-                            invoiceId: self.getAttribute('data').id,
-                            events   : {
+                            Panel : self,
+                            hash  : self.getAttribute('data').hash,
+                            events: {
                                 onLoad: resolve
                             }
                         }).inject(Container);

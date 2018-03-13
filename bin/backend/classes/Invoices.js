@@ -1,9 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/classes/Invoices
- *
- * @require qui/QUI
- * @require qui/classes/DOM
- * @require Ajax
+ * @author www.pcsg.de (Henning Leutz)
  *
  * @event onCreateInvoice [self, invoiceId]
  * @event onDeleteInvoice [self, invoiceId]

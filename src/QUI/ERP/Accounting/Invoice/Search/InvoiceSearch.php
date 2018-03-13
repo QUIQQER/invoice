@@ -27,12 +27,12 @@ class InvoiceSearch extends Singleton
     /**
      * @var array
      */
-    protected $filter = array();
+    protected $filter = [];
 
     /**
      * @var array
      */
-    protected $limit = array(0, 20);
+    protected $limit = [0, 20];
 
     /**
      * @var string
@@ -42,16 +42,16 @@ class InvoiceSearch extends Singleton
     /**
      * @var array
      */
-    protected $allowedFilters = array(
+    protected $allowedFilters = [
         'from',
         'to',
         'paid_status'
-    );
+    ];
 
     /**
      * @var array
      */
-    protected $cache = array();
+    protected $cache = [];
 
     /**
      * Set a filter
@@ -68,7 +68,7 @@ class InvoiceSearch extends Singleton
         }
 
         if (!is_array($value)) {
-            $value = array($value);
+            $value = [$value];
         }
 
         foreach ($value as $val) {
@@ -100,10 +100,10 @@ class InvoiceSearch extends Singleton
                 $val = date('Y-m-d 23:59:59', $val);
             }
 
-            $this->filter[] = array(
+            $this->filter[] = [
                 'filter' => $filter,
                 'value'  => $val
-            );
+            ];
         }
     }
 
@@ -112,7 +112,7 @@ class InvoiceSearch extends Singleton
      */
     public function clearFilter()
     {
-        $this->filter = array();
+        $this->filter = [];
     }
 
     /**
@@ -123,7 +123,7 @@ class InvoiceSearch extends Singleton
      */
     public function limit($from, $to)
     {
-        $this->limit = array((int)$from, (int)$to);
+        $this->limit = [(int)$from, (int)$to];
     }
 
     /**
@@ -146,6 +146,8 @@ class InvoiceSearch extends Singleton
      * Execute the search and return the invoice list
      *
      * @return array
+     *
+     * @throws QUI\Exception
      */
     public function search()
     {
@@ -160,7 +162,7 @@ class InvoiceSearch extends Singleton
      */
     public function searchForGrid()
     {
-        $this->cache = array();
+        $this->cache = [];
 
         // select display invoices
         $invoices = $this->executeQueryParams($this->getQuery());
@@ -190,10 +192,10 @@ class InvoiceSearch extends Singleton
         $Grid   = new QUI\Utils\Grid();
 
 
-        return array(
+        return [
             'grid'  => $Grid->parseResult($result, $count),
             'total' => QUI\ERP\Accounting\Calc::calculateTotal($calc)
-        );
+        ];
     }
 
     /**
@@ -226,94 +228,94 @@ class InvoiceSearch extends Singleton
 
         if (empty($this->filter)) {
             if ($count) {
-                return array(
+                return [
                     'query' => " SELECT COUNT(*)  AS count FROM {$table}",
-                    'binds' => array()
-                );
+                    'binds' => []
+                ];
             }
 
-            return array(
+            return [
                 'query' => "
                     SELECT id
                     FROM {$table}
                     ORDER BY {$order}
                     {$limit}
                 ",
-                'binds' => array()
-            );
+                'binds' => []
+            ];
         }
 
-        $where = array();
-        $binds = array();
+        $where = [];
+        $binds = [];
         $fc    = 0;
 
         foreach ($this->filter as $filter) {
-            $bind = ':filter' . $fc;
+            $bind = ':filter'.$fc;
 
             switch ($filter['filter']) {
                 case 'from':
-                    $where[] = 'date >= ' . $bind;
+                    $where[] = 'date >= '.$bind;
                     break;
 
                 case 'to':
-                    $where[] = 'date <= ' . $bind;
+                    $where[] = 'date <= '.$bind;
                     break;
 
                 case 'paid_status':
                     if ((int)$filter['value'] === Invoice::PAYMENT_STATUS_OPEN) {
-                        $bind1 = ':filter' . $fc;
+                        $bind1 = ':filter'.$fc;
                         $fc++;
-                        $bind2 = ':filter' . $fc;
+                        $bind2 = ':filter'.$fc;
 
-                        $where[] = '(paid_status = ' . $bind1 . ' OR paid_status = ' . $bind2 . ')';
+                        $where[] = '(paid_status = '.$bind1.' OR paid_status = '.$bind2.')';
 
-                        $binds[$bind1] = array(
+                        $binds[$bind1] = [
                             'value' => Invoice::PAYMENT_STATUS_OPEN,
                             'type'  => \PDO::PARAM_INT
-                        );
+                        ];
 
-                        $binds[$bind2] = array(
+                        $binds[$bind2] = [
                             'value' => Invoice::PAYMENT_STATUS_PART,
                             'type'  => \PDO::PARAM_INT
-                        );
+                        ];
                         continue;
                     }
 
-                    $where[] = 'paid_status = ' . $bind;
+                    $where[] = 'paid_status = '.$bind;
 
-                    $binds[$bind] = array(
+                    $binds[$bind] = [
                         'value' => (int)$filter['value'],
                         'type'  => \PDO::PARAM_INT
-                    );
+                    ];
                     continue;
 
                 default:
                     continue;
             }
 
-            $binds[$bind] = array(
+            $binds[$bind] = [
                 'value' => $filter['value'],
                 'type'  => \PDO::PARAM_STR
-            );
+            ];
 
             $fc++;
         }
 
-        $whereQuery = 'WHERE ' . implode(' AND ', $where);
+        $whereQuery = 'WHERE '.implode(' AND ', $where);
 
 
         if ($count) {
-            return array(
+            return [
                 "query" => "
                     SELECT COUNT(*) AS count
                     FROM {$table}
                     {$whereQuery}
                 ",
                 'binds' => $binds
-            );
+            ];
         }
 
-        return array(
+        return [
             "query" => "
                 SELECT id
                 FROM {$table}
@@ -322,7 +324,7 @@ class InvoiceSearch extends Singleton
                 {$limit}
             ",
             'binds' => $binds
-        );
+        ];
     }
 
     /**
@@ -330,7 +332,7 @@ class InvoiceSearch extends Singleton
      * @return array
      * @throws QUI\Exception
      */
-    protected function executeQueryParams($queryData = array())
+    protected function executeQueryParams($queryData = [])
     {
         $PDO   = QUI::getDataBase()->getPDO();
         $binds = $queryData['binds'];
@@ -357,6 +359,8 @@ class InvoiceSearch extends Singleton
     /**
      * @param array $data
      * @return array
+     *
+     * @throws QUI\Exception
      */
     protected function parseListForGrid($data)
     {
@@ -375,7 +379,7 @@ class InvoiceSearch extends Singleton
         );
 
 
-        $needleFields = array(
+        $needleFields = [
             'customer_id',
             'customer_name',
             'comments',
@@ -403,7 +407,7 @@ class InvoiceSearch extends Singleton
             'processing_status',
             'sum',
             'taxId'
-        );
+        ];
 
         $fillFields = function (&$data) use ($needleFields) {
             foreach ($needleFields as $field) {
@@ -413,7 +417,7 @@ class InvoiceSearch extends Singleton
             }
         };
 
-        $result = array();
+        $result = [];
 
         foreach ($data as $entry) {
             if (isset($this->cache[$entry['id']])) {
@@ -462,12 +466,12 @@ class InvoiceSearch extends Singleton
 
             $invoiceData['paid_status_display'] = $Locale->get(
                 'quiqqer/invoice',
-                'payment.status.' . $Invoice->getAttribute('paid_status')
+                'payment.status.'.$Invoice->getAttribute('paid_status')
             );
 
             $invoiceData['dunning_level_display'] = $Locale->get(
                 'quiqqer/invoice',
-                'dunning.level.' . $invoiceData['dunning_level']
+                'dunning.level.'.$invoiceData['dunning_level']
             );
 
             try {
@@ -483,11 +487,11 @@ class InvoiceSearch extends Singleton
                 $invoiceData['id_prefix'] = Settings::getInstance()->getInvoicePrefix();
             }
 
-            $invoiceData['id'] = $invoiceData['id_prefix'] . $invoiceData['id'];
+            $invoiceData['id'] = $invoiceData['id_prefix'].$invoiceData['id'];
             $invoiceAddress    = json_decode($invoiceData['invoice_address'], true);
 
-            $invoiceData['customer_name'] = $invoiceAddress['salutation'] . ' ' .
-                                            $invoiceAddress['firstname'] . ' ' .
+            $invoiceData['customer_name'] = $invoiceAddress['salutation'].' '.
+                                            $invoiceAddress['firstname'].' '.
                                             $invoiceAddress['lastname'];
 
 
@@ -509,7 +513,7 @@ class InvoiceSearch extends Singleton
             $vatArray = json_decode($vatArray, true);
 
             $vat = array_map(function ($data) use ($Currency) {
-                return $data['text'] . ': ' . $Currency->format($data['sum']);
+                return $data['text'].': '.$Currency->format($data['sum']);
             }, $vatArray);
 
             $vatSum = array_map(function ($data) {

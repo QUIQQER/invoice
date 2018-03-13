@@ -18,6 +18,6 @@ QUI::$Ajax->registerFunction(
             ->copy()
             ->getId();
     },
-    array('invoiceId'),
+    ['invoiceId'],
     'Permission::checkAdminUser'
 );

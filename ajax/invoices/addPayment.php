@@ -24,6 +24,6 @@ QUI::$Ajax->registerFunction(
 
         $Invoice->addPayment($amount, $Payment, $date);
     },
-    array('invoiceId', 'amount', 'paymentMethod', 'date'),
+    ['invoiceId', 'amount', 'paymentMethod', 'date'],
     'Permission::checkAdminUser'
 );

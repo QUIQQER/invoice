@@ -1,11 +1,6 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/address/Window
- *
- * @requires qui/QUI
- * @requires qui/controls/windows/Popup
- * @requires qui/controls/buttons/Button
- * @requires package/quiqqer/invoice/bin/backend/controls/address/Create
- * @requires Locale
+ * @author www.pcsg.de (Henning Leutz)
  */
 define('package/quiqqer/invoice/bin/backend/controls/address/Window', [
 

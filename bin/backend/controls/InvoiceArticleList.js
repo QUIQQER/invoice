@@ -1,16 +1,8 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList
+ * @author www.pcsg.de (Henning Leutz)
  *
  * Invoice item list (Produkte Positionen)
- *
- * @require qui/QUI
- * @require qui/controls/Control
- * @require Mustache
- * @require Ajax
- * @require Locale
- * @require package/quiqqer/invoice/bin/backend/controls/article/Article
- * @require text!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.html
- * @require css!package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList.css
  *
  * @event onCalc [self, {Object} calculation]
  * @event onArticleSelect [self, {Object} Article]
