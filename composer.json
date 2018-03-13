@@ -2,7 +2,7 @@
   "name": "quiqqer\/invoice",
   "type": "quiqqer-module",
   "description": "",
-  "version": "dev-dev",
+  "version": "dev-master",
   "license": [
     "GPL-3.0+",
     "PCSG QEL-1.0"
