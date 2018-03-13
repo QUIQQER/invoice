@@ -22,6 +22,7 @@ QUI::$Ajax->registerFunction(
 
         foreach ($payments as $payment) {
             $paymentTitle = '';
+            $txid         = '';
 
             try {
                 $Payment      = $Payments->getPayment($payment['payment']);
@@ -29,10 +30,15 @@ QUI::$Ajax->registerFunction(
             } catch (QUI\Exception $Exception) {
             }
 
+            if (isset($payment['txid'])) {
+                $txid = $payment['txid'];
+            }
+
             $result[] = [
                 'date'    => $Locale->formatDate($payment['date']),
                 'amount'  => $Currency->format($payment['amount']),
-                'payment' => $paymentTitle
+                'payment' => $paymentTitle,
+                'txid'    => $txid
             ];
         }
 

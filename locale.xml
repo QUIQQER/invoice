@@ -815,6 +815,10 @@
             <de><![CDATA[Bezahlmethode]]></de>
             <en><![CDATA[Payment method]]></en>
         </locale>
+        <locale name="journal.payments.txid">
+            <de><![CDATA[TX-ID]]></de>
+            <en><![CDATA[TX ID]]></en>
+        </locale>
 
         <locale name="dialog.print.title">
             <de><![CDATA[Drucken / PDF]]></de>

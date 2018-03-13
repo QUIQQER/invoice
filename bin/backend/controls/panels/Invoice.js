@@ -266,6 +266,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         'package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments'
                     ], function (Payments) {
                         new Payments({
+                            Panel : self,
                             hash  : self.getAttribute('data').hash,
                             events: {
                                 onLoad: resolve

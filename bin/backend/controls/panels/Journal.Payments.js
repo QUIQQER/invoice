@@ -31,7 +31,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
         ],
 
         options: {
-            hash: false
+            hash : false,
+            Panel: false
         },
 
         initialize: function (options) {
@@ -72,7 +73,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
                     payments.push({
                         date   : result[i].date,
                         amount : result[i].amount,
-                        payment: result[i].payment
+                        payment: result[i].payment,
+                        txid   : result[i].txid
                     });
                 }
 
@@ -110,6 +112,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
          * @return {Element}
          */
         create: function () {
+            var self = this;
+
             this.$Elm = this.parent();
 
             this.$Elm.setStyles({
@@ -147,7 +151,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
                     dataIndex: 'payment',
                     dataType : 'string',
                     width    : 200
+                }, {
+                    header   : QUILocale.get(lg, 'journal.payments.txid'),
+                    dataIndex: 'txid',
+                    dataType : 'string',
+                    width    : 200
                 }]
+            });
+
+            this.$Grid.addEvents({
+                onDblClick: function () {
+                    self.$openTransactionId(
+                        self.$Grid.getSelectedData()[0].txid
+                    );
+                }
             });
 
             return this.$Elm;
@@ -195,6 +212,32 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
                             Button.setAttribute('textimage', 'fa fa-money');
                         }
                     }
+                }).open();
+            });
+        },
+
+        /**
+         * opens a transaction window
+         *
+         * @param {String} txid - Transaction ID
+         */
+        $openTransactionId: function (txid) {
+            var self = this;
+
+            if (this.getAttribute('Panel')) {
+                this.getAttribute('Panel').Loader.show();
+            }
+
+
+            require([
+                'package/quiqqer/payment-transactions/bin/backend/controls/windows/Transaction'
+            ], function (Window) {
+                if (self.getAttribute('Panel')) {
+                    self.getAttribute('Panel').Loader.hide();
+                }
+
+                new Window({
+                    txid: txid
                 }).open();
             });
         }
