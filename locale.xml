@@ -812,8 +812,8 @@
             <en><![CDATA[Amount]]></en>
         </locale>
         <locale name="journal.payments.paymentMethod">
-            <de><![CDATA[Bezahlmethoden]]></de>
-            <en><![CDATA[Payment methode]]></en>
+            <de><![CDATA[Bezahlmethode]]></de>
+            <en><![CDATA[Payment method]]></en>
         </locale>
 
         <locale name="dialog.print.title">

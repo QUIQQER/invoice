@@ -5,6 +5,7 @@
 .journal-grid-amount {
     text-align: right !important;
     padding-right: 5px;
+    padding-left: 0 !important;
 }
 
 .journal-grid-cancel {

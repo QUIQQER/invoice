@@ -17,6 +17,6 @@ QUI::$Ajax->registerFunction(
 
         return $status === QUI\ERP\Utils\User::IS_NETTO_USER;
     },
-    array('uid'),
+    ['uid'],
     'Permission::checkAdminUser'
 );

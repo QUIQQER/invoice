@@ -31,6 +31,6 @@ QUI::$Ajax->registerFunction(
 
         return $Article->toArray();
     },
-    array('params', 'user'),
+    ['params', 'user'],
     'Permission::checkAdminUser'
 );

@@ -15,7 +15,7 @@ QUI::$Ajax->registerFunction(
     function ($article) {
         $article = json_decode($article, true);
 
-        $Brutto = new QUI\ERP\User(array(
+        $Brutto = new QUI\ERP\User([
             'id'        => 'BRUTTO',
             'country'   => '',
             'username'  => '',
@@ -23,7 +23,7 @@ QUI::$Ajax->registerFunction(
             'lastname'  => '',
             'lang'      => QUI::getLocale()->getCurrent(),
             'isCompany' => 0
-        ));
+        ]);
 
         $Brutto->setAttribute(
             'quiqqer.erp.isNettoUser',
@@ -38,6 +38,6 @@ QUI::$Ajax->registerFunction(
 
         return $Article->toArray();
     },
-    array('article'),
+    ['article'],
     'Permission::checkAdminUser'
 );

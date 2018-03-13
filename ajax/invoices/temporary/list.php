@@ -28,7 +28,7 @@ QUI::$Ajax->registerFunction(
             $Grid->parseDBParams(json_decode($params, true))
         );
 
-        $needleFields = array(
+        $needleFields = [
             'id',
             'order_id',
             'customer_id',
@@ -52,7 +52,7 @@ QUI::$Ajax->registerFunction(
             'comments',
             'payment_data',
             'hash'
-        );
+        ];
 
         $fillFields = function (&$data) use ($needleFields) {
             foreach ($needleFields as $field) {
@@ -65,7 +65,7 @@ QUI::$Ajax->registerFunction(
         foreach ($data as $key => $entry) {
             $fillFields($data[$key]);
 
-            $data[$key]['id'] = Settings::getInstance()->getTemporaryInvoicePrefix() . $data[$key]['id'];
+            $data[$key]['id'] = Settings::getInstance()->getTemporaryInvoicePrefix().$data[$key]['id'];
 
             try {
                 $Currency = Currencies::getCurrency($data[$key]['currency_data']);
@@ -113,6 +113,6 @@ QUI::$Ajax->registerFunction(
 
         return $Grid->parseResult($data, $Invoices->countTemporaryInvoices());
     },
-    array('params'),
+    ['params'],
     'Permission::checkAdminUser'
 );

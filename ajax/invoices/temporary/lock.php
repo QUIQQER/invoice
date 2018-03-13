@@ -14,8 +14,7 @@ QUI::$Ajax->registerFunction(
     function ($invoiceId) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $Invoice  = $Invoices->getTemporaryInvoice($invoiceId);
-
     },
-    array('invoiceId'),
+    ['invoiceId'],
     'Permission::checkAdminUser'
 );

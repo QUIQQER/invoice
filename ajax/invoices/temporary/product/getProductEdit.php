@@ -16,15 +16,15 @@ QUI::$Ajax->registerFunction(
         $Product = Products::getProduct($productId);
         $user    = json_encode($user, true);
 
-        $Control = new ProductEdit(array(
+        $Control = new ProductEdit([
             'Product' => $Product
-        ));
+        ]);
 
         $css  = ''; //QUI\Control\Manager::getCSS();
         $html = $Control->create();
 
-        return $css . $html;
+        return $css.$html;
     },
-    array('productId', 'user'),
+    ['productId', 'user'],
     'Permission::checkAdminUser'
 );

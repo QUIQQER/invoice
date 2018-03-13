@@ -11,10 +11,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
     'qui/controls/windows/Confirm',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
+    'package/quiqqer/payment-transactions/bin/backend/Transactions',
     'Locale',
     'Ajax'
 
-], function (QUI, QUIControl, QUIConfirm, Grid, Invoices, QUILocale, QUIAjax) {
+], function (QUI, QUIControl, QUIConfirm, Grid, Invoices, Transactions, QUILocale, QUIAjax) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -30,7 +31,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
         ],
 
         options: {
-            invoiceId: false
+            hash: false
         },
 
         initialize: function (options) {
@@ -58,34 +59,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
 
         /**
          * Refresh the data and the display
+         *
+         * @return {Promise}
          */
         refresh: function () {
             var self = this;
 
-            Invoices.get(this.getAttribute('invoiceId')).then(function (result) {
+            return Transactions.getTransactionsByHash(this.getAttribute('hash')).then(function (result) {
                 var payments = [];
 
-                try {
-                    payments = JSON.decode(result.paid_data);
-                } catch (e) {
+                for (var i = 0, len = result.length; i < len; i++) {
+                    payments.push({
+                        date   : result[i].date,
+                        amount : result[i].amount,
+                        payment: result[i].payment
+                    });
                 }
 
-                if (!payments) {
-                    payments = [];
-                }
-
-                var AddButton = self.$Grid.getButtons().filter(function (Button) {
-                    return Button.getAttribute('name') === 'add';
-                })[0];
-
-                if (result.paid_status !== 1) {
-                    AddButton.enable();
-                } else {
-                    AddButton.disable();
-                }
-
-                return payments;
-            }).then(function (payments) {
                 return new Promise(function (resolve) {
                     QUIAjax.get('package_quiqqer_invoice_ajax_invoices_payments_format', function (data) {
                         self.$Grid.setData({
@@ -99,6 +89,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
                         payments : JSON.encode(payments)
                     });
                 });
+            }).then(function () {
+                return Invoices.get(self.getAttribute('hash'));
+            }).then(function (result) {
+                var AddButton = self.$Grid.getButtons().filter(function (Button) {
+                    return Button.getAttribute('name') === 'add';
+                })[0];
+
+                if (result.paid_status !== 1) {
+                    AddButton.enable();
+                } else {
+                    AddButton.disable();
+                }
             });
         },
 
@@ -133,13 +135,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
                     header   : QUILocale.get(lg, 'journal.payments.date'),
                     dataIndex: 'date',
                     dataType : 'date',
-                    width    : 100
+                    width    : 160
                 }, {
                     header   : QUILocale.get(lg, 'journal.payments.amount'),
                     dataIndex: 'amount',
-                    dataType : 'number',
+                    dataType : 'string',
                     className: 'journal-grid-amount',
-                    width    : 200
+                    width    : 160
                 }, {
                     header   : QUILocale.get(lg, 'journal.payments.paymentMethod'),
                     dataIndex: 'payment',

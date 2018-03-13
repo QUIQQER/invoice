@@ -30,6 +30,6 @@ QUI::$Ajax->registerFunction(
 
         return $Search->search();
     },
-    array('params'),
+    ['params'],
     'Permission::checkAdminUser'
 );

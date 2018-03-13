@@ -15,6 +15,6 @@ QUI::$Ajax->registerFunction(
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $Invoices->delete($invoiceId);
     },
-    array('invoiceId'),
+    ['invoiceId'],
     'Permission::checkAdminUser'
 );

@@ -31,6 +31,6 @@ QUI::$Ajax->registerFunction(
             QUI::getLocale()->get('quiqqer/invoice', 'message.invoice.save.successfully')
         );
     },
-    array('invoiceId', 'data'),
+    ['invoiceId', 'data'],
     'Permission::checkAdminUser'
 );

@@ -493,8 +493,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
 
             this.$Grid.addEvents({
-                onRefresh: this.refresh,
-                onClick  : this.$refreshButtonStatus
+                onRefresh : this.refresh,
+                onClick   : this.$refreshButtonStatus,
+                onDblClick: this.$onClickOpenInvoice
             });
 
 

@@ -37,6 +37,6 @@ QUI::$Ajax->registerFunction(
 
         return $List->getCalculations();
     },
-    array('articles', 'user'),
+    ['articles', 'user'],
     'Permission::checkAdminUser'
 );

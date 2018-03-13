@@ -260,7 +260,7 @@ class Handler extends QUI\Utils\Singleton
      * @param string $id - ID of the Invoice or InvoiceTemporary
      * @return InvoiceTemporary|Invoice
      *
-     * @throws
+     * @throws QUI\Exception
      */
     public function get($id)
     {
@@ -302,7 +302,7 @@ class Handler extends QUI\Utils\Singleton
             'select' => 'id',
             'from'   => self::invoiceTable(),
             'where'  => [
-                'id' => $hash
+                'hash' => $hash
             ],
             'limit'  => 1
         ]);

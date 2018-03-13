@@ -20,6 +20,6 @@ QUI::$Ajax->registerFunction(
 
         return $Articles->toHTMLWithCSS();
     },
-    array('invoiceId'),
+    ['invoiceId'],
     'Permission::checkAdminUser'
 );

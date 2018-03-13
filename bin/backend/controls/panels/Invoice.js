@@ -266,8 +266,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         'package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments'
                     ], function (Payments) {
                         new Payments({
-                            invoiceId: self.getAttribute('data').id,
-                            events   : {
+                            hash  : self.getAttribute('data').hash,
+                            events: {
                                 onLoad: resolve
                             }
                         }).inject(Container);

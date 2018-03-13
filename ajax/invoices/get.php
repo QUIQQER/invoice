@@ -17,9 +17,14 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_get',
     function ($invoiceId) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice  = $Invoices->get($invoiceId);
 
-        QUI\ERP\Accounting\Calc::calculateInvoicePayments($Invoice);
+        try {
+            $Invoice = $Invoices->get($invoiceId);
+        } catch (QUI\Exception $Exception) {
+            $Invoice = $Invoices->getInvoiceByHash($invoiceId);
+        }
+
+        QUI\ERP\Accounting\Calc::calculatePayments($Invoice);
 
         $attributes = $Invoice->toArray();
         $Currency   = $Invoice->getCurrency();
@@ -33,6 +38,6 @@ QUI::$Ajax->registerFunction(
 
         return $attributes;
     },
-    array('invoiceId'),
+    ['invoiceId'],
     'Permission::checkAdminUser'
 );

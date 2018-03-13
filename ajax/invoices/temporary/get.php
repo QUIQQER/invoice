@@ -19,6 +19,6 @@ QUI::$Ajax->registerFunction(
 
         return $Invoice->toArray();
     },
-    array('invoiceId'),
+    ['invoiceId'],
     'Permission::checkAdminUser'
 );

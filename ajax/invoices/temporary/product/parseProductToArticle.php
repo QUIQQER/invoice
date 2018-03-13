@@ -67,8 +67,8 @@ QUI::$Ajax->registerFunction(
             QUI\System\Log::write($Exception->getMessage());
         }
 
-        return array();
+        return [];
     },
-    array('productId', 'attributes', 'user'),
+    ['productId', 'attributes', 'user'],
     'Permission::checkAdminUser'
 );

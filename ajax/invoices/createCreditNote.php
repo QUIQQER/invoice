@@ -17,6 +17,6 @@ QUI::$Ajax->registerFunction(
 
         return $Invoice->createCreditNote()->getId();
     },
-    array('invoiceId'),
+    ['invoiceId'],
     'Permission::checkAdminUser'
 );

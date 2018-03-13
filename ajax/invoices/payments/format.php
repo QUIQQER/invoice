@@ -13,7 +13,7 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_payments_format',
     function ($payments) {
         $payments = json_decode($payments, true);
-        $result   = array();
+        $result   = [];
 
         $Locale   = QUI::getLocale();
         $Currency = QUI\ERP\Defaults::getCurrency();
@@ -29,15 +29,15 @@ QUI::$Ajax->registerFunction(
             } catch (QUI\Exception $Exception) {
             }
 
-            $result[] = array(
+            $result[] = [
                 'date'    => $Locale->formatDate($payment['date']),
                 'amount'  => $Currency->format($payment['amount']),
                 'payment' => $paymentTitle
-            );
+            ];
         }
 
         return $result;
     },
-    array('payments'),
+    ['payments'],
     'Permission::checkAdminUser'
 );
