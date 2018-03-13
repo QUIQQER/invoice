@@ -1,9 +1,12 @@
 Rechnungsverwaltung
 ========
 
-Erstellen Sie Ihre Rechnungen.
+Invoice System for QUIQQER
 
-Paketname:
+*This package is part of the QUIQQER ERP Stack. 
+The QUIQQER ERP Stack is in heavy development and is not yet intended for daily use*
+
+Package name:
 
     quiqqer/invoice
 
@@ -11,7 +14,7 @@ Paketname:
 ERP Stack
 ----
 
-Wir empfehlen weitere Pakete zu installieren:
+We recommend to install additional packages:
 
 - quiqqer/erp
 - quiqqer/areas
@@ -23,14 +26,14 @@ Wir empfehlen weitere Pakete zu installieren:
 Installation
 ------------
 
-Der Paketname ist: quiqqer/invoice
+The package name is: quiqqer/invoice
 
-Benötigte Server:
+Server:
 
 - git@dev.quiqqer.com:quiqqer/erp.git
 - git@dev.quiqqer.com:quiqqer/invoice.git
 
-Mitwirken
+Contribution
 ----------
 
 - Issue Tracker: https://dev.quiqqer.com/quiqqer/invoice/issues
@@ -40,15 +43,17 @@ Mitwirken
 Support
 -------
 
-Falls Sie ein Fehler gefunden haben, oder Verbesserungen wünschen,
-dann können Sie gerne an support@pcsg.de eine E-Mail schreiben.
+If you have found an error or want improvements, please send an e-mail to support@pcsg.de.
 
 
-Lizenz
+Licence
 -------
 
+- GPL-3.0+
+- PCSG QEL-1.0
 
-Entwickler
+
+Developer
 -------
 
 
