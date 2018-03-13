@@ -88,7 +88,7 @@ class Settings extends Singleton
      */
     public function getAvailableTemplates()
     {
-        $result   = array();
+        $result   = [];
         $packages = QUI::getPackageManager()->getInstalled();
 
         foreach ($packages as $package) {
@@ -103,10 +103,10 @@ class Settings extends Singleton
                 continue;
             }
 
-            $result[] = array(
+            $result[] = [
                 'name'  => $Package->getName(),
                 'title' => $Package->getTitle()
-            );
+            ];
         }
 
         return $result;

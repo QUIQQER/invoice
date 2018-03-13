@@ -3,6 +3,7 @@
 /**
  * This file contains QUI\ERP\Accounting\Invoice\Exception
  */
+
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;

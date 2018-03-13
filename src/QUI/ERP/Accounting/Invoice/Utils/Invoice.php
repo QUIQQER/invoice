@@ -30,7 +30,7 @@ class Invoice
         $Articles = $Invoice->getArticles();
         $Articles->calc();
 
-        $missing = array();
+        $missing = [];
 
         // address / customer fields
         $missing = array_merge(
@@ -66,32 +66,32 @@ class Invoice
     protected static function getMissingAddressFields(InvoiceTemporary $Invoice)
     {
         $address  = $Invoice->getAttribute('invoice_address');
-        $missing  = array();
+        $missing  = [];
         $Customer = null;
         $Address  = null;
 
-        $addressNeedles = array(
+        $addressNeedles = [
             'firstname',
             'lastname',
             'street_no',
             'zip',
             'city',
             'country'
-        );
+        ];
 
         if (!empty($address)) {
             $address = json_decode($address, true);
 
             foreach ($addressNeedles as $addressNeedle) {
                 if (!isset($address[$addressNeedle])) {
-                    $missing[] = 'invoice_address_' . $addressNeedle;
+                    $missing[] = 'invoice_address_'.$addressNeedle;
                     continue;
                 }
 
                 try {
                     self::verificateField($address[$addressNeedle]);
                 } catch (QUI\Exception $Exception) {
-                    $missing[] = 'invoice_address_' . $addressNeedle;
+                    $missing[] = 'invoice_address_'.$addressNeedle;
                 }
             }
 
@@ -133,7 +133,7 @@ class Invoice
                 try {
                     self::verificateField($Address->getAttribute($addressNeedle));
                 } catch (QUI\Exception $Exception) {
-                    $missing[] = 'invoice_address_' . $addressNeedle;
+                    $missing[] = 'invoice_address_'.$addressNeedle;
                 }
             }
         }
@@ -185,7 +185,7 @@ class Invoice
                 return $Locale->get($lg, 'exception.invoice.verification.country');
         }
 
-        throw new Exception('Missing Field not found: ' . $missingAttribute);
+        throw new Exception('Missing Field not found: '.$missingAttribute);
     }
 
     /**
@@ -208,7 +208,7 @@ class Invoice
             $Currency = QUI\ERP\Defaults::getCurrency();
         }
 
-        $fields = array(
+        $fields = [
             'calculated_basisPrice',
             'calculated_price',
             'calculated_sum',
@@ -218,12 +218,12 @@ class Invoice
             'calculated_nettoSum',
             'unitPrice',
             'sum'
-        );
+        ];
 
         foreach ($articles['articles'] as $key => $article) {
             foreach ($fields as $field) {
                 if (isset($article[$field])) {
-                    $articles['articles'][$key]['display_' . $field] = $Currency->format($article[$field]);
+                    $articles['articles'][$key]['display_'.$field] = $Currency->format($article[$field]);
                 }
             }
         }
@@ -245,7 +245,7 @@ class Invoice
      *
      * @throws Exception
      */
-    protected static function verificateField($value, $eMessage = 'Error occurred', $eCode = 0, $eContext = array())
+    protected static function verificateField($value, $eMessage = 'Error occurred', $eCode = 0, $eContext = [])
     {
         if (empty($value)) {
             throw new Exception($eMessage, $eCode, $eContext);

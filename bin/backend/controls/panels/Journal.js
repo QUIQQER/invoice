@@ -1,21 +1,8 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/Journal
+ * @author www.pcsg.de (Henning Leutz)
  *
  * List all posted invoices
- *
- * @require qui/QUI
- * @require qui/controls/desktop/Panel
- * @require qui/controls/buttons/Button
- * @require qui/controls/buttons/Select
- * @require qui/controls/windows/Confirm
- * @require controls/grid/Grid
- * @require package/quiqqer/invoice/bin/Invoices
- * @require package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter
- * @require Locale
- * @require Mustache
- * @require text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html
- * @require text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.Total.html
- * @require css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 

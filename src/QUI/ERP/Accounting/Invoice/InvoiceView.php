@@ -109,11 +109,11 @@ class InvoiceView extends QUI\QDOM
         $fileName .= $date;
         $fileName .= '.pdf';
 
-        $Document = new QUI\HtmlToPdf\Document(array(
+        $Document = new QUI\HtmlToPdf\Document([
             'marginTop'    => 30, // dies muss variabel sein
             'filename'     => $fileName,
             'marginBottom' => 80 // dies muss variabel sein
-        ));
+        ]);
 
         $Template = $this->getTemplate();
 
@@ -181,13 +181,13 @@ class InvoiceView extends QUI\QDOM
             $Articles = $Articles->toUniqueList();
         }
 
-        $Engine->assign(array(
+        $Engine->assign([
             'this'        => $this,
             'ArticleList' => $Articles,
             'Customer'    => $Customer,
             'Editor'      => $Editor,
             'Address'     => $Address
-        ));
+        ]);
 
         return $Template;
     }

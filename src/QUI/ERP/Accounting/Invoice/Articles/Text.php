@@ -52,8 +52,8 @@ class Text extends QUI\ERP\Accounting\Article
      */
     public function toArray()
     {
-        return array_merge(parent::toArray(), array(
+        return array_merge(parent::toArray(), [
             'control' => 'package/quiqqer/invoice/bin/backend/controls/articles/Text'
-        ));
+        ]);
     }
 }

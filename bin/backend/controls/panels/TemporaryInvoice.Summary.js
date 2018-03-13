@@ -1,13 +1,8 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/InvoiceSummary
+ * @author www.pcsg.de (Henning Leutz)
  *
  * Displays a posted Invoice
- *
- * @require qui/QUI
- * @require qui/controls/Control
- * @require Mustache
- * @require text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary.html
- * @require css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary.css
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary', [
 

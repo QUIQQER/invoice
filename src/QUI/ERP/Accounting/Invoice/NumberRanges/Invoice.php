@@ -3,6 +3,7 @@
 /**
  * This file contains QUI\ERP\Accounting\Invoice\NumberRanges\Invoice
  */
+
 namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 
 use QUI;
@@ -58,7 +59,7 @@ class Invoice implements NumberRangeInterface
         $tableName = $Handler->invoiceTable();
 
         $Statement = $PDO->prepare(
-            "ALTER TABLE {$tableName} AUTO_INCREMENT = " . (int)$range
+            "ALTER TABLE {$tableName} AUTO_INCREMENT = ".(int)$range
         );
 
         $Statement->execute();

@@ -112,7 +112,7 @@ class InvoiceTemporary extends QUI\QDOM
         $this->data = json_decode($data['data'], true);
 
         if (!is_array($this->data)) {
-            $this->data = array();
+            $this->data = [];
         }
 
         // invoice payment data
@@ -302,9 +302,9 @@ class InvoiceTemporary extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.temporaryInvoice.type.changed',
-                array(
+                [
                     'type' => $type
-                )
+                ]
             )
         );
     }
@@ -344,7 +344,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSaveBegin',
-            array($this)
+            [$this]
         );
 
         $this->Articles->calc();
@@ -440,12 +440,12 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
-            array($this)
+            [$this]
         );
 
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
-            array(
+            [
                 'type'                    => $this->getInvoiceType(),
 
                 // user relationships
@@ -491,15 +491,15 @@ class InvoiceTemporary extends QUI\QDOM
                 'subsum'                  => $listCalculations['subSum'],
                 'sum'                     => $listCalculations['sum'],
                 'vat_array'               => json_encode($listCalculations['vatArray'])
-            ),
-            array(
+            ],
+            [
                 'id' => $this->getCleanId()
-            )
+            ]
         );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceEnd',
-            array($this)
+            [$this]
         );
     }
 
@@ -527,12 +527,12 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceDelete',
-            array($this)
+            [$this]
         );
 
         QUI::getDataBase()->delete(
             Handler::getInstance()->temporaryInvoiceTable(),
-            array('id' => $this->getCleanId())
+            ['id' => $this->getCleanId()]
         );
     }
 
@@ -559,20 +559,20 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceCopy',
-            array($this)
+            [$this]
         );
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
         $New     = $Factory->createInvoice($PermissionUser);
 
-        $currentData = QUI::getDataBase()->fetch(array(
+        $currentData = QUI::getDataBase()->fetch([
             'from'  => $Handler->temporaryInvoiceTable(),
-            'where' => array(
+            'where' => [
                 'id' => $this->getCleanId()
-            ),
+            ],
             'limit' => 1
-        ));
+        ]);
 
         $currentData = $currentData[0];
 
@@ -583,14 +583,14 @@ class InvoiceTemporary extends QUI\QDOM
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
             $currentData,
-            array('id' => $New->getCleanId())
+            ['id' => $New->getCleanId()]
         );
 
         $Copy = $Handler->getTemporaryInvoice($New->getId());
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceCopyEnd',
-            array($this, $Copy)
+            [$this, $Copy]
         );
 
         return $Copy;
@@ -622,7 +622,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePostBegin',
-            array($this)
+            [$this]
         );
 
         $this->save(QUI::getUsers()->getSystemUser());
@@ -717,7 +717,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePost',
-            array($this)
+            [$this]
         );
 
         $type = $this->getInvoiceType();
@@ -734,7 +734,7 @@ class InvoiceTemporary extends QUI\QDOM
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
-            array(
+            [
                 'type'                    => $type,
                 'id_prefix'               => Settings::getInstance()->getInvoicePrefix(),
 
@@ -782,7 +782,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'subsum'                  => $listCalculations['subSum'],
                 'sum'                     => $listCalculations['sum'],
                 'vat_array'               => json_encode($listCalculations['vatArray'])
-            )
+            ]
         );
 
         $newId = QUI::getDataBase()->getPDO()->lastInsertId('id');
@@ -797,9 +797,9 @@ class InvoiceTemporary extends QUI\QDOM
                     QUI::getLocale()->get(
                         'quiqqer/invoice',
                         'message.create.credit.post',
-                        array(
+                        [
                             'invoiceId' => $this->getId()
-                        )
+                        ]
                     )
                 );
             } catch (Exception $Exception) {
@@ -812,7 +812,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePostEnd',
-            array($this, $Invoice)
+            [$this, $Invoice]
         );
 
         return $Invoice;
@@ -918,10 +918,10 @@ class InvoiceTemporary extends QUI\QDOM
      *       [control] => package/quiqqer/products/bin/controls/invoice/Product
      * )
      */
-    public function importArticles($articles = array())
+    public function importArticles($articles = [])
     {
         if (!is_array($articles)) {
-            $articles = array();
+            $articles = [];
         }
 
         foreach ($articles as $article) {
@@ -975,7 +975,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceAddComment',
-            array($this, $message)
+            [$this, $message]
         );
     }
 
@@ -1005,7 +1005,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceAddHistory',
-            array($this, $message)
+            [$this, $message]
         );
     }
 

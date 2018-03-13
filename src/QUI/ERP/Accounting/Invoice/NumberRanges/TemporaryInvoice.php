@@ -3,6 +3,7 @@
 /**
  * This file contains QUI\ERP\Accounting\Invoice\NumberRanges\TemporaryInvoice
  */
+
 namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 
 use QUI;
@@ -52,13 +53,13 @@ class TemporaryInvoice implements NumberRangeInterface
         if (!is_numeric($range)) {
             return;
         }
-        
+
         $Handler   = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $tableName = $Handler->temporaryInvoiceTable();
         $PDO       = QUI::getDataBase()->getPDO();
 
         $Statement = $PDO->prepare(
-            "ALTER TABLE {$tableName} AUTO_INCREMENT = " . (int)$range
+            "ALTER TABLE {$tableName} AUTO_INCREMENT = ".(int)$range
         );
 
         $Statement->execute();

@@ -240,7 +240,7 @@ class Invoice extends QUI\QDOM
      */
     public function getEditor()
     {
-        return new QUI\ERP\User(array(
+        return new QUI\ERP\User([
             'id'        => '',
             'country'   => '',
             'username'  => '',
@@ -248,7 +248,7 @@ class Invoice extends QUI\QDOM
             'lastname'  => '',
             'lang'      => '',
             'isCompany' => ''
-        ));
+        ]);
     }
 
     /**
@@ -264,12 +264,12 @@ class Invoice extends QUI\QDOM
     {
         QUI\ERP\Accounting\Calc::calculatePayments($this);
 
-        return array(
+        return [
             'paidData' => $this->getAttribute('paid_data'),
             'paidDate' => $this->getAttribute('paid_date'),
             'paid'     => $this->getAttribute('paid'),
             'toPay'    => $this->getAttribute('toPay')
-        );
+        ];
     }
 
     /**
@@ -309,27 +309,27 @@ class Invoice extends QUI\QDOM
         );
 
         if (empty($reason)) {
-            throw new Exception(array(
+            throw new Exception([
                 'quiqqer/invoice',
                 'exception.missing.reason.in.reversal'
-            ));
+            ]);
         }
 
         // if invoice is parted paid, it could not be canceled
         $this->getPaidStatusInformation();
 
         if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PART) {
-            throw new Exception(array(
+            throw new Exception([
                 'quiqqer/invoice',
                 'exception.parted.invoice.cant.be.canceled'
-            ));
+            ]);
         }
 
         if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_CANCELED) {
-            throw new Exception(array(
+            throw new Exception([
                 'quiqqer/invoice',
                 'exception.canceled.invoice.cant.be.canceled'
-            ));
+            ]);
         }
 
 
@@ -337,7 +337,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceReversal',
-            array($this)
+            [$this]
         );
 
 
@@ -345,10 +345,10 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.reversal',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId()
-                )
+                ]
             )
         );
 
@@ -366,11 +366,11 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.reversal.created',
-                array(
+                [
                     'username'     => $User->getName(),
                     'uid'          => $User->getId(),
                     'creditNoteId' => $CreditNote->getId()
-                )
+                ]
             )
         );
 
@@ -381,12 +381,12 @@ class Invoice extends QUI\QDOM
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            array(
+            [
                 'type'        => $this->type,
                 'data'        => json_encode($this->data),
                 'paid_status' => self::PAYMENT_STATUS_CANCELED
-            ),
-            array('id' => $this->getCleanId())
+            ],
+            ['id' => $this->getCleanId()]
         );
 
         $this->addComment($reason, QUI::getUsers()->getSystemUser());
@@ -394,7 +394,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceReversalEnd',
-            array($this)
+            [$this]
         );
 
         return $CreditNote->getId();
@@ -453,40 +453,40 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.copy',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId()
-                )
+                ]
             )
         );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCopyBegin',
-            array($this)
+            [$this]
         );
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
         $New     = $Factory->createInvoice($User);
 
-        $currentData = QUI::getDataBase()->fetch(array(
+        $currentData = QUI::getDataBase()->fetch([
             'from'  => $Handler->invoiceTable(),
-            'where' => array(
+            'where' => [
                 'id' => $this->getCleanId()
-            ),
+            ],
             'limit' => 1
-        ));
+        ]);
 
         $currentData = $currentData[0];
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCopy',
-            array($this)
+            [$this]
         );
 
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
-            array(
+            [
                 'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
                 'customer_id'             => $currentData['customer_id'],
                 'invoice_address_id'      => $currentData['invoice_address_id'],
@@ -517,8 +517,8 @@ class Invoice extends QUI\QDOM
                 'sum'                     => $currentData['sum'],
                 'vat_array'               => $currentData['vat_array'],
                 'processing_status'       => null
-            ),
-            array('id' => $New->getCleanId())
+            ],
+            ['id' => $New->getCleanId()]
         );
 
         $NewTemporaryInvoice = $Handler->getTemporaryInvoice($New->getId());
@@ -526,7 +526,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCopyEnd',
-            array($this, $NewTemporaryInvoice)
+            [$this, $NewTemporaryInvoice]
         );
 
         return $NewTemporaryInvoice;
@@ -550,7 +550,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCreateCreditNote',
-            array($this)
+            [$this]
         );
 
         $Copy     = $this->copy(QUI::getUsers()->getSystemUser());
@@ -570,9 +570,9 @@ class Invoice extends QUI\QDOM
         }
 
         $Copy->addHistory(
-            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', array(
+            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', [
                 'invoiceParentId' => $this->getId()
-            ))
+            ])
         );
 
         // credit note extra text
@@ -597,10 +597,10 @@ class Invoice extends QUI\QDOM
         $message = QUI::getLocale()->get(
             'quiqqer/invoice',
             'message.invoice.creditNote.additionalInvoiceText',
-            array(
+            [
                 'id'   => $this->getId(),
                 'date' => $Formatter->format($currentDate)
-            )
+            ]
         );
 
         $additionalText = $Copy->getAttribute('additional_invoice_text');
@@ -619,10 +619,10 @@ class Invoice extends QUI\QDOM
         $Copy->save(QUI::getUsers()->getSystemUser());
 
         $this->addHistory(
-            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit', array(
+            QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit', [
                 'invoiceParentId' => $this->getId(),
                 'invoiceId'       => $Copy->getId()
-            ))
+            ])
         );
 
         return Handler::getInstance()->getTemporaryInvoice($Copy->getId());
@@ -667,7 +667,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddPaymentBegin',
-            array($this, $amount, $PaymentMethod, $date)
+            [$this, $amount, $PaymentMethod, $date]
         );
 
         $User     = QUI::getUserBySession();
@@ -700,11 +700,11 @@ class Invoice extends QUI\QDOM
             }
         }
 
-        $paidData[] = array(
+        $paidData[] = [
             'amount'  => $amount,
             'payment' => $PaymentMethod->getName(),
             'date'    => $date
-        );
+        ];
 
         $this->setAttribute('paid_data', json_encode($paidData));
         $this->setAttribute('paid_date', $date);
@@ -713,24 +713,24 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.addPayment',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId(),
                     'payment'  => $PaymentMethod->getTitle()
-                )
+                ]
             )
         );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddPayment',
-            array($this, $amount, $PaymentMethod, $date)
+            [$this, $amount, $PaymentMethod, $date]
         );
 
         $this->calculatePayments();
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddPaymentEnd',
-            array($this, $amount, $PaymentMethod, $date)
+            [$this, $amount, $PaymentMethod, $date]
         );
     }
 
@@ -770,7 +770,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddTransactionBegin',
-            array($this, $amount, $Transaction, $date)
+            [$this, $amount, $Transaction, $date]
         );
 
         if (!$amount) {
@@ -826,24 +826,24 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.addPayment',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId(),
                     'txid'     => $Transaction->getTxId()
-                )
+                ]
             )
         );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddTransaction',
-            array($this, $amount, $Transaction, $date)
+            [$this, $amount, $Transaction, $date]
         );
 
         $this->calculatePayments();
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddTransactionEnd',
-            array($this, $amount, $Transaction, $date)
+            [$this, $amount, $Transaction, $date]
         );
     }
 
@@ -878,28 +878,28 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.edit',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId()
-                )
+                ]
             )
         );
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            array(
+            [
                 'paid_data'   => $this->getAttribute('paid_data'),
                 'paid_date'   => $this->getAttribute('paid_date'),
                 'paid_status' => $this->getAttribute('paid_status')
-            ),
-            array('id' => $this->getCleanId())
+            ],
+            ['id' => $this->getCleanId()]
         );
 
         // Payment Status has changed
         if ($oldPaidStatus != $this->getAttribute('paid_status')) {
             QUI::getEvents()->fireEvent(
                 'onQuiqqerInvoiceAddComment',
-                array($this, $this->getAttribute('paid_status'), $oldPaidStatus)
+                [$this, $this->getAttribute('paid_status'), $oldPaidStatus]
             );
         }
     }
@@ -956,22 +956,22 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.addComment',
-                array(
+                [
                     'username' => $User->getName(),
                     'uid'      => $User->getId()
-                )
+                ]
             )
         );
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            array('comments' => $Comments->toJSON()),
-            array('id' => $this->getCleanId())
+            ['comments' => $Comments->toJSON()],
+            ['id' => $this->getCleanId()]
         );
 
         QUI::getEvents()->fireEvent(
             'onQuiqqerInvoiceAddComment',
-            array($this, $comment)
+            [$this, $comment]
         );
     }
 
@@ -993,11 +993,11 @@ class Invoice extends QUI\QDOM
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            array('history' => $History->toJSON()),
-            array('id' => $this->getCleanId())
+            ['history' => $History->toJSON()],
+            ['id' => $this->getCleanId()]
         );
 
-        QUI::getEvents()->fireEvent('onQuiqqerInvoiceAddHistory', array($this, $comment));
+        QUI::getEvents()->fireEvent('onQuiqqerInvoiceAddHistory', [$this, $comment]);
     }
 
     //endregion

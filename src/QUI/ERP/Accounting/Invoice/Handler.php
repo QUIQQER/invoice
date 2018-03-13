@@ -123,12 +123,12 @@ class Handler extends QUI\Utils\Singleton
      * @param array $params - search params
      * @return array
      */
-    public function search($params = array())
+    public function search($params = [])
     {
-        $query = array(
+        $query = [
             'from'  => $this->invoiceTable(),
             'limit' => 20
-        );
+        ];
 
         if (isset($params['select'])) {
             $query['select'] = $params['select'];
@@ -161,15 +161,15 @@ class Handler extends QUI\Utils\Singleton
      * @param array $queryParams - optional
      * @return int
      */
-    public function count($queryParams = array())
+    public function count($queryParams = [])
     {
-        $query = array(
+        $query = [
             'from'  => $this->invoiceTable(),
-            'count' => array(
+            'count' => [
                 'select' => 'id',
                 'as'     => 'count'
-            )
-        );
+            ]
+        ];
 
         if (isset($queryParams['where'])) {
             $query['where'] = $queryParams['where'];
@@ -194,12 +194,12 @@ class Handler extends QUI\Utils\Singleton
      * @param array $params - search params
      * @return array
      */
-    public function searchTemporaryInvoices($params = array())
+    public function searchTemporaryInvoices($params = [])
     {
-        $query = array(
+        $query = [
             'from'  => $this->temporaryInvoiceTable(),
             'limit' => 20
-        );
+        ];
 
         if (isset($params['where'])) {
             $query['where'] = $params['where'];
@@ -226,15 +226,15 @@ class Handler extends QUI\Utils\Singleton
      * @param array $queryParams - optional
      * @return int
      */
-    public function countTemporaryInvoices($queryParams = array())
+    public function countTemporaryInvoices($queryParams = [])
     {
-        $query = array(
+        $query = [
             'from'  => $this->temporaryInvoiceTable(),
-            'count' => array(
+            'count' => [
                 'select' => 'id',
                 'as'     => 'count'
-            )
-        );
+            ]
+        ];
 
         if (isset($queryParams['where'])) {
             $query['where'] = $queryParams['where'];
@@ -298,18 +298,18 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getInvoiceByHash($hash)
     {
-        $result = QUI::getDataBase()->fetch(array(
+        $result = QUI::getDataBase()->fetch([
             'select' => 'id',
             'from'   => self::invoiceTable(),
-            'where'  => array(
+            'where'  => [
                 'id' => $hash
-            ),
+            ],
             'limit'  => 1
-        ));
+        ]);
 
         if (!isset($result[0])) {
             throw new Exception(
-                array('quiqqer/invoice', 'exception.invoice.not.found'),
+                ['quiqqer/invoice', 'exception.invoice.not.found'],
                 404
             );
         }
@@ -330,17 +330,17 @@ class Handler extends QUI\Utils\Singleton
     {
         $prefix = Settings::getInstance()->getInvoicePrefix();
 
-        $result = QUI::getDataBase()->fetch(array(
+        $result = QUI::getDataBase()->fetch([
             'from'  => self::invoiceTable(),
-            'where' => array(
+            'where' => [
                 'id' => (int)str_replace($prefix, '', $id)
-            ),
+            ],
             'limit' => 1
-        ));
+        ]);
 
         if (!isset($result[0])) {
             throw new Exception(
-                array('quiqqer/invoice', 'exception.invoice.not.found'),
+                ['quiqqer/invoice', 'exception.invoice.not.found'],
                 404
             );
         }
@@ -387,17 +387,17 @@ class Handler extends QUI\Utils\Singleton
     {
         $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
 
-        $result = QUI::getDataBase()->fetch(array(
+        $result = QUI::getDataBase()->fetch([
             'from'  => self::temporaryInvoiceTable(),
-            'where' => array(
+            'where' => [
                 'id' => (int)str_replace($prefix, '', $id)
-            ),
+            ],
             'limit' => 1
-        ));
+        ]);
 
         if (!isset($result[0])) {
             throw new Exception(
-                array('quiqqer/invoice', 'exception.temporary.invoice.not.found'),
+                ['quiqqer/invoice', 'exception.temporary.invoice.not.found'],
                 404
             );
         }

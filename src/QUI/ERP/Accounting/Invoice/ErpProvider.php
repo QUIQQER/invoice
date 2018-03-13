@@ -3,6 +3,7 @@
 /**
  * This file contains QUI\ERP\Accounting\Invoice\ErpProvider
  */
+
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI\ERP\Api\AbstractErpProvider;
@@ -19,19 +20,19 @@ class ErpProvider extends AbstractErpProvider
      */
     public static function getMenuItems()
     {
-        $menu = array();
+        $menu = [];
 
-        $menu[] = array(
+        $menu[] = [
             'icon'  => 'fa fa-money',
-            'text'  => array('quiqqer/invoice', 'erp.panel.invoice.text'),
+            'text'  => ['quiqqer/invoice', 'erp.panel.invoice.text'],
             'panel' => 'package/quiqqer/invoice/bin/backend/controls/panels/Journal'
-        );
+        ];
 
-        $menu[] = array(
+        $menu[] = [
             'icon'  => 'fa fa-money',
-            'text'  => array('quiqqer/invoice', 'erp.panel.invoice.create.text'),
+            'text'  => ['quiqqer/invoice', 'erp.panel.invoice.create.text'],
             'panel' => 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices'
-        );
+        ];
 
         return $menu;
     }
@@ -41,9 +42,9 @@ class ErpProvider extends AbstractErpProvider
      */
     public static function getNumberRanges()
     {
-        return array(
+        return [
             new NumberRanges\Invoice(),
             new NumberRanges\TemporaryInvoice()
-        );
+        ];
     }
 }

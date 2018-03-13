@@ -44,7 +44,7 @@ class Factory extends QUI\Utils\Singleton
 
         QUI::getDataBase()->insert(
             Handler::getInstance()->temporaryInvoiceTable(),
-            array(
+            [
                 'c_user'      => $c_user,
                 'editor_id'   => $c_user,
                 'editor_name' => '-',
@@ -52,7 +52,7 @@ class Factory extends QUI\Utils\Singleton
                 'customer_id' => 0,
                 'type'        => Handler::TYPE_INVOICE_TEMPORARY,
                 'paid_status' => QUI\ERP\Order\Order::PAYMENT_STATUS_OPEN
-            )
+            ]
         );
 
         $newId = QUI::getDataBase()->getPDO()->lastInsertId();

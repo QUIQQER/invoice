@@ -1,16 +1,8 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect
+ * @author www.pcsg.de (Henning Leutz)
  *
  * User + Adressen Auswahl für den Rechnungs Wizard
- *
- * @require qui/QUI
- * @require qui/controls/Control
- * @require qui/controls/buttons/Button
- * @require controls/users/address/Display
- * @require controls/users/search/Window
- * @require Users
- * @require Locale
- * @require css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect.css
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect', [
 
