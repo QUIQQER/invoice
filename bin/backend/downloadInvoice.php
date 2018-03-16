@@ -17,13 +17,23 @@ $invoiceId = $Request->query->get('invoiceId');
 
 try {
     $Invoice = $Invoices->get($invoiceId);
-} catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
+} catch (QUI\Exception $Exception) {
     try {
         $Invoice = $Invoices->getInvoice($invoiceId);
-    } catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
-        $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
+    } catch (QUI\Exception $Exception) {
+        try {
+            $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+            exit;
+        }
     }
 }
 
-$HtmlPdfDocument = $Invoice->getView()->toPDF();
-$HtmlPdfDocument->download();
+try {
+    $HtmlPdfDocument = $Invoice->getView()->toPDF();
+    $HtmlPdfDocument->download();
+} catch (QUI\Exception $Exception) {
+    QUI\System\Log::writeException($Exception);
+    exit;
+}

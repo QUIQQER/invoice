@@ -13,6 +13,13 @@
                 </conf>
             </section>
 
+            <section name="invoiceDownload">
+                <conf name="useDate">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[1]]></defaultvalue>
+                </conf>
+            </section>
+
             <section name="temporaryInvoice">
                 <conf name="prefix">
                     <type><![CDATA[string]]></type>
@@ -60,6 +67,35 @@
                             <text>
                                 <locale group="quiqqer/invoice" var="invoice.settings.temporaryInvoice.prefix"/>
                             </text>
+                        </input>
+                    </settings>
+
+                    <settings title="invoiceDownload" name="invoiceDownload">
+                        <title>
+                            <locale group="quiqqer/invoice" var="invoice.settings.download.title"/>
+                        </title>
+
+                        <input type="hidden"
+                               data-qui="package/quiqqer/translator/bin/controls/Update"
+                               data-qui-options-group="quiqqer/invoice"
+                               data-qui-options-package="quiqqer/invoice"
+                               data-qui-options-var="pdf.download.name"
+                        >
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.download.name.title"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice" var="invoice.settings.download.name.description"/>
+                            </description>
+                        </input>
+
+                        <input type="checkbox" conf="invoiceDownload.useDate">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.download.useDate.title"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice" var="invoice.settings.download.useDate.description"/>
+                            </description>
                         </input>
                     </settings>
 
