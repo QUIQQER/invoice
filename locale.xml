@@ -977,7 +977,7 @@
             <en><![CDATA[Invoice type changed to [type]]]></en>
         </locale>
 
-        <locale name="pdf.export.name">
+        <locale name="pdf.download.name">
             <de><![CDATA[Rechnung]]></de>
             <en><![CDATA[Invoice]]></en>
         </locale>
@@ -1018,6 +1018,35 @@
         <locale name="user.profile.invoice.address.description">
             <de><![CDATA[Wählen Sie bitte hier Ihre standard Rechnungs addresse aus.]]></de>
             <en><![CDATA[Please select your standard invoice address.]]></en>
+        </locale>
+
+        <locale name="invoice.settings.download.title">
+            <de><![CDATA[Rechnungs-Download]]></de>
+            <en><![CDATA[Invoice download]]></en>
+        </locale>
+        <locale name="invoice.settings.download.name.title">
+            <de><![CDATA[Name der Rechnung]]></de>
+            <en><![CDATA[Name of the invoice]]></en>
+        </locale>
+        <locale name="invoice.settings.download.name.description">
+            <de><![CDATA[
+            Lädt der Nutzer sich eine Rechnung herunter, legt diese Einstellung den Namen der Rechnungsdatei fest
+            ]]></de>
+            <en><![CDATA[
+            If the user downloads an invoice, this setting specifies the name of the invoice file
+            ]]></en>
+        </locale>
+        <locale name="invoice.settings.download.useDate.title">
+            <de><![CDATA[Datum im Namen verwenden]]></de>
+            <en><![CDATA[Use date in name]]></en>
+        </locale>
+        <locale name="invoice.settings.download.useDate.description">
+            <de><![CDATA[
+            Legt fest ob das Rechnungsdatum an den Rechnungsnamen angehängt werden soll.
+            ]]></de>
+            <en><![CDATA[
+            Determines whether the invoice date is to be appended to the invoice name.
+            ]]></en>
         </locale>
     </groups>
 

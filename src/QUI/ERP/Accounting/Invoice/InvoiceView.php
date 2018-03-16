@@ -91,22 +91,32 @@ class InvoiceView extends QUI\QDOM
      */
     public function toPDF()
     {
-        $localeCode = QUI::getLocale()->getLocalesByLang(
-            QUI::getLocale()->getCurrent()
-        );
+        $Plugin   = QUI::getPackage('quiqqer/invoice');
+        $Config   = $Plugin->getConfig();
+        $fileName = QUI::getLocale()->get('quiqqer/invoice', 'pdf.download.name');
 
-        $Formatter = new \IntlDateFormatter(
-            $localeCode[0],
-            \IntlDateFormatter::SHORT,
-            \IntlDateFormatter::NONE
-        );
+        if ($Config->get('invoiceDownload', 'useDate')) {
+            $localeCode = QUI::getLocale()->getLocalesByLang(
+                QUI::getLocale()->getCurrent()
+            );
 
-        $date = $Formatter->format(time());
-        $date = preg_replace('/[^0-9]/', '_', $date);
-        $date = trim($date, '_');
+            $Formatter = new \IntlDateFormatter(
+                $localeCode[0],
+                \IntlDateFormatter::SHORT,
+                \IntlDateFormatter::NONE
+            );
 
-        $fileName = QUI::getLocale()->get('quiqqer/invoice', 'pdf.export.name').'_';
-        $fileName .= $date;
+            $cDate = $this->Invoice->getAttribute('date');
+            $cDate = strtotime($cDate);
+
+            $date = $Formatter->format($cDate);
+            $date = preg_replace('/[^0-9]/', '_', $date);
+            $date = trim($date, '_');
+
+            $fileName .= '_';
+            $fileName .= $date;
+        }
+
         $fileName .= '.pdf';
 
         $Document = new QUI\HtmlToPdf\Document([
