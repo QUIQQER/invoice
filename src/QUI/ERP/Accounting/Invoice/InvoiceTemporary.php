@@ -815,6 +815,11 @@ class InvoiceTemporary extends QUI\QDOM
             [$this, $Invoice]
         );
 
+        // send invoice mail
+        if (Settings::getInstance()->sendMailAtInvoiceCreation()) {
+            $this->sendCreationMail($Invoice);
+        }
+
         return $Invoice;
     }
 
@@ -1100,6 +1105,30 @@ class InvoiceTemporary extends QUI\QDOM
         $key     = 'temporary-invoice-'.$this->getId();
 
         QUI\Lock\Locker::checkLocked($Package, $key);
+    }
+
+    //endregion
+
+
+    //region mails
+
+    /**
+     * Send the invoice to the customer via email
+     *
+     * @param Invoice $Invoice
+     */
+    protected function sendCreationMail(Invoice $Invoice)
+    {
+        try {
+            $Customer = $Invoice->getCustomer();
+            $User     = QUI::getUsers()->get($Customer->getId());
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+
+            return;
+        }
+
+        $Invoice->sendTo($User->getAttribute('email'));
     }
 
     //endregion

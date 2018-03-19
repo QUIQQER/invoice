@@ -236,6 +236,10 @@
             <de><![CDATA[Präfix für nicht gebuchte Rechnungsnummern]]></de>
             <en><![CDATA[Prefix for unbooked invoice numbers]]></en>
         </locale>
+        <locale name="invoice.settings.sendMailAtCreation">
+            <de><![CDATA[Rechnung bei Generierung versenden]]></de>
+            <en><![CDATA[Sending Invoices During Generation]]></en>
+        </locale>
         <locale name="invoice.settings.invoice.prefix.description">
             <de><![CDATA[
             Präfixe für beide Rechnungsnummern Arten können auch mit Datumsformatierungen umgehen.
