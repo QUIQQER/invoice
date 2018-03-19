@@ -236,6 +236,22 @@
             <de><![CDATA[Präfix für nicht gebuchte Rechnungsnummern]]></de>
             <en><![CDATA[Prefix for unbooked invoice numbers]]></en>
         </locale>
+        <locale name="invoice.settings.invoice.prefix.description">
+            <de><![CDATA[
+            Präfixe für beide Rechnungsnummern Arten können auch mit Datumsformatierungen umgehen.
+            Mögliche Datumsformate finden Sie unter:
+            <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
+                http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
+            </a>
+            ]]></de>
+            <en><![CDATA[
+            Prefixes for both invoice number types can also handle date formatting.
+            For possible date formats, see:
+            <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
+                http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
+            </a>
+            ]]></en>
+        </locale>
 
         <locale name="invoice.settings.processingStatus.title">
             <de><![CDATA[Rechnungsstatus]]></de>
