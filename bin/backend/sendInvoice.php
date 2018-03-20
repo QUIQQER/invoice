@@ -1,6 +1,7 @@
 <?php
 
 define('QUIQQER_SYSTEM', true);
+define('QUIQQER_AJAX', true);
 
 require_once dirname(dirname(dirname(dirname(dirname(__FILE__))))).'/header.php';
 
@@ -27,7 +28,24 @@ try {
 }
 
 if (empty($recipient)) {
+    QUI::getMessagesHandler()->sendSuccess(
+        $User,
+        QUI::getLocale()->get('quiqqer/invoice', 'message.invoice.send.empty.recipient')
+    );
     exit;
 }
 
 $Invoice->sendTo($recipient);
+
+QUI::getMessagesHandler()->sendSuccess(
+    $User,
+    QUI::getLocale()->get('quiqqer/invoice', 'message.invoice.send.successfully')
+);
+
+echo '<script>
+if (typeof window.parent.require !== "undefined") {
+    window.parent.require(["QUIQQER"], function(QUIQQER) {
+        QUIQQER.isAuthenticated();
+    });    
+}
+</script>';

@@ -1,6 +1,7 @@
 <?php
 
 define('QUIQQER_SYSTEM', true);
+define('QUIQQER_AJAX', true);
 
 require_once dirname(dirname(dirname(dirname(dirname(__FILE__))))).'/header.php';
 
