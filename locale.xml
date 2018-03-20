@@ -913,6 +913,14 @@
             <de><![CDATA[Gutschrift zu Rechnung #[id] vom [date]]]></de>
             <en><![CDATA[Credit Note to invoice #[id] from [date]]]></en>
         </locale>
+        <locale name="message.add.history.sent.to">
+            <de><![CDATA[Rechnung wurde versendet an [recipient]]]></de>
+            <en><![CDATA[Invoice was sent to [recipient]]]></en>
+        </locale>
+        <locale name="invoice.send.mail.subject">
+            <de><![CDATA[Rechnung #[id]]]></de>
+            <en><![CDATA[Invoice #[id]]]></en>
+        </locale>
 
         <locale name="exception.invoice.verification.customer">
             <de><![CDATA[Der Rechnung wurde noch kein Kunde zugewiesen.]]></de>
