@@ -47,6 +47,10 @@
     font-weight: bold;
 }
 
+.monospace {
+    font-family: monospace, monospace;
+}
+
 /** Invoice details
  ================================================= */
 

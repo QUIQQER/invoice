@@ -490,7 +490,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     header   : QUILocale.get(lg, 'journal.grid.hash'),
                     dataIndex: 'hash',
                     dataType : 'string',
-                    width    : 200
+                    width    : 280,
+                    className: 'monospace'
                 }]
             });
 

@@ -434,8 +434,8 @@
             <en><![CDATA[Payment data]]></en>
         </locale>
         <locale name="journal.grid.hash">
-            <de><![CDATA[Eindeutige ID]]></de>
-            <en><![CDATA[Unique ID]]></en>
+            <de><![CDATA[Vorgangsnummer]]></de>
+            <en><![CDATA[Procedure number]]></en>
         </locale>
 
         <locale name="journal.paidstatus.all">
