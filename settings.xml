@@ -11,6 +11,10 @@
                     <type><![CDATA[string]]></type>
                     <defaultvalue><![CDATA[INV-]]></defaultvalue>
                 </conf>
+                <conf name="sendMailAtCreation">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[0]]></defaultvalue>
+                </conf>
             </section>
 
             <section name="invoiceDownload">
@@ -66,6 +70,16 @@
                         <input type="text" conf="temporaryInvoice.prefix">
                             <text>
                                 <locale group="quiqqer/invoice" var="invoice.settings.temporaryInvoice.prefix"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.prefix.description"/>
+                            </description>
+                        </input>
+
+                        <input type="checkbox" conf="invoice.sendMailAtCreation">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.sendMailAtCreation"/>
                             </text>
                         </input>
                     </settings>

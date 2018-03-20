@@ -11,6 +11,7 @@ use QUI\Utils\Singleton;
 
 /**
  * Class Settings
+ *
  * @package QUI\ERP\Accounting\Invoice
  */
 class Settings extends Singleton
@@ -26,6 +27,76 @@ class Settings extends Singleton
     protected $temporaryInvoicePrefix = null;
 
     /**
+     * @var array
+     */
+    protected $settings = [];
+
+    /**
+     * Settings constructor.
+     */
+    public function __construct()
+    {
+        try {
+            $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+
+            return;
+        }
+
+        $this->settings = $Config->toArray();
+    }
+
+    /**
+     * Return the setting
+     *
+     * @param string $section
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function get($section, $key)
+    {
+        if (isset($this->settings[$section][$key])) {
+            return $this->settings[$section][$key];
+        }
+
+        return false;
+    }
+
+    /**
+     * Return the setting
+     *
+     * @param string $section
+     * @param string $key
+     * @param string|bool|integer|float $value
+     */
+    public function set($section, $key, $value)
+    {
+        $this->settings[$section][$key] = $value;
+    }
+
+    //region easier queries
+
+    /**
+     * Should mails be send when a invoice is created?
+     *
+     * @return bool
+     */
+    public function sendMailAtInvoiceCreation()
+    {
+        if (!isset($this->settings['invoice']['sendMailAtCreation'])) {
+            return false;
+        }
+
+        return !!$this->settings['invoice']['sendMailAtCreation'];
+    }
+
+    //endregion
+
+    //region getter
+
+    /**
      * Return the invoice prefix
      * eq: PREFIX-10022 (default = INV-)
      *
@@ -36,7 +107,7 @@ class Settings extends Singleton
     public function getInvoicePrefix()
     {
         if ($this->invoicePrefix !== null) {
-            return $this->invoicePrefix;
+            return strftime($this->invoicePrefix);
         }
 
         $Package = QUI::getPackage('quiqqer/invoice');
@@ -49,7 +120,7 @@ class Settings extends Singleton
             $this->invoicePrefix = $setting;
         }
 
-        return $this->invoicePrefix;
+        return strftime($this->invoicePrefix);
     }
 
     /**
@@ -63,7 +134,7 @@ class Settings extends Singleton
     public function getTemporaryInvoicePrefix()
     {
         if ($this->temporaryInvoicePrefix !== null) {
-            return $this->temporaryInvoicePrefix;
+            return strftime($this->temporaryInvoicePrefix);
         }
 
         $Package = QUI::getPackage('quiqqer/invoice');
@@ -76,7 +147,7 @@ class Settings extends Singleton
             $this->temporaryInvoicePrefix = $setting;
         }
 
-        return $this->temporaryInvoicePrefix;
+        return strftime($this->temporaryInvoicePrefix);
     }
 
     /**
@@ -140,4 +211,6 @@ class Settings extends Singleton
 
         return $first['name'];
     }
+
+    //endregion
 }
