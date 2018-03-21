@@ -411,7 +411,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // Editor
         $Editor     = $this->getEditor();
-        $editorId   = '';
+        $editorId   = 0;
         $editorName = '';
 
         // use default advisor as editor
@@ -674,7 +674,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // Editor
         $Editor     = $this->getEditor();
-        $editorId   = '';
+        $editorId   = 0;
         $editorName = '';
 
         // use default advisor as editor
