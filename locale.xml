@@ -434,8 +434,8 @@
             <en><![CDATA[Payment data]]></en>
         </locale>
         <locale name="journal.grid.hash">
-            <de><![CDATA[Eindeutige ID]]></de>
-            <en><![CDATA[Unique ID]]></en>
+            <de><![CDATA[Vorgangsnummer]]></de>
+            <en><![CDATA[Procedure number]]></en>
         </locale>
 
         <locale name="journal.paidstatus.all">
@@ -912,6 +912,14 @@
         <locale name="message.invoice.creditNote.additionalInvoiceText" html="true">
             <de><![CDATA[Gutschrift zu Rechnung #[id] vom [date]]]></de>
             <en><![CDATA[Credit Note to invoice #[id] from [date]]]></en>
+        </locale>
+        <locale name="message.add.history.sent.to">
+            <de><![CDATA[Rechnung wurde versendet an [recipient]]]></de>
+            <en><![CDATA[Invoice was sent to [recipient]]]></en>
+        </locale>
+        <locale name="invoice.send.mail.subject">
+            <de><![CDATA[Rechnung #[id]]]></de>
+            <en><![CDATA[Invoice #[id]]]></en>
         </locale>
 
         <locale name="exception.invoice.verification.customer">

@@ -917,12 +917,24 @@ class Invoice extends QUI\QDOM
         $pdfFile = $View->toPDF()->createPDF();
 
         $Mailer = QUI::getMailManager()->getMailer();
-        $Mailer->setSubject('Rechnungs Nr:'.$this->getId()); // @todo #locale
+
         $Mailer->addRecipient($recipient);
         $Mailer->setBody($View->toHTML());
         $Mailer->addAttachment($pdfFile);
 
+        $Mailer->setSubject(
+            QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
+                'id' => $this->getId()
+            ])
+        );
+
         $Mailer->send();
+
+        $this->addHistory(
+            QUI::getLocale()->get('quiqqer/invoice', 'message.add.history.sent.to', [
+                'recipient' => $recipient
+            ])
+        );
 
         unlink($pdfFile);
     }
