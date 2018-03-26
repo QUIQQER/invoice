@@ -127,6 +127,14 @@ class InvoiceView extends QUI\QDOM
 
         $Template = $this->getTemplate();
 
+        QUI\System\Log::writeRecursive(1234);
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoicePdfCreate',
+            [$this, $Document, $Template]
+        );
+
+
         try {
             $Document->setHeaderHTML($Template->getHTMLHeader());
             $Document->setContentHTML($Template->getHTMLBody());

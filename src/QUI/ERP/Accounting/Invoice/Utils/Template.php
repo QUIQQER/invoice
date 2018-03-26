@@ -155,18 +155,24 @@ class Template
         // main folder
         $htmlFile = $this->getFile($template.'.html');
         $cssFile  = $this->getFile($template.'.css');
+        $phpFile  = $this->getFile($template.'.php');
 
         $Output = new QUI\Output();
         $Output->setSetting('use-system-image-paths', true);
 
+        $Engine = $this->getEngine();
         $output = '';
+
+        if (file_exists($phpFile)) {
+            require_once $phpFile;
+        }
 
         if (file_exists($cssFile)) {
             $output .= '<style>'.file_get_contents($cssFile).'</style>';
         }
 
         if (file_exists($htmlFile)) {
-            $output .= $this->getEngine()->fetch($htmlFile);
+            $output .= $Engine->fetch($htmlFile);
         }
 
         return $Output->parse($output);
@@ -204,8 +210,7 @@ class Template
             return $optPath.$wanted;
         }
 
-
-        QUI\System\Log::addWarning('File not found in ERP Template '.$wanted);
+        QUI\System\Log::addDebug('File not found in ERP Template '.$wanted);
 
         return '';
     }
