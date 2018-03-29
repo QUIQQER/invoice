@@ -21,6 +21,7 @@
             <field type="TEXT NULL">delivery_address</field>
 
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
+            <field type="TEXT NULL">payment_method_data</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
             <field type="DATETIME NULL DEFAULT NULL">payment_time</field>
             <field type="DATETIME NULL DEFAULT NULL">time_for_payment</field>

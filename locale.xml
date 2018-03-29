@@ -242,18 +242,31 @@
         </locale>
         <locale name="invoice.settings.invoice.prefix.description">
             <de><![CDATA[
-            Präfixe für beide Rechnungsnummern Arten können auch mit Datumsformatierungen umgehen.
-            Mögliche Datumsformate finden Sie unter:
+            Präfixe können auch mit Datumsformatierungen umgehen. Mögliche Datumsformate finden Sie unter:
             <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
                 http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
             </a>
             ]]></de>
             <en><![CDATA[
-            Prefixes for both invoice number types can also handle date formatting.
-            For possible date formats, see:
+            Prefixes can also handle date formatting. For possible date formats, see:
             <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
                 http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
             </a>
+            ]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.time_for_payment">
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Time for payment]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.time_for_payment.description">
+            <de><![CDATA[
+            Geben sie das Zahlungsziel in Tagen an welches als Standardwert
+            für alle Rechnungen verwendet werden soll.
+            Das Zahlungsziel kann für jede Rechnung noch einmal seperat gesetzt werden.
+            ]]></de>
+            <en><![CDATA[
+            Specify the payment time in days to be used as the default value for all invoices.
+            The payment time can be set separately for each invoice.
             ]]></en>
         </locale>
 
@@ -386,6 +399,10 @@
             <en><![CDATA[Payment method]]></en>
         </locale>
         <locale name="journal.grid.timeForPayment">
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Payment term]]></en>
+        </locale>
+        <locale name="temporary.grid.timeForPayment">
             <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
             <en><![CDATA[Payment term (days)]]></en>
         </locale>
@@ -1075,6 +1092,18 @@
             <en><![CDATA[
             Determines whether the invoice date is to be appended to the invoice name.
             ]]></en>
+        </locale>
+        <locale name="additional.invoice.text" html="true">
+            <de><![CDATA[]]></de>
+            <en><![CDATA[]]></en>
+        </locale>
+        <locale name="additional.invoice.text.timeForPayment">
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Time for payment]]></en>
+        </locale>
+        <locale name="additional.invoice.text.paymentMethod">
+            <de><![CDATA[Zahlungsart]]></de>
+            <en><![CDATA[Payment method]]></en>
         </locale>
     </groups>
 

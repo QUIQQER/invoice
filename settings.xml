@@ -15,6 +15,10 @@
                     <type><![CDATA[bool]]></type>
                     <defaultvalue><![CDATA[0]]></defaultvalue>
                 </conf>
+                <conf name="time_for_payment">
+                    <type><![CDATA[integer]]></type>
+                    <defaultvalue><![CDATA[7]]></defaultvalue>
+                </conf>
             </section>
 
             <section name="invoiceDownload">
@@ -65,6 +69,10 @@
                             <text>
                                 <locale group="quiqqer/invoice" var="invoice.settings.invoice.prefix"/>
                             </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.prefix.description"/>
+                            </description>
                         </input>
 
                         <input type="text" conf="temporaryInvoice.prefix">
@@ -81,6 +89,16 @@
                             <text>
                                 <locale group="quiqqer/invoice" var="invoice.settings.sendMailAtCreation"/>
                             </text>
+                        </input>
+
+                        <input type="number" conf="invoice.time_for_payment">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.invoice.time_for_payment"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.time_for_payment.description"/>
+                            </description>
                         </input>
                     </settings>
 
