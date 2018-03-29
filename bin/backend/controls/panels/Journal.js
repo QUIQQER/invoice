@@ -435,7 +435,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 180
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentTerm'),
+                    header   : QUILocale.get(lg, 'journal.grid.timeForPayment'),
                     dataIndex: 'time_for_payment',
                     dataType : 'date',
                     width    : 120

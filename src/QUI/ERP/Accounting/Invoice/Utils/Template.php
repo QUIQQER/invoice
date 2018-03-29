@@ -164,7 +164,7 @@ class Template
         $output = '';
 
         if (file_exists($phpFile)) {
-            require_once $phpFile;
+            include $phpFile;
         }
 
         if (file_exists($cssFile)) {

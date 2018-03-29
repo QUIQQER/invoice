@@ -18,7 +18,6 @@ use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
  */
 class Invoice
 {
-
     /**
      * Return all fields, attributes which are still missing to post the invoice
      *

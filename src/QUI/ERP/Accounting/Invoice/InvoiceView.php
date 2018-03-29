@@ -120,20 +120,17 @@ class InvoiceView extends QUI\QDOM
         $fileName .= '.pdf';
 
         $Document = new QUI\HtmlToPdf\Document([
-            'marginTop'    => 30, // dies muss variabel sein
+            'marginTop'    => 30, // dies ist variabel durch quiqqerInvoicePdfCreate
             'filename'     => $fileName,
-            'marginBottom' => 80 // dies muss variabel sein
+            'marginBottom' => 80  // dies ist variabel durch quiqqerInvoicePdfCreate
         ]);
 
         $Template = $this->getTemplate();
-
-        QUI\System\Log::writeRecursive(1234);
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoicePdfCreate',
             [$this, $Document, $Template]
         );
-
 
         try {
             $Document->setHeaderHTML($Template->getHTMLHeader());
@@ -199,12 +196,22 @@ class InvoiceView extends QUI\QDOM
             $Articles = $Articles->toUniqueList();
         }
 
+        // time for payment
+        $Formatter      = QUI::getLocale()->getDateFormatter();
+        $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
+        $timeForPayment = $Formatter->format(strtotime($timeForPayment));
+
+        QUI\System\Log::writeRecursive('####');
+        QUI\System\Log::writeRecursive($timeForPayment);
+
         $Engine->assign([
-            'this'        => $this,
-            'ArticleList' => $Articles,
-            'Customer'    => $Customer,
-            'Editor'      => $Editor,
-            'Address'     => $Address
+            'this'           => $this,
+            'ArticleList'    => $Articles,
+            'Customer'       => $Customer,
+            'Editor'         => $Editor,
+            'Address'        => $Address,
+            'Payment'        => $this->Invoice->getPayment(),
+            'timeForPayment' => $timeForPayment
         ]);
 
         return $Template;
