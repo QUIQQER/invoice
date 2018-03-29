@@ -396,7 +396,7 @@ class InvoiceSearch extends Singleton
             'isbrutto',
             'nettosum',
             'order_id',
-            'orderdate',
+            'order_date',
             'paid_status',
             'paid_date',
             'processing',
@@ -443,6 +443,16 @@ class InvoiceSearch extends Singleton
                 $Currency = QUI\ERP\Defaults::getCurrency();
             }
 
+            // order
+            try {
+                $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById(
+                    $invoiceData['order_id']
+                );
+
+                $invoiceData['order_date'] = $Order->getCreateDate();
+            } catch (QUI\Exception $Exception) {
+            }
+
             if (!$Invoice->getAttribute('order_id')) {
                 $invoiceData['order_id'] = Handler::EMPTY_VALUE;
             }
@@ -480,7 +490,6 @@ class InvoiceSearch extends Singleton
                 )->getTitle();
             } catch (QUI\Exception $Exception) {
             }
-
 
             // data preparation
             if (!$Invoice->getAttribute('id_prefix')) {

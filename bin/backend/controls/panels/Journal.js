@@ -468,9 +468,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width    : 120
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.orderDate'),
-                    dataIndex: 'orderdate',
+                    dataIndex: 'order_date',
                     dataType : 'date',
-                    width    : 130
+                    width    : 140
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.dunning'),
                     dataIndex: 'dunning_level_display',
@@ -481,11 +481,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataIndex: 'processing',
                     dataType : 'string',
                     width    : 150
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentData'),
-                    dataIndex: 'payment_data',
-                    dataType : 'string',
-                    width    : 100
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.hash'),
                     dataIndex: 'hash',
