@@ -168,7 +168,7 @@ class InvoiceView extends QUI\QDOM
      * @throws Exception
      * @throws QUI\Exception
      */
-    protected function getTemplate()
+    public function getTemplate()
     {
         $Template = new Utils\Template(
             $this->getTemplatePackage(),
