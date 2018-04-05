@@ -934,9 +934,49 @@
             <de><![CDATA[Rechnung wurde versendet an [recipient]]]></de>
             <en><![CDATA[Invoice was sent to [recipient]]]></en>
         </locale>
+        <locale name="message.invoice.send.successfully">
+            <de><![CDATA[Rechnung wurde versendet]]></de>
+            <en><![CDATA[Invoice was sent]]></en>
+        </locale>
         <locale name="invoice.send.mail.subject">
-            <de><![CDATA[Rechnung #[id]]]></de>
-            <en><![CDATA[Invoice #[id]]]></en>
+            <de><![CDATA[Ihre Rechnung - [invoiceId]]]></de>
+            <en><![CDATA[Your Invoice - [invoiceId]]]></en>
+        </locale>
+        <locale name="invoice.send.mail.message">
+            <de><![CDATA[
+            <h1>Hallo [user],</h1>
+            <p>mit dieser E-Mail erhalten Sie Ihre NameRobot-Rechnung mit Rechnungsnummer [invoiceId].
+            Klicken Sie auf die angehängte PDF-Datei, um die Rechnung zu öffnen.</p>
+
+            <p>Für die Anzeige der Rechnung wird ein PDF-Reader benötigt, beispielsweise der Acrobat Reader von Adobe.
+            Falls Sie keinen PDF-Reader installiert haben sollten, so können Sie dies einfach nachholen:
+            Auf der Downloadseite von Adobe können Sie den Acrobat Reader kostenfrei herunterladen.</p>
+
+            <p>Ihre Rechnungen sind auch online in Ihrem Profil unter dem Punkt
+            "Meine Rechnungen" oder "Meine Bestellungen" jederzeit für Sie einsehbar.</p>
+
+            <p>Falls Sie Fragen oder Anmerkungen haben, antworten Sie einfach auf diese E-Mail.
+            Unser Supportteam wird sich bald mit Ihnen in Verbindung setzen.</p>
+            <p>Viele Grüße,<br /></p>
+            ]]></de>
+            <en><![CDATA[
+            <h1>Hello [user],</h1>
+            <p>Your invoice (reference ID [invoiceId]) is attached to this e-mail as a PDF;
+            just click on the attachment to access it.</p>
+
+            <p>You will need a PDF reader such as Adobe Acrobat Reader to view this invoice.
+            If you do not yet have a reader installed, you can download one quickly, easily,
+            and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
+            the following URL to your browser's address bar:<br />
+            http://get.adobe.com/reader/</p>
+
+            <p>Your invoice is also available online in your account. Just click on "My invoices" or "My orders" to access them.</p>
+
+            <p>If you have any questions or remarks, please contact us by answering this e-mail.
+            Our support team will contact you shortly.</p>
+
+            <p>All best wishes,<br />
+            ]]></en>
         </locale>
 
         <locale name="exception.invoice.verification.customer">

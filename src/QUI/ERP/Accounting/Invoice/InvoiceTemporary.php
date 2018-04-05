@@ -824,7 +824,28 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->delete(QUI::getUsers()->getSystemUser());
-        $Invoice = $Handler->getInvoice($newId);
+
+        // invoice payment calculation
+        $Invoice     = $Handler->getInvoice($newId);
+        $calculation = QUI\ERP\Accounting\Calc::calculatePayments($Invoice);
+
+        if (empty($calculation)) {
+            QUI::getDataBase()->update(
+                $Handler->invoiceTable(),
+                ['paid_status' => $calculation['paidStatus']],
+                ['id' => $newId]
+            );
+        } else {
+            QUI::getDataBase()->update(
+                $Handler->invoiceTable(),
+                [
+                    'paid_data'   => json_encode($calculation['paidData']),
+                    'paid_date'   => (int)$calculation['paidDate'],
+                    'paid_status' => (int)$calculation['paidStatus']
+                ],
+                ['id' => $newId]
+            );
+        }
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePostEnd',
