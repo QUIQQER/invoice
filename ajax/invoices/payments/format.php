@@ -25,7 +25,7 @@ QUI::$Ajax->registerFunction(
             $txid         = '';
 
             try {
-                $Payment      = $Payments->getPayment($payment['payment']);
+                $Payment      = $Payments->getPaymentType($payment['payment']);
                 $paymentTitle = $Payment->getTitle();
             } catch (QUI\Exception $Exception) {
             }

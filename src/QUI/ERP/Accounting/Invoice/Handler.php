@@ -320,7 +320,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return the data from an invoice
      *
-     * @param string $id
+     * @param string|integer $id
      * @return array
      *
      * @throws Exception
@@ -329,6 +329,13 @@ class Handler extends QUI\Utils\Singleton
     public function getInvoiceData($id)
     {
         $prefix = Settings::getInstance()->getInvoicePrefix();
+
+        if (!is_numeric(str_replace($prefix, '', $id))) {
+            throw new Exception(
+                ['quiqqer/invoice', 'exception.invoice.not.found'],
+                404
+            );
+        }
 
         $result = QUI::getDataBase()->fetch([
             'from'  => self::invoiceTable(),

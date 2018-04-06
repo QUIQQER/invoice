@@ -9,7 +9,7 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 /**
  * Returns the invoice as array
  *
- * @param string $invoiceId - ID of the invoice
+ * @param string $invoiceId - ID of the invoice or invoice hash
  *
  * @return array
  */

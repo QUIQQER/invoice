@@ -24,7 +24,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentW
         ],
 
         options: {
-            invoiceId: false
+            hash: false
         },
 
         initialize: function (options) {
@@ -52,8 +52,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentW
             this.getContent().set('html', '');
 
             this.$AddPayment = new AddPayment({
-                invoiceId: this.getAttribute('invoiceId'),
-                events   : {
+                hash  : this.getAttribute('hash'),
+                events: {
                     onLoad: function () {
                         this.Loader.hide();
                         this.$AddPayment.focus();
