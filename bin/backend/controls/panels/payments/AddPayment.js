@@ -28,7 +28,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
         ],
 
         options: {
-            invoiceId     : false,
+            hash          : false,
             payment_method: '957669f3146ceebe4267bf15ee3b9dc6' // cash
         },
 
@@ -69,7 +69,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
         $onInject: function () {
             Promise.all([
                 Payments.getPayments(),
-                Invoices.get(this.getAttribute('invoiceId'))
+                Invoices.get(this.getAttribute('hash'))
             ]).then(function (result) {
                 var payments = result[0],
                     invoice  = result[1];
