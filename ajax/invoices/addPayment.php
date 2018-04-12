@@ -5,6 +5,7 @@
  */
 
 use QUI\ERP\Accounting\Payments\Payments as Payments;
+use QUI\ERP\Accounting\Payments\Transactions\Factory as TransactionFactory;
 
 /**
  * Add a payment to an invoice
@@ -19,10 +20,24 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_addPayment',
     function ($invoiceId, $amount, $paymentMethod, $date) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice  = $Invoices->getInvoice($invoiceId);
         $Payment  = Payments::getInstance()->getPayment($paymentMethod);
 
-        $Invoice->addPayment($amount, $Payment, $date);
+        try {
+            $Invoice = $Invoices->getInvoice($invoiceId);
+        } catch (QUI\Exception $Exception) {
+            $Invoice = $Invoices->getInvoiceByHash($invoiceId);
+        }
+
+        // create the transaction
+        TransactionFactory::createPaymentTransaction(
+            $amount,
+            QUI\ERP\Defaults::getCurrency(),
+            $Invoice->getHash(),
+            $Payment->getPaymentType()->getName(),
+            [],
+            QUI::getUserBySession(),
+            $date
+        );
     },
     ['invoiceId', 'amount', 'paymentMethod', 'date'],
     'Permission::checkAdminUser'

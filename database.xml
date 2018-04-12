@@ -21,6 +21,7 @@
             <field type="TEXT NULL">delivery_address</field>
 
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
+            <field type="TEXT NULL">payment_method_data</field>
             <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
             <field type="DATETIME NULL DEFAULT NULL">payment_time</field>
             <field type="DATETIME NULL DEFAULT NULL">time_for_payment</field>
@@ -33,8 +34,8 @@
             <field type="TEXT NULL">canceled_data</field> <!-- storno grund -->
             <field type="INT NOT NULL">c_user</field>
             <field type="VARCHAR(200) NOT NULL">c_username</field>
-            <field type="INT NOT NULL">editor_id</field>
-            <field type="VARCHAR(200) NOT NULL">editor_name</field>
+            <field type="INT NULL">editor_id</field>
+            <field type="VARCHAR(200) NULL">editor_name</field>
             <field type="TEXT NULL">data</field>
             <field type="TEXT NULL">additional_invoice_text</field>
             <field type="TEXT NOT NULL">articles</field>

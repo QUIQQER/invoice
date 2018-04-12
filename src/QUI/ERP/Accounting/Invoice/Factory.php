@@ -45,13 +45,14 @@ class Factory extends QUI\Utils\Singleton
         QUI::getDataBase()->insert(
             Handler::getInstance()->temporaryInvoiceTable(),
             [
-                'c_user'      => $c_user,
-                'editor_id'   => $c_user,
-                'editor_name' => '-',
-                'hash'        => $hash,
-                'customer_id' => 0,
-                'type'        => Handler::TYPE_INVOICE_TEMPORARY,
-                'paid_status' => QUI\ERP\Order\Order::PAYMENT_STATUS_OPEN
+                'c_user'           => $c_user,
+                'editor_id'        => $c_user,
+                'editor_name'      => '-',
+                'hash'             => $hash,
+                'customer_id'      => 0,
+                'type'             => Handler::TYPE_INVOICE_TEMPORARY,
+                'paid_status'      => QUI\ERP\Order\Order::PAYMENT_STATUS_OPEN,
+                'time_for_payment' => (int)Settings::getInstance()->get('invoice', 'time_for_payment')
             ]
         );
 

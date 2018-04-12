@@ -317,7 +317,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'string',
                     width    : 120
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.timeForPayment'),
+                    header   : QUILocale.get(lg, 'temporary.grid.timeForPayment'),
                     dataIndex: 'time_for_payment',
                     dataType : 'string',
                     width    : 120

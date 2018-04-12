@@ -142,7 +142,6 @@ class Invoice extends QUI\QDOM
         return (int)str_replace($this->prefix, '', $this->getId());
     }
 
-
     /**
      * Return the invoice view
      *
@@ -270,6 +269,30 @@ class Invoice extends QUI\QDOM
             'paid'     => $this->getAttribute('paid'),
             'toPay'    => $this->getAttribute('toPay')
         ];
+    }
+
+    /**
+     * Return the presentational payment method
+     *
+     * @return Payment
+     */
+    public function getPayment()
+    {
+        $data = $this->getAttribute('payment_method_data');
+
+        if (!$data) {
+            QUI\System\Log::addCritical(
+                'Error with invoice '.$this->getId().'. No payment Data available'
+            );
+
+            return new Payment([]);
+        }
+
+        if (is_string($data)) {
+            $data = json_decode($data, true);
+        }
+
+        return new Payment($data);
     }
 
     /**
@@ -498,7 +521,7 @@ class Invoice extends QUI\QDOM
                 'payment_method'          => $currentData['payment_method'],
                 'payment_data'            => '',
                 'payment_time'            => $currentData['payment_time'],
-                'time_for_payment'        => 0,
+                'time_for_payment'        => (int)Settings::getInstance()->get('invoice', 'time_for_payment'),
                 'paid_status'             => self::PAYMENT_STATUS_OPEN,
                 'paid_date'               => null,
                 'paid_data'               => null,
@@ -917,12 +940,42 @@ class Invoice extends QUI\QDOM
         $pdfFile = $View->toPDF()->createPDF();
 
         $Mailer = QUI::getMailManager()->getMailer();
-        $Mailer->setSubject('Rechnungs Nr:'.$this->getId()); // @todo #locale
         $Mailer->addRecipient($recipient);
-        $Mailer->setBody($View->toHTML());
-        $Mailer->addAttachment($pdfFile);
+
+        // invoice pdf file
+        $dir     = dirname($pdfFile);
+        $newFile = $dir.'/'.$this->getId().'.pdf';
+
+        if ($newFile !== $pdfFile && file_exists($newFile)) {
+            unlink($newFile);
+        }
+
+        rename($pdfFile, $newFile);
+
+        $Mailer->addAttachment($newFile);
+
+        $Mailer->setBody(
+            QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
+                'invoiceId' => $this->getId(),
+                'user'      => $this->getCustomer()->getName(),
+                'address'   => $this->getCustomer()->getAddress()->render(),
+                'invoice'   => $View->getTemplate()->getHTMLBody()
+            ])
+        );
+
+        $Mailer->setSubject(
+            QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
+                'invoiceId' => $this->getId()
+            ])
+        );
 
         $Mailer->send();
+
+        $this->addHistory(
+            QUI::getLocale()->get('quiqqer/invoice', 'message.add.history.sent.to', [
+                'recipient' => $recipient
+            ])
+        );
 
         unlink($pdfFile);
     }

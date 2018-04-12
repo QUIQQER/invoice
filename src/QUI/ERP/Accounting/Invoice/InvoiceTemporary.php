@@ -261,6 +261,23 @@ class InvoiceTemporary extends QUI\QDOM
         return new InvoiceView($this);
     }
 
+    /**
+     * @return null
+     */
+    public function getPayment()
+    {
+        try {
+            $paymentMethod = $this->getAttribute('payment_method');
+            $Payment       = QUI\ERP\Accounting\Payments\Payments::getInstance()->getPayment($paymentMethod);
+
+            new Payment($this->parsePaymentForPaymentData($Payment));
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        return null;
+    }
+
     //endregion
 
     /**
@@ -353,7 +370,6 @@ class InvoiceTemporary extends QUI\QDOM
         // attributes
         $projectName    = '';
         $timeForPayment = null;
-        $paymentMethod  = '';
         $date           = '';
 
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
@@ -368,6 +384,8 @@ class InvoiceTemporary extends QUI\QDOM
 
         if ($this->getAttribute('time_for_payment')) {
             $timeForPayment = (int)$this->getAttribute('time_for_payment');
+        } else {
+            $timeForPayment = Settings::getInstance()->get('invoice', 'time_for_payment');
         }
 
         if ($this->getAttribute('date')
@@ -398,6 +416,8 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         // payment
+        $paymentMethod = '';
+
         try {
             if ($this->getAttribute('payment_method')) {
                 $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
@@ -409,9 +429,16 @@ class InvoiceTemporary extends QUI\QDOM
             QUI\System\Log::addNotice($Exception->getMessage());
         }
 
+        //invoice text
+        $invoiceText = $this->getAttribute('additional_invoice_text');
+
+        if ($invoiceText === false) {
+            $invoiceText = QUI::getLocale()->get('quiqqer/invoice', 'additional.invoice.text');
+        }
+
         // Editor
         $Editor     = $this->getEditor();
-        $editorId   = '';
+        $editorId   = 0;
         $editorName = '';
 
         // use default advisor as editor
@@ -481,7 +508,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'articles'                => $this->Articles->toJSON(),
                 'history'                 => $this->History->toJSON(),
                 'comments'                => $this->Comments->toJSON(),
-                'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
+                'additional_invoice_text' => $invoiceText,
                 'project_name'            => $projectName,
 
                 // Calc data
@@ -674,7 +701,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // Editor
         $Editor     = $this->getEditor();
-        $editorId   = '';
+        $editorId   = 0;
         $editorName = '';
 
         // use default advisor as editor
@@ -702,8 +729,12 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
-        // time for payment
-        $paymentTime = (int)$this->getAttribute('time_for_payment');
+        // payment stuff
+        $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
+        $Payment  = $Payments->getPayment($this->getAttribute('payment_method'));
+
+        $paymentMethodData = $this->parsePaymentForPaymentData($Payment);
+        $paymentTime       = (int)$this->getAttribute('time_for_payment');
 
         $timeForPayment = date(
             'Y-m-d',
@@ -715,6 +746,7 @@ class InvoiceTemporary extends QUI\QDOM
         $timeForPayment .= ' 23:59:59';
 
 
+        // post and calc
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePost',
             [$this]
@@ -755,6 +787,7 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // payments
                 'payment_method'          => $this->getAttribute('payment_method'),
+                'payment_method_data'     => json_encode($paymentMethodData),
                 'payment_data'            => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
                 'payment_time'            => null,
                 'time_for_payment'        => $timeForPayment,
@@ -808,7 +841,28 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->delete(QUI::getUsers()->getSystemUser());
-        $Invoice = $Handler->getInvoice($newId);
+
+        // invoice payment calculation
+        $Invoice     = $Handler->getInvoice($newId);
+        $calculation = QUI\ERP\Accounting\Calc::calculatePayments($Invoice);
+
+        if (empty($calculation)) {
+            QUI::getDataBase()->update(
+                $Handler->invoiceTable(),
+                ['paid_status' => $calculation['paidStatus']],
+                ['id' => $newId]
+            );
+        } else {
+            QUI::getDataBase()->update(
+                $Handler->invoiceTable(),
+                [
+                    'paid_data'   => json_encode($calculation['paidData']),
+                    'paid_date'   => (int)$calculation['paidDate'],
+                    'paid_status' => (int)$calculation['paidStatus']
+                ],
+                ['id' => $newId]
+            );
+        }
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePostEnd',
@@ -1042,6 +1096,40 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         return false;
+    }
+
+    /**
+     * Parses the payment for the invoice payment method data field
+     *
+     * @param QUI\ERP\Accounting\Payments\Types\Payment $Payment
+     * @return array
+     */
+    protected function parsePaymentForPaymentData(QUI\ERP\Accounting\Payments\Types\Payment $Payment)
+    {
+        $data      = $Payment->toArray();
+        $languages = [];
+        $Locale    = new QUI\Locale();
+
+        try {
+            $languages = QUI\Translator::getAvailableLanguages();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::addCritical($Exception->getMessage());
+            QUI\System\Log::writeException($Exception);
+        }
+
+        $data['title']        = [];
+        $data['workingTitle'] = [];
+        $data['description']  = [];
+
+        foreach ($languages as $language) {
+            $Locale->setCurrent($language);
+
+            $data['title'][$language]        = $Payment->getTitle($Locale);
+            $data['workingTitle'][$language] = $Payment->getWorkingTitle($Locale);
+            $data['description'][$language]  = $Payment->getDescription($Locale);
+        }
+
+        return $data;
     }
 
     //endregion

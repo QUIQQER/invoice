@@ -7,13 +7,25 @@
             <en><![CDATA[QUIQQER - Shop - Invoice]]></en>
         </locale>
 
+        <locale name="erp.panel.accounting.text">
+            <de><![CDATA[Buchhaltung]]></de>
+            <en><![CDATA[Accounting]]></en>
+        </locale>
         <locale name="erp.panel.invoice.text">
-            <de><![CDATA[Rechnungen (Journal)]]></de>
-            <en><![CDATA[Invoices (Journal)]]></en>
+            <de><![CDATA[Rechnungen]]></de>
+            <en><![CDATA[Invoices]]></en>
         </locale>
         <locale name="erp.panel.invoice.create.text">
-            <de><![CDATA[Rechnungen erstellen]]></de>
-            <en><![CDATA[Create Invoices]]></en>
+            <de><![CDATA[Rechnung anlegen]]></de>
+            <en><![CDATA[Create Invoice]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.drafts.text">
+            <de><![CDATA[Rechnungen (Entwürfe)]]></de>
+            <en><![CDATA[Invoices (Drafts)]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.journal.text">
+            <de><![CDATA[Rechnungen (Journal)]]></de>
+            <en><![CDATA[Invoices (Journal)]]></en>
         </locale>
 
         <locale name="permission.quiqqer.invoice._header">
@@ -242,18 +254,31 @@
         </locale>
         <locale name="invoice.settings.invoice.prefix.description">
             <de><![CDATA[
-            Präfixe für beide Rechnungsnummern Arten können auch mit Datumsformatierungen umgehen.
-            Mögliche Datumsformate finden Sie unter:
+            Präfixe können auch mit Datumsformatierungen umgehen. Mögliche Datumsformate finden Sie unter:
             <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
                 http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
             </a>
             ]]></de>
             <en><![CDATA[
-            Prefixes for both invoice number types can also handle date formatting.
-            For possible date formats, see:
+            Prefixes can also handle date formatting. For possible date formats, see:
             <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
                 http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
             </a>
+            ]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.time_for_payment">
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Time for payment]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.time_for_payment.description">
+            <de><![CDATA[
+            Geben sie das Zahlungsziel in Tagen an welches als Standardwert
+            für alle Rechnungen verwendet werden soll.
+            Das Zahlungsziel kann für jede Rechnung noch einmal seperat gesetzt werden.
+            ]]></de>
+            <en><![CDATA[
+            Specify the payment time in days to be used as the default value for all invoices.
+            The payment time can be set separately for each invoice.
             ]]></en>
         </locale>
 
@@ -386,6 +411,10 @@
             <en><![CDATA[Payment method]]></en>
         </locale>
         <locale name="journal.grid.timeForPayment">
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Payment term]]></en>
+        </locale>
+        <locale name="temporary.grid.timeForPayment">
             <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
             <en><![CDATA[Payment term (days)]]></en>
         </locale>
@@ -434,8 +463,8 @@
             <en><![CDATA[Payment data]]></en>
         </locale>
         <locale name="journal.grid.hash">
-            <de><![CDATA[Eindeutige ID]]></de>
-            <en><![CDATA[Unique ID]]></en>
+            <de><![CDATA[Vorgangsnummer]]></de>
+            <en><![CDATA[Procedure number]]></en>
         </locale>
 
         <locale name="journal.paidstatus.all">
@@ -913,6 +942,54 @@
             <de><![CDATA[Gutschrift zu Rechnung #[id] vom [date]]]></de>
             <en><![CDATA[Credit Note to invoice #[id] from [date]]]></en>
         </locale>
+        <locale name="message.add.history.sent.to">
+            <de><![CDATA[Rechnung wurde versendet an [recipient]]]></de>
+            <en><![CDATA[Invoice was sent to [recipient]]]></en>
+        </locale>
+        <locale name="message.invoice.send.successfully">
+            <de><![CDATA[Rechnung wurde versendet]]></de>
+            <en><![CDATA[Invoice was sent]]></en>
+        </locale>
+        <locale name="invoice.send.mail.subject">
+            <de><![CDATA[Ihre Rechnung - [invoiceId]]]></de>
+            <en><![CDATA[Your Invoice - [invoiceId]]]></en>
+        </locale>
+        <locale name="invoice.send.mail.message">
+            <de><![CDATA[
+            <h1>Hallo [user],</h1>
+            <p>mit dieser E-Mail erhalten Sie Ihre NameRobot-Rechnung mit Rechnungsnummer [invoiceId].
+            Klicken Sie auf die angehängte PDF-Datei, um die Rechnung zu öffnen.</p>
+
+            <p>Für die Anzeige der Rechnung wird ein PDF-Reader benötigt, beispielsweise der Acrobat Reader von Adobe.
+            Falls Sie keinen PDF-Reader installiert haben sollten, so können Sie dies einfach nachholen:
+            Auf der Downloadseite von Adobe können Sie den Acrobat Reader kostenfrei herunterladen.</p>
+
+            <p>Ihre Rechnungen sind auch online in Ihrem Profil unter dem Punkt
+            "Meine Rechnungen" oder "Meine Bestellungen" jederzeit für Sie einsehbar.</p>
+
+            <p>Falls Sie Fragen oder Anmerkungen haben, antworten Sie einfach auf diese E-Mail.
+            Unser Supportteam wird sich bald mit Ihnen in Verbindung setzen.</p>
+            <p>Viele Grüße,<br /></p>
+            ]]></de>
+            <en><![CDATA[
+            <h1>Hello [user],</h1>
+            <p>Your invoice (reference ID [invoiceId]) is attached to this e-mail as a PDF;
+            just click on the attachment to access it.</p>
+
+            <p>You will need a PDF reader such as Adobe Acrobat Reader to view this invoice.
+            If you do not yet have a reader installed, you can download one quickly, easily,
+            and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
+            the following URL to your browser's address bar:<br />
+            http://get.adobe.com/reader/</p>
+
+            <p>Your invoice is also available online in your account. Just click on "My invoices" or "My orders" to access them.</p>
+
+            <p>If you have any questions or remarks, please contact us by answering this e-mail.
+            Our support team will contact you shortly.</p>
+
+            <p>All best wishes,<br />
+            ]]></en>
+        </locale>
 
         <locale name="exception.invoice.verification.customer">
             <de><![CDATA[Der Rechnung wurde noch kein Kunde zugewiesen.]]></de>
@@ -1067,6 +1144,18 @@
             <en><![CDATA[
             Determines whether the invoice date is to be appended to the invoice name.
             ]]></en>
+        </locale>
+        <locale name="additional.invoice.text" html="true">
+            <de><![CDATA[]]></de>
+            <en><![CDATA[]]></en>
+        </locale>
+        <locale name="additional.invoice.text.timeForPayment">
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Time for payment]]></en>
+        </locale>
+        <locale name="additional.invoice.text.paymentMethod">
+            <de><![CDATA[Zahlungsart]]></de>
+            <en><![CDATA[Payment method]]></en>
         </locale>
     </groups>
 

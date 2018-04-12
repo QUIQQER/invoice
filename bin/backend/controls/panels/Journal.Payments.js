@@ -194,11 +194,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
                 'package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentWindow'
             ], function (AddPaymentWindow) {
                 new AddPaymentWindow({
-                    invoiceId: self.getAttribute('invoiceId'),
-                    events   : {
+                    hash  : self.getAttribute('hash'),
+                    events: {
                         onSubmit: function (Win, data) {
                             Invoices.addPaymentToInvoice(
-                                self.getAttribute('invoiceId'),
+                                self.getAttribute('hash'),
                                 data.amount,
                                 data.payment_method,
                                 data.date

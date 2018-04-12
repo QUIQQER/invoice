@@ -388,12 +388,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     header   : QUILocale.get(lg, 'journal.grid.customerNo'),
                     dataIndex: 'customer_id',
                     dataType : 'integer',
-                    width    : 100
+                    width    : 100,
+                    className: 'clickable'
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'name'),
                     dataIndex: 'customer_name',
                     dataType : 'string',
-                    width    : 130
+                    width    : 130,
+                    className: 'clickable'
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'date'),
                     dataIndex: 'date',
@@ -433,7 +435,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 180
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentTerm'),
+                    header   : QUILocale.get(lg, 'journal.grid.timeForPayment'),
                     dataIndex: 'time_for_payment',
                     dataType : 'date',
                     width    : 120
@@ -466,9 +468,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width    : 120
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.orderDate'),
-                    dataIndex: 'orderdate',
+                    dataIndex: 'order_date',
                     dataType : 'date',
-                    width    : 130
+                    width    : 140
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.dunning'),
                     dataIndex: 'dunning_level_display',
@@ -480,15 +482,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 150
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentData'),
-                    dataIndex: 'payment_data',
-                    dataType : 'string',
-                    width    : 100
-                }, {
                     header   : QUILocale.get(lg, 'journal.grid.hash'),
                     dataIndex: 'hash',
                     dataType : 'string',
-                    width    : 200
+                    width    : 280,
+                    className: 'monospace'
                 }]
             });
 
@@ -719,9 +717,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         /**
          * event: on click open invoice
          *
+         * @param {object} data - cell data
          * @return {Promise}
          */
-        $onClickOpenInvoice: function () {
+        $onClickOpenInvoice: function (data) {
+            if (typeof data !== 'undefined' &&
+                (data.cell.get('data-index') === 'customer_id' ||
+                    data.cell.get('data-index') === 'customer_name')) {
+
+                var self = this;
+
+                return new Promise(function (resolve) {
+                    require(['utils/Panels'], function (PanelUtils) {
+                        PanelUtils.openUserPanel(
+                            self.$Grid.getDataByRow(data.row).customer_id
+                        );
+
+                        resolve();
+                    });
+                });
+            }
+
             var selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
