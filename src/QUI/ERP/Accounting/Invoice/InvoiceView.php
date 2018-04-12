@@ -201,9 +201,6 @@ class InvoiceView extends QUI\QDOM
         $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
         $timeForPayment = $Formatter->format(strtotime($timeForPayment));
 
-        QUI\System\Log::writeRecursive('####');
-        QUI\System\Log::writeRecursive($timeForPayment);
-
         $Engine->assign([
             'this'           => $this,
             'ArticleList'    => $Articles,
