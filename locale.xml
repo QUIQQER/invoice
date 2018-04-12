@@ -7,13 +7,25 @@
             <en><![CDATA[QUIQQER - Shop - Invoice]]></en>
         </locale>
 
+        <locale name="erp.panel.accounting.text">
+            <de><![CDATA[Buchhaltung]]></de>
+            <en><![CDATA[Accounting]]></en>
+        </locale>
         <locale name="erp.panel.invoice.text">
-            <de><![CDATA[Rechnungen (Journal)]]></de>
-            <en><![CDATA[Invoices (Journal)]]></en>
+            <de><![CDATA[Rechnungen]]></de>
+            <en><![CDATA[Invoices]]></en>
         </locale>
         <locale name="erp.panel.invoice.create.text">
-            <de><![CDATA[Rechnungen erstellen]]></de>
-            <en><![CDATA[Create Invoices]]></en>
+            <de><![CDATA[Rechnung anlegen]]></de>
+            <en><![CDATA[Create Invoice]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.drafts.text">
+            <de><![CDATA[Rechnungen (Entwürfe)]]></de>
+            <en><![CDATA[Invoices (Drafts)]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.journal.text">
+            <de><![CDATA[Rechnungen (Journal)]]></de>
+            <en><![CDATA[Invoices (Journal)]]></en>
         </locale>
 
         <locale name="permission.quiqqer.invoice._header">
