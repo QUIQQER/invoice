@@ -46,9 +46,10 @@ class ErpProvider extends AbstractErpProvider
 
         $Invoice->appendChild(
             new Item([
-                'icon' => 'fa fa-plus',
-                'name' => 'invoice-create',
-                'text' => ['quiqqer/invoice', 'erp.panel.invoice.create.text']
+                'icon'    => 'fa fa-plus',
+                'name'    => 'invoice-create',
+                'text'    => ['quiqqer/invoice', 'erp.panel.invoice.create.text'],
+                'require' => 'package/quiqqer/invoice/bin/backend/utils/ErpMenuInvoiceCreate'
             ])
         );
 
