@@ -276,17 +276,16 @@ class Invoice
 
         $date = $Invoice->getAttribute('date');
         $date = strtotime($date);
-        $date = $Formatter->format($date);
 
         $year  = date('Y', $date);
         $month = date('m', $date);
         $day   = date('d', $date);
-
+        
         $placeholders = [
             '%HASH%'  => $Invoice->getHash(),
             '%ID%'    => $Invoice->getCleanId(),
             '%INO%'   => $Invoice->getId(),
-            '%DATE%'  => $date,
+            '%DATE%'  => $Formatter->format($date),
             '%YEAR%'  => $year,
             '%MONTH%' => $month,
             '%DAY%'   => $day
