@@ -21,13 +21,6 @@
                 </conf>
             </section>
 
-            <section name="invoiceDownload">
-                <conf name="useDate">
-                    <type><![CDATA[bool]]></type>
-                    <defaultvalue><![CDATA[1]]></defaultvalue>
-                </conf>
-            </section>
-
             <section name="temporaryInvoice">
                 <conf name="prefix">
                     <type><![CDATA[string]]></type>
@@ -118,15 +111,6 @@
                             </text>
                             <description>
                                 <locale group="quiqqer/invoice" var="invoice.settings.download.name.description"/>
-                            </description>
-                        </input>
-
-                        <input type="checkbox" conf="invoiceDownload.useDate">
-                            <text>
-                                <locale group="quiqqer/invoice" var="invoice.settings.download.useDate.title"/>
-                            </text>
-                            <description>
-                                <locale group="quiqqer/invoice" var="invoice.settings.download.useDate.description"/>
                             </description>
                         </input>
                     </settings>

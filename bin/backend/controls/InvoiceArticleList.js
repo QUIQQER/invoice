@@ -176,7 +176,11 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                         continue;
                     }
 
-                    self.addArticle(new arguments[index](article));
+                    try {
+                        self.addArticle(new arguments[index](article));
+                    } catch (e) {
+                        console.log(e);
+                    }
                 }
             });
         },
