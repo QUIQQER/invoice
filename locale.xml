@@ -1125,12 +1125,30 @@
             <de><![CDATA[Name der Rechnung]]></de>
             <en><![CDATA[Name of the invoice]]></en>
         </locale>
-        <locale name="invoice.settings.download.name.description">
+        <locale name="invoice.settings.download.name.description" html="true">
             <de><![CDATA[
-            Lädt der Nutzer sich eine Rechnung herunter, legt diese Einstellung den Namen der Rechnungsdatei fest
+            Legt den Dateinamen einer Rechnung fest. Durch verschiedene Platzhalter können Sie den Namen der Datei flexibel gestalten:
+            <ul>
+            <li><strong>%HASH%</strong> - Hash der Rechnung</li>
+            <li><strong>%ID%</strong> - Rechnungs-ID</li>
+            <li><strong>%INO%</strong> - Rechnungsnummer</li>
+            <li><strong>%DATE%</strong>  - Rechnungsdatum</li>
+            <li><strong>%YEAR%</strong>  - Jahr des Rechnungsdatums</li>
+            <li><strong>%MONTH%</strong> - Monat des Rechnungsdatums</li>
+            <li><strong>%DAY%</strong>   - Tag des Rechnungsdatums</li>
+            </ul>
             ]]></de>
             <en><![CDATA[
-            If the user downloads an invoice, this setting specifies the name of the invoice file
+            Specifies the name of the invoice file. You can use various placeholders to make the name of the file flexible:
+            <ul>
+            <li><strong>%HASH%</strong> - Hash of the invoice</li>
+            <li><strong>%ID%</strong> - Invoice ID</li>
+            <li><strong>%INO%</strong> - Invoice number</li>
+            <li><strong>%DATE%</strong>  - Invoice date</li>
+            <li><strong>%YEAR%</strong>  - Year of the invoice date</li>
+            <li><strong>%MONTH%</strong> - Month of the invoice date</li>
+            <li><strong>%DAY%</strong>   - Day of the invoice date</li>
+            </ul>
             ]]></en>
         </locale>
         <locale name="invoice.settings.download.useDate.title">
