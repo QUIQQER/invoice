@@ -82,7 +82,6 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 Invoices.get(this.getAttribute('invoiceId')),
                 Invoices.getTemplates()
             ]).then(function (result) {
-
                 var invoiceData = result[0];
                 var templates   = result[1];
 
@@ -182,12 +181,15 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 invoiceId = this.getAttribute('invoiceId');
 
             return new Promise(function (resolve) {
-                var id = 'print-invoice-' + invoiceId;
+                var id      = 'print-invoice-' + invoiceId,
+                    Content = self.getContent(),
+                    Form    = Content.getElement('form');
 
                 new Element('iframe', {
                     src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/printInvoice.php?' + Object.toQueryString({
                         invoiceId: invoiceId,
-                        oid      : self.getId()
+                        oid      : self.getId(),
+                        template : Form.elements.template.value
                     }),
                     id    : id,
                     styles: {

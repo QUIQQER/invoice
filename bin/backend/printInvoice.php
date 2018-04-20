@@ -28,6 +28,15 @@ try {
 
 $streamFile = URL_OPT_DIR.'quiqqer/invoice/bin/backend/printStreamInvoice.php?invoiceId='.$Invoice->getId();
 
+if (isset($_REQUEST['template'])) {
+    try {
+        QUI::getPackage($_REQUEST['template']);
+        $streamFile .= '&template='.$_REQUEST['template'];
+    } catch (QUI\Exception $Exception) {
+        QUI\System\Log::writeDebugException($Exception);
+    }
+}
+
 echo '
 <html>
 <head>
