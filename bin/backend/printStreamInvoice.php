@@ -11,22 +11,33 @@ if (!$User->canUseBackend()) {
     exit;
 }
 
-$Request  = QUI::getRequest();
-$Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-
+$Request   = QUI::getRequest();
+$Invoices  = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 $invoiceId = $Request->query->get('invoiceId');
 
 try {
     $Invoice = $Invoices->get($invoiceId);
-} catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
+} catch (QUI\Exception $Exception) {
     try {
         $Invoice = $Invoices->getInvoice($invoiceId);
-    } catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
+    } catch (QUI\Exception $Exception) {
         $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
     }
 }
 
-$HtmlPdfDocument = $Invoice->getView()->toPDF();
+$View = $Invoice->getView();
+
+if (isset($_REQUEST['template'])) {
+    try {
+        QUI::getPackage($_REQUEST['template']);
+
+        $View->setAttribute('template', $_REQUEST['template']);
+    } catch (QUI\Exception $Exception) {
+        QUI\System\Log::writeDebugException($Exception);
+    }
+}
+
+$HtmlPdfDocument = $View->toPDF();
 $imageFile       = $HtmlPdfDocument->createImage();
 
 $Response = QUI::getGlobalResponse();
@@ -34,4 +45,6 @@ $Response->headers->set('Content-Type', 'image/jpg');
 $Response->setContent(file_get_contents($imageFile));
 $Response->send();
 
-unlink($imageFile);
+if (file_exists($imageFile)) {
+    unlink($imageFile);
+}
