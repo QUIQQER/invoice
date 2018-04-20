@@ -6,6 +6,9 @@
 
 namespace QUI\ERP\Accounting\Invoice;
 
+use QUI\Controls\Sitemap\Map;
+use QUI\Controls\Sitemap\Item;
+
 use QUI\ERP\Api\AbstractErpProvider;
 
 /**
@@ -16,25 +19,59 @@ use QUI\ERP\Api\AbstractErpProvider;
 class ErpProvider extends AbstractErpProvider
 {
     /**
-     * @return array
+     * @param \QUI\Controls\Sitemap\Map $Map
      */
-    public static function getMenuItems()
+    public static function addMenuItems(Map $Map)
     {
-        $menu = [];
+        $Accounting = $Map->getChildrenByName('accounting');
 
-        $menu[] = [
-            'icon'  => 'fa fa-money',
-            'text'  => ['quiqqer/invoice', 'erp.panel.invoice.text'],
-            'panel' => 'package/quiqqer/invoice/bin/backend/controls/panels/Journal'
-        ];
+        if ($Accounting === null) {
+            $Accounting = new Item([
+                'icon'     => 'fa fa-book',
+                'name'     => 'accounting',
+                'text'     => ['quiqqer/order', 'erp.panel.accounting.text'],
+                'opened'   => true,
+                'priority' => 1
+            ]);
 
-        $menu[] = [
-            'icon'  => 'fa fa-money',
-            'text'  => ['quiqqer/invoice', 'erp.panel.invoice.create.text'],
-            'panel' => 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices'
-        ];
+            $Map->appendChild($Accounting);
+        }
 
-        return $menu;
+        $Invoice = new Item([
+            'icon'   => 'fa fa-file-text-o',
+            'name'   => 'invoice',
+            'text'   => ['quiqqer/invoice', 'erp.panel.invoice.text'],
+            'opened' => true
+        ]);
+
+        $Invoice->appendChild(
+            new Item([
+                'icon'    => 'fa fa-plus',
+                'name'    => 'invoice-create',
+                'text'    => ['quiqqer/invoice', 'erp.panel.invoice.create.text'],
+                'require' => 'package/quiqqer/invoice/bin/backend/utils/ErpMenuInvoiceCreate'
+            ])
+        );
+
+        $Invoice->appendChild(
+            new Item([
+                'icon'    => 'fa fa-file-text-o',
+                'name'    => 'invoice-drafts',
+                'text'    => ['quiqqer/invoice', 'erp.panel.invoice.drafts.text'],
+                'require' => 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices'
+            ])
+        );
+
+        $Invoice->appendChild(
+            new Item([
+                'icon'    => 'fa fa-file-text-o',
+                'name'    => 'invoice-journal',
+                'text'    => ['quiqqer/invoice', 'erp.panel.invoice.journal.text'],
+                'require' => 'package/quiqqer/invoice/bin/backend/controls/panels/Journal'
+            ])
+        );
+
+        $Accounting->appendChild($Invoice);
     }
 
     /**

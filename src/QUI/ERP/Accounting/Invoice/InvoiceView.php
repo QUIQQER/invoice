@@ -7,6 +7,7 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 /**
  * Class InvoiceView
@@ -91,37 +92,9 @@ class InvoiceView extends QUI\QDOM
      */
     public function toPDF()
     {
-        $Plugin   = QUI::getPackage('quiqqer/invoice');
-        $Config   = $Plugin->getConfig();
-        $fileName = QUI::getLocale()->get('quiqqer/invoice', 'pdf.download.name');
-
-        if ($Config->get('invoiceDownload', 'useDate')) {
-            $localeCode = QUI::getLocale()->getLocalesByLang(
-                QUI::getLocale()->getCurrent()
-            );
-
-            $Formatter = new \IntlDateFormatter(
-                $localeCode[0],
-                \IntlDateFormatter::SHORT,
-                \IntlDateFormatter::NONE
-            );
-
-            $cDate = $this->Invoice->getAttribute('date');
-            $cDate = strtotime($cDate);
-
-            $date = $Formatter->format($cDate);
-            $date = preg_replace('/[^0-9]/', '_', $date);
-            $date = trim($date, '_');
-
-            $fileName .= '_';
-            $fileName .= $date;
-        }
-
-        $fileName .= '.pdf';
-
         $Document = new QUI\HtmlToPdf\Document([
             'marginTop'    => 30, // dies ist variabel durch quiqqerInvoicePdfCreate
-            'filename'     => $fileName,
+            'filename'     => InvoiceUtils::getInvoiceFilename($this->Invoice).'.pdf',
             'marginBottom' => 80  // dies ist variabel durch quiqqerInvoicePdfCreate
         ]);
 
@@ -200,9 +173,6 @@ class InvoiceView extends QUI\QDOM
         $Formatter      = QUI::getLocale()->getDateFormatter();
         $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
         $timeForPayment = $Formatter->format(strtotime($timeForPayment));
-
-        QUI\System\Log::writeRecursive('####');
-        QUI\System\Log::writeRecursive($timeForPayment);
 
         $Engine->assign([
             'this'           => $this,
