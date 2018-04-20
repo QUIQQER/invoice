@@ -977,7 +977,9 @@ class Invoice extends QUI\QDOM
             ])
         );
 
-        unlink($pdfFile);
+        if (file_exists($pdfFile)) {
+            unlink($pdfFile);
+        }
     }
 
     //region Comments & History
