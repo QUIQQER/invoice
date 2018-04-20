@@ -56,7 +56,7 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/Templates', [
                     }).inject(self.$Select);
                 }
 
-                self.$onChange();
+                self.$Select.value = self.$Input.value;
             });
         },
 
