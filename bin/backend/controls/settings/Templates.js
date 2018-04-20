@@ -44,7 +44,7 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/Templates', [
             this.$Select = new Element('select', {
                 'class': 'field-container-field',
                 events : {
-                    onChange: this.$onChange
+                    change: this.$onChange
                 }
             }).inject(this.$Input, 'after');
 
