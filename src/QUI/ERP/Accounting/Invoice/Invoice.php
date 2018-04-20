@@ -952,12 +952,20 @@ class Invoice extends QUI\QDOM
 
         rename($pdfFile, $newFile);
 
+        $user = $this->getCustomer()->getName();
+        $user = trim($user);
+
+        if (empty($user)) {
+            $user = $this->getCustomer()->getAddress()->getName();
+        }
+
+        // mail send
         $Mailer->addAttachment($newFile);
 
         $Mailer->setBody(
             QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
                 'invoiceId' => $this->getId(),
-                'user'      => $this->getCustomer()->getName(),
+                'user'      => $user,
                 'address'   => $this->getCustomer()->getAddress()->render(),
                 'invoice'   => $View->getTemplate()->getHTMLBody()
             ])
