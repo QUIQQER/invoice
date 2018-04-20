@@ -31,8 +31,20 @@ try {
     }
 }
 
+$View = $Invoice->getView();
+
+if (isset($_REQUEST['template'])) {
+    try {
+        QUI::getPackage($_REQUEST['template']);
+
+        $View->setAttribute('template', $_REQUEST['template']);
+    } catch (QUI\Exception $Exception) {
+        QUI\System\Log::writeDebugException($Exception);
+    }
+}
+
 try {
-    $HtmlPdfDocument = $Invoice->getView()->toPDF();
+    $HtmlPdfDocument = $View->toPDF();
     $HtmlPdfDocument->download();
 } catch (QUI\Exception $Exception) {
     QUI\System\Log::writeException($Exception);

@@ -931,12 +931,18 @@ class Invoice extends QUI\QDOM
      * Send the invoice to a recipient
      *
      * @param string $recipient - The recipient email address
+     * @param bool|string $template - pdf template
      *
      * @throws
      */
-    public function sendTo($recipient)
+    public function sendTo($recipient, $template = false)
     {
-        $View    = $this->getView();
+        $View = $this->getView();
+
+        if ($template) {
+            $View->setAttribute('template', $template);
+        }
+
         $pdfFile = $View->toPDF()->createPDF();
 
         $Mailer = QUI::getMailManager()->getMailer();
