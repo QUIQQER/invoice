@@ -8,10 +8,11 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 use QUI\Permissions\Permission;
+use QUI\ERP\Money\Price;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Accounting\Payments\Api\PaymentsInterface;
-use QUI\ERP\Money\Price;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 /**
  * Class Invoice
@@ -950,7 +951,7 @@ class Invoice extends QUI\QDOM
 
         // invoice pdf file
         $dir     = dirname($pdfFile);
-        $newFile = $dir.'/'.$this->getId().'.pdf';
+        $newFile = $dir.'/'.InvoiceUtils::getInvoiceFilename($this).'.pdf';
 
         if ($newFile !== $pdfFile && file_exists($newFile)) {
             unlink($newFile);
