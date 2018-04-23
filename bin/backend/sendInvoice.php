@@ -19,10 +19,10 @@ $recipient = $Request->query->get('recipient');
 
 try {
     $Invoice = $Invoices->get($invoiceId);
-} catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
+} catch (QUI\Exception $Exception) {
     try {
         $Invoice = $Invoices->getInvoice($invoiceId);
-    } catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
+    } catch (QUI\Exception $Exception) {
         $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
     }
 }

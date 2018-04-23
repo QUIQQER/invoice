@@ -252,11 +252,14 @@ class Invoice
     }
 
     /**
+     * Return the file name for an invoice download
      *
      * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
+     * @param QUI\Locale $Locale
+     *
      * @return string
      */
-    public static function getInvoiceFilename($Invoice)
+    public static function getInvoiceFilename($Invoice, $Locale = null)
     {
         if (!($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary)) {
@@ -280,7 +283,7 @@ class Invoice
         $year  = date('Y', $date);
         $month = date('m', $date);
         $day   = date('d', $date);
-        
+
         $placeholders = [
             '%HASH%'  => $Invoice->getHash(),
             '%ID%'    => $Invoice->getCleanId(),
@@ -291,7 +294,15 @@ class Invoice
             '%DAY%'   => $day
         ];
 
-        $fileName = QUI::getLocale()->get('quiqqer/invoice', 'pdf.download.name');
+        if ($Locale === null) {
+            $Locale = $Invoice->getCustomer()->getLocale();
+        }
+
+        if ($Locale === null) {
+            $Locale = QUI::getLocale();
+        }
+
+        $fileName = $Locale->get('quiqqer/invoice', 'pdf.download.name');
 
         foreach ($placeholders as $placeholder => $value) {
             $fileName = str_replace($placeholder, $value, $fileName);
