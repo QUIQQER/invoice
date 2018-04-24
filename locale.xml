@@ -957,7 +957,7 @@
         <locale name="invoice.send.mail.message">
             <de><![CDATA[
             <h1>Hallo [user],</h1>
-            <p>mit dieser E-Mail erhalten Sie Ihre NameRobot-Rechnung mit Rechnungsnummer [invoiceId].
+            <p>mit dieser E-Mail erhalten Sie Ihre Rechnung mit Rechnungsnummer [invoiceId].
             Klicken Sie auf die angehängte PDF-Datei, um die Rechnung zu öffnen.</p>
 
             <p>Für die Anzeige der Rechnung wird ein PDF-Reader benötigt, beispielsweise der Acrobat Reader von Adobe.
