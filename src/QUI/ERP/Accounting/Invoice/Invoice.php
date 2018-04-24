@@ -247,7 +247,8 @@ class Invoice extends QUI\QDOM
             'firstname' => '',
             'lastname'  => '',
             'lang'      => '',
-            'isCompany' => ''
+            'isCompany' => '',
+            'isNetto'   => ''
         ]);
     }
 

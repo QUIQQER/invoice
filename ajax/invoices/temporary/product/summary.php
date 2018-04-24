@@ -22,7 +22,8 @@ QUI::$Ajax->registerFunction(
             'firstname' => '',
             'lastname'  => '',
             'lang'      => QUI::getLocale()->getCurrent(),
-            'isCompany' => 0
+            'isCompany' => 0,
+            'isNetto'   => 0
         ]);
 
         $Brutto->setAttribute(
