@@ -2,7 +2,7 @@
 
 namespace QUITests\ERP\Accounting\Invoice;
 
-require_once dirname(__FILE__) . '/Classes/ListHelper.php';
+require_once dirname(__FILE__).'/Classes/ListHelper.php';
 
 use QUI;
 use QUITests\ERP\Accounting\Invoice\Classes\ListHelper;
@@ -19,15 +19,16 @@ class BruttoTest extends \PHPUnit_Framework_TestCase
         writePhpUnitMessage('/*********************************/');
         writePhpUnitMessage();
 
-        $NettoUser = new QUI\ERP\User(array(
+        $NettoUser = new QUI\ERP\User([
             'id'        => 0,
             'country'   => 'DE',
             'username'  => 'user',
             'firstname' => 'Markus',
             'lastname'  => 'Baumgartner',
             'lang'      => 'de',
-            'isCompany' => 1
-        ));
+            'isCompany' => 1,
+            'isNetto'   => 1
+        ]);
 
         $NettoUser->setAttribute('quiqqer.erp.isNettoUser', 0);
 
@@ -35,7 +36,7 @@ class BruttoTest extends \PHPUnit_Framework_TestCase
         $List->setUser($NettoUser);
 
         $List->addArticle(
-            new QUI\ERP\Accounting\Article(array(
+            new QUI\ERP\Accounting\Article([
                 'id'          => 10,
                 'articleNo'   => 'ART001',
                 'title'       => 'Artikel 1',
@@ -43,11 +44,11 @@ class BruttoTest extends \PHPUnit_Framework_TestCase
                 'unitPrice'   => 10,
                 'quantity'    => 2,
                 'vat'         => 19
-            ))
+            ])
         );
 
         $List->addArticle(
-            new QUI\ERP\Accounting\Article(array(
+            new QUI\ERP\Accounting\Article([
                 'id'          => 11,
                 'articleNo'   => 'ART002',
                 'title'       => 'Artikel 2',
@@ -55,7 +56,7 @@ class BruttoTest extends \PHPUnit_Framework_TestCase
                 'unitPrice'   => 10,
                 'quantity'    => 3,
                 'vat'         => 7
-            ))
+            ])
         );
 
         $List->calc();
