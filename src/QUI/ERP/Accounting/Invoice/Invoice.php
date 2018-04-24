@@ -8,10 +8,11 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 use QUI\Permissions\Permission;
+use QUI\ERP\Money\Price;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Accounting\Payments\Api\PaymentsInterface;
-use QUI\ERP\Money\Price;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 /**
  * Class Invoice
@@ -931,12 +932,18 @@ class Invoice extends QUI\QDOM
      * Send the invoice to a recipient
      *
      * @param string $recipient - The recipient email address
+     * @param bool|string $template - pdf template
      *
      * @throws
      */
-    public function sendTo($recipient)
+    public function sendTo($recipient, $template = false)
     {
-        $View    = $this->getView();
+        $View = $this->getView();
+
+        if ($template) {
+            $View->setAttribute('template', $template);
+        }
+
         $pdfFile = $View->toPDF()->createPDF();
 
         $Mailer = QUI::getMailManager()->getMailer();
@@ -944,7 +951,7 @@ class Invoice extends QUI\QDOM
 
         // invoice pdf file
         $dir     = dirname($pdfFile);
-        $newFile = $dir.'/'.$this->getId().'.pdf';
+        $newFile = $dir.'/'.InvoiceUtils::getInvoiceFilename($this).'.pdf';
 
         if ($newFile !== $pdfFile && file_exists($newFile)) {
             unlink($newFile);
@@ -952,12 +959,20 @@ class Invoice extends QUI\QDOM
 
         rename($pdfFile, $newFile);
 
+        $user = $this->getCustomer()->getName();
+        $user = trim($user);
+
+        if (empty($user)) {
+            $user = $this->getCustomer()->getAddress()->getName();
+        }
+
+        // mail send
         $Mailer->addAttachment($newFile);
 
         $Mailer->setBody(
             QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
                 'invoiceId' => $this->getId(),
-                'user'      => $this->getCustomer()->getName(),
+                'user'      => $user,
                 'address'   => $this->getCustomer()->getAddress()->render(),
                 'invoice'   => $View->getTemplate()->getHTMLBody()
             ])
@@ -977,7 +992,9 @@ class Invoice extends QUI\QDOM
             ])
         );
 
-        unlink($pdfFile);
+        if (file_exists($pdfFile)) {
+            unlink($pdfFile);
+        }
     }
 
     //region Comments & History

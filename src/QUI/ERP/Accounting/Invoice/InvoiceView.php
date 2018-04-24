@@ -132,7 +132,13 @@ class InvoiceView extends QUI\QDOM
             $template = $Settings->getDefaultTemplate();
         }
 
-        return QUI::getPackage($template);
+        try {
+            return QUI::getPackage($template);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+        }
+
+        return QUI::getPackage($Settings->getDefaultTemplate());
     }
 
     /**
