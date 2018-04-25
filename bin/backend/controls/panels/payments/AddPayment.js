@@ -10,12 +10,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
     'qui/controls/Control',
     'qui/utils/Form',
     'Mustache',
+    'Locale',
     'package/quiqqer/payments/bin/backend/Payments',
     'package/quiqqer/invoice/bin/Invoices',
 
     'text!package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment.html'
 
-], function (QUI, QUIControl, QUIFormUtils, Mustache, Payments, Invoices, template) {
+], function (QUI, QUIControl, QUIFormUtils, Mustache, QUILocale, Payments, Invoices, template) {
     "use strict";
 
     return new Class({
@@ -71,8 +72,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
                 Payments.getPayments(),
                 Invoices.get(this.getAttribute('hash'))
             ]).then(function (result) {
+                var title, payment;
+
                 var payments = result[0],
-                    invoice  = result[1];
+                    invoice  = result[1],
+                    current  = QUILocale.getCurrent();
 
                 var Payments  = this.getElm().getElement('[name="payment_method"]');
                 var DateInput = this.getElm().getElement('[name="date"]');
@@ -85,14 +89,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
 
                 Amount.value = invoice.toPay;
 
-                for (var payment in payments) {
-                    if (!payments.hasOwnProperty(payment)) {
-                        continue;
+                for (var i = 0, len = payments.length; i < len; i++) {
+                    payment = payments[i];
+                    title   = payment.title;
+
+                    if (current in payment.title) {
+                        title = payment.title[current];
                     }
 
                     new Element('option', {
-                        html : payments[payment].title,
-                        value: payment
+                        html : title,
+                        value: parseInt(payment.id)
                     }).inject(Payments);
                 }
 

@@ -336,7 +336,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         /**
          * Add a payment to an invoice
          *
-         * @param {Number|String} invoiceId
+         * @param {Number|String} invoiceId - id or hash
          * @param {Number} amount
          * @param {String} paymentMethod
          * @param {Number|String} [date]

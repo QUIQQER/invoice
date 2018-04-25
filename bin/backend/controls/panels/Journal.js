@@ -599,17 +599,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            var invoiceId = selectedData[0].id;
+            var hash = selectedData[0].hash;
 
             require([
                 'package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentWindow'
             ], function (AddPaymentWindow) {
                 new AddPaymentWindow({
-                    invoiceId: invoiceId,
-                    events   : {
+                    hash  : hash,
+                    events: {
                         onSubmit: function (Win, data) {
                             self.addPayment(
-                                invoiceId,
+                                hash,
                                 data.amount,
                                 data.payment_method,
                                 data.date
@@ -845,7 +845,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
                             // #locale
                             var Label = new Element('label', {
-                                html  : '<span>Stornierungsgrund</span>',
+                                html  : '<span>Stornierungsgrund</span>', // #locale
                                 styles: {
                                     display   : 'block',
                                     fontWeight: 'bold',
@@ -949,18 +949,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
         /**
          * Add a payment to an invoice
-         * @param {String|Number} invoiceId
+         * @param {String|Number} hash
          * @param {String|Number} amount
          * @param {String} paymentMethod
          * @param {String|Number} date
          */
-        addPayment: function (invoiceId, amount, paymentMethod, date) {
+        addPayment: function (hash, amount, paymentMethod, date) {
             var self = this;
 
             this.Loader.show();
 
             return Invoices.addPaymentToInvoice(
-                invoiceId,
+                hash,
                 amount,
                 paymentMethod,
                 date
@@ -968,6 +968,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return self.refresh();
             }).then(function () {
                 self.Loader.hide();
+            }).catch(function (err) {
+                console.error(err);
             });
         },
 
