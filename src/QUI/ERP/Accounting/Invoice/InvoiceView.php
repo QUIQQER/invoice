@@ -156,6 +156,7 @@ class InvoiceView extends QUI\QDOM
 
         $Engine    = $Template->getEngine();
         $Customer  = $this->Invoice->getCustomer();
+        $Locale    = $Customer->getLocale();
         $Editor    = $this->Invoice->getEditor();
         $addressId = $this->Invoice->getAttribute('invoice_address_id');
 
@@ -176,7 +177,7 @@ class InvoiceView extends QUI\QDOM
         }
 
         // time for payment
-        $Formatter      = QUI::getLocale()->getDateFormatter();
+        $Formatter      = $Locale->getDateFormatter();
         $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
         $timeForPayment = $Formatter->format(strtotime($timeForPayment));
 

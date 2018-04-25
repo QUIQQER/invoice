@@ -249,7 +249,7 @@
             <en><![CDATA[Prefix for unbooked invoice numbers]]></en>
         </locale>
         <locale name="invoice.settings.sendMailAtCreation">
-            <de><![CDATA[Rechnung bei Generierung versenden]]></de>
+            <de><![CDATA[Die Rechnung]]></de>
             <en><![CDATA[Sending Invoices During Generation]]></en>
         </locale>
         <locale name="invoice.settings.invoice.prefix.description">
