@@ -352,10 +352,16 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function update($PermissionUser = null)
     {
-        QUI\Permissions\Permission::checkPermission(
-            'quiqqer.invoice.temporary.edit',
-            $PermissionUser
-        );
+        if ($PermissionUser === null) {
+            $PermissionUser = QUI::getUserBySession();
+        }
+
+        if ($PermissionUser->getId() !== $this->getCustomer()->getId()) {
+            QUI\Permissions\Permission::checkPermission(
+                'quiqqer.invoice.temporary.edit',
+                $PermissionUser
+            );
+        }
 
         $this->checkLocked();
 
@@ -640,10 +646,12 @@ class InvoiceTemporary extends QUI\QDOM
             $PermissionUser = QUI::getUserBySession();
         }
 
-        QUI\Permissions\Permission::checkPermission(
-            'quiqqer.invoice.post',
-            $PermissionUser
-        );
+        if ($PermissionUser->getId() !== $this->getCustomer()->getId()) {
+            QUI\Permissions\Permission::checkPermission(
+                'quiqqer.invoice.post',
+                $PermissionUser
+            );
+        }
 
         $this->checkLocked();
 
@@ -870,8 +878,14 @@ class InvoiceTemporary extends QUI\QDOM
         );
 
         // send invoice mail
-        if (Settings::getInstance()->sendMailAtInvoiceCreation()) {
-            $this->sendCreationMail($Invoice);
+        try {
+            if (Settings::getInstance()->sendMailAtInvoiceCreation()) {
+                $this->sendCreationMail($Invoice);
+            }
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+
+            // @todo history info das mail nicht raus ging
         }
 
         return $Invoice;
