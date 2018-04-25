@@ -11,6 +11,10 @@
                     <type><![CDATA[string]]></type>
                     <defaultvalue><![CDATA[INV-]]></defaultvalue>
                 </conf>
+                <conf name="autoPost">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[1]]></defaultvalue>
+                </conf>
                 <conf name="sendMailAtCreation">
                     <type><![CDATA[bool]]></type>
                     <defaultvalue><![CDATA[0]]></defaultvalue>
