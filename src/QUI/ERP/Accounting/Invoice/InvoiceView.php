@@ -92,10 +92,13 @@ class InvoiceView extends QUI\QDOM
      */
     public function toPDF()
     {
+        $Customer = $this->Invoice->getCustomer();
+
         $Document = new QUI\HtmlToPdf\Document([
-            'marginTop'    => 30, // dies ist variabel durch quiqqerInvoicePdfCreate
-            'filename'     => InvoiceUtils::getInvoiceFilename($this->Invoice).'.pdf',
-            'marginBottom' => 80  // dies ist variabel durch quiqqerInvoicePdfCreate
+            'marginTop'         => 30, // dies ist variabel durch quiqqerInvoicePdfCreate
+            'filename'          => InvoiceUtils::getInvoiceFilename($this->Invoice).'.pdf',
+            'marginBottom'      => 80,  // dies ist variabel durch quiqqerInvoicePdfCreate,
+            'pageNumbersPrefix' => $Customer->getLocale()->get('quiqqer/htmltopdf', 'footer.page.prefix'),
         ]);
 
         $Template = $this->getTemplate();
