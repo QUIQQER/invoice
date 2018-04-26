@@ -93,7 +93,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
                     payment = payments[i];
                     title   = payment.title;
 
-                    if (current in payment.title) {
+                    if (typeOf(payment.title) === 'object' && current in payment.title) {
                         title = payment.title[current];
                     }
 
