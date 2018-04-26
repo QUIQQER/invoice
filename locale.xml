@@ -249,8 +249,8 @@
             <en><![CDATA[Prefix for unbooked invoice numbers]]></en>
         </locale>
         <locale name="invoice.settings.sendMailAtCreation">
-            <de><![CDATA[Die Rechnung]]></de>
-            <en><![CDATA[Sending Invoices During Generation]]></en>
+            <de><![CDATA[Rechnung bei Erstellung per E-Mail versenden]]></de>
+            <en><![CDATA[Sending Invoices during generation]]></en>
         </locale>
         <locale name="invoice.settings.invoice.prefix.description">
             <de><![CDATA[
