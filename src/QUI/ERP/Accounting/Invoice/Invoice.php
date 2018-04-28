@@ -514,9 +514,7 @@ class Invoice extends QUI\QDOM
             [
                 'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
                 'customer_id'             => $currentData['customer_id'],
-                'invoice_address_id'      => $currentData['invoice_address_id'],
                 'invoice_address'         => $currentData['invoice_address'],
-                'delivery_address_id'     => $currentData['delivery_address_id'],
                 'delivery_address'        => $currentData['delivery_address'],
                 'order_id'                => $currentData['order_id'],
                 'project_name'            => $currentData['project_name'],

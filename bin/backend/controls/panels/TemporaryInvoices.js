@@ -68,6 +68,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * Refresh the grid
          */
         refresh: function () {
+            if (!this.$Grid) {
+                return;
+            }
+
             this.Loader.show();
 
             return Invoices.getTemporaryInvoicesList().then(function (result) {
