@@ -298,8 +298,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     Container
                 ]);
             }).then(function (result) {
-                console.warn(result);
-
                 new Comments({
                     comments: result[0]
                 }).inject(result[1]);
