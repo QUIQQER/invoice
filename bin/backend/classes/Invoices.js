@@ -334,6 +334,24 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Return the combined history of the invoice
+         * - history, transaction, comments
+         *
+         * @param {String} invoiceId
+         * @return {Promise}
+         */
+        getInvoiceHistory: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_getHistory', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Add a payment to an invoice
          *
          * @param {Number|String} invoiceId - id or hash

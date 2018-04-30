@@ -283,6 +283,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
         /**
          * open History
+         *
+         * @return {Promise}
          */
         openHistory: function () {
             var self = this;
@@ -291,9 +293,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.getCategory('history').setActive();
 
             return this.$closeCategory().then(function (Container) {
+                return Promise.all([
+                    Invoices.getInvoiceHistory(self.getAttribute('data').hash),
+                    Container
+                ]);
+            }).then(function (result) {
                 new Comments({
-                    comments: self.getAttribute('data').history
-                }).inject(Container);
+                    comments: result[0]
+                }).inject(result[1]);
             }).then(function () {
                 return self.$openCategory();
             }).then(function () {
