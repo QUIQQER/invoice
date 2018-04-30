@@ -10,13 +10,13 @@ use QUI;
 use QUI\Permissions\Permission;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Accounting\ArticleListUnique;
-use QUI\ERP\Accounting\Payments\Api\PaymentsInterface;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 /**
  * Class Invoice
  * - Invoice class
+ * - This class present a posted invoice
  *
  * @package QUI\ERP\Accounting\Invoice
  */
@@ -422,6 +422,9 @@ class Invoice extends QUI\QDOM
             [$this]
         );
 
+        $CreditNote->post(QUI::getUsers()->getSystemUser());
+
+
         return $CreditNote->getId();
     }
 
@@ -649,112 +652,6 @@ class Invoice extends QUI\QDOM
         );
 
         return Handler::getInstance()->getTemporaryInvoice($Copy->getId());
-    }
-
-    /**
-     * Add a payment to the invoice
-     *
-     * @param string|int|float $amount - Payment amount
-     * @param PaymentsInterface $PaymentMethod - Payment method
-     * @param int|string|bool $date - optional, unix timestamp
-     * @param null|QUI\Interfaces\Users\User $PermissionUser
-     *
-     * @throws
-     * @deprecated use addTransaction
-     */
-    public function addPayment($amount, PaymentsInterface $PaymentMethod, $date = false, $PermissionUser = null)
-    {
-        return;
-
-        Permission::checkPermission(
-            'quiqqer.invoice.addPayment',
-            $PermissionUser
-        );
-
-
-        QUI\ERP\Accounting\Calc::calculatePayments($this);
-
-        if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
-        ) {
-            return;
-        }
-
-        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PAID ||
-            $this->getAttribute('paid_status') == self::PAYMENT_STATUS_CANCELED
-        ) {
-            return;
-        }
-
-
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoiceAddPaymentBegin',
-            [$this, $amount, $PaymentMethod, $date]
-        );
-
-        $User     = QUI::getUserBySession();
-        $paidData = $this->getAttribute('paid_data');
-        $amount   = Price::validatePrice($amount);
-
-        if (!$amount) {
-            return;
-        }
-
-        if (!is_array($paidData)) {
-            $paidData = json_decode($paidData, true);
-        }
-
-        if ($date === false) {
-            $date = time();
-        }
-
-        $isValidTimeStamp = function ($timestamp) {
-            return ((string)(int)$timestamp === $timestamp)
-                   && ($timestamp <= PHP_INT_MAX)
-                   && ($timestamp >= ~PHP_INT_MAX);
-        };
-
-        if ($isValidTimeStamp($date) === false) {
-            $date = strtotime($date);
-
-            if ($isValidTimeStamp($date) === false) {
-                $date = time();
-            }
-        }
-
-        $paidData[] = [
-            'amount'  => $amount,
-            'payment' => $PaymentMethod->getName(),
-            'date'    => $date
-        ];
-
-        $this->setAttribute('paid_data', json_encode($paidData));
-        $this->setAttribute('paid_date', $date);
-
-        $this->addHistory(
-            QUI::getLocale()->get(
-                'quiqqer/invoice',
-                'history.message.addPayment',
-                [
-                    'username' => $User->getName(),
-                    'uid'      => $User->getId(),
-                    'payment'  => $PaymentMethod->getTitle()
-                ]
-            )
-        );
-
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoiceAddPayment',
-            [$this, $amount, $PaymentMethod, $date]
-        );
-
-        $this->calculatePayments();
-
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoiceAddPaymentEnd',
-            [$this, $amount, $PaymentMethod, $date]
-        );
     }
 
     /**
@@ -1045,6 +942,18 @@ class Invoice extends QUI\QDOM
     }
 
     /**
+     * Return the invoice comments
+     *
+     * @return QUI\ERP\Comments
+     */
+    public function getComments()
+    {
+        $comments = $this->getAttribute('comments');
+
+        return QUI\ERP\Comments::unserialize($comments);
+    }
+
+    /**
      * Add a comment to the history
      *
      * @param string $comment
@@ -1067,6 +976,18 @@ class Invoice extends QUI\QDOM
         );
 
         QUI::getEvents()->fireEvent('onQuiqqerInvoiceAddHistory', [$this, $comment]);
+    }
+
+    /**
+     * Return the invoice history
+     *
+     * @return QUI\ERP\Comments
+     */
+    public function getHistory()
+    {
+        $history = $this->getAttribute('history');
+
+        return QUI\ERP\Comments::unserialize($history);
     }
 
     //endregion
