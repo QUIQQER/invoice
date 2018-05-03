@@ -161,7 +161,11 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             this.$articles = [];
 
             var controls = data.articles.map(function (Article) {
-                return Article.control;
+                if (typeof Article.control !== 'undefined' && Article.control !== '') {
+                    return Article.control;
+                }
+
+                return 'package/quiqqer/invoice/bin/backend/controls/articles/Article';
             }).unique();
 
             require(controls, function () {
