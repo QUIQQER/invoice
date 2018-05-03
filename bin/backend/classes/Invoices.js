@@ -342,7 +342,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          */
         getInvoiceHistory: function (invoiceId) {
             return new Promise(function (resolve, reject) {
-                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_getHistory', resolve, {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_getHistory', resolve, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
                     onError  : reject,
