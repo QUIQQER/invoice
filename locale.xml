@@ -627,8 +627,8 @@
             <en><![CDATA[Are you sure you want to delete the invoice?]]></en>
         </locale>
         <locale name="dialog.ti.delete.information" html="true">
-            <de><![CDATA[Die Rechnung <b>[id]</b> wird unwiderruflich gelöscht.]]></de>
-            <en><![CDATA[The invoice <b>[id]</b> will be irrevocably deleted.]]></en>
+            <de><![CDATA[Folgende Rechnungen werden unwiderruflich gelöscht:<br />[invoices]]]></de>
+            <en><![CDATA[The following invoices will be irrevocably deleted:<br />[invoices]]]></en>
         </locale>
         <locale name="dialog.ti.copy.title">
             <de><![CDATA[Rechnung kopieren]]></de>
@@ -918,6 +918,28 @@
         <locale name="dialog.order.delete.invoiceAddress">
             <de><![CDATA[Möchten Sie die Adresse wirklich löschen?]]></de>
             <en><![CDATA[Do you really want to delete the address?]]></en>
+        </locale>
+
+        <locale name="dialog.ti.post.title">
+            <de><![CDATA[Rechnungen buchen?]]></de>
+            <en><![CDATA[Post invoices?]]></en>
+        </locale>
+        <locale name="dialog.ti.post.text">
+            <de><![CDATA[Möchten Sie die Rechnungen wirklichen buchen?]]></de>
+            <en><![CDATA[Do you really want to book the invoices?]]></en>
+        </locale>
+        <locale name="dialog.ti.post.information">
+            <de><![CDATA[Folgende Rechnungen werden gebucht:<br />[invoices]]]></de>
+            <en><![CDATA[The following invoices are posted:<br />[invoices]]]></en>
+        </locale>
+        <locale name="dialog.ti.post.button">
+            <de><![CDATA[Buchen]]></de>
+            <en><![CDATA[Post]]></en>
+        </locale>
+
+        <locale name="exception.post.invoices.missing.attributes">
+            <de><![CDATA[Die Rechnungen können leider nicht gebucht werden, einige besitzen Fehler.]]></de>
+            <en><![CDATA[Unfortunately, the invoices cannot be posted, some have errors.]]></en>
         </locale>
     </groups>
 

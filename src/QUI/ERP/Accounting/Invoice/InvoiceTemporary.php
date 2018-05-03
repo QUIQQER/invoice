@@ -162,6 +162,16 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     /**
+     * Return the hash
+     *
+     * @return mixed
+     */
+    public function getHash()
+    {
+        return $this->getAttribute('hash');
+    }
+
+    /**
      * Return the invoice type
      * - Handler::TYPE_INVOICE
      * - Handler::TYPE_INVOICE_TEMPORARY
