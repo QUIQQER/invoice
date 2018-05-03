@@ -262,7 +262,7 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     /**
-     * @return null
+     * @return Payment
      */
     public function getPayment()
     {
@@ -270,12 +270,12 @@ class InvoiceTemporary extends QUI\QDOM
             $paymentMethod = $this->getAttribute('payment_method');
             $Payment       = QUI\ERP\Accounting\Payments\Payments::getInstance()->getPayment($paymentMethod);
 
-            new Payment($this->parsePaymentForPaymentData($Payment));
+            return new Payment($this->parsePaymentForPaymentData($Payment));
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
 
-        return null;
+        return new Payment([]);
     }
 
     //endregion
