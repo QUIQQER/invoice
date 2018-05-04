@@ -74,7 +74,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             this.Loader.show();
 
-            return Invoices.getTemporaryInvoicesList().then(function (result) {
+            return Invoices.getTemporaryInvoicesList({
+                perPage: this.$Grid.options.perPage,
+                page   : this.$Grid.options.page,
+                sortBy : this.$Grid.options.sortBy,
+                sortOn : this.$Grid.options.sortOn
+            }).then(function (result) {
                 result.data = result.data.map(function (entry) {
                     var Icon = new Element('span');
 
@@ -203,6 +208,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             this.$Grid = new Grid(Container, {
                 pagination       : true,
                 multipleSelection: true,
+                serverSort       : true,
+                sortOn           : 'date',
+                sortBy           : 'DESC',
                 buttons          : [{
                     name     : 'create',
                     text     : QUILocale.get(lg, 'temporary.btn.createInvoice'),

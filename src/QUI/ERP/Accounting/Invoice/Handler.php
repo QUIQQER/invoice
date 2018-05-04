@@ -213,7 +213,7 @@ class Handler extends QUI\Utils\Singleton
             $query['limit'] = $params['limit'];
         }
 
-        if (isset($params['order'])) {
+        if (isset($params['order']) && $this->canBeUseAsOrderField($params['order'])) {
             $query['order'] = $params['order'];
         }
 
@@ -431,5 +431,69 @@ class Handler extends QUI\Utils\Singleton
         $result[0]['sum']      = (float)$result[0]['sum'];
 
         return $result[0];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOrderGroupFields()
+    {
+        return [
+            'id',
+            'customer_id',
+            'hash',
+            'type',
+            'order_id',
+            'ordered_by',
+            'ordered_by_name',
+            'project_name',
+            'payment_method',
+            'payment_time',
+            'time_for_payment',
+            'paid_status',
+            'paid_date',
+            'paid_data',
+            'date',
+            'c_user',
+            'editor_id',
+            'editor_name',
+            'isbrutto',
+            'nettosum',
+            'nettosubsum',
+            'subsum',
+            'sum',
+            'processing_status'
+        ];
+    }
+
+    /**
+     * Can the string be used as a mysql order field?
+     *
+     * @param $str
+     * @return bool
+     */
+    protected function canBeUseAsOrderField($str)
+    {
+        if (!is_string($str)) {
+            return false;
+        }
+
+        $fields = array_flip($this->getOrderGroupFields());
+        $str    = explode(' ', $str);
+
+        if (!isset($fields[$str[0]])) {
+            return false;
+        }
+
+        if (!isset($fields[$str[1]])) {
+            return true;
+        }
+
+        if (mb_strtoupper($fields[$str[1]]) === 'DESC' ||
+            mb_strtoupper($fields[$str[1]]) === 'ASC') {
+            return true;
+        }
+
+        return true;
     }
 }
