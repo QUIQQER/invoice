@@ -459,6 +459,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             this.$Grid.setHeight(size.y - 20);
             this.$Grid.setWidth(size.x - 20);
+            this.$Grid.resize();
         },
 
         /**
