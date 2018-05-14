@@ -107,7 +107,7 @@ class EventHandler
                     'en' => 'Invoice text'
                 ]
             ]);
-        } catch (QUI\Exception $Exception) {
+        } catch (\Exception $Exception) {
             QUI\System\Log::addAlert($Exception->getMessage());
         }
     }
@@ -196,7 +196,7 @@ class EventHandler
 
         // look if the address is an address of the user
         try {
-            $Address = $User->getAddress($addressId);
+            $User->getAddress($addressId);
 
             $User->setAttribute('quiqqer.erp.address', $addressId);
             $User->setAttribute('address', $addressId);

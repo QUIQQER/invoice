@@ -1,0 +1,28 @@
+<h1>Meine Rechnungen</h1>
+
+<table class="quiqqer-invoice-profile-invoices-table">
+    <thead>
+    <tr>
+        <th>Rechnungs-Nr</th>
+        <th>Datum</th>
+        <th>Download</th>
+    </tr>
+    </thead>
+    <tbody>
+    {foreach $invoices as $Invoice}
+    <tr class="quiqqer-invoice-profile-invoices-table-invoice">
+        <td class="quiqqer-invoice-profile-invoices-table-invoice-id">
+            {$Invoice->getId()}
+        </td>
+        <td class="quiqqer-invoice-profile-invoices-table-invoice-date">
+            {$Invoice->getDate()}
+        </td>
+        <td class="quiqqer-invoice-profile-invoices-table-invoice-dl">
+            <a href="{$Invoice->getDownloadLink()}" target="_blank">
+                <span class="fa fa-file-pdf-o"></span>
+            </a>
+        </td>
+    </tr>
+    {/foreach}
+    </tbody>
+</table>

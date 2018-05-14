@@ -1,0 +1,27 @@
+<quiqqer>
+    <frontend-users>
+        <profile>
+
+            <categories>
+                <category name="erp">
+                    <title>
+                        <locale group="quiqqer/erp" var="profile.erp.title"/>
+                    </title>
+
+                    <settings control="\QUI\ERP\Accounting\Invoice\FrontendUsers\UserInvoices"
+                              name="erp-invoice"
+                              icon="fa fa-file-text-o"
+                              showinprofilbar="1"
+                              priority="10"
+                    >
+                        <title>
+                            <locale group="quiqqer/invoice" var="profile.invoice.title"/>
+                        </title>
+                    </settings>
+                </category>
+
+            </categories>
+
+        </profile>
+    </frontend-users>
+</quiqqer>

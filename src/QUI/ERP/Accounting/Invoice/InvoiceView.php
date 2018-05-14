@@ -31,9 +31,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function __construct($Invoice)
     {
-        if ($Invoice instanceof Invoice
-            || $Invoice instanceof InvoiceTemporary
-        ) {
+        if ($Invoice instanceof Invoice || $Invoice instanceof InvoiceTemporary) {
             $this->Invoice = $Invoice;
 
             return;
@@ -43,11 +41,83 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
+     * @return QUI\ERP\Accounting\ArticleList|QUI\ERP\Accounting\ArticleListUnique
+     */
+    public function getArticles()
+    {
+        return $this->Invoice->getArticles();
+    }
+
+    /**
      * @return string
      */
     public function getId()
     {
         return $this->Invoice->getId();
+    }
+
+    /**
+     * @return string
+     */
+    public function getHash()
+    {
+        return $this->Invoice->getHash();
+    }
+
+    /**
+     * @return QUI\ERP\Currency\Currency
+     */
+    public function getCurrency()
+    {
+        return $this->Invoice->getCurrency();
+    }
+
+    /**
+     * @return false|null|QUI\ERP\User|QUI\Users\Nobody|QUI\Users\SystemUser|QUI\Users\User
+     */
+    public function getCustomer()
+    {
+        return $this->Invoice->getCustomer();
+    }
+
+    /**
+     * @param null|QUI\Locale $Locale
+     * @return mixed
+     */
+    public function getDate($Locale = null)
+    {
+        if ($Locale === null) {
+            $Locale = QUI::getLocale();
+        }
+
+        $date      = $this->Invoice->getAttribute('date');
+        $Formatter = $Locale->getDateFormatter();
+
+        return $Formatter->format(strtotime($date));
+    }
+
+    /**
+     * @return string
+     */
+    public function getDownloadLink()
+    {
+        return URL_OPT_DIR.'quiqqer/invoice/bin/frontend/downloadInvoice.php?hash='.$this->getHash();
+    }
+
+    /**
+     * @return array
+     */
+    public function getPaidStatusInformation()
+    {
+        return $this->Invoice->getPaidStatusInformation();
+    }
+
+    /**
+     * @return Payment
+     */
+    public function getPayment()
+    {
+        return $this->Invoice->getPayment();
     }
 
     /**
