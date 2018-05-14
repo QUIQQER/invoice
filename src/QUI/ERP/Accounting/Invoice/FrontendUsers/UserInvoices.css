@@ -1,0 +1,32 @@
+.quiqqer-invoice-profile-invoices {
+    float: left;
+    width: 100%;
+}
+
+.quiqqer-invoice-profile-invoices-table {
+    float: left;
+    width: 100%;
+}
+
+.quiqqer-invoice-profile-invoices-table th {
+    padding: 5px;
+    text-align: left;
+}
+
+.quiqqer-invoice-profile-invoices-table td {
+    padding: 5px;
+}
+
+.quiqqer-invoice-profile-invoices-table th:last-child,
+.quiqqer-invoice-profile-invoices-table td:last-child {
+    text-align: center;
+    width: 100px;
+}
+
+.quiqqer-invoice-profile-invoices-table-invoice-date {
+    width: 140px;
+}
+
+.quiqqer-invoice-profile-invoices-table tbody tr:nth-child(odd) {
+    background: #f8f8f8;
+}

@@ -329,6 +329,11 @@
             <de><![CDATA[2 Halbjahr]]></de>
             <en><![CDATA[2 half year]]></en>
         </locale>
+
+        <locale name="profile.invoice.title">
+            <de><![CDATA[Meine Rechnungen]]></de>
+            <en><![CDATA[My Invoices]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">

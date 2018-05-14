@@ -45,7 +45,16 @@ class InvoiceSearch extends Singleton
     protected $allowedFilters = [
         'from',
         'to',
-        'paid_status'
+        'order_date',
+
+        'id',
+        'order_id',
+        'customer_id',
+        'c_user',
+        'taxId',
+        'hash',
+        'isbrutto',
+        'paid_status',
     ];
 
     /**
@@ -251,8 +260,9 @@ class InvoiceSearch extends Singleton
 
         foreach ($this->filter as $filter) {
             $bind = ':filter'.$fc;
+            $flr  = $filter['filter'];
 
-            switch ($filter['filter']) {
+            switch ($flr) {
                 case 'from':
                     $where[] = 'date >= '.$bind;
                     break;
@@ -287,10 +297,26 @@ class InvoiceSearch extends Singleton
                         'value' => (int)$filter['value'],
                         'type'  => \PDO::PARAM_INT
                     ];
-                    continue;
+                    continue 2;
+
+
+                case 'customer_id':
+                case 'c_user':
+                case 'id':
+                case 'order_id':
+                case 'taxId':
+                case 'hash':
+                case 'isbrutto':
+                    $where[] = $flr.' = '.$bind;
+
+                    $binds[$bind] = [
+                        'value' => (int)$filter['value'],
+                        'type'  => \PDO::PARAM_INT
+                    ];
+                    continue 2;
 
                 default:
-                    continue;
+                    continue 2;
             }
 
             $binds[$bind] = [
@@ -302,6 +328,10 @@ class InvoiceSearch extends Singleton
         }
 
         $whereQuery = 'WHERE '.implode(' AND ', $where);
+
+        if (!count($where)) {
+            $whereQuery = '';
+        }
 
 
         if ($count) {
