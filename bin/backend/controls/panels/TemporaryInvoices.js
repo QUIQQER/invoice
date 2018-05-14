@@ -9,11 +9,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
     'qui/QUI',
     'qui/controls/desktop/Panel',
     'qui/controls/windows/Confirm',
+    'qui/controls/buttons/Button',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
     'Locale'
 
-], function (QUI, QUIPanel, QUIConfirm, Grid, Invoices, QUILocale) {
+], function (QUI, QUIPanel, QUIConfirm, QUIButton, Grid, Invoices, QUILocale) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -106,19 +107,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 this.$Grid.setData(result);
 
-                var Copy = this.$Grid.getButtons().filter(function (Btn) {
+                var Actions  = this.$Grid.getButtons().filter(function (Btn) {
+                        return Btn.getAttribute('name') === 'actions';
+                    })[0],
+
+                    children = Actions.getChildren();
+
+
+                var Copy = children.filter(function (Btn) {
                     return Btn.getAttribute('name') === 'copy';
                 })[0];
 
-                var Delete = this.$Grid.getButtons().filter(function (Btn) {
+                var Delete = children.filter(function (Btn) {
                     return Btn.getAttribute('name') === 'delete';
                 })[0];
 
-                var PDF = this.$Grid.getButtons().filter(function (Btn) {
+                var PDF = children.filter(function (Btn) {
                     return Btn.getAttribute('name') === 'pdf';
                 })[0];
 
-                var Post = this.$Grid.getButtons().filter(function (Btn) {
+                var Post = children.filter(function (Btn) {
                     return Btn.getAttribute('name') === 'post';
                 })[0];
 
@@ -205,13 +213,64 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 this.getContent()
             );
 
+
+            var Actions = new QUIButton({
+                name      : 'actions',
+                text      : QUILocale.get(lg, 'journal.btn.actions'),
+                menuCorner: 'topRight',
+                styles    : {
+                    'float': 'right'
+                }
+            });
+
+            Actions.appendChild({
+                name    : 'post',
+                disabled: true,
+                text    : QUILocale.get(lg, 'journal.btn.post'),
+                icon    : 'fa fa-file-text-o',
+                events  : {
+                    onClick: this.$clickPostInvoice
+                }
+            });
+
+            Actions.appendChild({
+                name    : 'copy',
+                disabled: true,
+                text    : QUILocale.get(lg, 'journal.btn.copyInvoice'),
+                icon    : 'fa fa-copy',
+                events  : {
+                    onClick: this.$clickCopyInvoice
+                }
+            });
+
+            Actions.appendChild({
+                name    : 'delete',
+                disabled: true,
+                text    : QUILocale.get(lg, 'temporary.btn.deleteInvoice'),
+                icon    : 'fa fa-trash',
+                events  : {
+                    onClick: this.$clickDeleteInvoice
+                }
+            });
+
+            Actions.appendChild({
+                name    : 'pdf',
+                disabled: true,
+                text    : QUILocale.get(lg, 'journal.btn.pdf'),
+                icon    : 'fa fa-file-pdf-o',
+                events  : {
+                    onClick: this.$clickPDF
+                }
+            });
+
+
             this.$Grid = new Grid(Container, {
                 pagination       : true,
                 multipleSelection: true,
                 serverSort       : true,
                 sortOn           : 'date',
                 sortBy           : 'DESC',
-                buttons          : [{
+                buttons          : [Actions, {
                     name     : 'create',
                     text     : QUILocale.get(lg, 'temporary.btn.createInvoice'),
                     textimage: 'fa fa-plus',
@@ -223,42 +282,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                                 Btn.setAttribute('textimage', 'fa fa-plus');
                             });
                         }
-                    }
-                }, {
-                    type: 'separator'
-                }, {
-                    name     : 'post',
-                    disabled : true,
-                    text     : QUILocale.get(lg, 'journal.btn.post'),
-                    textimage: 'fa fa-check',
-                    events   : {
-                        onClick: this.$clickPostInvoice
-                    }
-                }, {
-                    name     : 'copy',
-                    disabled : true,
-                    text     : QUILocale.get(lg, 'journal.btn.copyInvoice'),
-                    textimage: 'fa fa-copy',
-                    events   : {
-                        onClick: this.$clickCopyInvoice
-                    }
-                }, {
-                    name     : 'delete',
-                    disabled : true,
-                    text     : QUILocale.get(lg, 'temporary.btn.deleteInvoice'),
-                    textimage: 'fa fa-trash',
-                    events   : {
-                        onClick: this.$clickDeleteInvoice
-                    }
-                }, {
-                    type: 'separator'
-                }, {
-                    name     : 'pdf',
-                    disabled : true,
-                    text     : QUILocale.get(lg, 'journal.btn.pdf'),
-                    textimage: 'fa fa-file-pdf-o',
-                    events   : {
-                        onClick: this.$clickPDF
                     }
                 }],
                 columnModel      : [{
@@ -395,19 +418,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onClick: function () {
                     var selected = this.getSelectedIndices();
 
-                    var Copy = self.$Grid.getButtons().filter(function (Btn) {
+                    var Actions  = this.getButtons().filter(function (Btn) {
+                            return Btn.getAttribute('name') === 'actions';
+                        })[0],
+
+                        children = Actions.getChildren();
+
+                    var Copy = children.filter(function (Btn) {
                         return Btn.getAttribute('name') === 'copy';
                     })[0];
 
-                    var Delete = self.$Grid.getButtons().filter(function (Btn) {
+                    var Delete = children.filter(function (Btn) {
                         return Btn.getAttribute('name') === 'delete';
                     })[0];
 
-                    var PDF = self.$Grid.getButtons().filter(function (Btn) {
+                    var PDF = children.filter(function (Btn) {
                         return Btn.getAttribute('name') === 'pdf';
                     })[0];
 
-                    var Post = self.$Grid.getButtons().filter(function (Btn) {
+                    var Post = children.filter(function (Btn) {
                         return Btn.getAttribute('name') === 'post';
                     })[0];
 
