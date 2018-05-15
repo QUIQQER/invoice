@@ -11,7 +11,7 @@
                     <settings control="\QUI\ERP\Accounting\Invoice\FrontendUsers\UserInvoices"
                               name="erp-invoice"
                               icon="fa fa-file-text-o"
-                              showinprofilbar="1"
+                              showinprofile="1"
                               priority="10"
                     >
                         <title>
