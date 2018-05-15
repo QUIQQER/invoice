@@ -1202,6 +1202,24 @@
             <de><![CDATA[Zahlungsart]]></de>
             <en><![CDATA[Payment method]]></en>
         </locale>
+
+
+        <locale name="control.frontendUsers.invoices.title">
+            <de><![CDATA[Meine Rechnungen]]></de>
+            <en><![CDATA[My invoices]]></en>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.id">
+            <de><![CDATA[Rechnungs-Nr]]></de>
+            <en><![CDATA[Invoice ID]]></en>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.date">
+            <de><![CDATA[Datum]]></de>
+            <en><![CDATA[Date]]></en>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.download">
+            <de><![CDATA[Download]]></de>
+            <en><![CDATA[Download]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/products">
