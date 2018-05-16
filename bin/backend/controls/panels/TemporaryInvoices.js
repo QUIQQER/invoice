@@ -303,12 +303,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get(lg, 'journal.grid.customerNo'),
                     dataIndex: 'customer_id',
                     dataType : 'integer',
-                    width    : 100
+                    width    : 100,
+                    className: 'clickable'
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'name'),
                     dataIndex: 'customer_name',
                     dataType : 'string',
-                    width    : 130
+                    width    : 130,
+                    className: 'clickable'
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'date'),
                     dataIndex: 'date',
@@ -462,7 +464,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     Post.enable();
                 },
 
-                onDblClick: function () {
+                onDblClick: function (data) {
+                    if (typeof data !== 'undefined' &&
+                        (data.cell.get('data-index') === 'customer_id' ||
+                            data.cell.get('data-index') === 'customer_name')) {
+
+                        return new Promise(function (resolve) {
+                            require(['utils/Panels'], function (PanelUtils) {
+                                PanelUtils.openUserPanel(
+                                    self.$Grid.getDataByRow(data.row).customer_id
+                                );
+
+                                resolve();
+                            });
+                        });
+                    }
+
                     self.openInvoice(
                         self.$Grid.getSelectedData()[0].id
                     );
@@ -529,10 +546,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * @param Button
          */
         $clickPostInvoice: function (Button) {
-            if (typeOf(Button) !== 'qui/controls/buttons/Button') {
-                return;
-            }
-
             var selected = this.$Grid.getSelectedData(),
                 oldImage = Button.getAttribute('textimage');
 
