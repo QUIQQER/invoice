@@ -36,6 +36,10 @@ QUI::$Ajax->registerFunction(
             $Search->limit($limit[0], $limit[1]);
         }
 
+        if (isset($query['order'])) {
+            $Search->order($query['order']);
+        }
+
         return $Search->searchForGrid();
     },
     ['params', 'filter'],
