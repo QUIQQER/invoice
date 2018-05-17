@@ -410,7 +410,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get(lg, 'journal.grid.hash'),
                     dataIndex: 'hash',
                     dataType : 'string',
-                    width    : 200
+                    width    : 280,
+                    className: 'monospace'
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.globalProcessId'),
+                    dataIndex: 'global_process_id',
+                    dataType : 'string',
+                    width    : 280,
+                    className: 'monospace'
                 }]
             });
 

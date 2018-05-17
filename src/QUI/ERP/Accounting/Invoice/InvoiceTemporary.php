@@ -31,6 +31,11 @@ class InvoiceTemporary extends QUI\QDOM
     protected $id;
 
     /**
+     * @var string
+     */
+    protected $globalProcessId;
+
+    /**
      * @var int
      */
     protected $type;
@@ -108,6 +113,13 @@ class InvoiceTemporary extends QUI\QDOM
             $this->Comments = QUI\ERP\Comments::unserialize($data['comments']);
         }
 
+        if (isset($data['global_process_id']) && !empty($data['global_process_id'])) {
+            $this->globalProcessId = $data['global_process_id'];
+        } else {
+            $this->globalProcessId = $data['hash'];
+        }
+
+
         // invoice extra data
         $this->data = json_decode($data['data'], true);
 
@@ -162,13 +174,23 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     /**
-     * Return the hash
+     * Return the hash - its the unique invoice id
      *
      * @return mixed
      */
     public function getHash()
     {
         return $this->getAttribute('hash');
+    }
+
+    /**
+     * Return the global process id
+     *
+     * @return string
+     */
+    public function getGlobalProcessId()
+    {
+        return $this->globalProcessId;
     }
 
     /**
@@ -787,6 +809,7 @@ class InvoiceTemporary extends QUI\QDOM
             [
                 'type'                    => $type,
                 'id_prefix'               => Settings::getInstance()->getInvoicePrefix(),
+                'global_process_id'       => $this->getGlobalProcessId(),
 
                 // user relationships
                 'c_user'                  => $User->getId(),
@@ -943,6 +966,8 @@ class InvoiceTemporary extends QUI\QDOM
         $attributes['id']       = $this->getId();
         $attributes['type']     = $this->getInvoiceType();
         $attributes['articles'] = $this->Articles->toArray();
+
+        $attributes['globalProcessId'] = $this->getGlobalProcessId();
 
         return $attributes;
     }

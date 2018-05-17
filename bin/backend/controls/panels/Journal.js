@@ -487,6 +487,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 280,
                     className: 'monospace'
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.globalProcessId'),
+                    dataIndex: 'globalProcessId',
+                    dataType : 'string',
+                    width    : 280,
+                    className: 'monospace'
                 }]
             });
 

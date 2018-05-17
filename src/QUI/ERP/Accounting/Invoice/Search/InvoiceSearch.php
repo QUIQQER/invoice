@@ -163,7 +163,7 @@ class InvoiceSearch extends Singleton
     public function searchForGrid()
     {
         $this->cache = [];
-        
+
         // select display invoices
         $invoices = $this->executeQueryParams($this->getQuery());
 
@@ -279,6 +279,7 @@ class InvoiceSearch extends Singleton
                             'value' => Invoice::PAYMENT_STATUS_PART,
                             'type'  => \PDO::PARAM_INT
                         ];
+
                         continue;
                     }
 
@@ -288,6 +289,7 @@ class InvoiceSearch extends Singleton
                         'value' => (int)$filter['value'],
                         'type'  => \PDO::PARAM_INT
                     ];
+
                     continue 2;
 
 
@@ -485,6 +487,7 @@ class InvoiceSearch extends Singleton
 
             $timeForPayment = strtotime($Invoice->getAttribute('time_for_payment'));
 
+            $invoiceData['globalProcessId']  = $Invoice->getGlobalProcessId();
             $invoiceData['date']             = $DateFormatter->format(strtotime($Invoice->getAttribute('date')));
             $invoiceData['time_for_payment'] = $DateFormatter->format($timeForPayment);
 

@@ -14,7 +14,6 @@ use QUI\ERP\Accounting\Payments\Transactions\Factory as TransactionFactory;
  * @param string|int $amount - amount of the payment
  * @param string $paymentMethod - Payment method
  * @param string|int $date - Date of the payment
- *
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_addPayment',

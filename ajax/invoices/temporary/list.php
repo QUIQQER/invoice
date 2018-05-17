@@ -33,6 +33,7 @@ QUI::$Ajax->registerFunction(
             'order_id',
             'customer_id',
             'customer_name',
+            'global_process_id',
             'date',
             'c_user',
             'c_username',

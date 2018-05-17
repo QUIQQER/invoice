@@ -468,6 +468,10 @@
             <en><![CDATA[Payment data]]></en>
         </locale>
         <locale name="journal.grid.hash">
+            <de><![CDATA[Hash]]></de>
+            <en><![CDATA[Hash]]></en>
+        </locale>
+        <locale name="journal.grid.globalProcessId">
             <de><![CDATA[Vorgangsnummer]]></de>
             <en><![CDATA[Procedure number]]></en>
         </locale>
