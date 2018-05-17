@@ -161,6 +161,7 @@ class Settings extends Singleton
     {
         $result   = [];
         $packages = QUI::getPackageManager()->getInstalled();
+        $default  = Settings::get('invoice', 'template');
 
         foreach ($packages as $package) {
             $Package  = QUI::getPackage($package['name']);
@@ -175,8 +176,9 @@ class Settings extends Singleton
             }
 
             $result[] = [
-                'name'  => $Package->getName(),
-                'title' => $Package->getTitle()
+                'name'    => $Package->getName(),
+                'title'   => $Package->getTitle(),
+                'default' => $Package->getName() === $default ? 1 : 0
             ];
         }
 

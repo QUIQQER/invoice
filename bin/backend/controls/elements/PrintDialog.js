@@ -101,14 +101,21 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 
                 Content.addClass('quiqqer-invoice-printDialog');
 
-                var Form = Content.getElement('form');
+                var Form     = Content.getElement('form'),
+                    selected = '';
 
                 for (var i = 0, len = templates.length; i < len; i++) {
                     new Element('option', {
                         value: templates[i].name,
                         html : templates[i].title
                     }).inject(Form.elements.template);
+
+                    if (templates[i].default) {
+                        selected = templates[i].name;
+                    }
                 }
+
+                Form.elements.template.value = selected;
 
                 self.$Output = new QUISelect({
                     name  : 'output',
