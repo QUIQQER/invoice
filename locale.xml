@@ -1224,6 +1224,27 @@
             <de><![CDATA[Download]]></de>
             <en><![CDATA[Download]]></en>
         </locale>
+
+        <locale name="invoice.settings.invoice.storno">
+            <de><![CDATA[Vorgehen bei Stornierung]]></de>
+            <en><![CDATA[Cancellation procedure]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.storno.desc" html="true">
+            <de><![CDATA[
+                Diese Einstellung legt das Vorgehen bei Stornierung von Rechnungen mit Transaktionen fest.
+            ]]></de>
+            <en><![CDATA[
+                This setting determines the procedure for canceling invoices with transactions.
+            ]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.storno.no">
+            <de><![CDATA[Keine Stornierung möglich. (Nur Gutschrift)]]></de>
+            <en><![CDATA[Cancellation is not possible. (Only credit memo)]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.storno.allowed">
+            <de><![CDATA[Stornierung ist möglich]]></de>
+            <en><![CDATA[Cancellation is possible]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/products">
