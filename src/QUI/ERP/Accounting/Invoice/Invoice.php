@@ -57,6 +57,11 @@ class Invoice extends QUI\QDOM
     protected $id;
 
     /**
+     * @var string
+     */
+    protected $globalProcessId;
+
+    /**
      * @var array
      */
     protected $data = [];
@@ -101,6 +106,10 @@ class Invoice extends QUI\QDOM
             $this->data = json_decode($this->getAttribute('data'), true);
         }
 
+        if ($this->getAttribute('global_process_id')) {
+            $this->globalProcessId = $this->getAttribute('global_process_id');
+        }
+
         // invoice payment data
         if ($this->getAttribute('data')) {
             $paymentData = QUI\Security\Encryption::decrypt($this->getAttribute('data'));
@@ -131,6 +140,16 @@ class Invoice extends QUI\QDOM
     public function getHash()
     {
         return $this->getAttribute('hash');
+    }
+
+    /**
+     * Return the global process id
+     *
+     * @return string
+     */
+    public function getGlobalProcessId()
+    {
+        return $this->globalProcessId;
     }
 
     /**
@@ -178,7 +197,7 @@ class Invoice extends QUI\QDOM
      *
      * @return QUI\ERP\Currency\Currency
      *
-     * @throws
+     * @throws QUI\Exception
      */
     public function getCurrency()
     {
@@ -324,6 +343,15 @@ class Invoice extends QUI\QDOM
      */
     public function reversal($reason, $PermissionUser = null)
     {
+        // is cancelation / reversal possible?
+        if (Settings::getInstance()->get('invoice', 'storno')) {
+            // @todo implement credit note
+            throw new Exception([
+                'quiqqer/invoice',
+                'exception.canceled.invoice.is.not.allowed'
+            ]);
+        }
+
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
         }
@@ -360,11 +388,7 @@ class Invoice extends QUI\QDOM
 
         $User = QUI::getUserBySession();
 
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoiceReversal',
-            [$this]
-        );
-
+        QUI::getEvents()->fireEvent('quiqqerInvoiceReversal', [$this]);
 
         $this->addHistory(
             QUI::getLocale()->get(
@@ -377,7 +401,11 @@ class Invoice extends QUI\QDOM
             )
         );
 
-        $CreditNote = $this->createCreditNote(QUI::getUsers()->getSystemUser());
+        $CreditNote = $this->createCreditNote(
+            QUI::getUsers()->getSystemUser(),
+            $this->getGlobalProcessId()
+        );
+
         $CreditNote->setInvoiceType(Handler::TYPE_INVOICE_REVERSAL);
         $CreditNote->save(QUI::getUsers()->getSystemUser());
 
@@ -459,11 +487,12 @@ class Invoice extends QUI\QDOM
      * Copy the invoice to a temporary invoice
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
+     * @param false|string $globalProcessId
      * @return InvoiceTemporary
      *
      * @throws
      */
-    public function copy($PermissionUser = null)
+    public function copy($PermissionUser = null, $globalProcessId = false)
     {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
@@ -488,10 +517,7 @@ class Invoice extends QUI\QDOM
             )
         );
 
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoiceCopyBegin',
-            [$this]
-        );
+        QUI::getEvents()->fireEvent('quiqqerInvoiceCopyBegin', [$this]);
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
@@ -507,14 +533,16 @@ class Invoice extends QUI\QDOM
 
         $currentData = $currentData[0];
 
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoiceCopy',
-            [$this]
-        );
+        QUI::getEvents()->fireEvent('quiqqerInvoiceCopy', [$this]);
+
+        if (empty($globalProcessId)) {
+            $globalProcessId = $this->getHash();
+        }
 
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
             [
+                'global_process_id'       => $globalProcessId,
                 'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
                 'customer_id'             => $currentData['customer_id'],
                 'invoice_address'         => $currentData['invoice_address'],
@@ -549,11 +577,7 @@ class Invoice extends QUI\QDOM
 
         $NewTemporaryInvoice = $Handler->getTemporaryInvoice($New->getId());
 
-
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoiceCopyEnd',
-            [$this, $NewTemporaryInvoice]
-        );
+        QUI::getEvents()->fireEvent('quiqqerInvoiceCopyEnd', [$this, $NewTemporaryInvoice]);
 
         return $NewTemporaryInvoice;
     }
@@ -563,11 +587,12 @@ class Invoice extends QUI\QDOM
      * - Gutschrift
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
+     * @param bool|string $globalProcessId
      * @return InvoiceTemporary
      *
      * @throws
      */
-    public function createCreditNote($PermissionUser = null)
+    public function createCreditNote($PermissionUser = null, $globalProcessId = false)
     {
         Permission::checkPermission(
             'quiqqer.invoice.createCreditNote',
@@ -579,7 +604,7 @@ class Invoice extends QUI\QDOM
             [$this]
         );
 
-        $Copy     = $this->copy(QUI::getUsers()->getSystemUser());
+        $Copy     = $this->copy(QUI::getUsers()->getSystemUser(), $globalProcessId);
         $articles = $Copy->getArticles()->getArticles();
 
         // change all prices
@@ -997,6 +1022,10 @@ class Invoice extends QUI\QDOM
      */
     public function toArray()
     {
-        return $this->getAttributes();
+        $attributes = $this->getAttributes();
+
+        $attributes['globalProcessId'] = $this->getGlobalProcessId();
+
+        return $attributes;
     }
 }

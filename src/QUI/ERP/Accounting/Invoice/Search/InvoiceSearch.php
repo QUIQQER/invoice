@@ -42,24 +42,6 @@ class InvoiceSearch extends Singleton
     /**
      * @var array
      */
-    protected $allowedFilters = [
-        'from',
-        'to',
-        'order_date',
-
-        'id',
-        'order_id',
-        'customer_id',
-        'c_user',
-        'taxId',
-        'hash',
-        'isbrutto',
-        'paid_status',
-    ];
-
-    /**
-     * @var array
-     */
     protected $cache = [];
 
     /**
@@ -70,7 +52,7 @@ class InvoiceSearch extends Singleton
      */
     public function setFilter($filter, $value)
     {
-        $keys = array_flip($this->allowedFilters);
+        $keys = array_flip($this->getAllowedFields());
 
         if (!isset($keys[$filter])) {
             return;
@@ -142,12 +124,21 @@ class InvoiceSearch extends Singleton
      */
     public function order($order)
     {
-        switch ($order) {
-            case 'id':
-            case 'id ASC':
-            case 'id DESC':
-                $this->order = $order;
-                break;
+        $allowed = [];
+
+        foreach ($this->getAllowedFields() as $field) {
+            $allowed[] = $field;
+            $allowed[] = $field.' ASC';
+            $allowed[] = $field.' asc';
+            $allowed[] = $field.' DESC';
+            $allowed[] = $field.' desc';
+        }
+
+        $order   = trim($order);
+        $allowed = array_flip($allowed);
+
+        if (isset($allowed[$order])) {
+            $this->order = $order;
         }
     }
 
@@ -288,6 +279,7 @@ class InvoiceSearch extends Singleton
                             'value' => Invoice::PAYMENT_STATUS_PART,
                             'type'  => \PDO::PARAM_INT
                         ];
+
                         continue;
                     }
 
@@ -297,6 +289,7 @@ class InvoiceSearch extends Singleton
                         'value' => (int)$filter['value'],
                         'type'  => \PDO::PARAM_INT
                     ];
+
                     continue 2;
 
 
@@ -494,6 +487,7 @@ class InvoiceSearch extends Singleton
 
             $timeForPayment = strtotime($Invoice->getAttribute('time_for_payment'));
 
+            $invoiceData['globalProcessId']  = $Invoice->getGlobalProcessId();
             $invoiceData['date']             = $DateFormatter->format(strtotime($Invoice->getAttribute('date')));
             $invoiceData['time_for_payment'] = $DateFormatter->format($timeForPayment);
 
@@ -589,5 +583,61 @@ class InvoiceSearch extends Singleton
         }
 
         return $result;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getAllowedFields()
+    {
+        return [
+            'id',
+            'id_prefix',
+            'customer_id',
+            'type',
+
+            'order_id',
+            'ordered_by',
+            'ordered_by_name',
+
+            'hash',
+            'project_name',
+            'date',
+
+            'invoice_address',
+            'delivery_address',
+
+            'payment_method',
+            'payment_method_data',
+            'payment_data',
+            'payment_time',
+            'time_for_payment',
+
+            'paid_status',
+            'paid_date',
+            'paid_data',
+
+            'canceled',
+            'canceled_data',
+            'c_user',
+            'c_username',
+            'editor_id',
+            'editor_name',
+            'data',
+            'additional_invoice_text',
+            'articles',
+            'history',
+            'comments',
+            'customer_data',
+            'isbrutto',
+
+            'currency_data',
+
+            'nettosum',
+            'nettosubsum',
+            'subsum',
+            'sum',
+            'vat_array'
+        ];
     }
 }

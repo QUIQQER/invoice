@@ -23,6 +23,10 @@
                     <type><![CDATA[integer]]></type>
                     <defaultvalue><![CDATA[7]]></defaultvalue>
                 </conf>
+                <conf name="storno">
+                    <type><![CDATA[integer]]></type>
+                    <defaultvalue><![CDATA[1]]></defaultvalue>
+                </conf>
             </section>
 
             <section name="temporaryInvoice">
@@ -97,6 +101,25 @@
                                         var="invoice.settings.invoice.time_for_payment.description"/>
                             </description>
                         </input>
+
+                        <select conf="invoice.storno">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.invoice.storno"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.storno.desc"/>
+                            </description>
+
+                            <option value="0">
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.storno.no"/>
+                            </option>
+                            <option value="1">
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.storno.allowed"/>
+                            </option>
+                        </select>
                     </settings>
 
                     <settings title="invoiceDownload" name="invoiceDownload">

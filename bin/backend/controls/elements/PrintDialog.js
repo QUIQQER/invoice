@@ -9,12 +9,13 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
     'qui/controls/buttons/Select',
     'Locale',
     'Mustache',
+    'Users',
     'package/quiqqer/invoice/bin/Invoices',
 
     'text!package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog.html',
     'css!package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog.css'
 
-], function (QUI, QUIConfirm, QUISelect, QUILocale, Mustache, Invoices, template) {
+], function (QUI, QUIConfirm, QUISelect, QUILocale, Mustache, Users, Invoices, template) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -45,7 +46,9 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 autoclose: false
             });
 
-            this.$Output = null;
+            this.$Output      = null;
+            this.$invoiceData = null;
+            this.$cutomerMail = null;
 
             this.addEvents({
                 onOpen  : this.$onOpen,
@@ -64,6 +67,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
             this.getContent().set('html', '');
 
             var onError = function (error) {
+                console.error(error);
+
                 self.close().then(function () {
                     self.destroy();
                 });
@@ -74,7 +79,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
             };
 
             if (!this.getAttribute('invoiceId')) {
-                onError('Es wurde keine Rechnungs-ID übergeben.');
+                onError('No invoice ID was given.');
                 return;
             }
 
@@ -82,12 +87,18 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 Invoices.get(this.getAttribute('invoiceId')),
                 Invoices.getTemplates()
             ]).then(function (result) {
-                var invoiceData = result[0];
-                var templates   = result[1];
+                var templates = result[1],
+                    prfx      = '';
+
+                self.$invoiceData = result[0];
+
+                if (typeof self.$invoiceData.id_prefix !== 'undefined') {
+                    prfx = self.$invoiceData.id_prefix;
+                }
 
                 Content.set({
                     html: Mustache.render(template, {
-                        invoiceNumber    : invoiceData.id_prefix + invoiceData.id,
+                        invoiceNumber    : prfx + self.$invoiceData.id,
                         textInvoiceNumber: QUILocale.get(lg, 'dialog.print.data.number'),
                         textOutput       : QUILocale.get(lg, 'dialog.print.data.output'),
                         textTemplate     : QUILocale.get(lg, 'dialog.print.data.template'),
@@ -97,14 +108,21 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 
                 Content.addClass('quiqqer-invoice-printDialog');
 
-                var Form = Content.getElement('form');
+                var Form     = Content.getElement('form'),
+                    selected = '';
 
                 for (var i = 0, len = templates.length; i < len; i++) {
                     new Element('option', {
                         value: templates[i].name,
                         html : templates[i].title
                     }).inject(Form.elements.template);
+
+                    if (templates[i].default) {
+                        selected = templates[i].name;
+                    }
                 }
+
+                Form.elements.template.value = selected;
 
                 self.$Output = new QUISelect({
                     name  : 'output',
@@ -137,6 +155,28 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 );
 
                 self.$Output.setValue('print');
+
+                if (typeof self.$invoiceData.customer_data !== 'undefined') {
+                    var data = JSON.decode(self.$invoiceData.customer_data);
+
+                    if (data && typeof data.email !== 'undefined') {
+                        self.$cutomerMail = data.email;
+                    }
+
+                    if (data && self.$cutomerMail === null || self.$cutomerMail === '') {
+                        return new Promise(function (resolve) {
+                            // get customer id
+                            Users.get(data.id).load().then(function (User) {
+                                self.$cutomerMail = User.getAttribute('email');
+                                resolve();
+                            }).catch(function (Exception) {
+                                onError(Exception);
+                                resolve();
+                            });
+                        });
+                    }
+                }
+            }).then(function () {
                 self.Loader.hide();
             }).catch(function (e) {
                 onError(e);
@@ -355,6 +395,10 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 
             Submit.setAttribute('text', QUILocale.get(lg, 'dialog.print.data.output.email.btn'));
             Submit.setAttribute('textimage', 'fa fa-envelope-o');
+
+            if (this.$cutomerMail && Recipient.value === '') {
+                Recipient.value = this.$cutomerMail;
+            }
 
             Recipient.focus();
         }

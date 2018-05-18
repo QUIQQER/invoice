@@ -31,6 +31,11 @@ class InvoiceTemporary extends QUI\QDOM
     protected $id;
 
     /**
+     * @var string
+     */
+    protected $globalProcessId;
+
+    /**
      * @var int
      */
     protected $type;
@@ -108,6 +113,13 @@ class InvoiceTemporary extends QUI\QDOM
             $this->Comments = QUI\ERP\Comments::unserialize($data['comments']);
         }
 
+        if (isset($data['global_process_id']) && !empty($data['global_process_id'])) {
+            $this->globalProcessId = $data['global_process_id'];
+        } else {
+            $this->globalProcessId = $data['hash'];
+        }
+
+
         // invoice extra data
         $this->data = json_decode($data['data'], true);
 
@@ -162,13 +174,23 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     /**
-     * Return the hash
+     * Return the hash - its the unique invoice id
      *
      * @return mixed
      */
     public function getHash()
     {
         return $this->getAttribute('hash');
+    }
+
+    /**
+     * Return the global process id
+     *
+     * @return string
+     */
+    public function getGlobalProcessId()
+    {
+        return $this->globalProcessId;
     }
 
     /**
@@ -201,6 +223,32 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         return null;
+    }
+
+    /**
+     * Return the invoice currency
+     *
+     * @return QUI\ERP\Currency\Currency
+     *
+     * @throws QUI\Exception
+     */
+    public function getCurrency()
+    {
+        $currency = $this->getAttribute('currency_data');
+
+        if (!$currency) {
+            return QUI\ERP\Defaults::getCurrency();
+        }
+
+        if (is_string($currency)) {
+            $currency = json_decode($currency, true);
+        }
+
+        if (!$currency || !isset($currency['code'])) {
+            return QUI\ERP\Defaults::getCurrency();
+        }
+
+        return QUI\ERP\Currency\Handler::getCurrency($currency['code']);
     }
 
     /**
@@ -286,6 +334,22 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         return new Payment([]);
+    }
+
+    /**
+     * @return array
+     * @throws QUI\ERP\Exception
+     */
+    public function getPaidStatusInformation()
+    {
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
+
+        return [
+            'paidData' => $this->getAttribute('paid_data'),
+            'paidDate' => $this->getAttribute('paid_date'),
+            'paid'     => $this->getAttribute('paid'),
+            'toPay'    => $this->getAttribute('toPay')
+        ];
     }
 
     //endregion
@@ -787,6 +851,7 @@ class InvoiceTemporary extends QUI\QDOM
             [
                 'type'                    => $type,
                 'id_prefix'               => Settings::getInstance()->getInvoicePrefix(),
+                'global_process_id'       => $this->getGlobalProcessId(),
 
                 // user relationships
                 'c_user'                  => $User->getId(),
@@ -943,6 +1008,8 @@ class InvoiceTemporary extends QUI\QDOM
         $attributes['id']       = $this->getId();
         $attributes['type']     = $this->getInvoiceType();
         $attributes['articles'] = $this->Articles->toArray();
+
+        $attributes['globalProcessId'] = $this->getGlobalProcessId();
 
         return $attributes;
     }
@@ -1231,12 +1298,21 @@ class InvoiceTemporary extends QUI\QDOM
      */
     protected function sendCreationMail(Invoice $Invoice)
     {
+        $User = null;
+
         try {
             $Customer = $Invoice->getCustomer();
-            $User     = QUI::getUsers()->get($Customer->getId());
+
+            if ($Customer) {
+                $User = QUI::getUsers()->get($Customer->getId());
+            }
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
+            return;
+        }
+
+        if (!$User) {
             return;
         }
 

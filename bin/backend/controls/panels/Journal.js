@@ -90,7 +90,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             Invoices.search({
                 perPage: this.$Grid.options.perPage,
-                page   : this.$Grid.options.page
+                page   : this.$Grid.options.page,
+                sortBy : this.$Grid.options.sortBy,
+                sortOn : this.$Grid.options.sortOn
             }, {
                 from       : this.$TimeFilter.getValue().from,
                 to         : this.$TimeFilter.getValue().to,
@@ -260,11 +262,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 Invoices.PAYMENT_STATUS_CANCELED
             );
 
-            this.$Status.appendChild(
-                QUILocale.get(lg, 'journal.paidstatus.debit'),
-                Invoices.PAYMENT_STATUS_DEBIT
-            );
-
             this.addButton(this.$Status);
 
             var Separator = new QUISeparator();
@@ -342,6 +339,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.$Grid = new Grid(Container, {
                 pagination           : true,
+                serverSort           : true,
                 accordion            : true,
                 autoSectionToggle    : false,
                 openAccordionOnClick : false,
@@ -395,7 +393,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataIndex: 'customer_name',
                     dataType : 'string',
                     width    : 130,
-                    className: 'clickable'
+                    className: 'clickable',
+                    sortable : false
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'date'),
                     dataIndex: 'date',
@@ -405,7 +404,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     header   : QUILocale.get('quiqqer/system', 'c_user'),
                     dataIndex: 'c_username',
                     dataType : 'string',
-                    width    : 130
+                    width    : 130,
+                    sortable : false
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_display',
@@ -484,6 +484,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.hash'),
                     dataIndex: 'hash',
+                    dataType : 'string',
+                    width    : 280,
+                    className: 'monospace'
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.globalProcessId'),
+                    dataIndex: 'globalProcessId',
                     dataType : 'string',
                     width    : 280,
                     className: 'monospace'
