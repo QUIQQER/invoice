@@ -310,6 +310,22 @@ class InvoiceTemporary extends QUI\QDOM
         return new Payment([]);
     }
 
+    /**
+     * @return array
+     * @throws QUI\ERP\Exception
+     */
+    public function getPaidStatusInformation()
+    {
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
+
+        return [
+            'paidData' => $this->getAttribute('paid_data'),
+            'paidDate' => $this->getAttribute('paid_date'),
+            'paid'     => $this->getAttribute('paid'),
+            'toPay'    => $this->getAttribute('toPay')
+        ];
+    }
+
     //endregion
 
     /**

@@ -1245,6 +1245,10 @@
             <de><![CDATA[Stornierung ist möglich]]></de>
             <en><![CDATA[Cancellation is possible]]></en>
         </locale>
+        <locale name="invoice.view.payment.transaction.text">
+            <de><![CDATA[Wir haben Ihre Zahlung am [date] per [payment] erhalten.]]></de>
+            <en><![CDATA[We have received your payment on the [date] by [payment].]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/products">

@@ -227,11 +227,12 @@ class InvoiceView extends QUI\QDOM
             $this->Invoice
         );
 
-        $Engine    = $Template->getEngine();
         $Customer  = $this->Invoice->getCustomer();
-        $Locale    = $Customer->getLocale();
         $Editor    = $this->Invoice->getEditor();
         $addressId = $this->Invoice->getAttribute('invoice_address_id');
+
+        $Engine = $Template->getEngine();
+        $Locale = $Customer->getLocale();
 
         $this->setAttributes($this->Invoice->getAttributes());
 
@@ -250,8 +251,9 @@ class InvoiceView extends QUI\QDOM
         }
 
         // time for payment
-        $Formatter      = $Locale->getDateFormatter();
-        $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
+        $Formatter       = $Locale->getDateFormatter();
+        $timeForPayment  = $this->Invoice->getAttribute('time_for_payment');
+        $transactionText = '';
 
         // temporary invoice, the time for payment are days
         if ($this->Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
@@ -262,6 +264,22 @@ class InvoiceView extends QUI\QDOM
             $timeForPayment = $Formatter->format(strtotime($timeForPayment));
         }
 
+        // get transactions
+        $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
+        $transactions = $Transactions->getTransactionsByHash($this->Invoice->getHash());
+
+        if (!empty($transactions)) {
+            /* @var $Transaction QUI\ERP\Accounting\Payments\Transactions\Transaction */
+            $Transaction = array_pop($transactions);
+            $Payment     = $Transaction->getPayment();
+            $Formatter   = $Locale->getDateFormatter();
+
+            $transactionText = $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
+                'date'    => $Formatter->format(strtotime($Transaction->getDate())),
+                'payment' => $Payment->getTitle()
+            ]);
+        }
+
         $Engine->assign([
             'this'           => $this,
             'ArticleList'    => $Articles,
@@ -269,7 +287,8 @@ class InvoiceView extends QUI\QDOM
             'Editor'         => $Editor,
             'Address'        => $Address,
             'Payment'        => $this->Invoice->getPayment(),
-            'timeForPayment' => $timeForPayment
+            'timeForPayment' => $timeForPayment,
+            'transaction'    => $transactionText
         ]);
 
         return $Template;
