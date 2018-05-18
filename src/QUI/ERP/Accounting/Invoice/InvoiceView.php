@@ -252,7 +252,15 @@ class InvoiceView extends QUI\QDOM
         // time for payment
         $Formatter      = $Locale->getDateFormatter();
         $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
-        $timeForPayment = $Formatter->format(strtotime($timeForPayment));
+
+        // temporary invoice, the time for payment are days
+        if ($this->Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
+            $timeForPayment = (int)$timeForPayment;
+            $timeForPayment = strtotime('+'.$timeForPayment.' day');
+            $timeForPayment = $Formatter->format($timeForPayment);
+        } else {
+            $timeForPayment = $Formatter->format(strtotime($timeForPayment));
+        }
 
         $Engine->assign([
             'this'           => $this,
