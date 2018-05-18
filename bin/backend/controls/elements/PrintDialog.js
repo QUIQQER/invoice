@@ -67,6 +67,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
             this.getContent().set('html', '');
 
             var onError = function (error) {
+                console.error(error);
+
                 self.close().then(function () {
                     self.destroy();
                 });
@@ -85,13 +87,18 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 Invoices.get(this.getAttribute('invoiceId')),
                 Invoices.getTemplates()
             ]).then(function (result) {
-                var templates = result[1];
+                var templates = result[1],
+                    prfx      = '';
 
                 self.$invoiceData = result[0];
 
+                if (typeof self.$invoiceData.id_prefix !== 'undefined') {
+                    prfx = self.$invoiceData.id_prefix;
+                }
+
                 Content.set({
                     html: Mustache.render(template, {
-                        invoiceNumber    : self.$invoiceData.id_prefix + self.$invoiceData.id,
+                        invoiceNumber    : prfx + self.$invoiceData.id,
                         textInvoiceNumber: QUILocale.get(lg, 'dialog.print.data.number'),
                         textOutput       : QUILocale.get(lg, 'dialog.print.data.output'),
                         textTemplate     : QUILocale.get(lg, 'dialog.print.data.template'),
@@ -152,17 +159,20 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 if (typeof self.$invoiceData.customer_data !== 'undefined') {
                     var data = JSON.decode(self.$invoiceData.customer_data);
 
-                    if (typeof data.email !== 'undefined') {
+                    if (data && typeof data.email !== 'undefined') {
                         self.$cutomerMail = data.email;
                     }
 
-                    if (self.$cutomerMail === null || self.$cutomerMail === '') {
+                    if (data && self.$cutomerMail === null || self.$cutomerMail === '') {
                         return new Promise(function (resolve) {
                             // get customer id
                             Users.get(data.id).load().then(function (User) {
                                 self.$cutomerMail = User.getAttribute('email');
                                 resolve();
-                            }).catch(resolve);
+                            }).catch(function (Exception) {
+                                onError(Exception);
+                                resolve();
+                            });
                         });
                     }
                 }

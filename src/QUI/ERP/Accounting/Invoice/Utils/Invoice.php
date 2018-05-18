@@ -199,11 +199,10 @@ class Invoice
             $articles = json_decode($articles, true);
         }
 
-        $currency = $articles['calculations']['currencyData'];
-
         try {
+            $currency = $articles['calculations']['currencyData'];
             $Currency = QUI\ERP\Currency\Handler::getCurrency($currency['code']);
-        } catch (QUI\Exception $Exception) {
+        } catch (\Exception $Exception) {
             $Currency = QUI\ERP\Defaults::getCurrency();
         }
 

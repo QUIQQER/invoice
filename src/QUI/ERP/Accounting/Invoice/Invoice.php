@@ -197,7 +197,7 @@ class Invoice extends QUI\QDOM
      *
      * @return QUI\ERP\Currency\Currency
      *
-     * @throws
+     * @throws QUI\Exception
      */
     public function getCurrency()
     {

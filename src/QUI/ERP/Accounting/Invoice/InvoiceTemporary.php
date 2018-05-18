@@ -226,6 +226,32 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     /**
+     * Return the invoice currency
+     *
+     * @return QUI\ERP\Currency\Currency
+     *
+     * @throws QUI\Exception
+     */
+    public function getCurrency()
+    {
+        $currency = $this->getAttribute('currency_data');
+
+        if (!$currency) {
+            return QUI\ERP\Defaults::getCurrency();
+        }
+
+        if (is_string($currency)) {
+            $currency = json_decode($currency, true);
+        }
+
+        if (!$currency || !isset($currency['code'])) {
+            return QUI\ERP\Defaults::getCurrency();
+        }
+
+        return QUI\ERP\Currency\Handler::getCurrency($currency['code']);
+    }
+
+    /**
      * Return the editor user
      *
      * @return null|QUI\Interfaces\Users\User
@@ -1272,12 +1298,21 @@ class InvoiceTemporary extends QUI\QDOM
      */
     protected function sendCreationMail(Invoice $Invoice)
     {
+        $User = null;
+
         try {
             $Customer = $Invoice->getCustomer();
-            $User     = QUI::getUsers()->get($Customer->getId());
+
+            if ($Customer) {
+                $User = QUI::getUsers()->get($Customer->getId());
+            }
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
+            return;
+        }
+
+        if (!$User) {
             return;
         }
 

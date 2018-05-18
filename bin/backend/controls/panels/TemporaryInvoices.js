@@ -742,9 +742,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             selected = selected[0];
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            this.downloadPdf(selected.id).then(function () {
+
+            require([
+                'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
+            ], function (PrintDialog) {
+                new PrintDialog({
+                    invoiceId: selected.id
+                }).open();
+
                 Button.setAttribute('textimage', 'fa fa-file-pdf-o');
             });
+
+            // this.downloadPdf(selected.id).then(function () {
+            //     Button.setAttribute('textimage', 'fa fa-file-pdf-o');
+            // });
         },
 
         /**
