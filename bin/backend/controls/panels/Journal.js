@@ -687,36 +687,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             ParentNode.setStyle('padding', 10);
             ParentNode.set('html', '<div class="fa fa-spinner fa-spin"></div>');
 
-            Invoices.get(this.$Grid.getDataByRow(row).id).then(function (result) {
-                var articles = [];
+            Invoices.getArticleHtml(this.$Grid.getDataByRow(row).id).then(function (result) {
+                ParentNode.set('html', '');
 
-                if ("articles" in result) {
-                    try {
-                        articles = JSON.decode(result.articles);
-                    } catch (e) {
-                    }
-                }
-
-                var list = articles.articles;
-
-                for (var i = 0, len = list.length; i < len; i++) {
-                    list[i].position  = i + 1;
-                    list[i].articleNo = list[i].articleNo || '---';
-                }
-
-                ParentNode.set('html', Mustache.render(templateInvoiceDetails, {
-                    articles       : list,
-                    calculations   : articles.calculations,
-                    display_sum    : result.display_sum,
-                    display_subsum : result.display_subsum,
-                    display_vatsum : result.display_vatsum,
-                    textPosition   : '#',
-                    textArticleNo  : QUILocale.get(lg, 'invoice.products.articleNo'),
-                    textDescription: QUILocale.get(lg, 'invoice.products.description'),
-                    textQuantity   : QUILocale.get(lg, 'invoice.products.quantity'),
-                    textUnitPrice  : QUILocale.get(lg, 'invoice.products.unitPrice'),
-                    textTotalPrice : QUILocale.get(lg, 'invoice.products.price')
-                }));
+                new Element('div', {
+                    'class': 'invoices-invoice-details',
+                    html   : result
+                }).inject(ParentNode);
             });
         },
 

@@ -83,6 +83,23 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Return the article html from an invoice
+         *
+         * @param {Number|String} invoiceId
+         * @returns {Promise}
+         */
+        getArticleHtml: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_getArticleHtml', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Is the user a netto or brutto user?
          *
          * @param userId
