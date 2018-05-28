@@ -31,6 +31,12 @@
             </a>
         </td>
     </tr>
+    {foreachelse}
+    <tr>
+        <td colspan="3">
+            {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.empty.message"}
+        </td>
+    </tr>
     {/foreach}
     </tbody>
 </table>
