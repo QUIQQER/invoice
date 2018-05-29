@@ -66,6 +66,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$TimeFilter = null;
             this.$Total      = null;
 
+            this.$periodFilter = null;
+            this.$loaded       = false;
+
             this.addEvents({
                 onCreate: this.$onCreate,
                 onResize: this.$onResize,
@@ -86,6 +89,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             if (!this.$Grid) {
                 return;
+            }
+
+            if (this.$loaded) {
+                this.$periodFilter = this.$TimeFilter.getValue();
             }
 
             Invoices.search({
@@ -264,7 +271,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.addButton(this.$Status);
 
-            var Separator = new QUISeparator();
+            var self      = this,
+                Separator = new QUISeparator();
+
             this.addButton(Separator);
 
             Separator.getElm().setStyles({
@@ -277,7 +286,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'float': 'right'
                 },
                 events: {
-                    onChange: this.refresh
+                    onChange           : this.refresh,
+                    onPeriodSelectClose: function (Filter) {
+                        self.$periodFilter = Filter.getValue();
+                    },
+                    onPeriodSelectOpen : function (Filter) {
+                        if (self.$periodFilter) {
+                            Filter.setAttribute('from', self.$periodFilter.from);
+                            Filter.setAttribute('to', self.$periodFilter.to);
+                        }
+                    }
                 }
             });
 
@@ -537,6 +555,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             if (value === '' || !value) {
                 this.$Status.setValue('');
             }
+
+            this.$loaded = true;
         },
 
         /**
@@ -580,16 +600,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
                 Button.setAttribute('textimage', 'fa fa-print');
             });
-
-
-            /*
-             selectedData = selectedData[0];
-
-             this.downloadPdf(selectedData.id).then(function () {
-             Button.setAttribute('textimage', 'fa fa-file-pdf-o');
-             });
-
-             */
         },
 
         /**
