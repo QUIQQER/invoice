@@ -54,7 +54,7 @@ class InvoiceSearch extends Singleton
     {
         $keys = array_flip($this->getAllowedFields());
 
-        if (!isset($keys[$filter])) {
+        if (!isset($keys[$filter]) && $filter !== 'from' && $filter !== 'to') {
             return;
         }
 

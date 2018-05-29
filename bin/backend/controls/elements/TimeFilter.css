@@ -17,3 +17,7 @@
     margin: 10px 0 0 10px;
     width: calc(50% - 20px)
 }
+
+.timefilter-marked {
+    border: 1px solid red;
+}

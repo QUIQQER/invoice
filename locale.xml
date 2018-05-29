@@ -1224,6 +1224,10 @@
             <de><![CDATA[Download]]></de>
             <en><![CDATA[Download]]></en>
         </locale>
+        <locale name="control.frontendUsers.invoices.table.empty.message">
+            <de><![CDATA[Sie besitzen keine Rechnungen.]]></de>
+            <en><![CDATA[You do not have any invoices.]]></en>
+        </locale>
 
         <locale name="invoice.settings.invoice.storno">
             <de><![CDATA[Vorgehen bei Stornierung]]></de>
