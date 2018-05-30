@@ -634,7 +634,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                             }
 
                             Promise.all(posts).then(function () {
-                                Win.close();
+                                return Invoices.getSetting('temporaryInvoice', 'openPrintDialogAfterPost');
+                            }).then(function (openPrintDialogAfterPost) {
+                                if (!openPrintDialogAfterPost || selected.length > 1) {
+                                    Win.close();
+                                    return;
+                                }
+
+                                // open print dialog
+                                require([
+                                    'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
+                                ], function (PrintDialog) {
+                                    Win.close();
+
+                                    new PrintDialog({
+                                        invoiceId: selected[0].hash
+                                    }).open();
+                                });
                             }).catch(function (Err) {
                                 QUI.getMessageHandler().then(function (MH) {
                                     MH.addError(Err.getMessage());

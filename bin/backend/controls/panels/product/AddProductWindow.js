@@ -54,7 +54,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWi
                         }).then(function (productSettings) {
                             return self.$parseProductToArticle(productId, productSettings);
                         }).then(function (article) {
-                            console.log(article);
                             self.fireEvent('submit', [self, article]);
                         }).catch(function (err) {
                             console.error(err);
