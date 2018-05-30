@@ -990,8 +990,8 @@
             <en><![CDATA[Invoice was sent to [recipient]]]></en>
         </locale>
         <locale name="message.invoice.send.successfully">
-            <de><![CDATA[Rechnung wurde versendet]]></de>
-            <en><![CDATA[Invoice was sent]]></en>
+            <de><![CDATA[Die Rechnung [ID] wurde erfolgreich an [recipient] versendet]]></de>
+            <en><![CDATA[The Invoice [ID] was sent successfully to [recipient]]]></en>
         </locale>
         <locale name="invoice.send.mail.subject">
             <de><![CDATA[Ihre Rechnung - [invoiceId]]]></de>
