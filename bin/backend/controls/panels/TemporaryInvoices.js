@@ -35,7 +35,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             '$clickDeleteInvoice',
             '$clickCopyInvoice',
             '$clickPDF',
-            '$onInvoicesChange'
+            '$onInvoicesChange',
+            '$onClickInvoiceDetails'
         ],
 
         initialize: function (options) {
@@ -270,7 +271,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 serverSort       : true,
                 sortOn           : 'date',
                 sortBy           : 'DESC',
-                buttons          : [Actions, {
+
+                accordion            : true,
+                autoSectionToggle    : false,
+                openAccordionOnClick : false,
+                toggleiconTitle      : '',
+                accordionLiveRenderer: this.$onClickInvoiceDetails,
+
+                buttons    : [Actions, {
                     name     : 'create',
                     text     : QUILocale.get(lg, 'temporary.btn.createInvoice'),
                     textimage: 'fa fa-plus',
@@ -284,7 +292,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         }
                     }
                 }],
-                columnModel      : [{
+                columnModel: [{
+                    header   : '&nbsp;',
+                    dataIndex: 'opener',
+                    dataType : 'int',
+                    width    : 30
+                }, {
                     header   : QUILocale.get(lg, 'journal.grid.type'),
                     dataIndex: 'display_type',
                     dataType : 'node',
@@ -764,6 +777,28 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          */
         $onInvoicesChange: function () {
             this.refresh();
+        },
+
+        /**
+         * Open the accordion details of the invoice
+         *
+         * @param {Object} data
+         */
+        $onClickInvoiceDetails: function (data) {
+            var row        = data.row,
+                ParentNode = data.parent;
+
+            ParentNode.setStyle('padding', 10);
+            ParentNode.set('html', '<div class="fa fa-spinner fa-spin"></div>');
+
+            Invoices.getArticleHtmlFromTemporary(this.$Grid.getDataByRow(row).id).then(function (result) {
+                ParentNode.set('html', '');
+
+                new Element('div', {
+                    'class': 'invoices-invoice-details',
+                    html   : result
+                }).inject(ParentNode);
+            });
         }
     });
 });
