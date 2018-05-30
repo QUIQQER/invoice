@@ -527,6 +527,10 @@ class InvoiceSearch extends Singleton
                                             $invoiceAddress['firstname'].' '.
                                             $invoiceAddress['lastname'];
 
+            if (!empty($invoiceAddress['company'])) {
+                $invoiceData['customer_name'] = trim($invoiceData['customer_name']);
+                $invoiceData['customer_name'] = $invoiceAddress['company'].' ('.$invoiceData['customer_name'].')';
+            }
 
             // display totals
             $invoiceData['display_nettosum'] = $Currency->format($invoiceData['nettosum']);
