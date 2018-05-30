@@ -154,9 +154,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 this.getAttribute('invoiceId'),
                 this.getCurrentData()
             ).then(function () {
-                return Invoices.postInvoice(self.getAttribute('invoiceId'));
-            }).then(function (newInvoiceId) {
-                self.destroy();
+                return Promise.all([
+                    Invoices.postInvoice(self.getAttribute('invoiceId')),
+                    Invoices.getSetting('temporaryInvoice', 'openPrintDialogAfterPost')
+                ]);
+            }).then(function (result) {
+                var newInvoiceHash           = result[0],
+                    openPrintDialogAfterPost = result[1];
+
+                if (!openPrintDialogAfterPost) {
+                    self.destroy();
+                    return;
+                }
+
+                // open print dialog
+                require([
+                    'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
+                ], function (PrintDialog) {
+                    self.destroy();
+
+                    new PrintDialog({
+                        invoiceId: newInvoiceHash
+                    }).open();
+                });
             }).catch(function (err) {
                 console.error(err);
                 console.error(err.getMessage());

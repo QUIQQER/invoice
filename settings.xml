@@ -34,6 +34,10 @@
                     <type><![CDATA[string]]></type>
                     <defaultvalue><![CDATA[EDIT-]]></defaultvalue>
                 </conf>
+                <conf name="openPrintDialogAfterPost">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[1]]></defaultvalue>
+                </conf>
             </section>
         </config>
 
@@ -120,6 +124,16 @@
                                         var="invoice.settings.invoice.storno.allowed"/>
                             </option>
                         </select>
+
+                        <input type="checkbox" conf="temporaryInvoice.openPrintDialogAfterPost">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.invoice.openPrintDialogAfterPost"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.openPrintDialogAfterPost.description"/>
+                            </description>
+                        </input>
                     </settings>
 
                     <settings title="invoiceDownload" name="invoiceDownload">

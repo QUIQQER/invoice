@@ -1253,6 +1253,14 @@
             <de><![CDATA[Wir haben Ihre Zahlung am [date] per [payment] erhalten.]]></de>
             <en><![CDATA[We have received your payment on the [date] by [payment].]]></en>
         </locale>
+        <locale name="invoice.settings.invoice.openPrintDialogAfterPost">
+            <de><![CDATA[Druckdialog für Rechnung automatisch anzeigen]]></de>
+            <en><![CDATA[Open print dialog for invoice automatically]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.openPrintDialogAfterPost.description">
+            <de><![CDATA[Nach Buchung einer Rechnung wird der Druckdialog für die Rechnung automatisch geöffnet.]]></de>
+            <en><![CDATA[After posting an invoice, the print dialog for the invoice opens automatically.]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/products">
