@@ -83,6 +83,40 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Return the article html from an invoice
+         *
+         * @param {Number|String} invoiceId
+         * @returns {Promise}
+         */
+        getArticleHtml: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_getArticleHtml', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Return the article html from an temporary invoice
+         *
+         * @param {Number|String} invoiceId
+         * @returns {Promise}
+         */
+        getArticleHtmlFromTemporary: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_getArticleHtml', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Is the user a netto or brutto user?
          *
          * @param userId
@@ -112,6 +146,25 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                     'package': 'quiqqer/invoice',
                     params   : JSON.encode(params),
                     filter   : JSON.encode(filter),
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Return an invoice setting
+         *
+         * @param {String} section
+         * @param {String} key
+         * @return {Promise}
+         */
+        getSetting: function (section, key) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_setting', resolve, {
+                    'package': 'quiqqer/invoice',
+                    section  : section,
+                    key      : key,
                     onError  : reject,
                     showError: false
                 });
@@ -293,15 +346,15 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * Post a invoice
          *
          * @param {String} invoiceId
-         * @return {Promise}
+         * @return {Promise} - [hash]
          */
         postInvoice: function (invoiceId) {
             var self = this;
 
             return new Promise(function (resolve, reject) {
-                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_post', function (id) {
-                    self.fireEvent('postInvoice', [self, invoiceId, id]);
-                    resolve(invoiceId, id);
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_post', function (hash) {
+                    self.fireEvent('postInvoice', [self, invoiceId, hash]);
+                    resolve(hash);
                 }, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
@@ -342,7 +395,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          */
         getInvoiceHistory: function (invoiceId) {
             return new Promise(function (resolve, reject) {
-                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_getHistory', resolve, {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_getHistory', resolve, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
                     onError  : reject,

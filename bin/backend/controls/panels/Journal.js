@@ -66,6 +66,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$TimeFilter = null;
             this.$Total      = null;
 
+            this.$periodFilter = null;
+            this.$loaded       = false;
+
             this.addEvents({
                 onCreate: this.$onCreate,
                 onResize: this.$onResize,
@@ -88,9 +91,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return;
             }
 
+            if (this.$loaded) {
+                this.$periodFilter = this.$TimeFilter.getValue();
+            }
+
             Invoices.search({
                 perPage: this.$Grid.options.perPage,
-                page   : this.$Grid.options.page
+                page   : this.$Grid.options.page,
+                sortBy : this.$Grid.options.sortBy,
+                sortOn : this.$Grid.options.sortOn
             }, {
                 from       : this.$TimeFilter.getValue().from,
                 to         : this.$TimeFilter.getValue().to,
@@ -260,14 +269,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 Invoices.PAYMENT_STATUS_CANCELED
             );
 
-            this.$Status.appendChild(
-                QUILocale.get(lg, 'journal.paidstatus.debit'),
-                Invoices.PAYMENT_STATUS_DEBIT
-            );
-
             this.addButton(this.$Status);
 
-            var Separator = new QUISeparator();
+            var self      = this,
+                Separator = new QUISeparator();
+
             this.addButton(Separator);
 
             Separator.getElm().setStyles({
@@ -280,7 +286,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'float': 'right'
                 },
                 events: {
-                    onChange: this.refresh
+                    onChange           : this.refresh,
+                    onPeriodSelectClose: function (Filter) {
+                        self.$periodFilter = Filter.getValue();
+                    },
+                    onPeriodSelectOpen : function (Filter) {
+                        if (self.$periodFilter) {
+                            Filter.setAttribute('from', self.$periodFilter.from);
+                            Filter.setAttribute('to', self.$periodFilter.to);
+                        }
+                    }
                 }
             });
 
@@ -342,6 +357,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.$Grid = new Grid(Container, {
                 pagination           : true,
+                serverSort           : true,
                 accordion            : true,
                 autoSectionToggle    : false,
                 openAccordionOnClick : false,
@@ -395,7 +411,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataIndex: 'customer_name',
                     dataType : 'string',
                     width    : 130,
-                    className: 'clickable'
+                    className: 'clickable',
+                    sortable : false
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'date'),
                     dataIndex: 'date',
@@ -405,7 +422,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     header   : QUILocale.get('quiqqer/system', 'c_user'),
                     dataIndex: 'c_username',
                     dataType : 'string',
-                    width    : 130
+                    width    : 130,
+                    sortable : false
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_display',
@@ -487,6 +505,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 280,
                     className: 'monospace'
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.globalProcessId'),
+                    dataIndex: 'globalProcessId',
+                    dataType : 'string',
+                    width    : 280,
+                    className: 'monospace'
                 }]
             });
 
@@ -531,6 +555,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             if (value === '' || !value) {
                 this.$Status.setValue('');
             }
+
+            this.$loaded = true;
         },
 
         /**
@@ -574,16 +600,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
                 Button.setAttribute('textimage', 'fa fa-print');
             });
-
-
-            /*
-             selectedData = selectedData[0];
-
-             this.downloadPdf(selectedData.id).then(function () {
-             Button.setAttribute('textimage', 'fa fa-file-pdf-o');
-             });
-
-             */
         },
 
         /**
@@ -681,36 +697,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             ParentNode.setStyle('padding', 10);
             ParentNode.set('html', '<div class="fa fa-spinner fa-spin"></div>');
 
-            Invoices.get(this.$Grid.getDataByRow(row).id).then(function (result) {
-                var articles = [];
+            Invoices.getArticleHtml(this.$Grid.getDataByRow(row).id).then(function (result) {
+                ParentNode.set('html', '');
 
-                if ("articles" in result) {
-                    try {
-                        articles = JSON.decode(result.articles);
-                    } catch (e) {
-                    }
-                }
-
-                var list = articles.articles;
-
-                for (var i = 0, len = list.length; i < len; i++) {
-                    list[i].position  = i + 1;
-                    list[i].articleNo = list[i].articleNo || '---';
-                }
-
-                ParentNode.set('html', Mustache.render(templateInvoiceDetails, {
-                    articles       : list,
-                    calculations   : articles.calculations,
-                    display_sum    : result.display_sum,
-                    display_subsum : result.display_subsum,
-                    display_vatsum : result.display_vatsum,
-                    textPosition   : '#',
-                    textArticleNo  : QUILocale.get(lg, 'invoice.products.articleNo'),
-                    textDescription: QUILocale.get(lg, 'invoice.products.description'),
-                    textQuantity   : QUILocale.get(lg, 'invoice.products.quantity'),
-                    textUnitPrice  : QUILocale.get(lg, 'invoice.products.unitPrice'),
-                    textTotalPrice : QUILocale.get(lg, 'invoice.products.price')
-                }));
+                new Element('div', {
+                    'class': 'invoices-invoice-details',
+                    html   : result
+                }).inject(ParentNode);
             });
         },
 
@@ -722,6 +715,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          */
         $onClickOpenInvoice: function (data) {
             if (typeof data !== 'undefined' &&
+                typeof data.cell !== 'undefined' &&
                 (data.cell.get('data-index') === 'customer_id' ||
                     data.cell.get('data-index') === 'customer_name')) {
 

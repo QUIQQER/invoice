@@ -7,6 +7,10 @@
                 <conf name="template">
                     <type><![CDATA[string]]></type>
                 </conf>
+                <conf name="deactivateDefaultTemplate">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[0]]></defaultvalue>
+                </conf>
                 <conf name="prefix">
                     <type><![CDATA[string]]></type>
                     <defaultvalue><![CDATA[INV-]]></defaultvalue>
@@ -23,12 +27,20 @@
                     <type><![CDATA[integer]]></type>
                     <defaultvalue><![CDATA[7]]></defaultvalue>
                 </conf>
+                <conf name="storno">
+                    <type><![CDATA[integer]]></type>
+                    <defaultvalue><![CDATA[1]]></defaultvalue>
+                </conf>
             </section>
 
             <section name="temporaryInvoice">
                 <conf name="prefix">
                     <type><![CDATA[string]]></type>
                     <defaultvalue><![CDATA[EDIT-]]></defaultvalue>
+                </conf>
+                <conf name="openPrintDialogAfterPost">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[1]]></defaultvalue>
                 </conf>
             </section>
         </config>
@@ -60,6 +72,17 @@
                             <text>
                                 <locale group="quiqqer/invoice" var="invoice.settings.template"/>
                             </text>
+                        </input>
+
+                        <input type="checkbox"
+                               conf="invoice.deactivateDefaultTemplate"
+                        >
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.deactivateDefaultTemplate"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice" var="invoice.settings.deactivateDefaultTemplate.description"/>
+                            </description>
                         </input>
 
                         <input type="text" conf="invoice.prefix">
@@ -95,6 +118,36 @@
                             <description>
                                 <locale group="quiqqer/invoice"
                                         var="invoice.settings.invoice.time_for_payment.description"/>
+                            </description>
+                        </input>
+
+                        <select conf="invoice.storno">
+                            <text>
+                                <locale group="quiqqer/invoice" var="invoice.settings.invoice.storno"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.storno.desc"/>
+                            </description>
+
+                            <option value="0">
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.storno.no"/>
+                            </option>
+                            <option value="1">
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.storno.allowed"/>
+                            </option>
+                        </select>
+
+                        <input type="checkbox" conf="temporaryInvoice.openPrintDialogAfterPost">
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.openPrintDialogAfterPost"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.openPrintDialogAfterPost.description"/>
                             </description>
                         </input>
                     </settings>

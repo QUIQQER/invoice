@@ -3,6 +3,10 @@
  * @author www.pcsg.de (Henning Leutz)
  *
  * @event onChange [self, {Date} from, {Date} to]
+ * @event onPeriodSelectClose [self]
+ * @event onPeriodSelectOpenBegin [self]
+ * @event onPeriodSelectOpen [self]
+ * @event onPeriodSelectOpenEnd [self]
  */
 define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
 
@@ -30,9 +34,20 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
             '$onChange'
         ],
 
+        options: {
+            from: null,
+            to  : null
+        },
+
         initialize: function (options) {
-            this.$Current = new Date();
-            this.$To      = null;
+            this.$Current = new window.Date();
+            this.$To      = new window.Date();
+
+            this.$To.setFullYear(
+                this.$To.getFullYear(),
+                this.$To.getMonth(),
+                this.$getDaysInMonth(this.$To.getMonth(), this.$To.getFullYear())
+            );
 
             this.$type = 'month';
 
@@ -168,7 +183,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
          */
         getValue: function () {
             if (!this.$To) {
-                this.$To = new Date();
+                this.$To = new window.Date();
             }
 
             return {
@@ -199,7 +214,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                 return;
             }
 
-            this.$Current = new Date();
+            this.$Current = new window.Date();
             this.$To      = null;
 
             this.$triggerChange();
@@ -211,20 +226,15 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
         $triggerChange: function () {
             this.refresh();
 
-            var From = new Date(this.$Current),
-                To   = new Date(this.$To);
+            var From = new window.Date(this.$Current),
+                To   = new window.Date(this.$To);
 
             if (!To) {
-                To = new Date(this.$Current);
+                To = new window.Date(this.$Current);
             }
 
             var year  = this.$Current.getFullYear(),
                 month = this.$Current.getMonth();
-
-            var getDaysInMonth = function (m, y) {
-                m = m + 1;
-                return m === 2 ? y & 3 || !(y % 25) && y & 15 ? 28 : 29 : 30 + (m + (m >> 3) & 1);
-            };
 
             switch (this.$type) {
                 case 'month':
@@ -232,7 +242,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                     To.setFullYear(
                         year,
                         month,
-                        getDaysInMonth(month, year)
+                        this.$getDaysInMonth(month, year)
                     );
                     break;
 
@@ -246,7 +256,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                     To.setFullYear(
                         year,
                         month + 2,
-                        getDaysInMonth(month + 2, year)
+                        this.$getDaysInMonth(month + 2, year)
                     );
                     break;
 
@@ -257,7 +267,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                         To.setFullYear(
                             year,
                             5,
-                            getDaysInMonth(5, year)
+                            this.$getDaysInMonth(5, year)
                         );
                     } else {
                         From.setFullYear(year, 6, 1);
@@ -265,7 +275,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                         To.setFullYear(
                             year,
                             11,
-                            getDaysInMonth(11, year)
+                            this.$getDaysInMonth(11, year)
                         );
                     }
                     break;
@@ -275,7 +285,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                     To.setFullYear(
                         year,
                         11,
-                        getDaysInMonth(11, year)
+                        this.$getDaysInMonth(11, year)
                     );
                     break;
             }
@@ -286,6 +296,18 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
             this.$To      = To;
 
             this.fireEvent('change', [this, From, To]);
+        },
+
+        /**
+         * Return the days from the month
+         *
+         * @param m
+         * @param y
+         * @return {number}
+         */
+        $getDaysInMonth: function (m, y) {
+            m = m + 1;
+            return m === 2 ? y & 3 || !(y % 25) && y & 15 ? 28 : 29 : 30 + (m + (m >> 3) & 1);
         },
 
         /**
@@ -368,7 +390,6 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
          * Show next half year
          */
         nextHalfYear: function () {
-            console.info(this.$Current.getMonth());
             if (this.$Current.getMonth() < 6) {
                 this.$Current.setMonth(11);
             } else {
@@ -419,8 +440,15 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                 left = elmSize.x + elmPosition.x - width - 32;
             }
 
-            this.$Current = new Date();
-            this.$To      = new Date();
+            this.fireEvent('periodSelectOpenBegin', [self]);
+
+            if (!this.$Current) {
+                this.$Current = new window.Date();
+            }
+
+            if (!this.$To) {
+                this.$To = new window.Date();
+            }
 
             var Container = new Element('div', {
                 tabindex: -1,
@@ -436,6 +464,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                         require([
                             'package/quiqqer/calendar-controls/bin/Scheduler'
                         ], function (Scheduler) {
+                            self.fireEvent('periodSelectClose', [self]);
+
                             Scheduler.getScheduler().destroyCalendar();
 
                             event.target.setStyle('display', 'none');
@@ -448,8 +478,9 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
             require([
                 'package/quiqqer/calendar-controls/bin/Scheduler'
             ], function (Scheduler) {
-
                 Scheduler.loadExtension('minical').then(function () {
+                    self.fireEvent('periodSelectOpen', [self]);
+
                     var Handler = Scheduler.getScheduler();
 
                     Container.set('html', '');
@@ -472,20 +503,28 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                     });
 
                     Handler.config.xml_date = "%Y-%m-%d";
-                    Handler.init(Ghost, new Date(), "day");
+                    Handler.init(Ghost, new window.Date(), "day");
 
-                    Handler.renderCalendar({
+                    if (self.getAttribute('from')) {
+                        self.$Current = new window.Date(self.getAttribute('from') * 1000);
+                    }
+
+                    if (self.getAttribute('to')) {
+                        self.$To = new window.Date(self.getAttribute('to') * 1000);
+                    }
+
+                    var CalFrom = Handler.renderCalendar({
                         container : Left,
-                        date      : new Date(),
+                        date      : new window.Date(self.$Current.getTime()), // we need to clone, because of date reset -.-
                         navigation: true,
                         handler   : function (date) {
                             self.$Current = date;
                         }
                     });
 
-                    Handler.renderCalendar({
+                    var CalTo = Handler.renderCalendar({
                         container : Right,
-                        date      : new Date(),
+                        date      : new window.Date(self.$To.getTime()), // we need to clone, because of date reset -.-
                         navigation: true,
                         handler   : function (date) {
                             self.$To = date;
@@ -505,10 +544,14 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                     });
 
                     Container.focus();
+
+                    Handler.markCalendar(CalFrom, self.$Current, 'dhx_calendar_click');
+                    Handler.markCalendar(CalTo, self.$To, 'dhx_calendar_click');
+
+                    self.fireEvent('periodSelectOpenEnd', [self]);
                 });
             });
         },
-
 
         /**
          * Return the date formatter

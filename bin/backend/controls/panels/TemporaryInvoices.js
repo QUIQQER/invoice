@@ -9,11 +9,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
     'qui/QUI',
     'qui/controls/desktop/Panel',
     'qui/controls/windows/Confirm',
+    'qui/controls/buttons/Button',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
     'Locale'
 
-], function (QUI, QUIPanel, QUIConfirm, Grid, Invoices, QUILocale) {
+], function (QUI, QUIPanel, QUIConfirm, QUIButton, Grid, Invoices, QUILocale) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -34,7 +35,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             '$clickDeleteInvoice',
             '$clickCopyInvoice',
             '$clickPDF',
-            '$onInvoicesChange'
+            '$onInvoicesChange',
+            '$onClickInvoiceDetails'
         ],
 
         initialize: function (options) {
@@ -74,7 +76,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             this.Loader.show();
 
-            return Invoices.getTemporaryInvoicesList().then(function (result) {
+            return Invoices.getTemporaryInvoicesList({
+                perPage: this.$Grid.options.perPage,
+                page   : this.$Grid.options.page,
+                sortBy : this.$Grid.options.sortBy,
+                sortOn : this.$Grid.options.sortOn
+            }).then(function (result) {
                 result.data = result.data.map(function (entry) {
                     var Icon = new Element('span');
 
@@ -101,19 +108,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 this.$Grid.setData(result);
 
-                var Copy = this.$Grid.getButtons().filter(function (Btn) {
+                var Actions  = this.$Grid.getButtons().filter(function (Btn) {
+                        return Btn.getAttribute('name') === 'actions';
+                    })[0],
+
+                    children = Actions.getChildren();
+
+
+                var Copy = children.filter(function (Btn) {
                     return Btn.getAttribute('name') === 'copy';
                 })[0];
 
-                var Delete = this.$Grid.getButtons().filter(function (Btn) {
+                var Delete = children.filter(function (Btn) {
                     return Btn.getAttribute('name') === 'delete';
                 })[0];
 
-                var PDF = this.$Grid.getButtons().filter(function (Btn) {
+                var PDF = children.filter(function (Btn) {
                     return Btn.getAttribute('name') === 'pdf';
                 })[0];
 
-                var Post = this.$Grid.getButtons().filter(function (Btn) {
+                var Post = children.filter(function (Btn) {
                     return Btn.getAttribute('name') === 'post';
                 })[0];
 
@@ -200,9 +214,71 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 this.getContent()
             );
 
+
+            var Actions = new QUIButton({
+                name      : 'actions',
+                text      : QUILocale.get(lg, 'journal.btn.actions'),
+                menuCorner: 'topRight',
+                styles    : {
+                    'float': 'right'
+                }
+            });
+
+            Actions.appendChild({
+                name    : 'post',
+                disabled: true,
+                text    : QUILocale.get(lg, 'journal.btn.post'),
+                icon    : 'fa fa-file-text-o',
+                events  : {
+                    onClick: this.$clickPostInvoice
+                }
+            });
+
+            Actions.appendChild({
+                name    : 'copy',
+                disabled: true,
+                text    : QUILocale.get(lg, 'journal.btn.copyInvoice'),
+                icon    : 'fa fa-copy',
+                events  : {
+                    onClick: this.$clickCopyInvoice
+                }
+            });
+
+            Actions.appendChild({
+                name    : 'delete',
+                disabled: true,
+                text    : QUILocale.get(lg, 'temporary.btn.deleteInvoice'),
+                icon    : 'fa fa-trash',
+                events  : {
+                    onClick: this.$clickDeleteInvoice
+                }
+            });
+
+            Actions.appendChild({
+                name    : 'pdf',
+                disabled: true,
+                text    : QUILocale.get(lg, 'journal.btn.pdf'),
+                icon    : 'fa fa-file-pdf-o',
+                events  : {
+                    onClick: this.$clickPDF
+                }
+            });
+
+
             this.$Grid = new Grid(Container, {
-                pagination : true,
-                buttons    : [{
+                pagination       : true,
+                multipleSelection: true,
+                serverSort       : true,
+                sortOn           : 'date',
+                sortBy           : 'DESC',
+
+                accordion            : true,
+                autoSectionToggle    : false,
+                openAccordionOnClick : false,
+                toggleiconTitle      : '',
+                accordionLiveRenderer: this.$onClickInvoiceDetails,
+
+                buttons    : [Actions, {
                     name     : 'create',
                     text     : QUILocale.get(lg, 'temporary.btn.createInvoice'),
                     textimage: 'fa fa-plus',
@@ -215,44 +291,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                             });
                         }
                     }
-                }, {
-                    type: 'separator'
-                }, {
-                    name     : 'post',
-                    disabled : true,
-                    text     : QUILocale.get(lg, 'journal.btn.post'),
-                    textimage: 'fa fa-check',
-                    events   : {
-                        onClick: this.$clickPostInvoice
-                    }
-                }, {
-                    name     : 'copy',
-                    disabled : true,
-                    text     : QUILocale.get(lg, 'journal.btn.copyInvoice'),
-                    textimage: 'fa fa-copy',
-                    events   : {
-                        onClick: this.$clickCopyInvoice
-                    }
-                }, {
-                    name     : 'delete',
-                    disabled : true,
-                    text     : QUILocale.get(lg, 'temporary.btn.deleteInvoice'),
-                    textimage: 'fa fa-trash',
-                    events   : {
-                        onClick: this.$clickDeleteInvoice
-                    }
-                }, {
-                    type: 'separator'
-                }, {
-                    name     : 'pdf',
-                    disabled : true,
-                    text     : QUILocale.get(lg, 'journal.btn.pdf'),
-                    textimage: 'fa fa-file-pdf-o',
-                    events   : {
-                        onClick: this.$clickPDF
-                    }
                 }],
                 columnModel: [{
+                    header   : '&nbsp;',
+                    dataIndex: 'opener',
+                    dataType : 'int',
+                    width    : 30
+                }, {
                     header   : QUILocale.get(lg, 'journal.grid.type'),
                     dataIndex: 'display_type',
                     dataType : 'node',
@@ -271,12 +316,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get(lg, 'journal.grid.customerNo'),
                     dataIndex: 'customer_id',
                     dataType : 'integer',
-                    width    : 100
+                    width    : 100,
+                    className: 'clickable'
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'name'),
                     dataIndex: 'customer_name',
                     dataType : 'string',
-                    width    : 130
+                    width    : 130,
+                    className: 'clickable'
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'date'),
                     dataIndex: 'date',
@@ -376,7 +423,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get(lg, 'journal.grid.hash'),
                     dataIndex: 'hash',
                     dataType : 'string',
-                    width    : 200
+                    width    : 280,
+                    className: 'monospace'
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.globalProcessId'),
+                    dataIndex: 'global_process_id',
+                    dataType : 'string',
+                    width    : 280,
+                    className: 'monospace'
                 }]
             });
 
@@ -384,29 +438,68 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onRefresh: this.refresh,
 
                 onClick: function () {
-                    var Copy = self.$Grid.getButtons().filter(function (Btn) {
+                    var selected = this.getSelectedIndices();
+
+                    var Actions  = this.getButtons().filter(function (Btn) {
+                            return Btn.getAttribute('name') === 'actions';
+                        })[0],
+
+                        children = Actions.getChildren();
+
+                    var Copy = children.filter(function (Btn) {
                         return Btn.getAttribute('name') === 'copy';
                     })[0];
 
-                    var Delete = self.$Grid.getButtons().filter(function (Btn) {
+                    var Delete = children.filter(function (Btn) {
                         return Btn.getAttribute('name') === 'delete';
                     })[0];
 
-                    var PDF = self.$Grid.getButtons().filter(function (Btn) {
+                    var PDF = children.filter(function (Btn) {
                         return Btn.getAttribute('name') === 'pdf';
                     })[0];
 
-                    var Post = self.$Grid.getButtons().filter(function (Btn) {
+                    var Post = children.filter(function (Btn) {
                         return Btn.getAttribute('name') === 'post';
                     })[0];
 
-                    Copy.enable();
+                    if (!selected.length) {
+                        Copy.disable();
+                        Delete.disable();
+                        PDF.disable();
+                        Post.disable();
+                        return;
+                    }
+
+                    if (selected.length === 1) {
+                        Copy.enable();
+                        Delete.enable();
+                        PDF.enable();
+                        Post.enable();
+                        return;
+                    }
+
+                    Copy.disable();
                     Delete.enable();
-                    PDF.enable();
+                    PDF.disable();
                     Post.enable();
                 },
 
-                onDblClick: function () {
+                onDblClick: function (data) {
+                    if (typeof data !== 'undefined' &&
+                        (data.cell.get('data-index') === 'customer_id' ||
+                            data.cell.get('data-index') === 'customer_name')) {
+
+                        return new Promise(function (resolve) {
+                            require(['utils/Panels'], function (PanelUtils) {
+                                PanelUtils.openUserPanel(
+                                    self.$Grid.getDataByRow(data.row).customer_id
+                                );
+
+                                resolve();
+                            });
+                        });
+                    }
+
                     self.openInvoice(
                         self.$Grid.getSelectedData()[0].id
                     );
@@ -432,6 +525,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             this.$Grid.setHeight(size.y - 20);
             this.$Grid.setWidth(size.x - 20);
+            this.$Grid.resize();
         },
 
         /**
@@ -472,10 +566,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * @param Button
          */
         $clickPostInvoice: function (Button) {
-            if (typeOf(Button) !== 'qui/controls/buttons/Button') {
-                return;
-            }
-
             var selected = this.$Grid.getSelectedData(),
                 oldImage = Button.getAttribute('textimage');
 
@@ -483,24 +573,94 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 return;
             }
 
-            selected = selected[0];
-
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            return Invoices.getMissingAttributes(selected.id).then(function (missing) {
-                if (!Object.getLength(missing)) {
-                    return Invoices.postInvoice(selected.id);
+            var proms = [];
+
+            for (var i = 0, len = selected.length; i < len; i++) {
+                proms.push(Invoices.getMissingAttributes(selected[i].id));
+            }
+
+            Promise.all(proms).then(function (result) {
+                Button.setAttribute('textimage', oldImage);
+
+                for (var i = 0, len = result.length; i < len; i++) {
+                    if (Object.getLength(result[i])) {
+                        return false;
+                    }
                 }
 
-                return QUI.getMessageHandler().then(function (MH) {
-                    for (var i in missing) {
-                        if (missing.hasOwnProperty(i)) {
-                            MH.addError(missing[i]);
+                return true;
+            }).then(function (go) {
+                if (go === false) {
+                    QUI.getMessageHandler().then(function (MH) {
+                        MH.addError(
+                            QUILocale.get(lg, 'exception.post.invoices.missing.attributes')
+                        );
+                    });
+
+                    return;
+                }
+
+                var invoices = '';
+
+                for (var i = 0, len = selected.length; i < len; i++) {
+                    invoices = invoices + '<li>' + selected[i].id + '</li>';
+                }
+
+                new QUIConfirm({
+                    title      : QUILocale.get(lg, 'dialog.ti.post.title'),
+                    text       : QUILocale.get(lg, 'dialog.ti.post.text'),
+                    information: QUILocale.get(lg, 'dialog.ti.post.information', {
+                        invoices: '<ul>' + invoices + '</ul>'
+                    }),
+                    icon       : 'fa fa-check',
+                    texticon   : 'fa fa-check',
+                    maxHeight  : 400,
+                    maxWidth   : 600,
+                    autoclose  : false,
+                    ok_button  : {
+                        text     : QUILocale.get(lg, 'dialog.ti.post.button'),
+                        textimage: 'fa fa-check'
+                    },
+                    events     : {
+                        onSubmit: function (Win) {
+                            Win.Loader.show();
+
+                            var posts = [];
+
+                            for (var i = 0, len = selected.length; i < len; i++) {
+                                posts.push(Invoices.postInvoice(selected[i].id));
+                            }
+
+                            Promise.all(posts).then(function () {
+                                return Invoices.getSetting('temporaryInvoice', 'openPrintDialogAfterPost');
+                            }).then(function (openPrintDialogAfterPost) {
+                                if (!openPrintDialogAfterPost || selected.length > 1) {
+                                    Win.close();
+                                    return;
+                                }
+
+                                // open print dialog
+                                require([
+                                    'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
+                                ], function (PrintDialog) {
+                                    Win.close();
+
+                                    new PrintDialog({
+                                        invoiceId: selected[0].hash
+                                    }).open();
+                                });
+                            }).catch(function (Err) {
+                                QUI.getMessageHandler().then(function (MH) {
+                                    MH.addError(Err.getMessage());
+                                });
+
+                                Win.Loader.hide();
+                            });
                         }
                     }
-                });
-            }).then(function () {
-                Button.setAttribute('textimage', oldImage);
+                }).open();
             });
         },
 
@@ -514,11 +674,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 return;
             }
 
+            var invoices = '';
+
+            for (var i = 0, len = selected.length; i < len; i++) {
+                invoices = invoices + '<li>' + selected[i].id + '</li>';
+            }
+
             new QUIConfirm({
                 title      : QUILocale.get(lg, 'dialog.ti.delete.title'),
                 text       : QUILocale.get(lg, 'dialog.ti.delete.text'),
                 information: QUILocale.get(lg, 'dialog.ti.delete.information', {
-                    id: selected[0].id
+                    invoices: '<ul>' + invoices + '</ul>'
                 }),
                 icon       : 'fa fa-trash',
                 texticon   : 'fa fa-trash',
@@ -533,7 +699,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     onSubmit: function (Win) {
                         Win.Loader.show();
 
-                        Invoices.deleteInvoice(selected[0].id).then(function () {
+                        var posts = [];
+
+                        for (var i = 0, len = selected.length; i < len; i++) {
+                            posts.push(Invoices.deleteInvoice(selected[i].id));
+                        }
+
+                        Promise.all(posts).then(function () {
                             Win.close();
                         }).then(function () {
                             Win.Loader.show();
@@ -599,9 +771,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             selected = selected[0];
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            this.downloadPdf(selected.id).then(function () {
+
+            require([
+                'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
+            ], function (PrintDialog) {
+                new PrintDialog({
+                    invoiceId: selected.id
+                }).open();
+
                 Button.setAttribute('textimage', 'fa fa-file-pdf-o');
             });
+
+            // this.downloadPdf(selected.id).then(function () {
+            //     Button.setAttribute('textimage', 'fa fa-file-pdf-o');
+            // });
         },
 
         /**
@@ -610,6 +793,28 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          */
         $onInvoicesChange: function () {
             this.refresh();
+        },
+
+        /**
+         * Open the accordion details of the invoice
+         *
+         * @param {Object} data
+         */
+        $onClickInvoiceDetails: function (data) {
+            var row        = data.row,
+                ParentNode = data.parent;
+
+            ParentNode.setStyle('padding', 10);
+            ParentNode.set('html', '<div class="fa fa-spinner fa-spin"></div>');
+
+            Invoices.getArticleHtmlFromTemporary(this.$Grid.getDataByRow(row).id).then(function (result) {
+                ParentNode.set('html', '');
+
+                new Element('div', {
+                    'class': 'invoices-invoice-details',
+                    html   : result
+                }).inject(ParentNode);
+            });
         }
     });
 });

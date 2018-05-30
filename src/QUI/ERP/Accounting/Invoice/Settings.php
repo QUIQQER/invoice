@@ -161,10 +161,17 @@ class Settings extends Singleton
     {
         $result   = [];
         $packages = QUI::getPackageManager()->getInstalled();
+        $default  = Settings::get('invoice', 'template');
+
+        $defaultIsDisabled = Settings::get('invoice', 'deactivateDefaultTemplate');
 
         foreach ($packages as $package) {
             $Package  = QUI::getPackage($package['name']);
             $composer = $Package->getComposerData();
+
+            if ($defaultIsDisabled && $Package->getName() === 'quiqqer/invoice-accounting-template') {
+                continue;
+            }
 
             if (!isset($composer['type'])) {
                 continue;
@@ -175,8 +182,9 @@ class Settings extends Singleton
             }
 
             $result[] = [
-                'name'  => $Package->getName(),
-                'title' => $Package->getTitle()
+                'name'    => $Package->getName(),
+                'title'   => $Package->getTitle(),
+                'default' => $Package->getName() === $default ? 1 : 0
             ];
         }
 

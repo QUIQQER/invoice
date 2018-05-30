@@ -154,9 +154,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 this.getAttribute('invoiceId'),
                 this.getCurrentData()
             ).then(function () {
-                return Invoices.postInvoice(self.getAttribute('invoiceId'));
-            }).then(function (newInvoiceId) {
-                self.destroy();
+                return Promise.all([
+                    Invoices.postInvoice(self.getAttribute('invoiceId')),
+                    Invoices.getSetting('temporaryInvoice', 'openPrintDialogAfterPost')
+                ]);
+            }).then(function (result) {
+                var newInvoiceHash           = result[0],
+                    openPrintDialogAfterPost = result[1];
+
+                if (!openPrintDialogAfterPost) {
+                    self.destroy();
+                    return;
+                }
+
+                // open print dialog
+                require([
+                    'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
+                ], function (PrintDialog) {
+                    self.destroy();
+
+                    new PrintDialog({
+                        invoiceId: newInvoiceHash
+                    }).open();
+                });
             }).catch(function (err) {
                 console.error(err);
                 console.error(err.getMessage());
@@ -363,9 +383,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     value: ''
                 }).inject(Payments);
 
-                for (var i = 0, len = payments.length; i < len; i++) {
+                var i, len, title;
+                var current = QUILocale.getCurrent();
+
+                for (i = 0, len = payments.length; i < len; i++) {
+                    title = payments[i].title;
+
+                    if (typeOf(title) === 'object' && typeof title[current] !== 'undefined') {
+                        title = title[current];
+                    }
+
                     new Element('option', {
-                        html : payments[i].title,
+                        html : title,
                         value: payments[i].id
                     }).inject(Payments);
                 }

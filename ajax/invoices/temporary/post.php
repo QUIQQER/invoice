@@ -5,11 +5,11 @@
  */
 
 /**
- * Post a temporary invoices and returns the new Invoice ID
+ * Post a temporary invoices and returns the new Invoice Hash
  *
  * @param string $params - JSON query params
  *
- * @return array
+ * @return string - HASH
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_post',
@@ -18,7 +18,7 @@ QUI::$Ajax->registerFunction(
         $Temporary = $Invoices->getTemporaryInvoice($invoiceId);
         $Invoice   = $Temporary->post();
 
-        return $Invoice->getId();
+        return $Invoice->getHash();
     },
     ['invoiceId'],
     'Permission::checkAdminUser'

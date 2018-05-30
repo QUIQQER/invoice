@@ -240,6 +240,18 @@
             <de><![CDATA[Standard Rechnungstemplate]]></de>
             <en><![CDATA[Default invoice template]]></en>
         </locale>
+        <locale name="invoice.settings.deactivateDefaultTemplate">
+            <de><![CDATA[Standard Rechnungstemplate deaktivieren]]></de>
+            <en><![CDATA[Deactivate Standard Invoice Template]]></en>
+        </locale>
+        <locale name="invoice.settings.deactivateDefaultTemplate.description">
+            <de><![CDATA[
+            Die Deaktivierung des standard Rechnungstemplate hat zur Folge das dieses Template in den Druckdialogen nicht mehr zur Verfügung steht.
+            ]]></de>
+            <en><![CDATA[
+            The deactivation of the standard invoice template means that this template is no longer available in the print dialogs.
+            ]]></en>
+        </locale>
         <locale name="invoice.settings.invoice.prefix">
             <de><![CDATA[Präfix für Rechnungsnummern]]></de>
             <en><![CDATA[Prefix for invoice numbers]]></en>
@@ -328,6 +340,11 @@
         <locale name="halfYear.2">
             <de><![CDATA[2 Halbjahr]]></de>
             <en><![CDATA[2 half year]]></en>
+        </locale>
+
+        <locale name="profile.invoice.title">
+            <de><![CDATA[Meine Rechnungen]]></de>
+            <en><![CDATA[My Invoices]]></en>
         </locale>
     </groups>
 
@@ -463,6 +480,10 @@
             <en><![CDATA[Payment data]]></en>
         </locale>
         <locale name="journal.grid.hash">
+            <de><![CDATA[Hash]]></de>
+            <en><![CDATA[Hash]]></en>
+        </locale>
+        <locale name="journal.grid.globalProcessId">
             <de><![CDATA[Vorgangsnummer]]></de>
             <en><![CDATA[Procedure number]]></en>
         </locale>
@@ -627,8 +648,8 @@
             <en><![CDATA[Are you sure you want to delete the invoice?]]></en>
         </locale>
         <locale name="dialog.ti.delete.information" html="true">
-            <de><![CDATA[Die Rechnung <b>[id]</b> wird unwiderruflich gelöscht.]]></de>
-            <en><![CDATA[The invoice <b>[id]</b> will be irrevocably deleted.]]></en>
+            <de><![CDATA[Folgende Rechnungen werden unwiderruflich gelöscht:<br />[invoices]]]></de>
+            <en><![CDATA[The following invoices will be irrevocably deleted:<br />[invoices]]]></en>
         </locale>
         <locale name="dialog.ti.copy.title">
             <de><![CDATA[Rechnung kopieren]]></de>
@@ -919,6 +940,28 @@
             <de><![CDATA[Möchten Sie die Adresse wirklich löschen?]]></de>
             <en><![CDATA[Do you really want to delete the address?]]></en>
         </locale>
+
+        <locale name="dialog.ti.post.title">
+            <de><![CDATA[Rechnungen buchen?]]></de>
+            <en><![CDATA[Post invoices?]]></en>
+        </locale>
+        <locale name="dialog.ti.post.text">
+            <de><![CDATA[Möchten Sie die Rechnungen wirklichen buchen?]]></de>
+            <en><![CDATA[Do you really want to book the invoices?]]></en>
+        </locale>
+        <locale name="dialog.ti.post.information">
+            <de><![CDATA[Folgende Rechnungen werden gebucht:<br />[invoices]]]></de>
+            <en><![CDATA[The following invoices are posted:<br />[invoices]]]></en>
+        </locale>
+        <locale name="dialog.ti.post.button">
+            <de><![CDATA[Buchen]]></de>
+            <en><![CDATA[Post]]></en>
+        </locale>
+
+        <locale name="exception.post.invoices.missing.attributes">
+            <de><![CDATA[Die Rechnungen können leider nicht gebucht werden, einige besitzen Fehler.]]></de>
+            <en><![CDATA[Unfortunately, the invoices cannot be posted, some have errors.]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
@@ -1174,6 +1217,61 @@
         <locale name="additional.invoice.text.paymentMethod">
             <de><![CDATA[Zahlungsart]]></de>
             <en><![CDATA[Payment method]]></en>
+        </locale>
+
+
+        <locale name="control.frontendUsers.invoices.title">
+            <de><![CDATA[Meine Rechnungen]]></de>
+            <en><![CDATA[My invoices]]></en>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.id">
+            <de><![CDATA[Rechnungs-Nr]]></de>
+            <en><![CDATA[Invoice ID]]></en>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.date">
+            <de><![CDATA[Datum]]></de>
+            <en><![CDATA[Date]]></en>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.download">
+            <de><![CDATA[Download]]></de>
+            <en><![CDATA[Download]]></en>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.empty.message">
+            <de><![CDATA[Sie besitzen keine Rechnungen.]]></de>
+            <en><![CDATA[You do not have any invoices.]]></en>
+        </locale>
+
+        <locale name="invoice.settings.invoice.storno">
+            <de><![CDATA[Vorgehen bei Stornierung]]></de>
+            <en><![CDATA[Cancellation procedure]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.storno.desc" html="true">
+            <de><![CDATA[
+                Diese Einstellung legt das Vorgehen bei Stornierung von Rechnungen mit Transaktionen fest.
+            ]]></de>
+            <en><![CDATA[
+                This setting determines the procedure for canceling invoices with transactions.
+            ]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.storno.no">
+            <de><![CDATA[Keine Stornierung möglich. (Nur Gutschrift)]]></de>
+            <en><![CDATA[Cancellation is not possible. (Only credit memo)]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.storno.allowed">
+            <de><![CDATA[Stornierung ist möglich]]></de>
+            <en><![CDATA[Cancellation is possible]]></en>
+        </locale>
+        <locale name="invoice.view.payment.transaction.text">
+            <de><![CDATA[Wir haben Ihre Zahlung am [date] per [payment] erhalten.]]></de>
+            <en><![CDATA[We have received your payment on the [date] by [payment].]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.openPrintDialogAfterPost">
+            <de><![CDATA[Druckdialog für Rechnung automatisch anzeigen]]></de>
+            <en><![CDATA[Open print dialog for invoice automatically]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.openPrintDialogAfterPost.description">
+            <de><![CDATA[Nach Buchung einer Rechnung wird der Druckdialog für die Rechnung automatisch geöffnet.]]></de>
+            <en><![CDATA[After posting an invoice, the print dialog for the invoice opens automatically.]]></en>
         </locale>
     </groups>
 

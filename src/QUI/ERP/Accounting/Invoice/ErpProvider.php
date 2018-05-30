@@ -38,10 +38,11 @@ class ErpProvider extends AbstractErpProvider
         }
 
         $Invoice = new Item([
-            'icon'   => 'fa fa-file-text-o',
-            'name'   => 'invoice',
-            'text'   => ['quiqqer/invoice', 'erp.panel.invoice.text'],
-            'opened' => true
+            'icon'     => 'fa fa-file-text-o',
+            'name'     => 'invoice',
+            'text'     => ['quiqqer/invoice', 'erp.panel.invoice.text'],
+            'opened'   => true,
+            'priority' => 2
         ]);
 
         $Invoice->appendChild(

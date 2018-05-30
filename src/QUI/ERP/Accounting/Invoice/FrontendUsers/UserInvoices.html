@@ -1,0 +1,42 @@
+<h1>
+    {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.title"}
+</h1>
+
+<table class="quiqqer-invoice-profile-invoices-table">
+    <thead>
+    <tr>
+        <th>
+            {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.id"}
+        </th>
+        <th>
+            {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.date"}
+        </th>
+        <th>
+            {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.download"}
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    {foreach $invoices as $Invoice}
+    <tr class="quiqqer-invoice-profile-invoices-table-invoice">
+        <td class="quiqqer-invoice-profile-invoices-table-invoice-id">
+            {$Invoice->getId()}
+        </td>
+        <td class="quiqqer-invoice-profile-invoices-table-invoice-date">
+            {$Invoice->getDate()}
+        </td>
+        <td class="quiqqer-invoice-profile-invoices-table-invoice-dl">
+            <a href="{$Invoice->getDownloadLink()}" target="_blank">
+                <span class="fa fa-file-pdf-o"></span>
+            </a>
+        </td>
+    </tr>
+    {foreachelse}
+    <tr>
+        <td colspan="3">
+            {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.empty.message"}
+        </td>
+    </tr>
+    {/foreach}
+    </tbody>
+</table>

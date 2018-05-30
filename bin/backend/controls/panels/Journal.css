@@ -136,6 +136,40 @@
     width: 840px;
 }
 
+/** Journal details
+ ================================================= */
+
+.invoices-invoice-details {
+    border: 1px solid #DDDDDD;
+    float: left;
+    margin-bottom: 10px;
+    max-width: 800px;
+    padding-bottom: 10px;
+    width: 100%;
+}
+
+.invoices-invoice-details h1 {
+    display: none;
+}
+
+.invoices-invoice-details .articles-article {
+    margin-top: 0;
+}
+
+.invoices-invoice-details .articles-article-header th {
+    background: #dedede;
+    line-height: normal;
+}
+
+.invoices-invoice-details td {
+    background: #fefefe;
+    border-right: 0 !important;
+}
+
+.invoices-invoice-details .articles-sum td {
+    text-align: right;
+}
+
 /** Total Display
  ================================================= */
 
