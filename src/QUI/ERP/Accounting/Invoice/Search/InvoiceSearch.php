@@ -401,7 +401,6 @@ class InvoiceSearch extends Singleton
             \IntlDateFormatter::NONE
         );
 
-
         $needleFields = [
             'customer_id',
             'customer_name',
