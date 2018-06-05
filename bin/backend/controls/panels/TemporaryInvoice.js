@@ -522,7 +522,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 ParentContainer = Container;
 
-                return Invoices.getInvoicePreviewHtml(
+                return Invoices.getTemporaryInvoicePreview(
                     self.getAttribute('invoiceId'),
                     self.getCurrentData()
                 ).then(function (html) {

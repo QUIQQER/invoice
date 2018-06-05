@@ -592,18 +592,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return;
             }
 
+            var hash = selectedData[0].hash;
+
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            selectedData = selectedData[0];
-
-            require([
-                'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
-            ], function (PrintDialog) {
-                new PrintDialog({
-                    invoiceId: selectedData.id
-                }).open();
-
-                Button.setAttribute('textimage', 'fa fa-print');
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
+                    Dialogs.openPrintDialog(hash).then(function () {
+                        Button.setAttribute('textimage', 'fa fa-print');
+                        resolve();
+                    });
+                });
             });
         },
 
@@ -650,44 +651,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
         /**
          * Copy the temporary invoice and opens the invoice
+         *
+         * @return {Promise}
          */
         $onClickCopyInvoice: function () {
             var self     = this,
                 selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
-                return;
+                return Promise.resolve(false);
             }
 
-            new QUIConfirm({
-                title      : QUILocale.get(lg, 'dialog.invoice.copy.title'),
-                text       : QUILocale.get(lg, 'dialog.invoice.copy.text'),
-                information: QUILocale.get(lg, 'dialog.invoice.copy.information', {
-                    id: selected[0].id
-                }),
-                icon       : 'fa fa-copy',
-                texticon   : 'fa fa-copy',
-                maxHeight  : 400,
-                maxWidth   : 600,
-                autoclose  : false,
-                ok_button  : {
-                    text     : QUILocale.get('quiqqer/system', 'copy'),
-                    textimage: 'fa fa-copy'
-                },
-                events     : {
-                    onSubmit: function (Win) {
-                        Win.Loader.show();
+            var hash = selected[0].hash;
 
-                        Invoices.copyInvoice(selected[0].id).then(function (newId) {
-                            Win.close();
-
-                            return self.openTemporaryInvoice(newId);
-                        }).then(function () {
-                            Win.Loader.show();
-                        });
-                    }
-                }
-            }).open();
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
+                    Dialogs.openCopyDialog(hash).then(function (newId) {
+                        self.openTemporaryInvoice(newId);
+                        resolve(newId);
+                    });
+                });
+            });
         },
 
         /**
@@ -762,41 +748,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 invoiceId = selected[0].id;
 
             return new Promise(function (resolve) {
-
-                new QUIConfirm({
-                    icon       : 'fa fa-clipboard',
-                    texticon   : 'fa fa-clipboard',
-                    title      : QUILocale.get(lg, 'dialog.invoice.createCreditNote.title', {
-                        invoiceId: invoiceId
-                    }),
-                    text       : QUILocale.get(lg, 'dialog.invoice.createCreditNote.text', {
-                        invoiceId: invoiceId
-                    }),
-                    information: QUILocale.get(lg, 'dialog.invoice.createCreditNote.information', {
-                        invoiceId: invoiceId
-                    }),
-                    autoclose  : false,
-                    ok_button  : {
-                        text     : QUILocale.get(lg, 'dialog.invoice.createCreditNote.submit'),
-                        textimage: 'fa fa-clipboard'
-                    },
-                    maxHeight  : 400,
-                    maxWidth   : 600,
-                    events     : {
-                        onSubmit: function (Win) {
-                            Win.Loader.show();
-
-                            Invoices.createCreditNote(invoiceId).then(function (newId) {
-                                return self.openTemporaryInvoice(newId);
-                            }).then(function () {
-                                Win.close();
-                            });
-                        },
-
-                        onCancel: resolve
-                    }
-                }).open();
-
+                require([
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
+                    Dialogs.openCreateCreditNoteDialog(invoiceId).then(function (newId) {
+                        return self.openTemporaryInvoice(newId);
+                    }).then(resolve);
+                });
             });
         },
 
@@ -815,80 +773,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             }
 
             var self      = this,
-                invoiceId = selected[0].id;
+                invoiceId = selected[0].hash;
 
-            return new Promise(function (resolve) {
-
-                new QUIConfirm({
-                    icon       : 'fa fa-ban',
-                    texticon   : 'fa fa-ban',
-                    title      : QUILocale.get(lg, 'dialog.invoice.reversal.title', {
-                        invoiceId: invoiceId
-                    }),
-                    text       : QUILocale.get(lg, 'dialog.invoice.reversal.text', {
-                        invoiceId: invoiceId
-                    }),
-                    information: QUILocale.get(lg, 'dialog.invoice.reversal.information', {
-                        invoiceId: invoiceId
-                    }),
-                    autoclose  : false,
-                    ok_button  : {
-                        text     : QUILocale.get(lg, 'dialog.invoice.reversal.submit'),
-                        textimage: 'fa fa-ban'
-                    },
-                    maxHeight  : 500,
-                    maxWidth   : 750,
-                    events     : {
-                        onOpen  : function (Win) {
-                            var Container = Win.getContent().getElement('.textbody');
-
-                            // #locale
-                            var Label = new Element('label', {
-                                html  : '<span>Stornierungsgrund</span>', // #locale
-                                styles: {
-                                    display   : 'block',
-                                    fontWeight: 'bold',
-                                    marginTop : 20,
-                                    width     : 'calc(100% - 100px)'
-                                }
-                            }).inject(Container);
-
-                            var Reason = new Element('textarea', {
-                                name       : 'reason',
-                                autofocus  : true,
-                                placeholder: 'Bitte geben Sie einen Stornierungsgrund ein.', // #locale
-                                styles     : {
-                                    height   : 160,
-                                    marginTop: 10,
-                                    width    : '100%'
-                                }
-                            }).inject(Label);
-
-                            Reason.focus();
-                        },
-                        onSubmit: function (Win) {
-                            Win.Loader.show();
-
-                            Invoices.reversalInvoice(
-                                invoiceId,
-                                Win.getContent().getElement('[name="reason"]').value
-                            ).then(function () {
-                                return self.refresh();
-                            }).then(function () {
-                                Win.close();
-                            }).catch(function (Error) {
-                                Win.Loader.hide();
-
-                                QUI.getMessageHandler().then(function (MH) {
-                                    MH.addError(Error.getMessage());
-                                });
-                            });
-                        },
-
-                        onCancel: resolve
-                    }
-                }).open();
-
+            return new Promise(function (resolve, reject) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
+                    Dialogs.openReversalDialog(invoiceId).then(function () {
+                        return self.refresh();
+                    }).then(resolve).catch(reject);
+                });
             });
         },
 
@@ -937,7 +831,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'utils/Panels'
                 ], function (InvoicePanel, PanelUtils) {
                     var Panel = new InvoicePanel({
-                        invoiceId: invoiceId
+                        invoiceId: invoiceId,
+                        '#id'    : 'invoice-' + invoiceId
                     });
 
                     PanelUtils.openPanelInTasks(Panel);
@@ -981,16 +876,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
         openTemporaryInvoice: function (invoiceId) {
             return new Promise(function (resolve) {
                 require([
-                    'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
-                    'utils/Panels'
-                ], function (TemporaryInvoice, PanelUtils) {
-                    var Panel = new TemporaryInvoice({
-                        invoiceId: invoiceId,
-                        '#id'    : invoiceId
-                    });
-
-                    PanelUtils.openPanelInTasks(Panel);
-                    resolve();
+                    'package/quiqqer/invoice/bin/backend/utils/Panels'
+                ], function (PanelUtils) {
+                    PanelUtils.openTemporaryInvoice(invoiceId).then(resolve);
                 });
             });
         },

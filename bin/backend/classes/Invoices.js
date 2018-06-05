@@ -434,18 +434,16 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
-         * Return the invoice html
+         * Return the invoice html form a temporary invoice
          *
          * @param {String} invoiceId
-         * @param {Object} data
          * @returns {Promise}
          */
-        getInvoiceHtml: function (invoiceId, data) {
+        getInvoicePreview: function (invoiceId) {
             return new Promise(function (resolve, reject) {
-                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_html', resolve, {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_preview', resolve, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
-                    data     : JSON.encode(data),
                     onError  : reject,
                     showError: false
                 });
@@ -459,7 +457,26 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @param {Object} data
          * @returns {Promise}
          */
-        getInvoicePreviewHtml: function (invoiceId, data) {
+        getTemporaryInvoiceHtml: function (invoiceId, data) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_html', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    data     : JSON.encode(data),
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Return the invoice html form a temporary invoice
+         *
+         * @param {String} invoiceId
+         * @param {Object} data
+         * @returns {Promise}
+         */
+        getTemporaryInvoicePreview: function (invoiceId, data) {
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_previewhtml', resolve, {
                     'package': 'quiqqer/invoice',

@@ -11,19 +11,15 @@ if (!$User->canUseBackend()) {
     exit;
 }
 
-$Request  = QUI::getRequest();
-$Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-
+$Request   = QUI::getRequest();
+$Invoices  = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 $invoiceId = $Request->query->get('invoiceId');
 
 try {
-    $Invoice = $Invoices->get($invoiceId);
-} catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
-    try {
-        $Invoice = $Invoices->getInvoice($invoiceId);
-    } catch (QUI\ERP\Accounting\Invoice\Exception $Exception) {
-        $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
-    }
+    $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
+} catch (QUI\Exception $Exception) {
+    QUI\System\Log::writeException($Exception);
+    exit;
 }
 
 $streamFile = URL_OPT_DIR.'quiqqer/invoice/bin/backend/printStreamInvoice.php?invoiceId='.$Invoice->getId();

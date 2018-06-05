@@ -16,13 +16,10 @@ $Invoices  = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 $invoiceId = $Request->query->get('invoiceId');
 
 try {
-    $Invoice = $Invoices->get($invoiceId);
+    $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
 } catch (QUI\Exception $Exception) {
-    try {
-        $Invoice = $Invoices->getInvoice($invoiceId);
-    } catch (QUI\Exception $Exception) {
-        $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
-    }
+    QUI\System\Log::writeException($Exception);
+    exit;
 }
 
 $View = $Invoice->getView();
