@@ -18,17 +18,10 @@ $invoiceId = $Request->query->get('invoiceId');
 $recipient = $Request->query->get('recipient');
 
 try {
-    $Invoice = $Invoices->get($invoiceId);
+    $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
 } catch (QUI\Exception $Exception) {
-    try {
-        $Invoice = $Invoices->getInvoice($invoiceId);
-    } catch (QUI\Exception $Exception) {
-        try {
-            $Invoice = $Invoices->getInvoiceByHash($invoiceId);
-        } catch (QUI\Exception $Exception) {
-            $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
-        }
-    }
+    QUI\System\Log::writeException($Exception);
+    exit;
 }
 
 if (empty($recipient)) {

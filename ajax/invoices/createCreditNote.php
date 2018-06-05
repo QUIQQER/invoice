@@ -4,6 +4,8 @@
  * This file contains package_quiqqer_invoice_ajax_invoices_create
  */
 
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+
 /**
  * Creates a new temporary invoice
  *
@@ -12,10 +14,7 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_createCreditNote',
     function ($invoiceId) {
-        $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice = $Handler->getInvoice($invoiceId);
-
-        return $Invoice->createCreditNote()->getId();
+        return InvoiceUtils::getInvoiceByString($invoiceId)->createCreditNote()->getId();
     },
     ['invoiceId'],
     'Permission::checkAdminUser'

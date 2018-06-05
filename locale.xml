@@ -787,6 +787,14 @@
             <de><![CDATA[Stornierung ausführen]]></de>
             <en><![CDATA[Execute cancellation]]></en>
         </locale>
+        <locale name="dialog.invoice.reversal.reason.title">
+            <de><![CDATA[Stornierungsgrund]]></de>
+            <en><![CDATA[Cancellation reason]]></en>
+        </locale>
+        <locale name="dialog.invoice.reversal.reason.placeholder">
+            <de><![CDATA[Bitte geben Sie einen Stornierungsgrund ein.]]></de>
+            <en><![CDATA[Please enter a reason for cancellation.]]></en>
+        </locale>
 
         <locale name="dialog.delete.article.title">
             <de><![CDATA[Artikel wirklich löschen?]]></de>
@@ -879,6 +887,24 @@
             <de><![CDATA[Zahlungen]]></de>
             <en><![CDATA[Payments]]></en>
         </locale>
+
+        <locale name="erp.panel.invoice.button.storno">
+            <de><![CDATA[Stornieren]]></de>
+            <en><![CDATA[Cancellation]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.button.print">
+            <de><![CDATA[Drucken]]></de>
+            <en><![CDATA[Print]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.button.copy">
+            <de><![CDATA[Kopieren]]></de>
+            <en><![CDATA[Copy]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.button.createCreditNote">
+            <de><![CDATA[Gutschrift erstellen]]></de>
+            <en><![CDATA[Create credit memo]]></en>
+        </locale>
+
         <locale name="erp.panel.invoice.title">
             <de><![CDATA[Rechnung: #[id]]]></de>
             <en><![CDATA[Invoice: #[id]]]></en>

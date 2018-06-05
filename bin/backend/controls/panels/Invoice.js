@@ -1,6 +1,8 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/Invoice
  * @author www.pcsg.de (Henning Leutz)
+ *
+ * Shows an invoice
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
@@ -25,6 +27,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/Invoice',
 
         Binds: [
+            'print',
+            'storno',
+            'copy',
+            'creditNote',
             'openInfo',
             'openArticles',
             'openPayments',
@@ -74,6 +80,47 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          * event: on create
          */
         $onCreate: function () {
+            // create the buttons (top bar)
+            this.addButton({
+                icon  : 'fa fa-times-circle-o',
+                title : QUILocale.get(lg, 'erp.panel.invoice.button.storno'),
+                styles: {
+                    'float': 'right'
+                },
+                events: {
+                    onClick: this.storno
+                }
+            });
+
+            this.addButton({
+                textimage: 'fa fa-print',
+                text     : QUILocale.get(lg, 'erp.panel.invoice.button.print'),
+                events   : {
+                    onClick: this.print
+                }
+            });
+
+            this.addButton({
+                textimage: 'fa fa-copy',
+                text     : QUILocale.get(lg, 'erp.panel.invoice.button.copy'),
+                events   : {
+                    onClick: this.copy
+                }
+            });
+
+            this.addButton({
+                type: 'separator'
+            });
+
+            this.addButton({
+                textimage: 'fa fa-clipboard',
+                text     : QUILocale.get(lg, 'erp.panel.invoice.button.createCreditNote'),
+                events   : {
+                    onClick: this.creditNote
+                }
+            });
+
+            // create the categores (left bar)
             this.addCategory({
                 icon  : 'fa fa-info',
                 name  : 'info',
@@ -145,6 +192,100 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          */
         $onDestroy: function () {
 
+        },
+
+        /**
+         * Opens the print dialog
+         *
+         * @return {Promise}
+         */
+        print: function () {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
+                    Dialogs.openPrintDialog(self.getAttribute('data').hash).then(resolve);
+                });
+            });
+        },
+
+        /**
+         * Opens the copy dialog
+         *
+         * @return {Promise}
+         */
+        copy: function () {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
+                    Dialogs.openCopyDialog(self.getAttribute('data').hash).then(function (invoiceId) {
+                        return new Promise(function (resolve) {
+                            require([
+                                'package/quiqqer/invoice/bin/backend/utils/Panels'
+                            ], function (PanelUtils) {
+                                PanelUtils.openTemporaryInvoice(invoiceId).then(resolve);
+                            });
+                        });
+                    }).then(resolve);
+                });
+            });
+        },
+
+        /**
+         * Opens the copy dialog
+         *
+         * @return {Promise}
+         */
+        creditNote: function () {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
+                    Dialogs.openCreateCreditNoteDialog(self.getAttribute('data').hash).then(function (invoiceId) {
+                        return new Promise(function (resolve) {
+                            require([
+                                'package/quiqqer/invoice/bin/backend/utils/Panels'
+                            ], function (PanelUtils) {
+                                PanelUtils.openTemporaryInvoice(invoiceId).then(resolve);
+                            });
+                        });
+                    }).then(resolve);
+                });
+            });
+        },
+
+        /**
+         * Opens the storno / cancellation dialog
+         *
+         * @return {Promise}
+         */
+        storno: function () {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
+                    Dialogs.openStornoDialog(self.getAttribute('data').hash).then(function () {
+                        return self.refresh();
+                    }).then(function () {
+                        resolve();
+                    }).catch(function (Error) {
+                        reject(Error);
+
+                        QUI.getMessageHandler().then(function (MH) {
+                            MH.addError(Error.getMessage());
+                        });
+                    });
+                });
+            });
         },
 
         //region Categories

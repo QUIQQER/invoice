@@ -19,6 +19,45 @@ use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 class Invoice
 {
     /**
+     * Tries to get an invoice by string
+     *
+     * @param $str
+     * @return QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary
+     *
+     * @throws QUI\Exception
+     */
+    public static function getInvoiceByString($str)
+    {
+        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+
+        try {
+            return $Invoices->get($str);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        try {
+            return $Invoices->getInvoiceByHash($str);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        try {
+            return $Invoices->getInvoice($str);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        try {
+            return $Invoices->getTemporaryInvoice($str);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        throw $Exception;
+    }
+
+    /**
      * Return all fields, attributes which are still missing to post the invoice
      *
      * @param InvoiceTemporary $Invoice
