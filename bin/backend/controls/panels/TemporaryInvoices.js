@@ -505,6 +505,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         });
                     }
 
+                    if (!self.$Grid.getSelectedData().length) {
+                        return;
+                    }
+
                     self.openInvoice(
                         self.$Grid.getSelectedData()[0].id
                     );
@@ -814,6 +818,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             Invoices.getArticleHtmlFromTemporary(this.$Grid.getDataByRow(row).id).then(function (result) {
                 ParentNode.set('html', '');
+
+                if (result.indexOf('<table') === -1) {
+                    ParentNode.set('html', QUILocale.get(lg, 'erp.panel.temporary.invoices.no.article'));
+                    return;
+                }
 
                 new Element('div', {
                     'class': 'invoices-invoice-details',

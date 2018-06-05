@@ -32,6 +32,10 @@
             <de><![CDATA[Shop - Rechnungssystem]]></de>
             <en><![CDATA[Shop - Invoice]]></en>
         </locale>
+        <locale name="permission.quiqqer.invoice.temporary._header">
+            <de><![CDATA[Rechnungsentwürfe]]></de>
+            <en><![CDATA[Temporary invoices]]></en>
+        </locale>
         <locale name="permission.quiqqer.invoice.create">
             <de><![CDATA[Darf Rechnungen erstellen.]]></de>
             <en><![CDATA[Is allowed to create invoices.]]></en>
@@ -47,6 +51,47 @@
         <locale name="permission.quiqqer.invoice.post">
             <de><![CDATA[Darf Rechnungen buchen.]]></de>
             <en><![CDATA[Is allowed to post invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.addPayment">
+            <de><![CDATA[Darf Zahlungen hinzufügen.]]></de>
+            <en><![CDATA[Is allowed to add transactions (payments).]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.addComment">
+            <de><![CDATA[Darf Kommentare hinzufügen.]]></de>
+            <en><![CDATA[Is allowed to add comments.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.createCreditNote">
+            <de><![CDATA[Darf Gutschriften erstellen.]]></de>
+            <en><![CDATA[Is allowed to create credit notes.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.copy">
+            <de><![CDATA[Darf Rechnungen kopieren.]]></de>
+            <en><![CDATA[Is allowed to copy an invoice.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.reversal">
+            <de><![CDATA[Darf eine Rechnung stornieren.]]></de>
+            <en><![CDATA[Is allowed to cancel an invoice.]]></en>
+        </locale>
+
+        <locale name="permission.quiqqer.invoice.timeForPayment">
+            <de><![CDATA[Standard Zahlungsziel]]></de>
+            <en><![CDATA[Default time for payment]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.canEditCancelInvoice">
+            <de><![CDATA[Darf Stornierungen editieren.]]></de>
+            <en><![CDATA[Is allowed to edit canceled invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.temporary.edit">
+            <de><![CDATA[Darf Rechnungsentwürfe bearbeiten.]]></de>
+            <en><![CDATA[Is allowed to edit temporary invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.temporary.delete">
+            <de><![CDATA[Darf Rechnungsentwürfe löschen.]]></de>
+            <en><![CDATA[Is allowed to delete temporary invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.temporary.copy">
+            <de><![CDATA[Darf Rechnungsentwürfe kopieren.]]></de>
+            <en><![CDATA[Is allowed to copy temporary invoices.]]></en>
         </locale>
 
         <locale name="paidstatus.open">
@@ -451,6 +496,7 @@
             <de><![CDATA[offen]]></de>
             <en><![CDATA[open]]></en>
         </locale>
+
         <locale name="journal.grid.brutto">
             <de><![CDATA[Brutto]]></de>
             <en><![CDATA[Gross]]></en>
@@ -641,6 +687,10 @@
         <locale name="erp.panel.temporary.invoice.replace.article.withProduct">
             <de><![CDATA[Produkt]]></de>
             <en><![CDATA[Product]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoices.no.article">
+            <de><![CDATA[Die Rechnung besitzt noch keine Artikel.]]></de>
+            <en><![CDATA[The invoice does not yet contain any merchandise.]]></en>
         </locale>
 
         <locale name="dialog.ti.delete.title">
