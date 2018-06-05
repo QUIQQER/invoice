@@ -23,7 +23,11 @@ try {
     try {
         $Invoice = $Invoices->getInvoice($invoiceId);
     } catch (QUI\Exception $Exception) {
-        $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
+        try {
+            $Invoice = $Invoices->getInvoiceByHash($invoiceId);
+        } catch (QUI\Exception $Exception) {
+            $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
+        }
     }
 }
 

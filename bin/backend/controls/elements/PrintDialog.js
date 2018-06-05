@@ -371,7 +371,6 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 
             Submit.setAttribute('text', QUILocale.get(lg, 'dialog.print.data.output.print.btn'));
             Submit.setAttribute('textimage', 'fa fa-print');
-
         },
 
         /**
