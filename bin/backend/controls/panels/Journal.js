@@ -417,7 +417,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     header   : QUILocale.get(lg, 'journal.grid.date'),
                     dataIndex: 'date',
                     dataType : 'date',
-                    width    : 100
+                    width    : 140
+                }, {
+                    header   : QUILocale.get('quiqqer/system', 'c_date'),
+                    dataIndex: 'c_date',
+                    dataType : 'date',
+                    width    : 140
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'c_user'),
                     dataIndex: 'c_username',
