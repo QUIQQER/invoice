@@ -30,8 +30,6 @@ class Factory extends QUI\Utils\Singleton
             $User = QUI::getUserBySession();
         }
 
-        QUI\Permissions\Permission::checkPermission('quiqqer.invoice.create', $User);
-
         if ($hash === false) {
             $hash = QUI\Utils\Uuid::get();
         }

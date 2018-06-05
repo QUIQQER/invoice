@@ -411,6 +411,10 @@
             <de><![CDATA[Kunden-Nr]]></de>
             <en><![CDATA[Custome no]]></en>
         </locale>
+        <locale name="journal.grid.date">
+            <de><![CDATA[Rechnungsdatum]]></de>
+            <en><![CDATA[Invoice date]]></en>
+        </locale>
         <locale name="journal.grid.status">
             <de><![CDATA[Zahlungsstatus]]></de>
             <en><![CDATA[Payment status]]></en>
