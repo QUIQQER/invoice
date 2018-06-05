@@ -18,5 +18,5 @@ QUI::$Ajax->registerFunction(
         return $Invoice->getId();
     },
     false,
-    'Permission::checkAdminUser'
+    ['Permission::checkAdminUser', 'quiqqer.invoice.create']
 );
