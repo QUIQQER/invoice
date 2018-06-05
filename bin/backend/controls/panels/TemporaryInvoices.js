@@ -335,6 +335,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'integer',
                     width    : 100
                 }, {
+                    header   : QUILocale.get('quiqqer/system', 'c_date'),
+                    dataIndex: 'c_date',
+                    dataType : 'date',
+                    width    : 140
+                }, {
                     header   : QUILocale.get('quiqqer/system', 'c_user'),
                     dataIndex: 'c_username',
                     dataType : 'integer',
