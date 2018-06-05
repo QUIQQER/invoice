@@ -715,6 +715,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          */
         $onClickOpenInvoice: function (data) {
             if (typeof data !== 'undefined' &&
+                typeof data.cell !== 'undefined' &&
                 (data.cell.get('data-index') === 'customer_id' ||
                     data.cell.get('data-index') === 'customer_name')) {
 

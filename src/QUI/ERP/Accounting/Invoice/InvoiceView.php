@@ -238,6 +238,8 @@ class InvoiceView extends QUI\QDOM
 
         try {
             $Address = $Customer->getAddress($addressId);
+            $Address->clearMail();
+            $Address->clearPhone();
         } catch (QUI\Exception $Exception) {
             $Address = null;
         }

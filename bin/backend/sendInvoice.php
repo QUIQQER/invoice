@@ -23,7 +23,11 @@ try {
     try {
         $Invoice = $Invoices->getInvoice($invoiceId);
     } catch (QUI\Exception $Exception) {
-        $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
+        try {
+            $Invoice = $Invoices->getInvoiceByHash($invoiceId);
+        } catch (QUI\Exception $Exception) {
+            $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
+        }
     }
 }
 
@@ -39,7 +43,10 @@ $Invoice->sendTo($recipient);
 
 QUI::getMessagesHandler()->sendSuccess(
     $User,
-    QUI::getLocale()->get('quiqqer/invoice', 'message.invoice.send.successfully')
+    QUI::getLocale()->get('quiqqer/invoice', 'message.invoice.send.successfully', [
+        'ID'        => $Invoice->getId(),
+        'recipient' => $recipient
+    ])
 );
 
 echo '<script>

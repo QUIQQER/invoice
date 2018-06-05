@@ -240,6 +240,18 @@
             <de><![CDATA[Standard Rechnungstemplate]]></de>
             <en><![CDATA[Default invoice template]]></en>
         </locale>
+        <locale name="invoice.settings.deactivateDefaultTemplate">
+            <de><![CDATA[Standard Rechnungstemplate deaktivieren]]></de>
+            <en><![CDATA[Deactivate Standard Invoice Template]]></en>
+        </locale>
+        <locale name="invoice.settings.deactivateDefaultTemplate.description">
+            <de><![CDATA[
+            Die Deaktivierung des standard Rechnungstemplate hat zur Folge das dieses Template in den Druckdialogen nicht mehr zur Verfügung steht.
+            ]]></de>
+            <en><![CDATA[
+            The deactivation of the standard invoice template means that this template is no longer available in the print dialogs.
+            ]]></en>
+        </locale>
         <locale name="invoice.settings.invoice.prefix">
             <de><![CDATA[Präfix für Rechnungsnummern]]></de>
             <en><![CDATA[Prefix for invoice numbers]]></en>
@@ -978,8 +990,8 @@
             <en><![CDATA[Invoice was sent to [recipient]]]></en>
         </locale>
         <locale name="message.invoice.send.successfully">
-            <de><![CDATA[Rechnung wurde versendet]]></de>
-            <en><![CDATA[Invoice was sent]]></en>
+            <de><![CDATA[Die Rechnung [ID] wurde erfolgreich an [recipient] versendet]]></de>
+            <en><![CDATA[The Invoice [ID] was sent successfully to [recipient]]]></en>
         </locale>
         <locale name="invoice.send.mail.subject">
             <de><![CDATA[Ihre Rechnung - [invoiceId]]]></de>
