@@ -11,3 +11,21 @@
 .journal-grid-cancel {
     text-decoration: line-through;
 }
+
+/** Preview
+ ========================================== */
+
+.quiqqer-invoice-backend-invoice-previewContainer {
+    background-color: #efefef;
+    height: 100%;
+    overflow: auto;
+    padding: 20px;
+}
+
+.quiqqer-invoice-backend-invoice-preview {
+    background: #fff;
+    box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #ccc;
+    border: none;
+    display: block;
+    margin: 0 auto;
+}

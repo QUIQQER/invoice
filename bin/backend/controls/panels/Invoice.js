@@ -11,12 +11,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     'qui/controls/buttons/Button',
     'package/quiqqer/invoice/bin/Invoices',
     'package/quiqqer/erp/bin/backend/controls/Comments',
+    'qui/controls/elements/Sandbox',
     'Locale',
     'Mustache',
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.css'
 
-], function (QUI, QUIPanel, QUIButton, Invoices, Comments, QUILocale, Mustache) {
+], function (QUI, QUIPanel, QUIButton, Invoices, Comments, Sandbox, QUILocale, Mustache) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -36,6 +37,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             'openPayments',
             'openHistory',
             'openComments',
+            'openPreview',
             '$onCreate',
             '$onInject',
             '$onDestroy'
@@ -168,6 +170,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 text  : QUILocale.get(lg, 'erp.panel.invoice.comments'),
                 events: {
                     onClick: this.openComments
+                }
+            });
+
+            this.addCategory({
+                icon  : 'fa fa-eye',
+                name  : 'preview',
+                title : QUILocale.get(lg, 'erp.panel.invoice.preview'),
+                text  : QUILocale.get(lg, 'erp.panel.invoice.preview'),
+                events: {
+                    onClick: this.openPreview
                 }
             });
 
@@ -368,21 +380,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 var Container = result[0];
 
                 return new Promise(function (resolve) {
-                    require(['qui/controls/elements/Sandbox'], function (Sandbox) {
-                        Container.set('html', '');
+                    Container.set('html', '');
 
-                        new Sandbox({
-                            content: result[1],
-                            styles : {
-                                border: 0,
-                                height: '100%',
-                                width : '100%'
-                            },
-                            events : {
-                                onLoad: resolve
-                            }
-                        }).inject(Container);
-                    });
+                    new Sandbox({
+                        content: result[1],
+                        styles : {
+                            border: 0,
+                            height: '100%',
+                            width : '100%'
+                        },
+                        events : {
+                            onLoad: resolve
+                        }
+                    }).inject(Container);
                 });
 
             }).then(function () {
@@ -469,6 +479,45 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             });
         },
 
+        /**
+         * open preview
+         */
+        openPreview: function () {
+            var self = this;
+
+            this.Loader.show();
+            this.getCategory('preview').setActive();
+
+            return this.$closeCategory().then(function (Container) {
+                var FrameContainer = new Element('div', {
+                    'class': 'quiqqer-invoice-backend-invoice-previewContainer'
+                }).inject(Container);
+
+                Container.setStyle('overflow', 'hidden');
+                Container.setStyle('padding', 0);
+                Container.setStyle('height', '100%');
+
+                return Invoices.getInvoicePreview(self.getAttribute('data').hash).then(function (html) {
+                    new Sandbox({
+                        content: html,
+                        styles : {
+                            height : 1240,
+                            padding: 20,
+                            width  : 874
+                        },
+                        events : {
+                            onLoad: function (Box) {
+                                Box.getElm().addClass('quiqqer-invoice-backend-invoice-preview');
+                            }
+                        }
+                    }).inject(FrameContainer);
+                });
+            }).then(function () {
+                return self.$openCategory();
+            }).then(function () {
+                self.Loader.hide();
+            });
+        },
 
         /**
          * Open the current category

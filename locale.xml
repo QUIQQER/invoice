@@ -952,6 +952,10 @@
             <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
             <en><![CDATA[Additional invoice text]]></en>
         </locale>
+        <locale name="erp.panel.invoice.preview">
+            <de><![CDATA[Vorschau]]></de>
+            <en><![CDATA[Preview]]></en>
+        </locale>
 
         <locale name="journal.payments.date">
             <de><![CDATA[Datum]]></de>
