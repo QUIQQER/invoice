@@ -818,7 +818,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         /**
          * Unload the category and reserve the data
          *
-         * @param {Boolean} destroyList - destroy the article list, default = true
+         * @param {Boolean} [destroyList] - destroy the article list, default = true
          */
         $unloadCategory: function (destroyList) {
             var Container = this.getContent().getElement('.container');

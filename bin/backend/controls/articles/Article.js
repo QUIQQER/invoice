@@ -461,23 +461,23 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 discount = '-';
             }
 
-            if (typeOf(discount) === 'string' && discount.match('%')) {
+            if (typeOf(discount) === 'string' && discount.indexOf('%') !== -1) {
                 type = '%';
             }
 
             var Prom;
 
             if (discount && type === '%') {
-                Prom = Promise.reolve(discount);
+                Prom = Promise.resolve(discount);
             } else if (discount) {
                 Prom = MoneyUtils.validatePrice(discount);
             } else {
-                Prom = Promise.reolve('-');
+                Prom = Promise.resolve('-');
             }
 
             return Prom.then(function (discount) {
                 if (discount && type === '%') {
-                    value = discount + type;
+                    value = (discount).toString().replace('%', '') + type;
                 } else if (discount) {
                     value = self.$Formatter.format(discount) + type;
                 } else {
