@@ -477,7 +477,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             return Prom.then(function (discount) {
                 if (discount && type === '%') {
-                    value = (discount).toString().replace('%', '') + type;
+                    discount = (discount).toString().replace(/\%/g, '') + type;
+                    value    = discount;
                 } else if (discount) {
                     value = self.$Formatter.format(discount) + type;
                 } else {
