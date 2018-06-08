@@ -160,7 +160,7 @@
             <de><![CDATA[Summe]]></de>
             <en><![CDATA[Total]]></en>
         </locale>
-        <locale name="invoice.articleList.article.button.remove">
+        <locale name="invoice.articleList.article.button.delete">
             <de><![CDATA[Artikel entfernen]]></de>
             <en><![CDATA[Remove article]]></en>
         </locale>
@@ -747,16 +747,18 @@
             <en><![CDATA[Create credit]]></en>
         </locale>
         <locale name="dialog.invoice.createCreditNote.text">
-            <de><![CDATA[Gutschrift für Rechnung #[invoiceId] erstellen]]></de>
-            <en><![CDATA[Create credit for invoice #[invoiceId]]]></en>
+            <de><![CDATA[Gutschrift erstellen]]></de>
+            <en><![CDATA[Create credit note]]></en>
         </locale>
         <locale name="dialog.invoice.createCreditNote.information" html="true">
             <de><![CDATA[
-                Möchten Sie wirklich eine Gutschrift für die Rechnung #[invoiceId] erstellen?<br />
+                Möchten Sie wirklich eine Gutschrift für die Rechnung #[invoiceId] erstellen?
+                <br /><br />
                 Es wird ein Rechnungsentwurf erstellt welchen Sie direkt nach der Erstellung bearbeiten können.
             ]]></de>
             <en><![CDATA[
-                Do you really want to create a credit for the invoice #[invoiceId]? <br />
+                Do you really want to create a credit for the invoice #[invoiceId]?
+                <br /><br />
                 It will create an invoice draft which you can edit immediately after the creation.
             ]]></en>
         </locale>
@@ -812,6 +814,11 @@
         <locale name="dialog.create.address.title">
             <de><![CDATA[Rechnungsadresse anlegen]]></de>
             <en><![CDATA[Create invoice address]]></en>
+        </locale>
+
+        <locale name="dialog.edit.description.title">
+            <de><![CDATA[Beschreibung von Artikel: [articleNo] [articleTitle]]]></de>
+            <en><![CDATA[Description of article: [articleNo] [articleTitle]]]></en>
         </locale>
 
         <locale name="invoice.create.address.message" html="true">
@@ -1012,8 +1019,8 @@
             <en><![CDATA[Print]]></en>
         </locale>
         <locale name="dialog.print.data.output.pdf.btn">
-            <de><![CDATA[Speichern]]></de>
-            <en><![CDATA[Save]]></en>
+            <de><![CDATA[Herrunterladen]]></de>
+            <en><![CDATA[Download]]></en>
         </locale>
         <locale name="dialog.print.data.output.email.btn">
             <de><![CDATA[Senden]]></de>

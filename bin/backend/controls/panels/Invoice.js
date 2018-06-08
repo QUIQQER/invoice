@@ -84,8 +84,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         $onCreate: function () {
             // create the buttons (top bar)
             this.addButton({
+                textimage: 'fa fa-print',
+                text     : QUILocale.get(lg, 'erp.panel.invoice.button.print'),
+                events   : {
+                    onClick: this.print
+                }
+            });
+
+
+            var Actions = new QUIButton({
+                name      : 'actions',
+                text      : QUILocale.get(lg, 'journal.btn.actions'),
+                menuCorner: 'topRight',
+                styles    : {
+                    'float': 'right'
+                }
+            });
+
+            Actions.appendChild({
                 icon  : 'fa fa-times-circle-o',
-                title : QUILocale.get(lg, 'erp.panel.invoice.button.storno'),
+                text  : QUILocale.get(lg, 'erp.panel.invoice.button.storno'),
                 styles: {
                     'float': 'right'
                 },
@@ -94,33 +112,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 }
             });
 
-            this.addButton({
-                textimage: 'fa fa-print',
-                text     : QUILocale.get(lg, 'erp.panel.invoice.button.print'),
-                events   : {
-                    onClick: this.print
-                }
-            });
-
-            this.addButton({
-                textimage: 'fa fa-copy',
-                text     : QUILocale.get(lg, 'erp.panel.invoice.button.copy'),
-                events   : {
+            Actions.appendChild({
+                icon  : 'fa fa-copy',
+                text  : QUILocale.get(lg, 'erp.panel.invoice.button.copy'),
+                events: {
                     onClick: this.copy
                 }
             });
 
-            this.addButton({
-                type: 'separator'
-            });
 
-            this.addButton({
-                textimage: 'fa fa-clipboard',
-                text     : QUILocale.get(lg, 'erp.panel.invoice.button.createCreditNote'),
-                events   : {
+            Actions.appendChild({
+                icon  : 'fa fa-clipboard',
+                text  : QUILocale.get(lg, 'erp.panel.invoice.button.createCreditNote'),
+                events: {
                     onClick: this.creditNote
                 }
             });
+
+            this.addButton(Actions);
 
             // create the categores (left bar)
             this.addCategory({
@@ -261,11 +270,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
                 ], function (Dialogs) {
                     Dialogs.openCreateCreditNoteDialog(self.getAttribute('data').hash).then(function (invoiceId) {
-                        return new Promise(function (resolve) {
+                        if (!invoiceId) {
+                            return;
+                        }
+
+                        return new Promise(function (res) {
                             require([
                                 'package/quiqqer/invoice/bin/backend/utils/Panels'
                             ], function (PanelUtils) {
-                                PanelUtils.openTemporaryInvoice(invoiceId).then(resolve);
+                                PanelUtils.openTemporaryInvoice(invoiceId).then(res);
                             });
                         });
                     }).then(resolve);

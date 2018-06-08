@@ -461,23 +461,24 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 discount = '-';
             }
 
-            if (typeOf(discount) === 'string' && discount.match('%')) {
+            if (typeOf(discount) === 'string' && discount.indexOf('%') !== -1) {
                 type = '%';
             }
 
             var Prom;
 
             if (discount && type === '%') {
-                Prom = Promise.reolve(discount);
+                Prom = Promise.resolve(discount);
             } else if (discount) {
                 Prom = MoneyUtils.validatePrice(discount);
             } else {
-                Prom = Promise.reolve('-');
+                Prom = Promise.resolve('-');
             }
 
             return Prom.then(function (discount) {
                 if (discount && type === '%') {
-                    value = discount + type;
+                    discount = (discount).toString().replace(/\%/g, '') + type;
+                    value    = discount;
                 } else if (discount) {
                     value = self.$Formatter.format(discount) + type;
                 } else {
@@ -575,138 +576,81 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             var self = this;
 
-            this.showLoader();
+            new QUIConfirm({
+                title    : QUILocale.get(lg, 'dialog.edit.description.title', {
+                    articleNo   : this.getAttribute('articleNo'),
+                    articleTitle: this.getAttribute('title')
+                }),
+                icon     : 'fa fa-edit',
+                maxHeight: 600,
+                maxWidth : 800,
+                events   : {
+                    onOpen  : function (Win) {
+                        Win.Loader.show();
+                        Win.getContent().set('html', '');
 
-            var EditorContainer = new Element('div', {
-                    'class': 'quiqqer-invoice-backend-invoiceArticle-text-description-edit'
-                }).inject(this.$Description),
+                        Editors.getEditor(null).then(function (Editor) {
+                            self.$Editor = Editor;
 
-                EditorParent    = new Element('div', {
-                    styles: {
-                        height : 'calc(100% - 50px)',
-                        opacity: 0
-                    }
-                }).inject(EditorContainer),
+                            // minimal toolbar
+                            self.$Editor.setAttribute('buttons', {
+                                lines: [
+                                    [[
+                                        {
+                                            type  : "button",
+                                            button: "Bold"
+                                        },
+                                        {
+                                            type  : "button",
+                                            button: "Italic"
+                                        },
+                                        {
+                                            type  : "button",
+                                            button: "Underline"
+                                        },
+                                        {
+                                            type: "separator"
+                                        },
+                                        {
+                                            type  : "button",
+                                            button: "RemoveFormat"
+                                        },
+                                        {
+                                            type: "separator"
+                                        },
+                                        {
+                                            type  : "button",
+                                            button: "NumberedList"
+                                        },
+                                        {
+                                            type  : "button",
+                                            button: "BulletedList"
+                                        }
+                                    ]]
+                                ]
+                            });
 
-                EditorSubmit    = new Element('div', {
-                    'class': 'quiqqer-invoice-backend-invoiceArticle-text-description-buttons'
-                }).inject(EditorContainer);
+                            self.$Editor.addEvent('onLoaded', function () {
+                                self.$Editor.switchToWYSIWYG();
+                                self.$Editor.showToolbar();
+                                self.$Editor.setContent(self.getAttribute('description'));
 
+                                Win.Loader.hide();
+                            });
 
-            var closeEditor = function () {
-                moofx(EditorContainer).animate({
-                    opacity: 0
-                }, {
-                    duration: 200,
-                    callback: function () {
-                        self.$Description.setStyle('height', null);
+                            self.$Editor.inject(Win.getContent());
+                            self.$Editor.setHeight(200);
+                        });
+                    },
+                    onSubmit: function () {
+                        self.setDescription(self.$Editor.getContent());
+                    },
+                    onClose : function () {
                         self.$Editor.destroy();
-                        EditorContainer.destroy();
-
                         self.$Editor = null;
                     }
-                });
-            };
-
-            new QUIButton({
-                text     : QUILocale.get('quiqqer/system', 'accept'),
-                textimage: 'fa fa-check',
-                styles   : {
-                    'float': 'none',
-                    margin : '10px 5px 0 5px'
-                },
-                events   : {
-                    onClick: function () {
-                        this.setDescription(this.$Editor.getContent());
-                        closeEditor();
-                    }.bind(this)
                 }
-            }).inject(EditorSubmit);
-
-            new QUIButton({
-                text  : QUILocale.get('quiqqer/system', 'cancel'),
-                styles: {
-                    'float': 'none',
-                    margin : '10px 5px 0 5px'
-                },
-                events: {
-                    onClick: closeEditor
-                }
-            }).inject(EditorSubmit);
-
-            var height = 300;
-
-            if (this.$Description.getSize().y > 300) {
-                height = this.$Description.getSize().y;
-            }
-
-            moofx(this.$Description).animate({
-                height: height
-            }, {
-                duration: 200,
-                callback: function () {
-
-                    Editors.getEditor(null).then(function (Editor) {
-                        this.$Editor = Editor;
-
-                        // minimal toolbar
-                        this.$Editor.setAttribute('buttons', {
-                            lines: [
-                                [[
-                                    {
-                                        type  : "button",
-                                        button: "Bold"
-                                    },
-                                    {
-                                        type  : "button",
-                                        button: "Italic"
-                                    },
-                                    {
-                                        type  : "button",
-                                        button: "Underline"
-                                    },
-                                    {
-                                        type: "separator"
-                                    },
-                                    {
-                                        type  : "button",
-                                        button: "RemoveFormat"
-                                    },
-                                    {
-                                        type: "separator"
-                                    },
-                                    {
-                                        type  : "button",
-                                        button: "NumberedList"
-                                    },
-                                    {
-                                        type  : "button",
-                                        button: "BulletedList"
-                                    }
-                                ]]
-                            ]
-                        });
-
-                        this.$Editor.addEvent('onLoaded', function () {
-                            this.$Editor.switchToWYSIWYG();
-                            this.$Editor.showToolbar();
-                            this.$Editor.setContent(this.getAttribute('description'));
-
-                            this.hideLoader();
-
-                            moofx(EditorParent).animate({
-                                opacity: 1
-                            }, {
-                                duration: 200
-                            });
-                        }.bind(this));
-
-                        this.$Editor.inject(EditorParent);
-                        this.$Editor.setHeight(200);
-
-                    }.bind(this));
-                }.bind(this)
-            });
+            }).open();
         },
 
         /**
@@ -805,8 +749,9 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                         border    : 0,
                         left      : 0,
                         lineHeight: 20,
-                        height    : '100%',
-                        padding   : 0,
+                        //height    : '100%',
+                        textAlign : 'right',
+                        padding   : 10,
                         position  : 'absolute',
                         top       : 0,
                         width     : '100%'
@@ -818,6 +763,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 }
 
                 Edit.focus();
+                Edit.select();
 
                 var onFinish = function () {
                     Edit.destroy();

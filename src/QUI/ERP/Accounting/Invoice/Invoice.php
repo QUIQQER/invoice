@@ -855,7 +855,7 @@ class Invoice extends QUI\QDOM
      * @param string $recipient - The recipient email address
      * @param bool|string $template - pdf template
      *
-     * @throws
+     * @throws QUI\Exception
      */
     public function sendTo($recipient, $template = false)
     {
