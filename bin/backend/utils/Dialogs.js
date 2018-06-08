@@ -217,7 +217,9 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                             });
                         },
 
-                        onCancel: resolve
+                        onCancel: function () {
+                            resolve(false);
+                        }
                     }
                 }).open();
             });

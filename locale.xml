@@ -747,16 +747,18 @@
             <en><![CDATA[Create credit]]></en>
         </locale>
         <locale name="dialog.invoice.createCreditNote.text">
-            <de><![CDATA[Gutschrift für Rechnung #[invoiceId] erstellen]]></de>
-            <en><![CDATA[Create credit for invoice #[invoiceId]]]></en>
+            <de><![CDATA[Gutschrift erstellen]]></de>
+            <en><![CDATA[Create credit note]]></en>
         </locale>
         <locale name="dialog.invoice.createCreditNote.information" html="true">
             <de><![CDATA[
-                Möchten Sie wirklich eine Gutschrift für die Rechnung #[invoiceId] erstellen?<br />
+                Möchten Sie wirklich eine Gutschrift für die Rechnung #[invoiceId] erstellen?
+                <br /><br />
                 Es wird ein Rechnungsentwurf erstellt welchen Sie direkt nach der Erstellung bearbeiten können.
             ]]></de>
             <en><![CDATA[
-                Do you really want to create a credit for the invoice #[invoiceId]? <br />
+                Do you really want to create a credit for the invoice #[invoiceId]?
+                <br /><br />
                 It will create an invoice draft which you can edit immediately after the creation.
             ]]></en>
         </locale>
