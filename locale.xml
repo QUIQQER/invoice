@@ -160,7 +160,7 @@
             <de><![CDATA[Summe]]></de>
             <en><![CDATA[Total]]></en>
         </locale>
-        <locale name="invoice.articleList.article.button.remove">
+        <locale name="invoice.articleList.article.button.delete">
             <de><![CDATA[Artikel entfernen]]></de>
             <en><![CDATA[Remove article]]></en>
         </locale>
