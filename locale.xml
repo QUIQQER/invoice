@@ -814,6 +814,11 @@
             <en><![CDATA[Create invoice address]]></en>
         </locale>
 
+        <locale name="dialog.edit.description.title">
+            <de><![CDATA[Beschreibung von Artikel: [articleNo] [articleTitle]]]></de>
+            <en><![CDATA[Description of article: [articleNo] [articleTitle]]]></en>
+        </locale>
+
         <locale name="invoice.create.address.message" html="true">
             <de><![CDATA[
                 Der Benutzer besitzt keine Adresse. Bitte legen Sie für den Benutzer eine neue Adresse an.<br />
@@ -1012,8 +1017,8 @@
             <en><![CDATA[Print]]></en>
         </locale>
         <locale name="dialog.print.data.output.pdf.btn">
-            <de><![CDATA[Speichern]]></de>
-            <en><![CDATA[Save]]></en>
+            <de><![CDATA[Herrunterladen]]></de>
+            <en><![CDATA[Download]]></en>
         </locale>
         <locale name="dialog.print.data.output.email.btn">
             <de><![CDATA[Senden]]></de>
