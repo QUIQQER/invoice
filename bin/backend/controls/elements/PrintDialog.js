@@ -41,9 +41,13 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
             this.parent(options);
 
             this.setAttributes({
-                icon     : 'fa fa-print',
-                title    : QUILocale.get(lg, 'dialog.print.title'),
-                autoclose: false
+                icon         : 'fa fa-print',
+                title        : QUILocale.get(lg, 'dialog.print.title'),
+                autoclose    : false,
+                cancel_button: {
+                    textimage: 'fa fa-close',
+                    text     : QUILocale.get('quiqqer/system', 'close')
+                }
             });
 
             this.$Output      = null;
@@ -225,6 +229,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                     Content = self.getContent(),
                     Form    = Content.getElement('form');
 
+                self.Loader.show();
+
                 new Element('iframe', {
                     src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/printInvoice.php?' + Object.toQueryString({
                         invoiceId: invoiceId,
@@ -259,7 +265,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 
             (function () {
                 document.getElements('#print-invoice-' + id).destroy();
-            }).delay(1000);
+                this.close();
+            }).delay(1000, this);
         },
 
         /**
