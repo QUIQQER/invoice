@@ -810,6 +810,11 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        // user is customer, than the customer is the creator
+        if ($User->getId() === $Customer->getId()) {
+            $User = $Customer;
+        }
+
         // payment stuff
         $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
         $Payment  = $Payments->getPayment($this->getAttribute('payment_method'));
@@ -817,13 +822,8 @@ class InvoiceTemporary extends QUI\QDOM
         $paymentMethodData = $this->parsePaymentForPaymentData($Payment);
         $paymentTime       = (int)$this->getAttribute('time_for_payment');
 
-        $timeForPayment = date(
-            'Y-m-d',
-            strtotime(
-                date('Y-m-d').' 00:00 + '.$paymentTime.' days'
-            )
-        );
-
+        $timeForPayment = strtotime(date('Y-m-d').' 00:00 + '.$paymentTime.' days');
+        $timeForPayment = date('Y-m-d', $timeForPayment);
         $timeForPayment .= ' 23:59:59';
 
 
@@ -843,6 +843,7 @@ class InvoiceTemporary extends QUI\QDOM
         $this->Articles->setUser($Customer);
         $this->Articles->calc();
         $listCalculations = $this->Articles->getCalculations();
+
 
         // create invoice
         QUI::getDataBase()->insert(

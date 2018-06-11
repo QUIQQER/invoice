@@ -230,18 +230,29 @@ class InvoiceView extends QUI\QDOM
         $Customer  = $this->Invoice->getCustomer();
         $Editor    = $this->Invoice->getEditor();
         $addressId = $this->Invoice->getAttribute('invoice_address_id');
+        $address   = [];
+
+        if ($this->Invoice->getAttribute('invoice_address')) {
+            $address = json_decode($this->Invoice->getAttribute('invoice_address'), true);
+        }
 
         $Engine = $Template->getEngine();
         $Locale = $Customer->getLocale();
 
         $this->setAttributes($this->Invoice->getAttributes());
 
-        try {
-            $Address = $Customer->getAddress($addressId);
+        if (!empty($address)) {
+            $Address = new QUI\ERP\Address($address);
             $Address->clearMail();
             $Address->clearPhone();
-        } catch (QUI\Exception $Exception) {
-            $Address = null;
+        } else {
+            try {
+                $Address = $Customer->getAddress($addressId);
+                $Address->clearMail();
+                $Address->clearPhone();
+            } catch (QUI\Exception $Exception) {
+                $Address = null;
+            }
         }
 
         // list calculation
@@ -264,6 +275,10 @@ class InvoiceView extends QUI\QDOM
             $timeForPayment = $Formatter->format($timeForPayment);
         } else {
             $timeForPayment = $Formatter->format(strtotime($timeForPayment));
+        }
+
+        if (date('Y-m-d') === date('Y-m-d', strtotime($timeForPayment))) {
+            $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
         }
 
         // get transactions

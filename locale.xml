@@ -951,8 +951,8 @@
             <en><![CDATA[Payment method]]></en>
         </locale>
         <locale name="erp.panel.invoice.data.termOfPayment">
-            <de><![CDATA[Zahlungsziel (In Tagen)]]></de>
-            <en><![CDATA[Term of Payment (in days)]]></en>
+            <de><![CDATA[Zahlungsziel]]></de>
+            <en><![CDATA[Term of Payment]]></en>
         </locale>
 
         <locale name="erp.panel.invoice.data.invoiceText">
@@ -1308,6 +1308,10 @@
         <locale name="additional.invoice.text.paymentMethod">
             <de><![CDATA[Zahlungsart]]></de>
             <en><![CDATA[Payment method]]></en>
+        </locale>
+        <locale name="additional.invoice.text.timeForPayment.0">
+            <de><![CDATA[Sofort]]></de>
+            <en><![CDATA[Immediately]]></en>
         </locale>
 
 
