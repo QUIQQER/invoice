@@ -1309,6 +1309,10 @@
             <de><![CDATA[Zahlungsart]]></de>
             <en><![CDATA[Payment method]]></en>
         </locale>
+        <locale name="additional.invoice.text.timeForPayment.0">
+            <de><![CDATA[Sofort]]></de>
+            <en><![CDATA[Immediately]]></en>
+        </locale>
 
 
         <locale name="control.frontendUsers.invoices.title">

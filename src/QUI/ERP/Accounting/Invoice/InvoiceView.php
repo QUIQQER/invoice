@@ -266,6 +266,10 @@ class InvoiceView extends QUI\QDOM
             $timeForPayment = $Formatter->format(strtotime($timeForPayment));
         }
 
+        if (date('Y-m-d') === date('Y-m-d', strtotime($timeForPayment))) {
+            $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
+        }
+
         // get transactions
         $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
         $transactions = $Transactions->getTransactionsByHash($this->Invoice->getHash());
