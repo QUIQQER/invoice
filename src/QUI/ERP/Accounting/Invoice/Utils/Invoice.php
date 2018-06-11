@@ -348,4 +348,15 @@ class Invoice
 
         return $fileName;
     }
+
+    /**
+     * General rounding
+     *
+     * @param float|int $amount
+     * @return int|float
+     */
+    public static function roundInvoiceSum($amount)
+    {
+        return round($amount, 2);
+    }
 }

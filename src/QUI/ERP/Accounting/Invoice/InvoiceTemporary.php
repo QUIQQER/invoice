@@ -9,6 +9,7 @@ namespace QUI\ERP\Accounting\Invoice;
 use QUI;
 use QUI\Utils\Security\Orthos;
 use QUI\ERP\Accounting\ArticleList;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 /**
  * Class InvoiceTemporary
@@ -595,8 +596,8 @@ class InvoiceTemporary extends QUI\QDOM
                 'isbrutto'                => $isBrutto,
                 'currency_data'           => json_encode($listCalculations['currencyData']),
                 'nettosum'                => $listCalculations['nettoSum'],
-                'subsum'                  => $listCalculations['subSum'],
-                'sum'                     => $listCalculations['sum'],
+                'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
+                'sum'                     => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
                 'vat_array'               => json_encode($listCalculations['vatArray'])
             ],
             [
@@ -842,8 +843,13 @@ class InvoiceTemporary extends QUI\QDOM
         // article calc
         $this->Articles->setUser($Customer);
         $this->Articles->calc();
-        $listCalculations = $this->Articles->getCalculations();
 
+        $listCalculations = $this->Articles->getCalculations();
+        $uniqueList       = $this->Articles->toUniqueList()->toArray();
+
+        $uniqueList['calculations']['sum']    = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['sum']);
+        $uniqueList['calculations']['subSum'] = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['subSum']);
+        $uniqueList                           = json_encode($uniqueList);
 
         // create invoice
         QUI::getDataBase()->insert(
@@ -886,7 +892,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'date'                    => $date,
                 'data'                    => json_encode($this->data),
                 'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
-                'articles'                => $this->Articles->toUniqueList()->toJSON(),
+                'articles'                => $uniqueList,
                 'history'                 => $this->getHistory()->toJSON(),
                 'comments'                => $this->getComments()->toJSON(),
 
@@ -895,8 +901,8 @@ class InvoiceTemporary extends QUI\QDOM
                 'currency_data'           => json_encode($listCalculations['currencyData']),
                 'nettosum'                => $listCalculations['nettoSum'],
                 'nettosubsum'             => $listCalculations['nettoSubSum'],
-                'subsum'                  => $listCalculations['subSum'],
-                'sum'                     => $listCalculations['sum'],
+                'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
+                'sum'                     => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
                 'vat_array'               => json_encode($listCalculations['vatArray'])
             ]
         );
