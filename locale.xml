@@ -1165,6 +1165,10 @@
             <de><![CDATA[Die Rechnung besitzt keine Bezahlmethode.]]></de>
             <en><![CDATA[The invoice has no payment method.]]></en>
         </locale>
+        <locale name="exception.invoice.not.found" html="true">
+            <de><![CDATA[Die gewünschte Rechnung wurde leider nicht gefunden.]]></de>
+            <en><![CDATA[The desired invoice was unfortunately not found.]]></en>
+        </locale>
 
         <locale name="exception.parted.invoice.cant.be.canceled">
             <de><![CDATA[Eine Rechnung mit Teilzahlung kann nicht storniert werden.]]></de>

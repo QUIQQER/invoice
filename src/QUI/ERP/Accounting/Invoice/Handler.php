@@ -382,6 +382,36 @@ class Handler extends QUI\Utils\Singleton
     }
 
     /**
+     * Return an Invoice by hash
+     *
+     * @param string $hash - Hash of the Invoice
+     * @return InvoiceTemporary
+     *
+     * @throws Exception
+     * @throws QUI\Exception
+     */
+    public function getTemporaryInvoiceByHash($hash)
+    {
+        $result = QUI::getDataBase()->fetch([
+            'select' => 'id',
+            'from'   => self::temporaryInvoiceTable(),
+            'where'  => [
+                'hash' => $hash
+            ],
+            'limit'  => 1
+        ]);
+
+        if (!isset($result[0])) {
+            throw new Exception(
+                ['quiqqer/invoice', 'exception.temporary.invoice.not.found'],
+                404
+            );
+        }
+
+        return $this->getTemporaryInvoice($result[0]['id']);
+    }
+
+    /**
      * Return the data from a temporary invoice
      *
      * @param string $id

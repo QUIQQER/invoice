@@ -49,6 +49,12 @@ class Invoice
         }
 
         try {
+            return $Invoices->getTemporaryInvoiceByHash($str);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        try {
             return $Invoices->getTemporaryInvoice($str);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
