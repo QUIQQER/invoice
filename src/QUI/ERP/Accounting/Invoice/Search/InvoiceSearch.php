@@ -30,6 +30,13 @@ class InvoiceSearch extends Singleton
     protected $filter = [];
 
     /**
+     * search value
+     *
+     * @var null
+     */
+    protected $search = null;
+
+    /**
      * @var array
      */
     protected $limit = [0, 20];
@@ -52,6 +59,12 @@ class InvoiceSearch extends Singleton
      */
     public function setFilter($filter, $value)
     {
+        if ($filter === 'search') {
+            $this->search = $value;
+
+            return;
+        }
+
         $keys = array_flip($this->getAllowedFields());
 
         if (!isset($keys[$filter]) && $filter !== 'from' && $filter !== 'to') {
@@ -226,7 +239,7 @@ class InvoiceSearch extends Singleton
             $limit = " LIMIT {$start},{$end}";
         }
 
-        if (empty($this->filter)) {
+        if (empty($this->filter) && empty($this->search)) {
             if ($count) {
                 return [
                     'query' => " SELECT COUNT(*)  AS count FROM {$table}",
@@ -318,6 +331,45 @@ class InvoiceSearch extends Singleton
             ];
 
             $fc++;
+        }
+
+        if (!empty($this->search)) {
+            $where[] = '(
+                id LIKE :search OR
+                customer_id LIKE :search OR
+                hash LIKE :search OR
+                global_process_id LIKE :search OR
+                type LIKE :search OR
+                order_id LIKE :search OR
+                ordered_by LIKE :search OR
+                ordered_by_name LIKE :search OR
+                project_name LIKE :search OR
+                invoice_address LIKE :search OR
+                delivery_address LIKE :search OR
+                payment_time LIKE :search OR
+                time_for_payment LIKE :search OR
+                paid_status LIKE :search OR
+                paid_date LIKE :search OR
+                paid_data LIKE :search OR
+                c_user LIKE :search OR
+                c_date LIKE :search OR
+                c_username LIKE :search OR
+                editor_id LIKE :search OR
+                editor_name LIKE :search OR
+                data LIKE :search OR
+                additional_invoice_text LIKE :search OR
+                customer_data LIKE :search OR
+                currency_data LIKE :search OR
+                nettosum LIKE :search OR
+                nettosubsum LIKE :search OR
+                subsum LIKE :search OR
+                sum LIKE :search
+            )';
+
+            $binds['search'] = [
+                'value' => '%'.$this->search.'%',
+                'type'  => \PDO::PARAM_STR
+            ];
         }
 
         $whereQuery = 'WHERE '.implode(' AND ', $where);
