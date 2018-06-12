@@ -249,6 +249,10 @@ class Invoice extends QUI\QDOM
 
         $userData['address'] = $invoiceAddress;
 
+        if (!isset($userData['id'])) {
+            $userData['id'] = $this->getAttribute('customer_id');
+        }
+
         return new QUI\ERP\User($userData);
     }
 
