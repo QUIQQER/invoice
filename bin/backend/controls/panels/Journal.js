@@ -50,7 +50,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             '$onClickInvoiceDetails',
             '$onClickOpenInvoice',
             '$onClickCreateCredit',
-            '$onClickReversal'
+            '$onClickReversal',
+            '$onSearchKeyUp'
         ],
 
         initialize: function (options) {
@@ -65,6 +66,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$Status     = null;
             this.$TimeFilter = null;
             this.$Total      = null;
+            this.$Search     = null;
 
             this.$periodFilter = null;
             this.$loaded       = false;
@@ -105,7 +107,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 to         : this.$TimeFilter.getValue().to,
                 paid_status: [
                     this.$Status.getValue()
-                ]
+                ],
+                search     : this.$Search.value
             }).then(function (result) {
                 var gridData = result.grid;
 
@@ -300,6 +303,40 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
 
             this.addButton(this.$TimeFilter);
+
+
+            this.addButton({
+                type  : 'separator',
+                styles: {
+                    'float': 'right'
+                }
+            });
+
+            this.addButton({
+                name  : 'search',
+                icon  : 'fa fa-search',
+                styles: {
+                    'float': 'right'
+                },
+                events: {
+                    onClick: this.refresh
+                }
+            });
+
+            this.$Search = new Element('input', {
+                placeholder: 'Search...',
+                styles     : {
+                    'float': 'right',
+                    margin : '10px 0 0 0',
+                    width  : 200
+                },
+                events     : {
+                    keyup: this.$onSearchKeyUp
+                }
+            });
+
+            this.addButton(this.$Search);
+
 
             // Grid
             this.getContent().setStyles({
@@ -945,6 +982,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     }
                 });
             });
+        },
+
+
+        /**
+         * key up event at the search input
+         *
+         * @param {DOMEvent} event
+         */
+        $onSearchKeyUp: function (event) {
+            if (event.key === 'up' ||
+                event.key === 'down' ||
+                event.key === 'left' ||
+                event.key === 'right') {
+                return;
+            }
+
+            if (event.key === 'enter') {
+                this.refresh();
+            }
         }
     });
 });
