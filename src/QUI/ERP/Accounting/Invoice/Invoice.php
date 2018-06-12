@@ -622,7 +622,8 @@ class Invoice extends QUI\QDOM
 
         $Copy->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', [
-                'invoiceParentId' => $this->getId()
+                'invoiceParentId' => $this->getId(),
+                'invoiceId'       => $this->getId()
             ])
         );
 

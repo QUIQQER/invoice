@@ -389,13 +389,15 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->type = $type;
+        $typeTitle  = QUI::getLocale()->get('quiqqer/invoice', 'invoice.type.'.$type);
 
         $this->addHistory(
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.temporaryInvoice.type.changed',
                 [
-                    'type' => $type
+                    'type'      => $type,
+                    'typeTitle' => $typeTitle
                 ]
             )
         );

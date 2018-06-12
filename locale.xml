@@ -28,6 +28,27 @@
             <en><![CDATA[Invoices (Journal)]]></en>
         </locale>
 
+        <locale name="invoice.type.1">
+            <de><![CDATA[Rechnung]]></de>
+            <en><![CDATA[Invoice]]></en>
+        </locale>
+        <locale name="invoice.type.2">
+            <de><![CDATA[Rechnungsentwurf]]></de>
+            <en><![CDATA[Temporary invoice]]></en>
+        </locale>
+        <locale name="invoice.type.3">
+            <de><![CDATA[Gutschrift]]></de>
+            <en><![CDATA[Credit Note]]></en>
+        </locale>
+        <locale name="invoice.type.4">
+            <de><![CDATA[Stornierte Rechnung]]></de>
+            <en><![CDATA[Canceled invoice]]></en>
+        </locale>
+        <locale name="invoice.type.5">
+            <de><![CDATA[Stornierte Rechnung]]></de>
+            <en><![CDATA[Canceled invoice]]></en>
+        </locale>
+
         <locale name="permission.quiqqer.invoice._header">
             <de><![CDATA[Shop - Rechnungssystem]]></de>
             <en><![CDATA[Shop - Invoice]]></en>
@@ -1208,8 +1229,8 @@
             <en><![CDATA[Credit note for cancellation created. ID #[creditNoteId]]]></en>
         </locale>
         <locale name="history.message.temporaryInvoice.type.changed">
-            <de><![CDATA[Rechnungstyp geändert in [type]]]></de>
-            <en><![CDATA[Invoice type changed to [type]]]></en>
+            <de><![CDATA[Rechnungstyp geändert in [type] [typeTitle]]]></de>
+            <en><![CDATA[Invoice type changed to [type] [typeTitle]]]></en>
         </locale>
 
         <locale name="pdf.download.name">
