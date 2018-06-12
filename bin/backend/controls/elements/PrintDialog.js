@@ -7,6 +7,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
     'qui/QUI',
     'qui/controls/windows/Confirm',
     'qui/controls/buttons/Select',
+    'qui/controls/elements/Sandbox',
     'Locale',
     'Mustache',
     'Users',
@@ -15,7 +16,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
     'text!package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog.html',
     'css!package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog.css'
 
-], function (QUI, QUIConfirm, QUISelect, QUILocale, Mustache, Users, Invoices, template) {
+], function (QUI, QUIConfirm, QUISelect, QUISandbox, QUILocale, Mustache, Users, Invoices, template) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -33,8 +34,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 
         options: {
             invoiceId: false,
-            maxHeight: 400,
-            maxWidth : 600
+            maxHeight: 800,
+            maxWidth : 1400
         },
 
         initialize: function (options) {
@@ -51,12 +52,29 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
             });
 
             this.$Output      = null;
+            this.$Preview     = null;
             this.$invoiceData = null;
             this.$cutomerMail = null;
 
             this.addEvents({
-                onOpen  : this.$onOpen,
-                onSubmit: this.$onSubmit
+                onOpen     : this.$onOpen,
+                onSubmit   : this.$onSubmit,
+                onOpenBegin: function () {
+                    var winSize = QUI.getWindowSize();
+                    var height  = 800;
+                    var width   = 1400;
+
+                    if (winSize.y * 0.9 < height) {
+                        height = winSize.y * 0.9;
+                    }
+
+                    if (winSize.x * 0.9 < width) {
+                        width = winSize.x * 0.9;
+                    }
+
+                    this.setAttribute('maxHeight', height);
+                    this.setAttribute('maxWidth', width);
+                }.bind(this)
             });
         },
 
@@ -78,6 +96,11 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 });
 
                 QUI.getMessageHandler().then(function (MH) {
+                    if (typeof error === 'object' && typeof error.getMessage !== 'undefined') {
+                        MH.addError(error.getMessage());
+                        return;
+                    }
+
                     MH.addError(error);
                 });
             };
@@ -89,9 +112,11 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 
             Promise.all([
                 Invoices.get(this.getAttribute('invoiceId')),
-                Invoices.getTemplates()
+                Invoices.getTemplates(),
+                Invoices.getInvoicePreview(this.getAttribute('invoiceId'))
             ]).then(function (result) {
                 var templates = result[1],
+                    html      = result[2],
                     prfx      = '';
 
                 self.$invoiceData = result[0];
@@ -111,6 +136,22 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 });
 
                 Content.addClass('quiqqer-invoice-printDialog');
+
+                self.$Preview = Content.getElement('.quiqqer-invoice-printDialog-preview');
+
+                new QUISandbox({
+                    content: html,
+                    styles : {
+                        height : 1240,
+                        padding: 20,
+                        width  : 874
+                    },
+                    events : {
+                        onLoad: function (Box) {
+                            Box.getElm().addClass('quiqqer-invoice-printDialog-invoice-preview');
+                        }
+                    }
+                }).inject(self.$Preview);
 
                 var Form     = Content.getElement('form'),
                     selected = '';
