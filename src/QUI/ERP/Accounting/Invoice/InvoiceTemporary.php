@@ -211,16 +211,53 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Return the customer
      *
-     * @return false|null|QUI\Users\Nobody|QUI\Users\SystemUser|QUI\Users\User
+     * @return null|QUI\ERP\User|QUI\Users\Nobody|QUI\Users\SystemUser|QUI\Users\User
      */
     public function getCustomer()
     {
-        $uid = $this->getAttribute('customer_id');
+        $invoiceAddress = $this->getAttribute('invoice_address');
 
         try {
-            return QUI::getUsers()->get($uid);
+            $User = QUI::getUsers()->get($this->getAttribute('customer_id'));
         } catch (QUI\Users\Exception $Exception) {
-            QUI\System\Log::addWarning($Exception->getMessage());
+            QUI\System\Log::writeDebugException($Exception);
+
+            return null;
+        }
+
+        $userData = [
+            'id'        => $User->getId(),
+            'country'   => $User->getCountry(),
+            'username'  => $User->getUsername(),
+            'firstname' => $User->getAttribute('firstname'),
+            'lastname'  => $User->getAttribute('lastname'),
+            'lang'      => $User->getLang(),
+            'email'     => $User->getAttribute('email')
+        ];
+
+        // address
+        if (is_string($invoiceAddress)) {
+            $invoiceAddress = json_decode($invoiceAddress, true);
+        }
+
+
+        if (!isset($userData['isCompany'])) {
+            $userData['isCompany'] = false;
+
+            if (isset($invoiceAddress['company'])) {
+                $userData['isCompany'] = true;
+            }
+        }
+
+        if (!empty($invoiceAddress)) {
+            $userData['address'] = $invoiceAddress;
+        }
+
+
+        try {
+            return new QUI\ERP\User($userData);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
         }
 
         return null;

@@ -215,7 +215,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                                 self.$cutomerMail = User.getAttribute('email');
                                 resolve();
                             }).catch(function (Exception) {
-                                onError(Exception);
+                                //onError(Exception);
                                 resolve();
                             });
                         });
