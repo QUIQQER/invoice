@@ -390,6 +390,24 @@ class InvoiceTemporary extends QUI\QDOM
         ];
     }
 
+    /**
+     * Return the is paid status
+     *
+     * @return bool
+     */
+    public function isPaid()
+    {
+        try {
+            if ($this->getAttribute('toPay') === false) {
+                QUI\ERP\Accounting\Calc::calculatePayments($this);
+            }
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+        }
+
+        return $this->getAttribute('toPay') <= 0;
+    }
+
     //endregion
 
     /**

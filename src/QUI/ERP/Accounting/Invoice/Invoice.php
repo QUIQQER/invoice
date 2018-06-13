@@ -297,6 +297,14 @@ class Invoice extends QUI\QDOM
     }
 
     /**
+     * @return bool
+     */
+    public function isPaid()
+    {
+        return $this->getAttribute('toPay') <= 0;
+    }
+
+    /**
      * Return the presentational payment method
      *
      * @return Payment

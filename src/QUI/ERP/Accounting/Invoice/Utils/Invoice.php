@@ -365,4 +365,28 @@ class Invoice
     {
         return round($amount, 2);
     }
+
+    /**
+     * Return the time for payment date as unix timestamp
+     *
+     *
+     * @param Invoice|InvoiceTemporary $Invoice
+     * @return int - Unix Timestamp
+     */
+    public static function getInvoiceTimeForPaymentDate($Invoice)
+    {
+        $timeForPayment = $Invoice->getAttribute('time_for_payment');
+
+        if ($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
+            $timeForPayment = (int)$timeForPayment;
+
+            if ($timeForPayment) {
+                $timeForPayment = strtotime('+'.$timeForPayment.' day');
+            }
+        } else {
+            $timeForPayment = strtotime($timeForPayment);
+        }
+
+        return $timeForPayment;
+    }
 }
