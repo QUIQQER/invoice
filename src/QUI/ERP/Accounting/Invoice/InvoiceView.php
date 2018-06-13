@@ -121,6 +121,22 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
+     * @return Invoice|InvoiceTemporary
+     */
+    public function getInvoice()
+    {
+        return $this->Invoice;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isPaid()
+    {
+        return $this->Invoice->isPaid();
+    }
+
+    /**
      * Return preview HTML
      * Like HTML or PDF with extra stylesheets to preview the view in DIN A4
      *

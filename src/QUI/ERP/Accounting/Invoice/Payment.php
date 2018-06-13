@@ -6,7 +6,6 @@
 
 namespace QUI\ERP\Accounting\Invoice;
 
-use function DusanKasan\Knapsack\first;
 use QUI;
 
 /**
@@ -105,5 +104,54 @@ class Payment
         }
 
         return reset($this->attributes['description']);
+    }
+
+    /**
+     * Return the payment type
+     *
+     * @return mixed|string
+     */
+    public function getPaymentType()
+    {
+        if (!isset($this->attributes['payment_type'])) {
+            return '';
+        }
+
+        return $this->attributes['payment_type'];
+    }
+
+    /**
+     * @return QUI\ERP\Accounting\Payments\Types\Payment
+     */
+    protected function getPayment()
+    {
+        try {
+            return QUI\ERP\Accounting\Payments\Payments::getInstance()->getPayment(
+                $this->attributes['id']
+            );
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param InvoiceTemporary|Invoice|InvoiceView
+     * @return string
+     */
+    public function getInvoiceInformationText($Invoice)
+    {
+        if ($Invoice instanceof InvoiceView) {
+            $Invoice = $Invoice->getInvoice();
+        }
+
+        try {
+            return $this->getPayment()->getPaymentType()->getInvoiceInformationText($Invoice);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+        }
+
+        return '';
     }
 }
