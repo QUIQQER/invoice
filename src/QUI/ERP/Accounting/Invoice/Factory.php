@@ -71,6 +71,9 @@ class Factory extends QUI\Utils\Singleton
 
         $newId = QUI::getDataBase()->getPDO()->lastInsertId();
 
-        return Handler::getInstance()->getTemporaryInvoice($newId);
+        $TemporaryInvoice = Handler::getInstance()->getTemporaryInvoice($newId);
+        $TemporaryInvoice->save();
+
+        return $TemporaryInvoice;
     }
 }
