@@ -23,6 +23,7 @@ QUI::$Ajax->registerFunction(
         $Invoices = Handler::getInstance();
         $Grid     = new QUI\Utils\Grid();
         $Payments = Payments::getInstance();
+        $Locale   = QUI::getLocale();
 
         $data = $Invoices->searchTemporaryInvoices(
             $Grid->parseDBParams(json_decode($params, true))
@@ -66,27 +67,35 @@ QUI::$Ajax->registerFunction(
         foreach ($data as $key => $entry) {
             $fillFields($data[$key]);
 
-            $data[$key]['id'] = Settings::getInstance()->getTemporaryInvoicePrefix().$data[$key]['id'];
-
             try {
-                $Currency = Currencies::getCurrency($data[$key]['currency_data']);
+                $TemporaryInvoice = $Invoices->getTemporaryInvoice($entry['id']);
             } catch (QUI\Exception $Exception) {
-                $Currency = QUI\ERP\Defaults::getCurrency();
+                continue;
             }
 
+            $data[$key]['id'] = $TemporaryInvoice->getId();
+
+            $Currency = $TemporaryInvoice->getCurrency();
+
             // payment
+            $TemporaryInvoice->getPaidStatusInformation();
+
             try {
-                $data[$key]['payment_title'] = $Payments->getPayment($data[$key]['payment_method'])
-                    ->getTitle();
+                $data[$key]['payment_title'] = $TemporaryInvoice->getPayment()->getTitle();
             } catch (QUI\Exception $Exception) {
                 $data[$key]['payment_title'] = Handler::EMPTY_VALUE;
             }
+
+            $data[$key]['paid_status_display'] = $Locale->get(
+                'quiqqer/invoice',
+                'payment.status.'.$TemporaryInvoice->getAttribute('paid_status')
+            );
 
 
             // customer data
             if (!empty($entry['customer_id'])) {
                 try {
-                    $Customer = QUI::getUsers()->get($entry['customer_id']);
+                    $Customer = $TemporaryInvoice->getCustomer();
 
                     $data[$key]['customer_name'] = $Customer->getName();
                 } catch (QUI\Exception $Exception) {
