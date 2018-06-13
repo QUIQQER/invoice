@@ -147,7 +147,7 @@ class InvoiceView extends QUI\QDOM
         try {
             return $this->getTemplate()->render();
         } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeDebugException($Exception);
+            QUI\System\Log::writeException($Exception);
         }
 
         return '';
