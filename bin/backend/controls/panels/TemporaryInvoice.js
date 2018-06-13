@@ -222,7 +222,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         openData: function () {
-            var self = this;
+            var self           = this,
+                renderDataDone = false;
 
             this.Loader.show();
 
@@ -293,6 +294,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 var OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
 
                 Data.addEvent('onChange', function () {
+                    if (renderDataDone === false) {
+                        return;
+                    }
+
                     var userId = Data.getValue().userId;
 
                     self.setAttribute('customer_id', userId);
@@ -408,6 +413,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 return self.Loader.hide();
             }).then(function () {
+                renderDataDone = true;
+
                 return self.$openCategory();
             });
         },
@@ -865,6 +872,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             ].each(function (entry) {
                 if (!formData.hasOwnProperty(entry)) {
                     return;
+                }
+
+                if (entry === 'time_for_payment') {
+                    formData[entry] = parseInt(formData[entry]);
                 }
 
                 this.setAttribute(entry, formData[entry]);
