@@ -346,7 +346,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     width    : 130
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
-                    dataIndex: 'paidstatus',
+                    dataIndex: 'paid_status_display',
                     dataType : 'string',
                     width    : 120
                 }, {
@@ -436,6 +436,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'string',
                     width    : 280,
                     className: 'monospace'
+                }, {
+                    dataIndex: 'paidstatus',
+                    dataType : 'string',
+                    hidden   : true
                 }]
             });
 
