@@ -412,6 +412,11 @@
             <de><![CDATA[Meine Rechnungen]]></de>
             <en><![CDATA[My Invoices]]></en>
         </locale>
+
+        <locale name="message.invoice.save.successfully">
+            <de><![CDATA[Der Rechnungsentwurf wurde erfolgreich gespeichert.]]></de>
+            <en><![CDATA[The invoice was successfully saved.]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -1077,10 +1082,6 @@
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
-        <locale name="message.invoice.save.successfully">
-            <de><![CDATA[Der Rechnungsentwurf wurde erfolgreich gespeichert.]]></de>
-            <en><![CDATA[The invoice was successfully saved.]]></en>
-        </locale>
         <locale name="message.create.credit.from">
             <de><![CDATA[Gutschrift erstellt aus Rechnung #[invoiceId]]]></de>
             <en><![CDATA[Create Credit Note from Invoice #[invoiceId]]]></en>

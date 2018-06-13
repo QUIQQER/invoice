@@ -132,6 +132,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 this.getCurrentData()
             ).then(function () {
                 this.Loader.hide();
+                this.showSavedIconAnimation();
             }.bind(this)).catch(function (err) {
                 console.error(err);
                 console.error(err.getMessage());
@@ -739,35 +740,37 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         },
 
         /**
-         * Close the current category
+         * Close the current category and save it
          *
          * @returns {Promise}
          */
         $closeCategory: function () {
-            if (this.$AddProduct) {
-                this.$AddProduct.hide();
-                this.$AddSeparator.hide();
-                this.$SortSeparator.hide();
-                this.$ArticleSort.hide();
+            var self = this;
+
+            if (self.$AddProduct) {
+                self.$AddProduct.hide();
+                self.$AddSeparator.hide();
+                self.$SortSeparator.hide();
+                self.$ArticleSort.hide();
             }
 
-            if (this.$ArticleListSummary) {
-                moofx(this.$ArticleListSummary.getElm()).animate({
+            if (self.$ArticleListSummary) {
+                moofx(self.$ArticleListSummary.getElm()).animate({
                     bottom : -20,
                     opacity: 0
                 }, {
                     duration: 250,
                     callback: function () {
-                        this.$ArticleListSummary.destroy();
-                        this.$ArticleListSummary = null;
-                    }.bind(this)
+                        self.$ArticleListSummary.destroy();
+                        self.$ArticleListSummary = null;
+                    }
                 });
             }
 
-            this.getContent().setStyle('padding', 0);
+            self.getContent().setStyle('padding', 0);
 
             return new Promise(function (resolve) {
-                var Container = this.getContent().getElement('.container');
+                var Container = self.getContent().getElement('.container');
 
                 if (!Container) {
                     Container = new Element('div', {
@@ -777,7 +780,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             position: 'relative',
                             top     : -50
                         }
-                    }).inject(this.getContent());
+                    }).inject(self.getContent());
                 }
 
                 moofx(Container).animate({
@@ -786,14 +789,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }, {
                     duration: 200,
                     callback: function () {
-                        this.$unloadCategory();
+                        self.$unloadCategory();
+
                         Container.set('html', '');
                         Container.setStyle('padding', 20);
 
-                        resolve(Container);
-                    }.bind(this)
+                        self.save().then(function () {
+                            resolve(Container);
+                        }).catch(function () {
+                            resolve(Container);
+                        });
+                    }
                 });
-            }.bind(this));
+            });
         },
 
         /**
@@ -940,7 +948,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 text     : QUILocale.get('quiqqer/system', 'save'),
                 textimage: 'fa fa-save',
                 events   : {
-                    onClick: this.save
+                    onClick: function () {
+                        //quiqqer/invoice', 'message.invoice.save.successfully'
+                        self.save().then(function () {
+                            QUI.getMessageHandler().then(function (MH) {
+                                MH.addSuccess(
+                                    QUILocale.get('quiqqer/invoice', 'message.invoice.save.successfully')
+                                );
+                            });
+                        });
+                    }
                 }
             });
 
@@ -1040,7 +1057,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }).catch(function (Exception) {
                 QUI.getMessageHandler().then(function (MH) {
                     console.error(Exception);
-                    MH.addError(Exception.getMessage());
+
+                    if (typeof Exception.getMessage === 'function') {
+                        MH.addError(Exception.getMessage());
+                    }
                 });
 
                 self.destroy();

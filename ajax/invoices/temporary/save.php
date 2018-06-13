@@ -26,10 +26,6 @@ QUI::$Ajax->registerFunction(
 
         $Invoice->setAttributes($data);
         $Invoice->save();
-
-        QUI::getMessagesHandler()->addSuccess(
-            QUI::getLocale()->get('quiqqer/invoice', 'message.invoice.save.successfully')
-        );
     },
     ['invoiceId', 'data'],
     'Permission::checkAdminUser'
