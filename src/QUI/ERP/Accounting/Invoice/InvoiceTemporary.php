@@ -584,7 +584,6 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
-
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
             [$this]
@@ -1119,11 +1118,15 @@ class InvoiceTemporary extends QUI\QDOM
             $articles = [];
         }
 
+        if (isset($articles['articles'])) {
+            $this->importArticles($articles['articles']);
+
+            return;
+        }
+
         foreach ($articles as $article) {
             try {
-                if (isset($article['class'])
-                    && class_exists($article['class'])
-                ) {
+                if (isset($article['class']) && class_exists($article['class'])) {
                     $Article = new $article['class']($article);
 
                     if ($Article instanceof QUI\ERP\Accounting\Article) {

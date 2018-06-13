@@ -271,14 +271,21 @@ class InvoiceView extends QUI\QDOM
         // temporary invoice, the time for payment are days
         if ($this->Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
             $timeForPayment = (int)$timeForPayment;
-            $timeForPayment = strtotime('+'.$timeForPayment.' day');
-            $timeForPayment = $Formatter->format($timeForPayment);
-        } else {
-            $timeForPayment = $Formatter->format(strtotime($timeForPayment));
-        }
 
-        if (date('Y-m-d') === date('Y-m-d', strtotime($timeForPayment))) {
-            $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
+            if ($timeForPayment) {
+                $timeForPayment = strtotime('+'.$timeForPayment.' day');
+                $timeForPayment = $Formatter->format($timeForPayment);
+            } else {
+                $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
+            }
+        } else {
+            $timeForPayment = strtotime($timeForPayment);
+
+            if (date('Y-m-d') === date('Y-m-d', $timeForPayment)) {
+                $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
+            } else {
+                $timeForPayment = $Formatter->format($timeForPayment);
+            }
         }
 
         // get transactions
