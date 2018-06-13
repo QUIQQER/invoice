@@ -1340,6 +1340,7 @@ class InvoiceTemporary extends QUI\QDOM
      * Send the invoice to the customer via email
      *
      * @param Invoice $Invoice
+     * @throws QUI\Exception
      */
     protected function sendCreationMail(Invoice $Invoice)
     {
