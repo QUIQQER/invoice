@@ -812,13 +812,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             var self      = this,
                 invoiceId = selected[0].hash;
 
-            return new Promise(function (resolve, reject) {
+            return new Promise(function (resolve) {
                 require([
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
                 ], function (Dialogs) {
                     Dialogs.openReversalDialog(invoiceId).then(function () {
                         return self.refresh();
-                    }).then(resolve).catch(reject);
+                    }).then(resolve).catch(function (Exception) {
+                        QUI.getMessageHandler().then(function (MH) {
+                            console.error(Exception);
+
+                            if (typeof Exception.getMessage !== 'undefined') {
+                                MH.addError(Exception.getMessage());
+                                return;
+                            }
+
+                            MH.addError(Exception);
+                        });
+
+                        resolve();
+                    });
                 });
             });
         },

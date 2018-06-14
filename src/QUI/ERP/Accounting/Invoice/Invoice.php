@@ -356,7 +356,7 @@ class Invoice extends QUI\QDOM
     public function reversal($reason, $PermissionUser = null)
     {
         // is cancelation / reversal possible?
-        if (Settings::getInstance()->get('invoice', 'storno')) {
+        if (!Settings::getInstance()->get('invoice', 'storno')) {
             // @todo implement credit note
             throw new Exception([
                 'quiqqer/invoice',
