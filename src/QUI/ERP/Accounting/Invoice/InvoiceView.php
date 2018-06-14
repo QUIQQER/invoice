@@ -311,12 +311,19 @@ class InvoiceView extends QUI\QDOM
         if (!empty($transactions)) {
             /* @var $Transaction QUI\ERP\Accounting\Payments\Transactions\Transaction */
             $Transaction = array_pop($transactions);
-            $Payment     = $Transaction->getPayment();
-            $Formatter   = $Locale->getDateFormatter();
+            $Payment     = $Transaction->getPayment(); // payment method
+            $PaymentType = $this->getPayment(); // payment method
+
+            $payment   = $Payment->getTitle();
+            $Formatter = $Locale->getDateFormatter();
+
+            if ($PaymentType->getPaymentType() === $Payment->getClass()) {
+                $payment = $PaymentType->getTitle($Locale);
+            }
 
             $transactionText = $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
                 'date'    => $Formatter->format(strtotime($Transaction->getDate())),
-                'payment' => $Payment->getTitle()
+                'payment' => $payment
             ]);
         }
 
