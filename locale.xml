@@ -1204,6 +1204,15 @@
             <de><![CDATA[Bitte geben Sie einen Grund für die Stornierung an.]]></de>
             <en><![CDATA[Please provide a reason for the cancellation.]]></en>
         </locale>
+        <locale name="exception.canceled.invoice.is.not.allowed">
+            <de><![CDATA[
+                Es ist nicht erlaubt eine Rechnung zu stornieren.
+                Bitte kontrollieren Sie Ihre Einstellungen.
+            ]]></de>
+            <en><![CDATA[
+                It is not allowed to cancel an invoice. Please check your settings.
+            ]]></en>
+        </locale>
 
         <locale name="history.message.addPayment">
             <de><![CDATA[Zahlung hinzugefügt. Von [username] #[uid]. Zahlungsweise: [payment].]]></de>
