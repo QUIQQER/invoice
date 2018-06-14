@@ -328,11 +328,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get('quiqqer/system', 'date'),
                     dataIndex: 'date',
                     dataType : 'date',
-                    width    : 150
-                }, {
-                    header   : QUILocale.get('quiqqer/system', 'c_user'),
-                    dataIndex: 'c_user',
-                    dataType : 'integer',
                     width    : 100
                 }, {
                     header   : QUILocale.get('quiqqer/system', 'c_date'),
@@ -343,7 +338,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get('quiqqer/system', 'c_user'),
                     dataIndex: 'c_username',
                     dataType : 'integer',
-                    width    : 130
+                    width    : 180
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_display',
@@ -439,6 +434,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 }, {
                     dataIndex: 'paidstatus',
                     dataType : 'string',
+                    hidden   : true
+                }, {
+                    dataIndex: 'c_user',
+                    dataType : 'integer',
                     hidden   : true
                 }]
             });
