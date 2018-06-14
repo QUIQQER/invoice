@@ -389,4 +389,48 @@ class Invoice
 
         return $timeForPayment;
     }
+
+    /**
+     * @param string|array $vatArray
+     * @param QUI\ERP\Currency\Currency $Currency
+     * @return array
+     */
+    public static function getVatTextArrayFromVatArray($vatArray, QUI\ERP\Currency\Currency $Currency)
+    {
+        if (is_string($vatArray)) {
+            $vatArray = json_decode($vatArray, true);
+        }
+
+        return array_map(function ($data) use ($Currency) {
+            return $data['text'].': '.$Currency->format($data['sum']);
+        }, $vatArray);
+    }
+
+    /**
+     * @param string|array $vatArray
+     * @return array
+     */
+    public static function getVatSumArrayFromVatArray($vatArray)
+    {
+        if (is_string($vatArray)) {
+            $vatArray = json_decode($vatArray, true);
+        }
+
+        return array_map(function ($data) {
+            return $data['sum'];
+        }, $vatArray);
+    }
+
+    /**
+     * Return the vat sum from an var array from an invoice
+     *
+     * @param string|array $vatArray
+     * @return int|float
+     */
+    public static function getVatSumFromVatArray($vatArray)
+    {
+        return array_sum(
+            self::getVatSumArrayFromVatArray($vatArray)
+        );
+    }
 }

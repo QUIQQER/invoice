@@ -15,6 +15,7 @@ use QUI\ERP\Accounting\Invoice\Settings;
 
 use QUI\ERP\Currency\Handler as Currencies;
 use QUI\ERP\Accounting\Payments\Payments as Payments;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 /**
  * Class Search
@@ -597,21 +598,14 @@ class InvoiceSearch extends Singleton
             $invoiceData['calculated_toPay']    = $invoiceData['toPay'];
 
             // vat information
-            $vatArray = $invoiceData['vat_array'];
-            $vatArray = json_decode($vatArray, true);
+            $vatTextArray = InvoiceUtils::getVatTextArrayFromVatArray($invoiceData['vat_array'], $Currency);
+            $vatSumArray  = InvoiceUtils::getVatSumArrayFromVatArray($invoiceData['vat_array']);
+            $vatSum       = InvoiceUtils::getVatSumFromVatArray($invoiceData['vat_array']);
 
-            $vat = array_map(function ($data) use ($Currency) {
-                return $data['text'].': '.$Currency->format($data['sum']);
-            }, $vatArray);
-
-            $vatSum = array_map(function ($data) {
-                return $data['sum'];
-            }, $vatArray);
-
-            $invoiceData['vat']               = implode('; ', $vat);
-            $invoiceData['display_vatsum']    = $Currency->format(array_sum($vatSum));
-            $invoiceData['calculated_vat']    = $vatSum;
-            $invoiceData['calculated_vatsum'] = array_sum($vatSum);
+            $invoiceData['vat']               = $vatTextArray;
+            $invoiceData['display_vatsum']    = $Currency->format($vatSum);
+            $invoiceData['calculated_vat']    = $vatSumArray;
+            $invoiceData['calculated_vatsum'] = $vatSum;
 
             // customer data
             $customerData = json_decode($invoiceData['customer_data'], true);

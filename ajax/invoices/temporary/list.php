@@ -9,6 +9,7 @@ use QUI\ERP\Accounting\Invoice\Settings;
 
 use QUI\ERP\Currency\Handler as Currencies;
 use QUI\ERP\Accounting\Payments\Payments as Payments;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 /**
  * Returns temporary invoices list for a grid
@@ -27,6 +28,16 @@ QUI::$Ajax->registerFunction(
 
         $data = $Invoices->searchTemporaryInvoices(
             $Grid->parseDBParams(json_decode($params, true))
+        );
+
+        $localeCode = QUI::getLocale()->getLocalesByLang(
+            QUI::getLocale()->getCurrent()
+        );
+
+        $DateFormatter = new \IntlDateFormatter(
+            $localeCode[0],
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::NONE
         );
 
         $needleFields = [
@@ -96,8 +107,14 @@ QUI::$Ajax->registerFunction(
             if (!empty($entry['customer_id'])) {
                 try {
                     $Customer = $TemporaryInvoice->getCustomer();
+                    $customer = $Customer->getName();
 
-                    $data[$key]['customer_name'] = $Customer->getName();
+                    if ($Customer->isCompany()) {
+                        $Address  = $Customer->getAddress();
+                        $customer = $Address->getAttribute('company').' ('.$customer.')';
+                    }
+
+                    $data[$key]['customer_name'] = $customer;
                 } catch (QUI\Exception $Exception) {
                     $data[$key]['customer_id']   = Handler::EMPTY_VALUE;
                     $data[$key]['customer_name'] = Handler::EMPTY_VALUE;
@@ -108,7 +125,7 @@ QUI::$Ajax->registerFunction(
                 try {
                     $CUser = QUI::getUsers()->get($entry['c_user']);
 
-                    $data[$key]['c_username'] = $CUser->getName();
+                    $data[$key]['c_username'] = $CUser->getName().' ('.$CUser->getId().')';
                 } catch (QUI\Exception $Exception) {
                     $data[$key]['c_user']     = Handler::EMPTY_VALUE;
                     $data[$key]['c_username'] = Handler::EMPTY_VALUE;
@@ -116,6 +133,15 @@ QUI::$Ajax->registerFunction(
             }
 
             // format
+            $data[$key]['date'] = $DateFormatter->format(
+                strtotime($TemporaryInvoice->getAttribute('date'))
+            );
+
+            //$vatTextArray = InvoiceUtils::getVatTextArrayFromVatArray($invoiceData['vat_array'], $Currency);
+            //$vatSumArray  = InvoiceUtils::getVatSumArrayFromVatArray($invoiceData['vat_array']);
+            $vatSum = InvoiceUtils::getVatSumFromVatArray($data[$key]['vat_array']);
+
+            $data[$key]['display_vatsum']   = $Currency->format($vatSum);
             $data[$key]['display_nettosum'] = $Currency->format($data[$key]['nettosum']);
             $data[$key]['display_sum']      = $Currency->format($data[$key]['sum']);
             $data[$key]['display_subsum']   = $Currency->format($data[$key]['subsum']);
