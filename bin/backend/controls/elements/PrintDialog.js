@@ -341,9 +341,12 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 }).inject(document.body);
 
                 (function () {
-                    document.getElements('#' + id).destroy();
                     resolve();
                 }).delay(2000, this);
+
+                (function () {
+                    document.getElements('#' + id).destroy();
+                }).delay(20000, this);
             });
         },
 
@@ -382,7 +385,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 (function () {
                     document.getElements('#' + id).destroy();
                     resolve();
-                }).delay(2000, this);
+                }).delay(20000, this);
             });
         },
 
