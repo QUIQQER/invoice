@@ -111,8 +111,8 @@ class Invoice extends QUI\QDOM
         }
 
         // invoice payment data
-        if ($this->getAttribute('data')) {
-            $paymentData = QUI\Security\Encryption::decrypt($this->getAttribute('data'));
+        if ($this->getAttribute('payment_data')) {
+            $paymentData = QUI\Security\Encryption::decrypt($this->getAttribute('payment_data'));
             $paymentData = json_decode($paymentData, true);
 
             if (is_array($paymentData)) {
@@ -286,7 +286,14 @@ class Invoice extends QUI\QDOM
      */
     public function getPaidStatusInformation()
     {
+        $oldStatus = $this->getAttribute('paid_status');
+
         QUI\ERP\Accounting\Calc::calculatePayments($this);
+
+        // the status is another as calced, to we must update the invoice data
+        if ($this->getAttribute('paid_status') !== $oldStatus) {
+            $this->calculatePayments();
+        }
 
         return [
             'paidData' => $this->getAttribute('paid_data'),
