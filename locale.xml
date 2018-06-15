@@ -1075,6 +1075,19 @@
             <en><![CDATA[Post]]></en>
         </locale>
 
+        <locale name="dialog.add.payment.amount">
+            <de><![CDATA[Betrag]]></de>
+            <en><![CDATA[Amount]]></en>
+        </locale>
+        <locale name="dialog.add.payment.paymentMethod">
+            <de><![CDATA[Zahlungsart]]></de>
+            <en><![CDATA[Payment method]]></en>
+        </locale>
+        <locale name="dialog.add.payment.date">
+            <de><![CDATA[Datum]]></de>
+            <en><![CDATA[Date]]></en>
+        </locale>
+
         <locale name="exception.post.invoices.missing.attributes">
             <de><![CDATA[Die Rechnungen können leider nicht gebucht werden, einige besitzen Fehler.]]></de>
             <en><![CDATA[Unfortunately, the invoices cannot be posted, some have errors.]]></en>

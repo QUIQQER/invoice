@@ -68,7 +68,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                         maxHeight  : 500,
                         maxWidth   : 750,
                         events     : {
-                            onOpen  : function (Win) {
+                            onOpen: function (Win) {
                                 var Container = Win.getContent().getElement('.textbody');
 
                                 // #locale
@@ -95,6 +95,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
 
                                 Reason.focus();
                             },
+
                             onSubmit: function (Win) {
                                 var value = Win.getContent().getElement('[name="reason"]').value;
 

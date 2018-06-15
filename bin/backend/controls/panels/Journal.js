@@ -553,6 +553,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 280,
                     className: 'monospace'
+                }, {
+                    dataIndex: 'payment_method',
+                    dataType : 'string',
+                    hidden   : true
                 }]
             });
 
@@ -658,14 +662,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            var hash = selectedData[0].hash;
+            var hash          = selectedData[0].hash;
+            var paymentMethod = selectedData[0].payment_method;
 
             require([
                 'package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentWindow'
             ], function (AddPaymentWindow) {
                 new AddPaymentWindow({
-                    hash  : hash,
-                    events: {
+                    hash         : hash,
+                    paymentMethod: paymentMethod,
+                    events       : {
                         onSubmit: function (Win, data) {
                             self.addPayment(
                                 hash,
