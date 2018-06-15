@@ -29,8 +29,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
         ],
 
         options: {
-            hash          : false,
-            payment_method: '957669f3146ceebe4267bf15ee3b9dc6' // cash
+            hash         : false,
+            paymentMethod: false
         },
 
         initialize: function (options) {
@@ -50,7 +50,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
          */
         create: function () {
             this.$Elm = new Element('div', {
-                html: Mustache.render(template)
+                html: Mustache.render(template, {
+                    amountTitle : QUILocale.get('quiqqer/invoice', 'dialog.add.payment.amount'),
+                    paymentTitle: QUILocale.get('quiqqer/invoice', 'dialog.add.payment.paymentMethod'),
+                    dateTitle   : QUILocale.get('quiqqer/invoice', 'dialog.add.payment.date')
+                })
             });
 
             this.$Form = this.$Elm.getElement('form');
@@ -82,11 +86,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
                 var DateInput = this.getElm().getElement('[name="date"]');
                 var Amount    = this.getElm().getElement('[name="amount"]');
 
-                new Element('option', {
-                    html : '',
-                    value: ''
-                }).inject(Payments);
-
                 Amount.value = invoice.toPay;
 
                 for (var i = 0, len = payments.length; i < len; i++) {
@@ -103,7 +102,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
                     }).inject(Payments);
                 }
 
-                Payments.value        = this.getAttribute('payment_method');
+                if (this.getAttribute('paymentMethod')) {
+                    Payments.value = this.getAttribute('paymentMethod');
+                }
+
                 DateInput.valueAsDate = new Date();
 
                 this.fireEvent('load', [this]);

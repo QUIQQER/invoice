@@ -1,24 +1,30 @@
 <form>
-
     <table class="data-table data-table-flexbox">
         <tbody>
         <tr>
             <td>
                 <label class="field-container">
-                    <span class="field-container-item" title="Betrag">
-                        Betrag
+                    <span class="field-container-item" title="{{amountTitle}}">
+                        {{amountTitle}}
                     </span>
-                    <input class="field-container-field" type="number" name="amount" step="0.01" min="0" autofocus/>
+                    <input class="field-container-field"
+                           type="number"
+                           name="amount"
+                           step="0.01"
+                           min="0"
+                           autofocus
+                           required
+                    />
                 </label>
             </td>
         </tr>
         <tr>
             <td>
                 <label class="field-container">
-                    <span class="field-container-item" title="Zahlungsart">
-                        Zahlungsart
+                    <span class="field-container-item" title="{{paymentTitle}}">
+                        {{paymentTitle}}
                     </span>
-                    <select class="field-container-field" name="payment_method">
+                    <select class="field-container-field" name="payment_method" required>
 
                     </select>
                 </label>
@@ -27,14 +33,13 @@
         <tr>
             <td>
                 <label class="field-container">
-                    <span class="field-container-item" title="Datum">
-                        Datum
+                    <span class="field-container-item" title="{{dateTitle}}">
+                        {{dateTitle}}
                     </span>
-                    <input class="field-container-field" type="date" name="date"/>
+                    <input class="field-container-field" type="date" name="date" required/>
                 </label>
             </td>
         </tr>
         </tbody>
     </table>
-
 </form>

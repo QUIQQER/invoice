@@ -24,7 +24,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentW
         ],
 
         options: {
-            hash: false
+            hash         : false,
+            paymentMethod: false
         },
 
         initialize: function (options) {
@@ -52,8 +53,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentW
             this.getContent().set('html', '');
 
             this.$AddPayment = new AddPayment({
-                hash  : this.getAttribute('hash'),
-                events: {
+                hash         : this.getAttribute('hash'),
+                paymentMethod: this.getAttribute('paymentMethod'),
+                events       : {
                     onLoad: function () {
                         this.Loader.hide();
                         this.$AddPayment.focus();
@@ -74,6 +76,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentW
                 var values = this.$AddPayment.getValue();
 
                 if (values.amount === '') {
+                    return;
+                }
+
+                if (values.payment_method === '') {
                     return;
                 }
 
