@@ -96,6 +96,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPayment'
                         title = payment.title[current];
                     }
 
+                    if (typeOf(payment.workingTitle) === 'object' &&
+                        current in payment.workingTitle &&
+                        payment.workingTitle[current] !== ''
+                    ) {
+                        title = payment.workingTitle[current];
+                    }
+
                     new Element('option', {
                         html : title,
                         value: parseInt(payment.id)
