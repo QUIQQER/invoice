@@ -497,11 +497,55 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         (data.cell.get('data-index') === 'customer_id' ||
                             data.cell.get('data-index') === 'customer_name')) {
 
+                        var Cell     = data.cell,
+                            position = Cell.getPosition(),
+                            rowData  = self.$Grid.getDataByRow(data.row);
+
                         return new Promise(function (resolve) {
-                            require(['utils/Panels'], function (PanelUtils) {
-                                PanelUtils.openUserPanel(
-                                    self.$Grid.getDataByRow(data.row).customer_id
+                            require([
+                                'qui/controls/contextmenu/Menu',
+                                'qui/controls/contextmenu/Item'
+                            ], function (QUIMenu, QUIMenuItem) {
+                                var Menu = new QUIMenu({
+                                    events: {
+                                        onBlur: function () {
+                                            Menu.hide();
+                                            Menu.destroy();
+                                        }
+                                    }
+                                });
+
+                                Menu.appendChild(
+                                    new QUIMenuItem({
+                                        icon  : rowData.display_type.className,
+                                        text  : QUILocale.get(lg, 'journal.contextMenu.open.invoice'),
+                                        events: {
+                                            onClick: function () {
+                                                self.openInvoice(rowData.id);
+                                            }
+                                        }
+                                    })
                                 );
+
+                                Menu.appendChild(
+                                    new QUIMenuItem({
+                                        icon  : 'fa fa-users',
+                                        text  : QUILocale.get(lg, 'journal.contextMenu.open.user'),
+                                        events: {
+                                            onClick: function () {
+                                                require(['utils/Panels'], function (PanelUtils) {
+                                                    PanelUtils.openUserPanel(rowData.customer_id);
+                                                });
+                                            }
+                                        }
+                                    })
+                                );
+
+                                Menu.inject(document.body);
+                                Menu.setPosition(position.x, position.y + 30);
+                                Menu.setTitle(rowData.id);
+                                Menu.show();
+                                Menu.focus();
 
                                 resolve();
                             });

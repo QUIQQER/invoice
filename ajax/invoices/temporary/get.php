@@ -14,8 +14,7 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_get',
     function ($invoiceId) {
-        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice  = $Invoices->getTemporaryInvoice($invoiceId);
+        $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
 
         return $Invoice->toArray();
     },
