@@ -456,6 +456,14 @@
             <de><![CDATA[Summe anzeigen]]></de>
             <en><![CDATA[Show total]]></en>
         </locale>
+        <locale name="journal.contextMenu.open.invoice">
+            <de><![CDATA[Rechnung öffnen]]></de>
+            <en><![CDATA[Open invoice]]></en>
+        </locale>
+        <locale name="journal.contextMenu.open.user">
+            <de><![CDATA[Benutzer öffnen]]></de>
+            <en><![CDATA[Open user]]></en>
+        </locale>
 
         <locale name="temporary.btn.deleteInvoice">
             <de><![CDATA[Rechnung löschen]]></de>
@@ -1201,6 +1209,10 @@
             <en><![CDATA[The invoice has no payment method.]]></en>
         </locale>
         <locale name="exception.invoice.not.found" html="true">
+            <de><![CDATA[Die gewünschte Rechnung wurde leider nicht gefunden.]]></de>
+            <en><![CDATA[The desired invoice was unfortunately not found.]]></en>
+        </locale>
+        <locale name="exception.temporary.invoice.not.found" html="true">
             <de><![CDATA[Die gewünschte Rechnung wurde leider nicht gefunden.]]></de>
             <en><![CDATA[The desired invoice was unfortunately not found.]]></en>
         </locale>
