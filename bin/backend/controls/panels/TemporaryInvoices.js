@@ -12,7 +12,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
     'qui/controls/buttons/Button',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
-    'Locale'
+    'Locale',
+
+    'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
 
 ], function (QUI, QUIPanel, QUIConfirm, QUIButton, Grid, Invoices, QUILocale) {
     "use strict";
