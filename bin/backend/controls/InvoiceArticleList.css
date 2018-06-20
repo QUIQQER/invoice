@@ -1,9 +1,12 @@
 .quiqqer-invoice-backend-invoiceItems {
     display: block;
-    /*min-height: 300px;*/
-    min-width: 1000px;
+    overflow: auto;
     position: relative;
     width: 100%;
+}
+
+.quiqqer-invoice-backend-invoiceItems-container {
+    min-width: 1000px;
 }
 
 .quiqqer-invoice-backend-invoiceItems-header {
