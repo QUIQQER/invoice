@@ -51,6 +51,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             '$closeCategory',
             '$onCreate',
             '$onInject',
+            '$onKeyUp',
             '$onDestroy',
             '$onDeleteInvoice',
             '$onArticleReplaceClick',
@@ -1030,6 +1031,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return;
             }
 
+            document.addEvent('keyup', this.$onKeyUp);
+
             var self      = this,
                 invoiceId = this.getAttribute('invoiceId');
 
@@ -1074,6 +1077,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             Invoices.removeEvents({
                 onDeleteInvoice: this.$onDeleteInvoice
             });
+
+            document.removeEvent('keyup', this.$onKeyUp);
+        },
+
+        /**
+         * event: on key up
+         *
+         * @param event
+         */
+        $onKeyUp: function (event) {
+            if (this.$ArticleList && (event.event.code === 'NumpadAdd' || event.code === 107)) {
+                this.$AddProduct.click();
+            }
         },
 
         /**
