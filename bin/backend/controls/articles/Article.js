@@ -19,6 +19,7 @@
  * @event onSetQuantity [self]
  * @event onSetUnitPrice [self]
  * @event onSetVat [self]
+ * @event onEditKeyDown [self, event]
  */
 define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
@@ -26,6 +27,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
     'qui/controls/Control',
     'qui/controls/buttons/Button',
     'qui/controls/windows/Confirm',
+    'qui/utils/Elements',
     'package/quiqqer/erp/bin/backend/utils/Discount',
     'package/quiqqer/erp/bin/backend/utils/Money',
     'Mustache',
@@ -36,7 +38,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
     'text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html',
     'css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css'
 
-], function (QUI, QUIControl, QUIButton, QUIConfirm, DiscountUtils, MoneyUtils, Mustache, QUILocale, QUIAjax, Editors, template) {
+], function (QUI, QUIControl, QUIButton, QUIConfirm, QUIElements, DiscountUtils, MoneyUtils, Mustache, QUILocale, QUIAjax, Editors, template) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -56,6 +58,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             '$onEditDiscount',
             'openDeleteDialog',
             '$onReplaceClick',
+            '$editNext',
             'remove',
             'select'
         ],
@@ -216,6 +219,12 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.$created = true;
             this.calc();
 
+            this.addEvent('onEditKeyDown', function (me, event) {
+                if (event.key === 'tab') {
+                    this.$editNext(event);
+                }
+            }.bind(this));
+
             return this.$Elm;
         },
 
@@ -272,24 +281,26 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
                     self.$calculations = product;
 
-                    self.$Total.set({
-                        html : total,
-                        title: total
-                    });
+                    var setElement = function (Node, text) {
+                        var isInEditMode = Node.getElement('input');
 
-                    self.$UnitPrice.set({
-                        html : unitPrice,
-                        title: unitPrice
-                    });
+                        if (isInEditMode) {
+                            Node.set({
+                                title: text
+                            });
+                            return;
+                        }
 
-                    self.$Price.set({
-                        html : price,
-                        title: price
-                    });
+                        Node.set({
+                            html : text,
+                            title: text
+                        });
+                    };
 
-                    self.$VAT.set({
-                        html: product.vat + '%'
-                    });
+                    setElement(self.$Total, total);
+                    setElement(self.$UnitPrice, unitPrice);
+                    setElement(self.$Price, price);
+                    setElement(self.$VAT, product.vat + '%');
 
                     self.hideLoader();
 
@@ -512,6 +523,10 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 return;
             }
 
+            if (this.$Elm.hasClass('quiqqer-invoice-backend-invoiceArticle-select')) {
+                return;
+            }
+
             this.$Elm.addClass('quiqqer-invoice-backend-invoiceArticle-select');
             this.fireEvent('select', [this]);
         },
@@ -662,7 +677,6 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 this.getAttribute('articleNo')
             ).then(function (value) {
                 this.setArticleNo(value);
-                this.select();
             }.bind(this));
         },
 
@@ -676,7 +690,6 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 'number'
             ).then(function (value) {
                 this.setQuantity(value);
-                this.select();
             }.bind(this));
         },
 
@@ -690,7 +703,6 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 'number'
             ).then(function (value) {
                 this.setUnitPrice(value);
-                this.select();
             }.bind(this));
         },
 
@@ -704,7 +716,6 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 'number'
             ).then(function (value) {
                 this.setVat(value);
-                this.select();
             }.bind(this));
         },
 
@@ -725,7 +736,6 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 discount
             ).then(function (value) {
                 this.setDiscount(value);
-                this.select();
             }.bind(this));
         },
 
@@ -739,6 +749,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * @returns {Promise}
          */
         $createEditField: function (Container, value, type, inputAttributes) {
+            var self = this;
+
             type = type || 'text';
 
             return new Promise(function (resolve) {
@@ -776,7 +788,14 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                     },
 
                     keydown: function (event) {
+                        self.fireEvent('editKeyDown', [self, event]);
+
                         if (event.key === 'enter') {
+                            self.$editNext(event);
+                            return;
+                        }
+
+                        if (event.key === 'esc') {
                             onFinish();
                         }
                     },
@@ -784,6 +803,34 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                     blur: onFinish
                 });
             });
+        },
+
+        /**
+         * Opens the next edit field
+         *
+         * @param event
+         */
+        $editNext: function (event) {
+            var Target = event.target,
+                Cell   = Target.getParent('.cell');
+
+            if (!Cell) {
+                return;
+            }
+
+            var Next;
+
+            if (event.shift) {
+                Next = Cell.getPrevious('.cell-editable');
+            } else {
+                Next = Cell.getNext('.cell-editable');
+            }
+
+            if (Next) {
+                event.stop();
+
+                QUIElements.simulateEvent(Next, 'click');
+            }
         }
     });
 });

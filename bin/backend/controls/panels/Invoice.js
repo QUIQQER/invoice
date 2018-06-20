@@ -407,7 +407,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         }
                     }).inject(Container);
                 });
-
             }).then(function () {
                 return self.$openCategory();
             }).then(function () {
