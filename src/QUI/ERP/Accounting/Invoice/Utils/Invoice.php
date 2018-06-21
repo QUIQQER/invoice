@@ -420,6 +420,10 @@ class Invoice
             $vatArray = json_decode($vatArray, true);
         }
 
+        if (!is_array($vatArray)) {
+            $vatArray = [];
+        }
+
         return array_map(function ($data) {
             return $data['sum'];
         }, $vatArray);
