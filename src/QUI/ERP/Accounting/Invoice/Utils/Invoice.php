@@ -401,6 +401,10 @@ class Invoice
             $vatArray = json_decode($vatArray, true);
         }
 
+        if (!is_array($vatArray)) {
+            $vatArray = [];
+        }
+
         return array_map(function ($data) use ($Currency) {
             return $data['text'].': '.$Currency->format($data['sum']);
         }, $vatArray);
