@@ -121,7 +121,7 @@ class Payment
     }
 
     /**
-     * @return QUI\ERP\Accounting\Payments\Types\Payment
+     * @return QUI\ERP\Accounting\Payments\Types\Payment|null
      */
     protected function getPayment()
     {
@@ -130,7 +130,7 @@ class Payment
                 $this->attributes['id']
             );
         } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeException($Exception);
+            QUI\System\Log::writeDebugException($Exception);
         }
 
         return null;
