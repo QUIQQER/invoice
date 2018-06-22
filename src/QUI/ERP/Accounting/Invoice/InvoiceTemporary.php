@@ -251,6 +251,14 @@ class InvoiceTemporary extends QUI\QDOM
 
         if (!empty($invoiceAddress)) {
             $userData['address'] = $invoiceAddress;
+
+            if (empty($userData['firstname']) && !empty($invoiceAddress['firstname'])) {
+                $userData['firstname'] = $invoiceAddress['firstname'];
+            }
+
+            if (empty($userData['lastname']) && !empty($invoiceAddress['lastname'])) {
+                $userData['lastname'] = $invoiceAddress['lastname'];
+            }
         }
 
 
