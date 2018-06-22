@@ -109,6 +109,14 @@ QUI::$Ajax->registerFunction(
                     $Customer = $TemporaryInvoice->getCustomer();
                     $customer = $Customer->getName();
 
+                    if (empty($customer)) {
+                        $customer = $Address->getAttribute('firstname');
+                        $customer .= ' ';
+                        $customer .= $Address->getAttribute('lastname');
+
+                        $customer = trim($customer);
+                    }
+
                     if ($Customer->isCompany()) {
                         $Address  = $Customer->getAddress();
                         $customer = $Address->getAttribute('company').' ('.$customer.')';
