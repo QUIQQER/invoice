@@ -170,15 +170,16 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                 Form.elements.template.value = selected;
 
                 self.$Output = new QUISelect({
-                    name  : 'output',
-                    styles: {
+                    localeStorage: 'quiqqer-invoice-print-dialog',
+                    name         : 'output',
+                    styles       : {
                         border: 'none',
                         width : '100%'
                     },
-                    events: {
+                    events       : {
                         onChange: self.$onOutputChange
                     }
-                }).inject(Content.getElement('.field-output'));
+                });
 
 
                 self.$Output.appendChild(
@@ -199,7 +200,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                     'fa fa-envelope-o'
                 );
 
-                self.$Output.setValue('print');
+                self.$Output.inject(Content.getElement('.field-output'));
 
                 if (typeof self.$invoiceData.customer_data !== 'undefined') {
                     var data = JSON.decode(self.$invoiceData.customer_data);
