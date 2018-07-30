@@ -204,7 +204,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.Loader.show();
             this.doRefresh().then(function () {
                 self.openInfo();
-                self.Loader.hide();
             });
         },
 
