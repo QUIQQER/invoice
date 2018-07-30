@@ -193,7 +193,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             });
 
             this.getContent().addClass('quiqqer-invoice-invoice');
-            this.openInfo();
         },
 
         /**
@@ -204,6 +203,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             this.Loader.show();
             this.doRefresh().then(function () {
+                self.openInfo();
                 self.Loader.hide();
             });
         },
@@ -330,6 +330,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         'text!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.Data.html'
                     ], function (template) {
                         var data = self.getAttribute('data');
+
+                        if (typeOf(data) !== 'object') {
+                            data = {};
+                        }
 
                         data.textInvoiceRecipient = QUILocale.get(lg, 'cutomerData');
                         data.textCustomer         = QUILocale.get(lg, 'customer');
