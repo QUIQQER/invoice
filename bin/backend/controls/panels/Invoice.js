@@ -331,6 +331,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     ], function (template) {
                         var data = self.getAttribute('data');
 
+                        if (typeOf(data) !== 'object') {
+                            data = {};
+                        }
+
                         data.textInvoiceRecipient = QUILocale.get(lg, 'cutomerData');
                         data.textCustomer         = QUILocale.get(lg, 'customer');
                         data.textCompany          = QUILocale.get(lg, 'company');
