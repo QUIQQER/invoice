@@ -235,6 +235,10 @@ class InvoiceTemporary extends QUI\QDOM
             'email'     => $User->getAttribute('email')
         ];
 
+        if ($User->getAttribute('quiqqer.erp.euVatId')) {
+            $userData['quiqqer.erp.euVatId'] = $User->getAttribute('quiqqer.erp.euVatId');
+        }
+
         // address
         if (is_string($invoiceAddress)) {
             $invoiceAddress = json_decode($invoiceAddress, true);
@@ -515,9 +519,6 @@ class InvoiceTemporary extends QUI\QDOM
             [$this]
         );
 
-        $this->Articles->calc();
-        $listCalculations = $this->Articles->getCalculations();
-
         // attributes
         $projectName    = '';
         $timeForPayment = null;
@@ -548,11 +549,13 @@ class InvoiceTemporary extends QUI\QDOM
         // address
         try {
             $Customer = QUI::getUsers()->get((int)$this->getAttribute('customer_id'));
-            $Address  = $Customer->getAddress(
+
+            $Address = $Customer->getAddress(
                 (int)$this->getAttribute('invoice_address_id')
             );
 
             $invoiceAddress = $Address->toJSON();
+            $this->Articles->setUser($Customer);
         } catch (QUI\Exception $Exception) {
             $invoiceAddress      = $this->getAttribute('invoice_address');
             $invoiceAddressCheck = false;
@@ -565,6 +568,10 @@ class InvoiceTemporary extends QUI\QDOM
                 QUI\System\Log::addNotice($Exception->getMessage());
             }
         }
+
+
+        $this->Articles->calc();
+        $listCalculations = $this->Articles->getCalculations();
 
         // payment
         $paymentMethod = '';
@@ -585,6 +592,20 @@ class InvoiceTemporary extends QUI\QDOM
 
         if ($invoiceText === false) {
             $invoiceText = QUI::getLocale()->get('quiqqer/invoice', 'additional.invoice.text');
+        }
+
+
+        // extra EU vat invoice text
+        if ($listCalculations['isEuVat']) {
+            $extraText = '<br />';
+            $extraText .= QUI::getLocale()->get('quiqqer/tax', 'message.EUVAT.addition', [
+                'user'  => $this->getCustomer()->getInvoiceName(),
+                'vatId' => $this->getCustomer()->getAttribute('quiqqer.erp.euVatId')
+            ]);
+
+            if (strpos($invoiceText, $extraText) === false) {
+                $invoiceText .= $extraText;
+            }
         }
 
         // Editor
