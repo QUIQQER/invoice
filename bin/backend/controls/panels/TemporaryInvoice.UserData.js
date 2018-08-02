@@ -32,7 +32,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
         Binds: [
             'toggleExtras',
-            '$onImport'
+            'editCustomer',
+            '$onInject'
         ],
 
         options: {
@@ -44,7 +45,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             this.parent(options);
 
             this.addEvents({
-                onInject: this.$onImport
+                onInject: this.$onInject
             });
 
             this.$CustomerSelect = null;
@@ -61,6 +62,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             this.$rows          = [];
             this.$extrasAreOpen = false;
             this.$oldUserId     = false;
+
+            this.$Panel = null;
         },
 
         /**
@@ -79,12 +82,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     textStreet  : QUILocale.get(lg, 'street'),
                     textZip     : QUILocale.get(lg, 'zip'),
                     textCity    : QUILocale.get(lg, 'city'),
-                    textExtra   : QUILocale.get(lg, 'invoice.temporary.extend.view.open')
+                    textExtra   : QUILocale.get(lg, 'invoice.temporary.extend.view.open'),
+                    textUserEdit: QUILocale.get(lg, 'invoice.temporary.extend.userEdit')
                 })
             });
 
             this.$Extras = this.$Elm.getElement('.quiqqer-invoice-backend-temporaryInvoice-data-address-opener');
             this.$Extras.addEvent('click', this.toggleExtras);
+
+            this.$CustomerEdit = this.$Elm.getElement('.quiqqer-invoice-backend-temporaryInvoice-data-address-userEdit');
+            this.$CustomerEdit.addEvent('click', this.editCustomer);
 
             this.$Company = this.$Elm.getElement('[name="company"]');
             this.$Street  = this.$Elm.getElement('[name="street"]');
@@ -212,6 +219,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
             this.setAttribute('userId', userId);
 
+            if (this.$CustomerEdit) {
+                this.$CustomerEdit.setStyle('display', 'inline');
+            }
+
             if (!this.$Elm) {
                 return Promise.resolve();
             }
@@ -302,7 +313,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
         /**
          * event on import
          */
-        $onImport: function () {
+        $onInject: function () {
             var CustomerSelect = this.$Elm.getElements('[name="customer"]');
 
             QUI.parse(this.$Elm).then(function () {
@@ -313,13 +324,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 );
 
                 this.$CustomerSelect.addEvents({
-                    change: function (Control) {
+                    change      : function (Control) {
                         self.setUserId(Control.getValue());
+                    },
+                    onRemoveItem: function () {
+                        if (self.$CustomerEdit) {
+                            self.$CustomerEdit.setStyle('display', 'none');
+                        }
                     }
                 });
 
                 if (this.getAttribute('userId')) {
                     this.$CustomerSelect.addItem(this.getAttribute('userId'));
+                }
+
+                if (this.getElm().getParent('.qui-panel')) {
+                    this.$Panel = QUI.Controls.getById(
+                        this.getElm().getParent('.qui-panel').get('data-quiid')
+                    );
                 }
             }.bind(this));
         },
@@ -455,6 +477,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                         });
 
                         resolve();
+                    }
+                });
+            });
+        },
+
+        /**
+         * open the user edit panel for the customer
+         */
+        editCustomer: function () {
+            var self = this;
+
+            if (this.$Panel) {
+                this.$Panel.Loader.show();
+            }
+
+            require(['utils/Panels'], function (PanelUtils) {
+                PanelUtils.openUserPanel(self.getAttribute('userId')).then(function () {
+                    if (self.$Panel) {
+                        self.$Panel.Loader.hide();
                     }
                 });
             });

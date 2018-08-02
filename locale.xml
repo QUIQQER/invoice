@@ -231,6 +231,10 @@
             <de><![CDATA[Erweiterte Ansicht schließen]]></de>
             <en><![CDATA[Close the extended view]]></en>
         </locale>
+        <locale name="invoice.temporary.extend.userEdit">
+            <de><![CDATA[Benutzer bearbeiten]]></de>
+            <en><![CDATA[Edit User]]></en>
+        </locale>
 
         <locale name="netto">
             <de><![CDATA[Netto]]></de>
