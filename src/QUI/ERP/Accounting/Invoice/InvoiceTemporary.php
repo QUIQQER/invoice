@@ -596,7 +596,7 @@ class InvoiceTemporary extends QUI\QDOM
 
 
         // extra EU vat invoice text
-        if ($listCalculations['isEuVat']) {
+        if ($listCalculations['isEuVat'] && empty($listCalculations['varArray'])) {
             $extraText = '<br />';
             $extraText .= QUI::getLocale()->get('quiqqer/tax', 'message.EUVAT.addition', [
                 'user'  => $this->getCustomer()->getInvoiceName(),

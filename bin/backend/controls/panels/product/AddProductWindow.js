@@ -24,10 +24,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWi
         Extends: QUIControl,
         Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWindow',
 
+        options: {
+            user: false
+        },
+
         initialize: function (options) {
             this.parent(options);
 
             this.$user = {};
+
+            if (typeof options.user !== 'undefined') {
+                this.$user = options.user;
+            }
         },
 
         /**

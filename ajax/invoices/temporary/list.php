@@ -107,19 +107,23 @@ QUI::$Ajax->registerFunction(
             if (!empty($entry['customer_id'])) {
                 try {
                     $Customer = $TemporaryInvoice->getCustomer();
-                    $customer = $Customer->getName();
+                    $customer = '---';
 
-                    if (empty($customer)) {
-                        $customer = $Address->getAttribute('firstname');
-                        $customer .= ' ';
-                        $customer .= $Address->getAttribute('lastname');
-
-                        $customer = trim($customer);
-                    }
-
-                    if ($Customer->isCompany()) {
+                    if ($Customer) {
+                        $customer = $Customer->getName();
                         $Address  = $Customer->getAddress();
-                        $customer = $Address->getAttribute('company').' ('.$customer.')';
+
+                        if (empty($customer) && $Address) {
+                            $customer = $Address->getAttribute('firstname');
+                            $customer .= ' ';
+                            $customer .= $Address->getAttribute('lastname');
+
+                            $customer = trim($customer);
+                        }
+
+                        if ($Customer->isCompany() && $Address && !empty($Address->getAttribute('company'))) {
+                            $customer = $Address->getAttribute('company').' ('.$customer.')';
+                        }
                     }
 
                     $data[$key]['customer_name'] = $customer;

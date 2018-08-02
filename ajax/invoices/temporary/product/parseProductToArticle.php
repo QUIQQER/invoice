@@ -59,7 +59,6 @@ QUI::$Ajax->registerFunction(
                 $Unique->setQuantity($attributes['quantity']);
             }
 
-
             $Unique->calc();
 
             return $Unique->toArticle($Locale)->toArray();
