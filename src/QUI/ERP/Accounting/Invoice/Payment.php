@@ -125,6 +125,10 @@ class Payment
      */
     protected function getPayment()
     {
+        if (!isset($this->attributes['id'])) {
+            return null;
+        }
+
         try {
             return QUI\ERP\Accounting\Payments\Payments::getInstance()->getPayment(
                 $this->attributes['id']
@@ -144,6 +148,10 @@ class Payment
     {
         if ($Invoice instanceof InvoiceView) {
             $Invoice = $Invoice->getInvoice();
+        }
+
+        if ($this->getPayment() === null) {
+            return '';
         }
 
         try {
