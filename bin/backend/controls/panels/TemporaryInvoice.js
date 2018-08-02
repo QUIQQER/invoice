@@ -654,6 +654,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     'package/quiqqer/invoice/bin/backend/controls/articles/Article'
                 ], function (Win, Article) {
                     new Win({
+                        user  : self.getUserData(),
                         events: {
                             onSubmit: function (Win, article) {
                                 var Instance = new Article(article);
