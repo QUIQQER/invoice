@@ -9,15 +9,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     'qui/QUI',
     'qui/controls/desktop/Panel',
     'qui/controls/buttons/Button',
+    'qui/controls/windows/Confirm',
     'package/quiqqer/invoice/bin/Invoices',
     'package/quiqqer/erp/bin/backend/controls/Comments',
     'qui/controls/elements/Sandbox',
+    'utils/Lock',
     'Locale',
     'Mustache',
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.css'
 
-], function (QUI, QUIPanel, QUIButton, Invoices, Comments, Sandbox, QUILocale, Mustache) {
+], function (QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Comments, Sandbox, Locker, QUILocale, Mustache) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -40,7 +42,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             'openPreview',
             '$onCreate',
             '$onInject',
-            '$onDestroy'
+            '$onDestroy',
+            '$showLockMessage'
         ],
 
         options: {
@@ -54,11 +57,30 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             this.parent(options);
 
+            this.$locked = false;
+
             this.addEvents({
                 onCreate : this.$onCreate,
                 onInject : this.$onInject,
                 onDestroy: this.$onDestroy
             });
+        },
+
+        /**
+         * Return the lock key
+         *
+         * @return {string}
+         */
+        $getLockKey: function () {
+            return 'lock-invoice-' + this.getAttribute('invoiceId');
+        },
+
+        /**
+         * Return the lock group
+         * @return {string}
+         */
+        $getLockGroups: function () {
+            return 'quiqqer/invoice';
         },
 
         /**
@@ -71,7 +93,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 self.setAttribute('title', QUILocale.get(lg, 'erp.panel.invoice.title', {
                     id: data.id
                 }));
-
 
                 self.setAttribute('data', data);
                 self.refresh();
@@ -89,7 +110,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 events   : {
                     onClick: this.print
                 }
+
+
             });
+
+            this.addButton({
+                name  : 'lock',
+                icon  : 'fa fa-warning',
+                styles: {
+                    background: '#fcf3cf',
+                    color     : '#7d6608',
+                    'float'   : 'right'
+                },
+                events: {
+                    onClick: this.$showLockMessage
+                }
+            });
+
+            this.getButtons('lock').hide();
 
 
             var Actions = new QUIButton({
@@ -202,7 +240,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             var self = this;
 
             this.Loader.show();
-            this.doRefresh().then(function () {
+
+            Locker.isLocked(
+                this.$getLockKey(),
+                this.$getLockGroups()
+            ).then(function (isLocked) {
+                if (isLocked) {
+                    self.$locked = isLocked;
+                    self.lockPanel();
+                    return;
+                }
+
+                return Locker.lock(
+                    self.$getLockKey(),
+                    self.$getLockGroups()
+                );
+            }).then(function () {
+                return self.doRefresh();
+            }).then(function () {
                 self.openInfo();
             });
         },
@@ -211,7 +266,106 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          * event: on destroy
          */
         $onDestroy: function () {
+            Locker.unlock(
+                this.$getLockKey(),
+                this.$getLockGroups()
+            );
+        },
 
+        /**
+         * lock the complete panel
+         */
+        lockPanel: function () {
+            this.getButtons('actions').disable();
+            this.getButtons('lock').show();
+        },
+
+        /**
+         * unlock the lock
+         *
+         * @return {Promise<T>}
+         */
+        unlockPanel: function () {
+            var self = this;
+
+            this.Loader.show();
+
+            return Locker.unlock(
+                this.$getLockKey(),
+                this.$getLockGroups()
+            ).then(function () {
+                return Locker.isLocked(
+                    self.$getLockKey(),
+                    self.$getLockGroups()
+                );
+            }).then(function (isLocked) {
+                if (isLocked) {
+                    return;
+                }
+
+                self.$locked = isLocked;
+                self.getButtons('actions').enable();
+                self.getButtons('lock').hide();
+
+                return self.refresh();
+            }).then(function () {
+                return self.openInfo();
+            });
+        },
+
+        /**
+         * render the lock message if the invoice is locked
+         */
+        $enableLockMessage: function () {
+            if (!this.$locked) {
+                return;
+            }
+
+            this.getButtons('lock').setAttribute(
+                'title',
+                QUILocale.get(lg, 'message.invoice.is.locked', this.$locked)
+            );
+        },
+
+        /**
+         * show the lock message window
+         */
+        $showLockMessage: function () {
+            var self    = this,
+                btnText = QUILocale.get('quiqqer/quiqqer', 'submit');
+
+            if (window.USER.isSU) {
+                btnText = QUILocale.get(lg, 'button.unlock.invoice.is.locked');
+            }
+
+            new QUIConfirm({
+                title      : QUILocale.get(lg, 'window.unlock.invoice.title'),
+                icon       : 'fa fa-warning',
+                texticon   : 'fa fa-warning',
+                text       : QUILocale.get(lg, 'window.unlock.invoice.text', this.$locked),
+                information: QUILocale.get(lg, 'message.invoice.is.locked', this.$locked),
+                autoclose  : false,
+                maxHeight  : 400,
+                maxWidth   : 600,
+                ok_button  : {
+                    text: btnText
+                },
+
+                events: {
+                    onSubmit: function (Win) {
+                        if (!window.USER.isSU) {
+                            Win.close();
+                            return;
+                        }
+
+                        Win.Loader.show();
+
+                        self.unlockPanel().then(function () {
+                            Win.close();
+                        });
+                    }
+                }
+            }).open();
         },
 
         /**
@@ -357,6 +511,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             html: Mustache.render(template, data)
                         });
 
+                        self.$enableLockMessage();
+
                         try {
                             var Form    = Container.getElement('form'),
                                 address = JSON.decode(data.invoice_address);
@@ -398,6 +554,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 return new Promise(function (resolve) {
                     Container.set('html', '');
 
+                    self.$enableLockMessage();
+
                     new Sandbox({
                         content: result[1],
                         styles : {
@@ -431,10 +589,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     require([
                         'package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments'
                     ], function (Payments) {
+                        self.$enableLockMessage();
+
                         new Payments({
-                            Panel : self,
-                            hash  : self.getAttribute('data').hash,
-                            events: {
+                            Panel   : self,
+                            hash    : self.getAttribute('data').hash,
+                            disabled: self.$locked,
+                            events  : {
                                 onLoad: resolve
                             }
                         }).inject(Container);
@@ -464,6 +625,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     Container
                 ]);
             }).then(function (result) {
+                self.$enableLockMessage();
+
                 new Comments({
                     comments: result[0]
                 }).inject(result[1]);
@@ -484,6 +647,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.getCategory('comments').setActive();
 
             return this.$closeCategory().then(function (Container) {
+                self.$enableLockMessage();
+
                 new Comments({
                     comments: self.getAttribute('data').comments
                 }).inject(Container);

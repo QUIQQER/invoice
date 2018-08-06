@@ -1104,6 +1104,35 @@
             <de><![CDATA[Die Rechnungen können leider nicht gebucht werden, einige besitzen Fehler.]]></de>
             <en><![CDATA[Unfortunately, the invoices cannot be posted, some have errors.]]></en>
         </locale>
+
+        <locale name="window.unlock.invoice.title">
+            <de><![CDATA[Rechnung gesperrt]]></de>
+            <en><![CDATA[Invoice is locked]]></en>
+        </locale>
+        <locale name="window.unlock.invoice.text">
+            <de><![CDATA[Wird gerade bearbeitet]]></de>
+            <en><![CDATA[Currently being processed]]></en>
+        </locale>
+
+        <locale name="message.invoice.is.locked" html="true">
+            <de><![CDATA[
+            Die Rechnung wird gerade von [username] ([id]) bearbeitet.
+            Bestimmte Aktionen für die Rechnung stehen daher nicht zur Verfügung.
+            ]]></de>
+            <en><![CDATA[
+            The invoice is currently being processed by [username] ([id]).
+            Certain actions for the invoice are therefore not available.
+            ]]></en>
+        </locale>
+
+        <locale name="button.unlock.invoice.is.locked">
+            <de><![CDATA[
+            Rechnung freischalten und trotzdem bearbeiten
+            ]]></de>
+            <en><![CDATA[
+            Unlock the invoice and still edit it
+            ]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">

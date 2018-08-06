@@ -31,8 +31,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
         ],
 
         options: {
-            hash : false,
-            Panel: false
+            hash    : false,
+            Panel   : false,
+            disabled: false
         },
 
         initialize: function (options) {
@@ -98,7 +99,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments', [
                     return Button.getAttribute('name') === 'add';
                 })[0];
 
-                if (result.paid_status !== 1) {
+                if (result.paid_status !== 1 && !self.getAttribute('disabled')) {
                     AddButton.enable();
                 } else {
                     AddButton.disable();
