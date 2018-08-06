@@ -124,7 +124,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
                         // storno
                         case 4:
-                            Icon.addClass('fa fa-check-circle-o');
+                            Icon.addClass('fa fa-ban');
                             Icon.set('title', QUILocale.get(lg, 'invoice.type.reversal'));
                             break;
 
