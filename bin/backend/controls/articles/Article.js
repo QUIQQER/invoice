@@ -710,13 +710,19 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * event: on edit VAT
          */
         $onEditVat: function () {
-            this.$createEditField(
-                this.$VAT,
-                this.getAttribute('vat'),
-                'number'
-            ).then(function (value) {
-                this.setVat(value);
-            }.bind(this));
+            var self = this;
+
+            require([
+                'package/quiqqer/tax/bin/controls/taxList/AvailableTaxListWindow'
+            ], function (AvailableTaxListWindow) {
+                new AvailableTaxListWindow({
+                    events: {
+                        onSubmit: function (Win, value) {
+                            self.setVat(value);
+                        }
+                    }
+                }).open();
+            });
         },
 
         /**
