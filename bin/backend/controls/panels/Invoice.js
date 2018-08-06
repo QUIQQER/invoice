@@ -729,6 +729,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     }).inject(this.getContent());
                 }
 
+                Container.setStyle('overflow', null);
+
                 moofx(Container).animate({
                     opacity: 0,
                     top    : -50
