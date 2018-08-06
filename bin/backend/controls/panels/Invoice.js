@@ -307,24 +307,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 self.getButtons('actions').enable();
                 self.getButtons('lock').hide();
 
+                self.getButtons('lock').setAttribute(
+                    'title',
+                    QUILocale.get(lg, 'message.invoice.is.locked', isLocked)
+                );
+
                 return self.refresh();
             }).then(function () {
                 return self.openInfo();
             });
-        },
-
-        /**
-         * render the lock message if the invoice is locked
-         */
-        $enableLockMessage: function () {
-            if (!this.$locked) {
-                return;
-            }
-
-            this.getButtons('lock').setAttribute(
-                'title',
-                QUILocale.get(lg, 'message.invoice.is.locked', this.$locked)
-            );
         },
 
         /**
@@ -511,8 +502,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             html: Mustache.render(template, data)
                         });
 
-                        self.$enableLockMessage();
-
                         try {
                             var Form    = Container.getElement('form'),
                                 address = JSON.decode(data.invoice_address);
@@ -554,8 +543,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 return new Promise(function (resolve) {
                     Container.set('html', '');
 
-                    self.$enableLockMessage();
-
                     new Sandbox({
                         content: result[1],
                         styles : {
@@ -589,8 +576,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     require([
                         'package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments'
                     ], function (Payments) {
-                        self.$enableLockMessage();
-
                         new Payments({
                             Panel   : self,
                             hash    : self.getAttribute('data').hash,
@@ -625,8 +610,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     Container
                 ]);
             }).then(function (result) {
-                self.$enableLockMessage();
-
                 new Comments({
                     comments: result[0]
                 }).inject(result[1]);
@@ -647,8 +630,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.getCategory('comments').setActive();
 
             return this.$closeCategory().then(function (Container) {
-                self.$enableLockMessage();
-
                 new Comments({
                     comments: self.getAttribute('data').comments
                 }).inject(Container);

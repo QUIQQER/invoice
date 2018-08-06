@@ -17,6 +17,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'package/quiqqer/invoice/bin/Invoices',
     'package/quiqqer/invoice/bin/backend/controls/articles/Text',
     'package/quiqqer/payments/bin/backend/Payments',
+    'utils/Lock',
     'Locale',
     'Mustache',
     'Users',
@@ -30,7 +31,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
              AddressSelect, Invoices, TextArticle,
-             Payments, QUILocale, Mustache, Users, Editors,
+             Payments, Locker, QUILocale, Mustache, Users, Editors,
              templateData, templatePost, templateMissing) {
     "use strict";
 
@@ -56,7 +57,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             '$onDeleteInvoice',
             '$onArticleReplaceClick',
             '$clickDelete',
-            'toggleSort'
+            'toggleSort',
+            '$showLockMessage'
         ],
 
         options: {
@@ -85,6 +87,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.$AddSeparator  = null;
             this.$SortSeparator = null;
+            this.$locked        = false;
 
             this.$serializedList = {};
 
@@ -97,6 +100,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             Invoices.addEvents({
                 onDeleteInvoice: this.$onDeleteInvoice
             });
+        },
+
+        /**
+         * Return the lock key
+         *
+         * @return {string}
+         */
+        $getLockKey: function () {
+            return 'lock-invoice-temporary-' + this.getAttribute('invoiceId');
+        },
+
+        /**
+         * Return the lock group
+         * @return {string}
+         */
+        $getLockGroups: function () {
+            return 'quiqqer/invoice';
         },
 
         /**
@@ -125,6 +145,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @return {Promise}
          */
         save: function () {
+            if (this.$locked) {
+                return Promise.resolve();
+            }
+
             this.Loader.show();
             this.$unloadCategory(false);
 
@@ -609,11 +633,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     Missing.set('html', Mustache.render(templatePost));
 
                     new QUIButton({
-                        text  : QUILocale.get(lg, 'journal.btn.post'),
-                        class : 'btn-green',
-                        events: {
+                        text    : QUILocale.get(lg, 'journal.btn.post'),
+                        'class' : 'btn-green',
+                        events  : {
                             onClick: self.post
-                        }
+                        },
+                        disabled: self.$locked
                     }).inject(
                         Missing.getElement('.quiqqer-invoice-backend-temporaryInvoice-missing-button')
                     );
@@ -981,6 +1006,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.addButton(this.$ArticleSort);
 
             this.addButton({
+                name  : 'lock',
+                icon  : 'fa fa-warning',
+                styles: {
+                    background: '#fcf3cf',
+                    color     : '#7d6608',
+                    'float'   : 'right'
+                },
+                events: {
+                    onClick: this.$showLockMessage
+                }
+            });
+
+            this.getButtons('lock').hide();
+
+
+            this.addButton({
                 name  : 'delete',
                 icon  : 'fa fa-trash',
                 title : QUILocale.get(lg, 'erp.panel.temporary.invoice.deleteButton.title'),
@@ -1037,7 +1078,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             var self      = this,
                 invoiceId = this.getAttribute('invoiceId');
 
-            Invoices.getTemporaryInvoice(invoiceId).then(function (data) {
+            Locker.isLocked(
+                this.$getLockKey(),
+                this.$getLockGroups()
+            ).then(function (isLocked) {
+                if (isLocked) {
+                    self.$locked = isLocked;
+                    self.lockPanel();
+                    return;
+                }
+
+                return Locker.lock(
+                    self.$getLockKey(),
+                    self.$getLockGroups()
+                );
+            }).then(function () {
+                return Invoices.getTemporaryInvoice(invoiceId);
+            }).then(function (data) {
                 self.setAttributes(data);
 
                 if (data.articles.articles.length) {
@@ -1080,6 +1137,93 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             });
 
             document.removeEvent('keyup', this.$onKeyUp);
+
+            Locker.unlock(
+                this.$getLockKey(),
+                this.$getLockGroups()
+            );
+        },
+
+        /**
+         * lock the complete panel
+         */
+        lockPanel: function () {
+            this.getButtons('save').disable();
+            this.getButtons('delete').disable();
+            this.getButtons('lock').show();
+        },
+
+        /**
+         * unlock the lock
+         *
+         * @return {Promise<T>}
+         */
+        unlockPanel: function () {
+            var self = this;
+
+            this.Loader.show();
+
+            return Locker.unlock(
+                this.$getLockKey(),
+                this.$getLockGroups()
+            ).then(function () {
+                return Locker.isLocked(
+                    self.$getLockKey(),
+                    self.$getLockGroups()
+                );
+            }).then(function (isLocked) {
+                if (isLocked) {
+                    return;
+                }
+
+                self.$locked = isLocked;
+                self.getButtons('lock').hide();
+
+                return self.refresh();
+            }).then(function () {
+                return self.openData();
+            });
+        },
+
+        /**
+         * show the lock message window
+         */
+        $showLockMessage: function () {
+            var self    = this,
+                btnText = QUILocale.get('quiqqer/quiqqer', 'submit');
+
+            if (window.USER.isSU) {
+                btnText = QUILocale.get(lg, 'button.unlock.invoice.is.locked');
+            }
+
+            new QUIConfirm({
+                title      : QUILocale.get(lg, 'window.unlock.invoice.title'),
+                icon       : 'fa fa-warning',
+                texticon   : 'fa fa-warning',
+                text       : QUILocale.get(lg, 'window.unlock.invoice.text', this.$locked),
+                information: QUILocale.get(lg, 'message.invoice.is.locked', this.$locked),
+                autoclose  : false,
+                maxHeight  : 400,
+                maxWidth   : 600,
+                ok_button  : {
+                    text: btnText
+                },
+
+                events: {
+                    onSubmit: function (Win) {
+                        if (!window.USER.isSU) {
+                            Win.close();
+                            return;
+                        }
+
+                        Win.Loader.show();
+
+                        self.unlockPanel().then(function () {
+                            Win.close();
+                        });
+                    }
+                }
+            }).open();
         },
 
         /**
