@@ -615,7 +615,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
         $clickCreateInvoice: function () {
             return Invoices.createInvoice().then(function (invoiceId) {
                 return this.openInvoice(invoiceId);
-            }.bind(this));
+            }.bind(this)).catch(function (Exception) {
+                QUI.getMessageHandler().then(function (MH) {
+                    if (typeof Exception.getMessage !== 'undefined') {
+                        MH.addError(Exception.getMessage());
+                        return;
+                    }
+
+                    console.error(Exception);
+                });
+            });
         },
 
         /**
@@ -767,6 +776,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                             Win.close();
                         }).then(function () {
                             Win.Loader.show();
+                        }).catch(function (Exception) {
+                            QUI.getMessageHandler().then(function (MH) {
+                                if (typeof Exception.getMessage !== 'undefined') {
+                                    MH.addError(Exception.getMessage());
+                                    return;
+                                }
+
+                                console.error(Exception);
+                            });
+
+                            Win.Loader.hide();
                         });
                     }
                 }
@@ -808,6 +828,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                             return self.openInvoice(newId);
                         }).then(function () {
                             Win.Loader.show();
+                        }).catch(function (Exception) {
+                            QUI.getMessageHandler().then(function (MH) {
+                                if (typeof Exception.getMessage !== 'undefined') {
+                                    MH.addError(Exception.getMessage());
+                                    return;
+                                }
+
+                                console.error(Exception);
+                            });
+
+                            Win.Loader.hide();
                         });
                     }
                 }
@@ -829,7 +860,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             selected = selected[0];
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-
             require([
                 'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
             ], function (PrintDialog) {
@@ -839,10 +869,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 Button.setAttribute('textimage', 'fa fa-file-pdf-o');
             });
-
-            // this.downloadPdf(selected.id).then(function () {
-            //     Button.setAttribute('textimage', 'fa fa-file-pdf-o');
-            // });
         },
 
         /**
