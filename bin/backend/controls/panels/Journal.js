@@ -400,6 +400,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 openAccordionOnClick : false,
                 toggleiconTitle      : '',
                 accordionLiveRenderer: this.$onClickInvoiceDetails,
+                exportData           : true,
+                exportTypes          : {
+                    csv : 'CSV',
+                    json: 'JSON'
+                },
                 buttons              : [Actions, {
                     name     : 'open',
                     text     : QUILocale.get(lg, 'journal.btn.open'),
@@ -418,15 +423,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     }
                 }],
                 columnModel          : [{
-                    header   : '&nbsp;',
-                    dataIndex: 'opener',
-                    dataType : 'int',
-                    width    : 30
+                    header         : '&nbsp;',
+                    dataIndex      : 'opener',
+                    dataType       : 'int',
+                    width          : 30,
+                    showNotInExport: true
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.type'),
-                    dataIndex: 'display_type',
-                    dataType : 'node',
-                    width    : 30
+                    header         : QUILocale.get(lg, 'journal.grid.type'),
+                    dataIndex      : 'display_type',
+                    dataType       : 'node',
+                    width          : 30,
+                    showNotInExport: true
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
