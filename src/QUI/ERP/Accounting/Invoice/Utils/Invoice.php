@@ -9,6 +9,7 @@ namespace QUI\ERP\Accounting\Invoice\Utils;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
+use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 
 /**
  * Class Invoice
@@ -440,5 +441,30 @@ class Invoice
         return array_sum(
             self::getVatSumArrayFromVatArray($vatArray)
         );
+    }
+
+    /**
+     * Return all transactions of an invoice
+     * or returns all transactions related to an invoice
+     *
+     * @param QUI\ERP\Accounting\Invoice\Invoice|integer $Invoice - Invoice or Invoice ID
+     * @return array
+     */
+    public static function getTransactionsByInvoice($Invoice)
+    {
+        if (!($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice)) {
+            try {
+                $Invoice = QUI\ERP\Accounting\Invoice\Handler::getInstance()->get($Invoice);
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+
+                return [];
+            }
+        }
+
+        $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
+        $transactions = $Transactions->getTransactionsByHash($Invoice->getHash());
+
+        return $transactions;
     }
 }

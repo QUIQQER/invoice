@@ -1,0 +1,8 @@
+<div class="quiqqer-invoice-refund-list">
+    {{#transactions}}
+    <label class="quiqqer-invoice-refund-list-entry">
+        <input type="radio" name="tx-id" value="{{txid}}"/>
+        <span>{{amount}} {{currency.sign}}</span>
+    </label>
+    {{/transactions}}
+</div>

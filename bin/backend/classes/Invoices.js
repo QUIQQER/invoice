@@ -153,6 +153,23 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Checks if the invoice has a refund functionality
+         *
+         * @param {number} invoiceId
+         * @return {Promise}
+         */
+        hasRefund: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_hasRefund', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Return an invoice setting
          *
          * @param {String} section
