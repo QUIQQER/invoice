@@ -1,5 +1,9 @@
 .quiqqer-invoice-refund {
+    position: relative;
+}
 
+.quiqqer-invoice-refund-list {
+    position: relative;
 }
 
 .quiqqer-invoice-refund-list-entry {
@@ -24,7 +28,34 @@
     width: 50px;
 }
 
-.quiqqer-invoice-refund-list-entry span {
+.quiqqer-invoice-refund-list-entry-data {
     float: left;
     width: calc(100% - 50px);
+}
+
+.quiqqer-invoice-refund-list-entry-txid,
+.quiqqer-invoice-refund-list-entry-payment {
+    display: block;
+    width: 100%;
+}
+
+.quiqqer-invoice-refund-list-entry-amount {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: right;
+    width: 100%;
+}
+
+/** transactions
+ ========================================== */
+
+.quiqqer-invoice-refund-transaction {
+    position: relative;
+}
+
+.quiqqer-invoice-refund-transaction .comment label,
+.quiqqer-invoice-refund-transaction .comment textarea {
+    height: 120px;
+    width: 100% !important;
 }

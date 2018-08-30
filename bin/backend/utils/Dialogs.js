@@ -191,6 +191,8 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
          * @return {Promise}
          */
         openCreateCreditNoteDialog: function (invoiceId) {
+            var self = this;
+
             return Invoices.get(invoiceId).then(function (result) {
                 var id = result.id_prefix + result.id;
 
@@ -215,19 +217,82 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                         maxHeight  : 400,
                         maxWidth   : 600,
                         events     : {
+                            onOpen  : function (Win) {
+                                var Content = Win.getContent(),
+                                    Body    = Content.getElement('.textbody');
+
+                                new Element('label', {
+                                    html  : '<input type="checkbox" name="refund" />' + QUILocale.get(lg, 'dialog.invoice.createCreditNote.refund'),
+                                    styles: {
+                                        cursor   : 'pointer',
+                                        display  : 'block',
+                                        marginTop: 20
+                                    }
+                                }).inject(Body);
+                            },
                             onSubmit: function (Win) {
                                 Win.Loader.show();
 
-                                Invoices.createCreditNote(result.hash).then(function (newId) {
-                                    resolve(newId);
-                                    Win.close();
-                                }).catch(function (Err) {
-                                    Win.Loader.hide();
-                                    console.error(Err);
+                                var Content = Win.getContent(),
+                                    Refund  = Content.getElement('[name="refund"]');
 
-                                    reject(Err);
-                                });
+                                var createInvoice = function (values) {
+                                    values = values || {};
+
+                                    Invoices.createCreditNote(result.hash, values).then(function (newId) {
+                                        resolve(newId);
+                                        Win.close();
+                                    }).catch(function (Err) {
+                                        Win.Loader.hide();
+                                        console.error(Err);
+
+                                        reject(Err);
+                                    });
+                                };
+
+                                if (Refund.checked) {
+                                    self.openRefundWindow(invoiceId).then(function (RefundWindow) {
+                                        if (!RefundWindow) {
+                                            Win.Loader.hide();
+                                            return;
+                                        }
+
+                                        createInvoice({
+                                            refund: RefundWindow.getValues()
+                                        });
+                                    }).catch(function (Err) {
+                                        Win.Loader.hide();
+                                        console.error(Err);
+                                    });
+                                    return;
+                                }
+
+                                createInvoice();
                             },
+                            onCancel: function () {
+                                resolve(false);
+                            }
+                        }
+                    }).open();
+                });
+            });
+        },
+
+        /**
+         *
+         * @param invoiceId
+         * @return {Promise}
+         */
+        openRefundWindow: function (invoiceId) {
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/controls/panels/refund/Window'
+                ], function (RefundWindow) {
+                    new RefundWindow({
+                        invoiceId : invoiceId,
+                        autoRefund: false,
+                        events    : {
+                            onSubmit: resolve,
                             onCancel: function () {
                                 resolve(false);
                             }

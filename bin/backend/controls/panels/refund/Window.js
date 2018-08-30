@@ -24,9 +24,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Window', [
         ],
 
         options: {
-            maxHeight: 600,
-            maxWidth : 400,
-            invoiceId: false
+            maxHeight : 800,
+            maxWidth  : 600,
+            invoiceId : false,
+            autoRefund: true
         },
 
         initialize: function (options) {
@@ -42,6 +43,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Window', [
                     invoiceId: this.getAttribute('invoiceId')
                 })
             });
+
+            this.$Refund = null;
         },
 
         /**
@@ -53,14 +56,48 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Window', [
             this.Loader.show();
             this.getContent().set('html', '');
 
-            new Refund({
-                invoiceId: this.getAttribute('invoiceId'),
-                events   : {
+            this.$Refund = new Refund({
+                invoiceId : this.getAttribute('invoiceId'),
+                autoRefund: this.getAttribute('autoRefund'),
+                events    : {
                     onLoad: function () {
                         self.Loader.hide();
+                    },
+
+                    onOpenTransactionList: function () {
+                        self.getButton('submit').disable();
+                    },
+
+                    onOpenRefund: function () {
+                        self.getButton('submit').enable();
                     }
                 }
             }).inject(this.getContent());
+        },
+
+        /**
+         *
+         * @return {*|Array|{txid: *, invoiceId: *, refund: *, message: *}}
+         */
+        getValues: function () {
+            return this.$Refund.getValues();
+        },
+
+        /**
+         * Submit the window
+         */
+        submit: function () {
+            var self = this;
+
+            this.Loader.show();
+
+            this.$Refund.submit().then(function () {
+                self.fireEvent('submit', [self]);
+                self.Loader.show();
+                self.close();
+            }).catch(function () {
+                self.Loader.hide();
+            });
         }
     });
 });

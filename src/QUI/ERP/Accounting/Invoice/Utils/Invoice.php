@@ -454,7 +454,7 @@ class Invoice
     {
         if (!($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice)) {
             try {
-                $Invoice = QUI\ERP\Accounting\Invoice\Handler::getInstance()->get($Invoice);
+                $Invoice = self::getInvoiceByString($Invoice);
             } catch (QUI\Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
 

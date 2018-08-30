@@ -804,6 +804,10 @@
             <de><![CDATA[Gutschrift erstellen]]></de>
             <en><![CDATA[Create credit]]></en>
         </locale>
+        <locale name="dialog.invoice.createCreditNote.refund" html="true">
+            <de><![CDATA[Zusätzlich eine Rückzahlung durchführen.]]></de>
+            <en><![CDATA[Make an additional refund.]]></en>
+        </locale>
 
         <locale name="dialog.invoice.reversal.title">
             <de><![CDATA[Rechnung stornieren]]></de>

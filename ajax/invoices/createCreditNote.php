@@ -13,9 +13,29 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_createCreditNote',
-    function ($invoiceId) {
-        return InvoiceUtils::getInvoiceByString($invoiceId)->createCreditNote()->getId();
+    function ($invoiceId, $invoiceData) {
+        if (!isset($invoiceData)) {
+            $invoiceData = '';
+        }
+
+        $invoiceData = json_decode($invoiceData, true);
+
+        if (!is_array($invoiceData)) {
+            $invoiceData = [];
+        }
+
+        $CreditNote = InvoiceUtils::getInvoiceByString($invoiceId)->createCreditNote();
+
+        if (!empty($invoiceData)) {
+            foreach ($invoiceData as $key => $value) {
+                $CreditNote->setData($key, $value);
+            }
+
+            $CreditNote->save();
+        }
+
+        return $CreditNote->getId();
     },
-    ['invoiceId'],
+    ['invoiceId', 'invoiceData'],
     'Permission::checkAdminUser'
 );

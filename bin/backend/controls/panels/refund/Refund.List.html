@@ -2,7 +2,17 @@
     {{#transactions}}
     <label class="quiqqer-invoice-refund-list-entry">
         <input type="radio" name="tx-id" value="{{txid}}"/>
-        <span>{{amount}} {{currency.sign}}</span>
+        <span class="quiqqer-invoice-refund-list-entry-data">
+            <span class="quiqqer-invoice-refund-list-entry-txid">
+                Transaktions-ID: {{txid}}
+            </span>
+            <span class="quiqqer-invoice-refund-list-entry-payment">
+                Zahlungsweise:
+            </span>
+            <span class="quiqqer-invoice-refund-list-entry-amount">
+                {{amount}} {{currency.sign}}
+            </span>
+        </span>
     </label>
     {{/transactions}}
 </div>
