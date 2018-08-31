@@ -7,7 +7,9 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
     'qui/QUI',
     'Locale',
     'package/quiqqer/invoice/bin/Invoices',
-    'qui/controls/windows/Confirm'
+    'qui/controls/windows/Confirm',
+
+    'css!package/quiqqer/invoice/bin/backend/utils/Dialogs.css'
 
 ], function (QUI, QUILocale, Invoices, QUIConfirm) {
     "use strict";
@@ -217,19 +219,31 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                         maxHeight  : 400,
                         maxWidth   : 600,
                         events     : {
-                            onOpen  : function (Win) {
-                                var Content = Win.getContent(),
-                                    Body    = Content.getElement('.textbody');
+                            onOpen: function (Win) {
+                                Win.Loader.show();
 
-                                new Element('label', {
-                                    html  : '<input type="checkbox" name="refund" />' + QUILocale.get(lg, 'dialog.invoice.createCreditNote.refund'),
-                                    styles: {
-                                        cursor   : 'pointer',
-                                        display  : 'block',
-                                        marginTop: 20
+                                Invoices.hasRefund(id).then(function (hasRefund) {
+                                    if (!hasRefund) {
+                                        Win.Loader.hide();
+                                        return;
                                     }
-                                }).inject(Body);
+                                    var Content = Win.getContent(),
+                                        Body    = Content.getElement('.textbody');
+
+                                    new Element('label', {
+                                        'class': 'quiqqer-invoice-dialog-refund-label',
+                                        html   : '<input type="checkbox" name="refund" />' + QUILocale.get(lg, 'dialog.invoice.createCreditNote.refund'),
+                                        styles : {
+                                            cursor   : 'pointer',
+                                            display  : 'block',
+                                            marginTop: 20
+                                        }
+                                    }).inject(Body);
+
+                                    Win.Loader.hide();
+                                });
                             },
+
                             onSubmit: function (Win) {
                                 Win.Loader.show();
 
@@ -269,6 +283,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
 
                                 createInvoice();
                             },
+
                             onCancel: function () {
                                 resolve(false);
                             }

@@ -43,8 +43,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             '$onCreate',
             '$onInject',
             '$onDestroy',
-            '$showLockMessage',
-            'openRefund'
+            '$showLockMessage'
         ],
 
         options: {
@@ -104,16 +103,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 self.setAttribute('data', data);
                 self.setAttribute('hasRefund', hasRefund);
 
-                // refund button
-                var Refund = self.getButtons('actions').getChildren().filter(function (Btn) {
-                    return Btn.getAttribute('name') === 'refund';
-                })[0];
-
-                if (hasRefund) {
-                    Refund.enable();
-                } else {
-                    Refund.disable();
-                }
+                // // refund button
+                // var Refund = self.getButtons('actions').getChildren().filter(function (Btn) {
+                //     return Btn.getAttribute('name') === 'refund';
+                // })[0];
+                //
+                // if (hasRefund) {
+                //     Refund.enable();
+                // } else {
+                //     Refund.disable();
+                // }
 
                 self.refresh();
             });
@@ -185,16 +184,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 events: {
                     onClick: this.creditNote
                 }
-            });
-
-            Actions.appendChild({
-                name    : 'refund',
-                icon    : 'fa fa-money',
-                text    : QUILocale.get(lg, 'erp.panel.invoice.button.refund'),
-                events  : {
-                    onClick: this.openRefund
-                },
-                disabled: true
             });
 
             this.addButton(Actions);
@@ -707,21 +696,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 return self.$openCategory();
             }).then(function () {
                 self.Loader.hide();
-            });
-        },
-
-        /**
-         * Opens the refund dialog
-         */
-        openRefund: function () {
-            var self = this;
-
-            require([
-                'package/quiqqer/invoice/bin/backend/controls/panels/refund/Window'
-            ], function (RefundWindow) {
-                new RefundWindow({
-                    invoiceId: self.getAttribute('invoiceId')
-                }).open();
             });
         },
 

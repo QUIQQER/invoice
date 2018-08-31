@@ -39,9 +39,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Window', [
 
             this.setAttributes({
                 icon : 'fa fa-money',
-                title: QUILocale.get(lg, 'quiqqer.invoice.refund.window.title', {
-                    invoiceId: this.getAttribute('invoiceId')
-                })
+                title: ''
             });
 
             this.$Refund = null;
@@ -61,6 +59,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Window', [
                 autoRefund: this.getAttribute('autoRefund'),
                 events    : {
                     onLoad: function () {
+                        self.setAttribute('title', QUILocale.get(lg, 'quiqqer.invoice.refund.window.title', {
+                            invoiceId: self.$Refund.getValues().invoiceId
+                        }));
+
+                        self.refresh();
                         self.Loader.hide();
                     },
 

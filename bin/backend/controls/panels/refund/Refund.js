@@ -66,7 +66,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Refund', [
         $onInject: function () {
             var self = this;
 
-            QUIAjax.get('package_quiqqer_invoice_ajax_invoices_getTransactions', function (transactions) {
+            QUIAjax.get([
+                'package_quiqqer_invoice_ajax_invoices_getTransactions',
+                'package_quiqqer_invoice_ajax_invoices_get'
+            ], function (transactions, invoice) {
+                self.setAttribute('invoiceId', invoice.id_prefix + invoice.id);
+
                 if (!transactions.length) {
                     self.$Elm.set(
                         'html',

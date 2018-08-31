@@ -845,6 +845,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
                 ], function (Dialogs) {
                     Dialogs.openCreateCreditNoteDialog(invoiceId).then(function (newId) {
+                        if (!newId) {
+                            return;
+                        }
+
                         return self.openTemporaryInvoice(newId);
                     }).then(resolve);
                 });
