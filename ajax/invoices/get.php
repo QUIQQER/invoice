@@ -42,6 +42,7 @@ QUI::$Ajax->registerFunction(
         }
 
         $attributes['articles'] = InvoiceUtils::formatArticlesArray($attributes['articles']);
+        $attributes['getType']  = $Invoice->getType();
 
         return $attributes;
     },
