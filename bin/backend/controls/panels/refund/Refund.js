@@ -149,19 +149,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Refund', [
 
             this.fireEvent('openTransactionList', [this]);
 
-            this.getElm().getElements('.quiqqer-invoice-refund-list-entry')
-                .addEvent('click', function (event) {
-                    var Target = event.target;
+            this.getElm().getElements('.quiqqer-invoice-refund-list-entry').addEvent('click', function (event) {
+                var Target = event.target;
 
-                    if (!Target.hasClass('quiqqer-invoice-refund-list-entry')) {
-                        Target = Target.getParent('.quiqqer-invoice-refund-list-entry');
-                    }
+                if (!Target.hasClass('quiqqer-invoice-refund-list-entry')) {
+                    Target = Target.getParent('.quiqqer-invoice-refund-list-entry');
+                }
 
-                    self.$txId = Target.getElement('input').get('value');
-                    self.openRefund();
+                self.$txId = Target.getElement('input').get('value');
+                self.openRefund();
 
-                    event.stop();
-                });
+                event.stop();
+            });
 
             return Promise.resolve();
         },
@@ -194,7 +193,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Refund', [
                             id         : self.getAttribute('invoiceId'),
                             txId       : Transaction.txid,
                             amount     : Transaction.amount,
-                            currency   : Transaction.currency.sign
+                            currency   : Transaction.currency.sign,
+
+                            textData     : QUILocale.get(lg, 'quiqqer.refund.data'),
+                            textInvoiceNo: QUILocale.get(lg, 'quiqqer.refund.invoiceNo'),
+                            textContact  : QUILocale.get(lg, 'quiqqer.refund.contactData'),
+                            textTxId     : QUILocale.get(lg, 'quiqqer.refund.txid'),
+                            textPayment  : QUILocale.get(lg, 'quiqqer.refund.original.payment'),
+                            textRefund   : QUILocale.get(lg, 'quiqqer.refund.refundAmount'),
+                            textMessage  : QUILocale.get(lg, 'quiqqer.refund.message'),
+                            information  : QUILocale.get(lg, 'quiqqer.refund.information')
                         }));
 
                         var Child = self.getElm().getFirst();

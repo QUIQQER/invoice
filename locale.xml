@@ -1156,6 +1156,39 @@
             Unlock the invoice and still edit it
             ]]></en>
         </locale>
+
+        <locale name="quiqqer.refund.data">
+            <de><![CDATA[Daten]]></de>
+            <en><![CDATA[Data]]></en>
+        </locale>
+        <locale name="quiqqer.refund.invoiceNo">
+            <de><![CDATA[Rechnungsnummer]]></de>
+            <en><![CDATA[Invoice number]]></en>
+        </locale>
+        <locale name="quiqqer.refund.contactData">
+            <de><![CDATA[Kontaktdaten]]></de>
+            <en><![CDATA[Contact data]]></en>
+        </locale>
+        <locale name="quiqqer.refund.txid">
+            <de><![CDATA[Transaktions-Code]]></de>
+            <en><![CDATA[Transaction code]]></en>
+        </locale>
+        <locale name="quiqqer.refund.original.payment">
+            <de><![CDATA[Ursprüngliche Zahlung]]></de>
+            <en><![CDATA[Original payment]]></en>
+        </locale>
+        <locale name="quiqqer.refund.refundAmount">
+            <de><![CDATA[Rückzahlungsbetrag]]></de>
+            <en><![CDATA[Refund amount]]></en>
+        </locale>
+        <locale name="quiqqer.refund.message">
+            <de><![CDATA[Mitteilung an den Käufer]]></de>
+            <en><![CDATA[Message to the buyer]]></en>
+        </locale>
+        <locale name="quiqqer.refund.information">
+            <de><![CDATA[Betrag kann über die Gutschrift angepasst werden.]]></de>
+            <en><![CDATA[The amount can be adjusted in the credit note.]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
