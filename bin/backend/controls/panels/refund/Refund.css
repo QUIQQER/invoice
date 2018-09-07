@@ -47,6 +47,11 @@
     width: 100%;
 }
 
+.quiqqer-invoice-refund-transaction-refund-currency {
+    text-align: center;
+    width: 50px;
+}
+
 /** transactions
  ========================================== */
 
