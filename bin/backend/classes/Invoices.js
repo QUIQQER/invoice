@@ -153,6 +153,23 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Checks if the invoice has a refund functionality
+         *
+         * @param {number} invoiceId
+         * @return {Promise}
+         */
+        hasRefund: function (invoiceId) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_hasRefund', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Return an invoice setting
          *
          * @param {String} section
@@ -245,20 +262,27 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         /**
          * Create a new temporary invoice
          *
+         * @param {number} invoiceId
+         * @param {Object} [data]
+         *
+         *
          * @returns {Promise}
          */
-        createCreditNote: function (invoiceId) {
+        createCreditNote: function (invoiceId, data) {
             var self = this;
+
+            data = data || {};
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_createCreditNote', function (newId) {
                     self.fireEvent('createCreditNote', [self, newId]);
                     resolve(newId);
                 }, {
-                    'package': 'quiqqer/invoice',
-                    onError  : reject,
-                    invoiceId: invoiceId,
-                    showError: false
+                    'package'  : 'quiqqer/invoice',
+                    onError    : reject,
+                    invoiceId  : invoiceId,
+                    invoiceData: JSON.encode(data),
+                    showError  : false
                 });
             });
         },

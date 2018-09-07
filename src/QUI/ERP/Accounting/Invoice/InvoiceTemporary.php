@@ -425,6 +425,16 @@ class InvoiceTemporary extends QUI\QDOM
         return $this->getAttribute('toPay') <= 0;
     }
 
+    /**
+     * can a refund be made?
+     *
+     * @return bool
+     */
+    public function hasRefund()
+    {
+        return false;
+    }
+
     //endregion
 
     /**

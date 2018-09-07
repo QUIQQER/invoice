@@ -304,6 +304,28 @@ class Invoice extends QUI\QDOM
     }
 
     /**
+     * can a refund be made?
+     *
+     * @return bool
+     */
+    public function hasRefund()
+    {
+        $transactions = InvoiceUtils::getTransactionsByInvoice($this);
+
+        /* @var $Transaction Transaction */
+        foreach ($transactions as $Transaction) {
+            /* @var $Payment QUI\ERP\Accounting\Payments\Api\AbstractPayment */
+            $Payment = $Transaction->getPayment();
+
+            if ($Payment->refundSupport()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return bool
      */
     public function isPaid()

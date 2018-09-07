@@ -27,6 +27,39 @@ define('package/quiqqer/invoice/bin/backend/utils/Panels', function () {
                     resolve(Panel);
                 });
             });
+        },
+
+        /**
+         * Open the invoice
+         *
+         * @param {Number} invoiceId - can be a temporary invoice or an invoice
+         * @return {Promise}
+         */
+        openInvoice: function (invoiceId) {
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/Invoices',
+                    'package/quiqqer/invoice/bin/backend/controls/panels/Invoice',
+                    'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
+                    'utils/Panels'
+                ], function (Invoices, InvoicePanel, TemporaryInvoicePanel, PanelUtils) {
+                    Invoices.get(invoiceId).then(function (invoiceData) {
+                        var Panel = TemporaryInvoicePanel;
+
+                        if (invoiceData.getType === 'QUI\\ERP\\Accounting\\Invoice\\Invoice') {
+                            Panel = InvoicePanel;
+                        }
+
+                        var P = new Panel({
+                            invoiceId: invoiceId,
+                            '#id'    : invoiceId
+                        });
+
+                        PanelUtils.openPanelInTasks(P);
+                        resolve(P);
+                    });
+                });
+            });
         }
     };
 });

@@ -804,6 +804,10 @@
             <de><![CDATA[Gutschrift erstellen]]></de>
             <en><![CDATA[Create credit]]></en>
         </locale>
+        <locale name="dialog.invoice.createCreditNote.refund" html="true">
+            <de><![CDATA[Zusätzlich eine Rückzahlung durchführen.]]></de>
+            <en><![CDATA[Make an additional refund.]]></en>
+        </locale>
 
         <locale name="dialog.invoice.reversal.title">
             <de><![CDATA[Rechnung stornieren]]></de>
@@ -948,6 +952,25 @@
         <locale name="erp.panel.invoice.button.createCreditNote">
             <de><![CDATA[Gutschrift erstellen]]></de>
             <en><![CDATA[Create credit memo]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.button.refund">
+            <de><![CDATA[Erstattung (Refund)]]></de>
+            <en><![CDATA[Refund]]></en>
+        </locale>
+
+        <locale name="quiqqer.invoice.refund.window.title">
+            <de><![CDATA[Rückzahlung für #[invoiceId]]]></de>
+            <en><![CDATA[Refund for #[invoiceId]]]></en>
+        </locale>
+        <locale name="quiqqer.invoice.refund.not.available.no.transactions" html="true">
+            <de><![CDATA[
+                Für diese Rechnung sind keine Transaktionen vorhanden.<br />
+                Daher kann keine Rückzahlung durchgeführt werden.
+            ]]></de>
+            <en><![CDATA[
+                There are no transactions for this invoice.<br />
+                Therefore, no refund can be made.
+            ]]></en>
         </locale>
 
         <locale name="erp.panel.invoice.title">

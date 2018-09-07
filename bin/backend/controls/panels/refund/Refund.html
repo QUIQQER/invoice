@@ -1,0 +1,87 @@
+<div class="quiqqer-invoice-refund-transaction" style="opacity: 0">
+    <table class="data-table data-table-flexbox">
+        <thead>
+        <tr>
+            <th>
+                Daten
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        Rechnungsnummer
+                    </span>
+                    <span class="field-container-field" name="id">{{id}}</span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        Kontaktdaten
+                    </span>
+                    <span class="field-container-field" name="contact-data">{{contact-data}}</span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        Transaktions-Code
+                    </span>
+                    <span class="field-container-field" name="tx-id">{{txId}}</span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        Ursprüngliche Zahlung
+                    </span>
+                    <span class="field-container-field" name="amount">{{amount}} {{currency}}</span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item">
+                        Rückzahlungsbetrag
+                    </span>
+                    <input type="text"
+                           class="field-container-field"
+                           name="refund"
+                           value="{{amount}}"
+                    />
+                    <span class="field-container-item quiqqer-invoice-refund-transaction-refund-currency">
+                        {{currency}}
+                    </span>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="data-table data-table-flexbox comment">
+        <thead>
+        <tr>
+            <th>Mitteilung an Käufer</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <label>
+                    <textarea name="customer-message"></textarea>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

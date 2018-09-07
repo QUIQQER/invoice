@@ -89,12 +89,31 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         doRefresh: function () {
             var self = this;
 
-            return Invoices.get(this.getAttribute('invoiceId')).then(function (data) {
+            return Promise.all([
+                Invoices.get(this.getAttribute('invoiceId')),
+                Invoices.hasRefund(this.getAttribute('invoiceId'))
+            ]).then(function (response) {
+                var data      = response[0],
+                    hasRefund = response[1];
+
                 self.setAttribute('title', QUILocale.get(lg, 'erp.panel.invoice.title', {
                     id: data.id
                 }));
 
                 self.setAttribute('data', data);
+                self.setAttribute('hasRefund', hasRefund);
+
+                // // refund button
+                // var Refund = self.getButtons('actions').getChildren().filter(function (Btn) {
+                //     return Btn.getAttribute('name') === 'refund';
+                // })[0];
+                //
+                // if (hasRefund) {
+                //     Refund.enable();
+                // } else {
+                //     Refund.disable();
+                // }
+
                 self.refresh();
             });
         },
