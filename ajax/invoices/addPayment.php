@@ -35,7 +35,8 @@ QUI::$Ajax->registerFunction(
             $Payment->getPaymentType()->getName(),
             [],
             QUI::getUserBySession(),
-            $date
+            $date,
+            $Invoice->getGlobalProcessId()
         );
     },
     ['invoiceId', 'amount', 'paymentMethod', 'date'],
