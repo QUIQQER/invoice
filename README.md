@@ -1,3 +1,5 @@
+![QUIQQER Invoice](bin/images/Readme.jpg)
+
 Rechnungsverwaltung
 ========
 
