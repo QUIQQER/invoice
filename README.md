@@ -1,9 +1,9 @@
 ![QUIQQER Invoice](bin/images/Readme.jpg)
 
-Rechnungsverwaltung
+QUIQQER Invoice (ERP module)
 ========
 
-Invoice System for QUIQQER
+The QUIQQER Invoice Module integrates complete invoice management in QUIQQER.
 
 *This package is part of the QUIQQER ERP Stack. 
 The QUIQQER ERP Stack is in heavy development and is not yet intended for daily use*
@@ -12,6 +12,16 @@ Package name:
 
     quiqqer/invoice
 
+
+Features
+------
+
+- Invoice creation
+- Temporary Invoice creation
+- Order Connection - Automatic invoicing via the order module
+- Fits perfectly with the order, payment system
+- Invoice Template API
+- Invoice priting API
 
 ERP Stack
 ----
@@ -53,61 +63,3 @@ Licence
 
 - PCSG QEL-1.0
 
-
-Developer
--------
-
-
-#### Invoice Events
-
-- onQuiqqerInvoiceCreateCreditNote [Invoice]
-- onQuiqqerInvoiceCancel [Invoice]
-- onQuiqqerInvoiceStorno [Invoice] (Same as cancel, alias)
-
-- onQuiqqerInvoicePaymentStatusChanged [Invoice, (int) $newStatus, (int) $oldStatus]
-
-- onQuiqqerInvoiceAddComment [Invoice, message]
-- onQuiqqerInvoiceAddHistory [Invoice, message]
-
-- onQuiqqerInvoiceCopyBegin [Invoice]
-- onQuiqqerInvoiceCopy [Invoice]
-- onQuiqqerInvoiceCopyEnd [Invoice, TemporaryInvoice]
-
-- onQuiqqerInvoiceAddPaymentBegin [
-    Invoice, 
-    $amount, 
-    QUI\ERP\Accounting\Payments\Api\PaymentsInterface, 
-    $date
-]
-
-- onQuiqqerInvoiceAddPayment [
-    Invoice, 
-    $amount, 
-    QUI\ERP\Accounting\Payments\Api\PaymentsInterface, 
-    $date
-]
-
-- onQuiqqerInvoiceAddPaymentEnd [
-    Invoice, 
-    $amount, 
-    QUI\ERP\Accounting\Payments\Api\PaymentsInterface, 
-    $date
-]
-
-#### Temporary Invoice Events
-
-- onQuiqqerInvoiceTemporaryInvoicePostBegin [TemporaryInvoice]
-- onQuiqqerInvoiceTemporaryInvoicePost [TemporaryInvoice]
-- onQuiqqerInvoiceTemporaryInvoicePostEnd [TemporaryInvoice, Invoice]
-
-- onQuiqqerInvoiceTemporaryInvoiceSaveBegin [TemporaryInvoice]
-- onQuiqqerInvoiceTemporaryInvoiceSave [TemporaryInvoice]
-- onQuiqqerInvoiceTemporaryInvoiceSaveEnd [TemporaryInvoice]
-
-- onQuiqqerInvoiceTemporaryInvoiceCopy [TemporaryInvoice]
-- onQuiqqerInvoiceTemporaryInvoiceCopyEnd [TemporaryInvoice, TemporaryInvoice $Copy]
-
-- onQuiqqerInvoiceTemporaryInvoiceDelete [TemporaryInvoice]
-
-- onQuiqqerInvoiceTemporaryInvoiceAddHistory [TemporaryInvoice, message]
-- onQuiqqerInvoiceTemporaryInvoiceAddComment [TemporaryInvoice, message]
