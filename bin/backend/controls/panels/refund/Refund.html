@@ -3,7 +3,7 @@
         <thead>
         <tr>
             <th>
-                Daten
+                {{textData}}
             </th>
         </tr>
         </thead>
@@ -12,7 +12,7 @@
             <td>
                 <label class="field-container">
                     <span class="field-container-item">
-                        Rechnungsnummer
+                        {{textInvoiceNo}}
                     </span>
                     <span class="field-container-field" name="id">{{id}}</span>
                 </label>
@@ -22,7 +22,7 @@
             <td>
                 <label class="field-container">
                     <span class="field-container-item">
-                        Kontaktdaten
+                        {{textContact}}
                     </span>
                     <span class="field-container-field" name="contact-data">{{contact-data}}</span>
                 </label>
@@ -32,7 +32,7 @@
             <td>
                 <label class="field-container">
                     <span class="field-container-item">
-                        Transaktions-Code
+                        {{textTxId}}
                     </span>
                     <span class="field-container-field" name="tx-id">{{txId}}</span>
                 </label>
@@ -42,7 +42,7 @@
             <td>
                 <label class="field-container">
                     <span class="field-container-item">
-                        Ursprüngliche Zahlung
+                        {{textPayment}}
                     </span>
                     <span class="field-container-field" name="amount">{{amount}} {{currency}}</span>
                 </label>
@@ -52,11 +52,12 @@
             <td>
                 <label class="field-container">
                     <span class="field-container-item">
-                        Rückzahlungsbetrag
+                        {{textRefund}}
                     </span>
                     <input type="text"
                            class="field-container-field"
                            name="refund"
+                           disabled="disabled"
                            value="{{amount}}"
                     />
                     <span class="field-container-item quiqqer-invoice-refund-transaction-refund-currency">
@@ -65,13 +66,20 @@
                 </label>
             </td>
         </tr>
+        <tr>
+            <td>
+                <div class="messages-message message-attention">
+                    {{information}}
+                </div>
+            </td>
+        </tr>
         </tbody>
     </table>
 
     <table class="data-table data-table-flexbox comment">
         <thead>
         <tr>
-            <th>Mitteilung an Käufer</th>
+            <th>{{textMessage}}</th>
         </tr>
         </thead>
         <tbody>

@@ -52,6 +52,10 @@
     width: 50px;
 }
 
+.quiqqer-invoice-refund-transaction .message-attention:hover {
+    opacity: 1;
+}
+
 /** transactions
  ========================================== */
 
