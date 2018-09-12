@@ -1327,6 +1327,10 @@
                 It is not allowed to cancel an invoice. Please check your settings.
             ]]></en>
         </locale>
+        <locale name="exception.credit.note.cant.create.credit.note">
+            <de><![CDATA[Eine Gutschrift kann keine weitere Gutschrift erstellen.]]></de>
+            <en><![CDATA[A credit note cannot create another credit note.]]></en>
+        </locale>
 
         <locale name="history.message.addPayment">
             <de><![CDATA[Zahlung hinzugefügt. Von [username] #[uid]. Zahlungsweise: [payment].]]></de>

@@ -635,6 +635,14 @@ class Invoice extends QUI\QDOM
      */
     public function createCreditNote($PermissionUser = null, $globalProcessId = false)
     {
+        // a credit node cant create a credit note
+        if ($this->getInvoiceType() === Handler::TYPE_INVOICE_CREDIT_NOTE) {
+            throw new Exception([
+                'quiqqer/invoice',
+                'exception.credit.note.cant.create.credit.note'
+            ]);
+        }
+
         Permission::checkPermission(
             'quiqqer.invoice.createCreditNote',
             $PermissionUser
