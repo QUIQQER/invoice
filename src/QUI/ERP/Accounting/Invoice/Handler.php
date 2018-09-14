@@ -464,6 +464,49 @@ class Handler extends QUI\Utils\Singleton
     }
 
     /**
+     * Return all invoices from a process id
+     *
+     * @param $processId
+     * @return array
+     */
+    public function getInvoicesByGlobalProcessId($processId)
+    {
+        $result = [];
+
+        $data = QUI::getDataBase()->fetch([
+            'select' => 'id',
+            'from'   => self::invoiceTable(),
+            'where'  => [
+                'global_process_id' => $processId
+            ]
+        ]);
+
+        foreach ($data as $entry) {
+            try {
+                $result[] = $this->get($entry['id']);
+            } catch (QUI\Exception $Exception) {
+            }
+        }
+
+        $data = QUI::getDataBase()->fetch([
+            'select' => 'id',
+            'from'   => self::temporaryInvoiceTable(),
+            'where'  => [
+                'global_process_id' => $processId
+            ]
+        ]);
+
+        foreach ($data as $entry) {
+            try {
+                $result[] = $this->getTemporaryInvoice($entry['id']);
+            } catch (QUI\Exception $Exception) {
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * @return array
      */
     protected function getOrderGroupFields()
