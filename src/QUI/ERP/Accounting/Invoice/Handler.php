@@ -467,7 +467,7 @@ class Handler extends QUI\Utils\Singleton
      * Return all invoices from a process id
      *
      * @param $processId
-     * @return array
+     * @return Invoice[]|InvoiceTemporary[]
      */
     public function getInvoicesByGlobalProcessId($processId)
     {
