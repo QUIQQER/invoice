@@ -340,7 +340,11 @@ class Invoice
         ];
 
         if ($Locale === null) {
-            $Locale = $Invoice->getCustomer()->getLocale();
+            try {
+                $Locale = $Invoice->getCustomer()->getLocale();
+            } catch (QUI\ERP\Exception $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+            }
         }
 
         if ($Locale === null) {
