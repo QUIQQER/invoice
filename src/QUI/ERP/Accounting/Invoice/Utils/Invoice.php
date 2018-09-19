@@ -116,7 +116,6 @@ class Invoice
         $Address  = null;
 
         $addressNeedles = [
-            'firstname',
             'lastname',
             'street_no',
             'zip',
@@ -181,6 +180,12 @@ class Invoice
                     $missing[] = 'invoice_address_'.$addressNeedle;
                 }
             }
+        }
+
+        // company check
+        // @todo better company check
+        if ($Customer->isCompany() && in_array('invoice_address_lastname', $missing)) {
+            unset($missing[array_search('invoice_address_lastname', $missing)]);
         }
 
         return $missing;
