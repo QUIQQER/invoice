@@ -209,7 +209,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                         self.$cutomerMail = data.email;
                     }
 
-                    if (data && self.$cutomerMail === null || self.$cutomerMail === '') {
+                    if (data && (self.$cutomerMail === null || self.$cutomerMail === '')) {
                         return new Promise(function (resolve) {
                             // get customer id
                             Users.get(data.id).load().then(function (User) {
@@ -223,6 +223,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
                     }
                 }
             }).then(function () {
+                self.$onOutputChange();
                 self.Loader.hide();
             }).catch(function (e) {
                 onError(e);
@@ -446,7 +447,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog', [
 
             Submit.setAttribute('text', QUILocale.get(lg, 'dialog.print.data.output.email.btn'));
             Submit.setAttribute('textimage', 'fa fa-envelope-o');
-
+            
             if (this.$cutomerMail && Recipient.value === '') {
                 Recipient.value = this.$cutomerMail;
             }
