@@ -87,7 +87,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Refund', [
 
                 for (var i = 0, len = self.$transactions.length; i < len; i++) {
                     self.$transactions[i].currency = JSON.decode(self.$transactions[i].currency);
-                    self.$transactions[i].data     = JSON.decode(self.$transactions[i].data);
                 }
 
                 if (transactions.length === 1) {
