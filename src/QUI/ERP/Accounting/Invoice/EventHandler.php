@@ -137,6 +137,24 @@ class EventHandler
     }
 
     /**
+     * @param Transaction $Transaction
+     */
+    public static function onTransactionStatusChange(Transaction $Transaction)
+    {
+        $hash = $Transaction->getHash();
+
+        try {
+            $Invoice = Handler::getInstance()->getInvoiceByHash($hash);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+
+            return;
+        }
+
+        $Invoice->calculatePayments();
+    }
+
+    /**
      * template event: on frontend users address top
      *
      * @param Collector $Collector

@@ -847,7 +847,7 @@ class Invoice extends QUI\QDOM
      *
      * @throws
      */
-    protected function calculatePayments()
+    public function calculatePayments()
     {
         $User = QUI::getUserBySession();
 
