@@ -7,9 +7,14 @@
 namespace QUI\ERP\Accounting\Invoice\Articles;
 
 use QUI;
+use QUI\ERP\Money\Price;
 
 /**
  * Article Text
+ *
+ * - An article containing only text
+ * - Can be used as an information item on an invoice
+ * - Does not have any values
  *
  * - Ein Artikel welcher nur Text beinhaltet
  * - Kann als Informationsposition auf einer Rechnung verwendet werden
@@ -21,20 +26,20 @@ class Text extends QUI\ERP\Accounting\Article
 {
     /**
      * @inheritdoc
-     * @return int
+     * @return QUI\ERP\Money\Price
      */
     public function getUnitPrice()
     {
-        return 0;
+        return new Price(0, QUI\ERP\Defaults::getCurrency());
     }
 
     /**
      * @inheritdoc
-     * @return int
+     * @return QUI\ERP\Money\Price
      */
     public function getSum()
     {
-        return 0;
+        return new Price(0, QUI\ERP\Defaults::getCurrency());
     }
 
     /**
@@ -43,7 +48,7 @@ class Text extends QUI\ERP\Accounting\Article
      */
     public function getQuantity()
     {
-        return false;
+        return 1;
     }
 
     /**
@@ -53,6 +58,7 @@ class Text extends QUI\ERP\Accounting\Article
     public function toArray()
     {
         return array_merge(parent::toArray(), [
+            'class'   => get_class($this),
             'control' => 'package/quiqqer/invoice/bin/backend/controls/articles/Text'
         ]);
     }

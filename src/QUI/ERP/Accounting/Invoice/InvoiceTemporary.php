@@ -235,15 +235,18 @@ class InvoiceTemporary extends QUI\QDOM
             'email'     => $User->getAttribute('email')
         ];
 
-        if ($User->getAttribute('quiqqer.erp.euVatId')) {
-            $userData['quiqqer.erp.euVatId'] = $User->getAttribute('quiqqer.erp.euVatId');
+        try {
+            $Customer = QUI\ERP\User::convertUserToErpUser($User);
+            $userData = $Customer->getAttributes();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
         }
+
 
         // address
         if (is_string($invoiceAddress)) {
             $invoiceAddress = json_decode($invoiceAddress, true);
         }
-
 
         if (!isset($userData['isCompany'])) {
             $userData['isCompany'] = false;
