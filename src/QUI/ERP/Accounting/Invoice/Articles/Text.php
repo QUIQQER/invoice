@@ -24,6 +24,8 @@ use QUI\ERP\Money\Price;
  */
 class Text extends QUI\ERP\Accounting\Article
 {
+    protected $displayPrice = false;
+
     /**
      * @inheritdoc
      * @return QUI\ERP\Money\Price
@@ -52,14 +54,23 @@ class Text extends QUI\ERP\Accounting\Article
     }
 
     /**
+     * @return bool
+     */
+    public function displayPrice()
+    {
+        return false;
+    }
+
+    /**
      * @inheritdoc
      * @return array
      */
     public function toArray()
     {
         return array_merge(parent::toArray(), [
-            'class'   => get_class($this),
-            'control' => 'package/quiqqer/invoice/bin/backend/controls/articles/Text'
+            'class'        => get_class($this),
+            'control'      => 'package/quiqqer/invoice/bin/backend/controls/articles/Text',
+            'displayPrice' => $this->displayPrice()
         ]);
     }
 }
