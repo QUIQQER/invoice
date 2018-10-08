@@ -243,7 +243,21 @@ class InvoiceView extends QUI\QDOM
             $this->Invoice
         );
 
-        $Customer  = $this->Invoice->getCustomer();
+        $Customer = $this->Invoice->getCustomer();
+
+        if (!$Customer) {
+            $Customer = new QUI\ERP\User([
+                'id'        => '',
+                'country'   => '',
+                'username'  => '',
+                'firstname' => '',
+                'lastname'  => '',
+                'lang'      => '',
+                'isCompany' => '',
+                'isNetto'   => ''
+            ]);
+        }
+
         $Editor    = $this->Invoice->getEditor();
         $addressId = $this->Invoice->getAttribute('invoice_address_id');
         $address   = [];
