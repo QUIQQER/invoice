@@ -69,7 +69,11 @@ class InvoiceView extends QUI\QDOM
      */
     public function getCurrency()
     {
-        return $this->Invoice->getCurrency();
+        try {
+            return $this->Invoice->getCurrency();
+        } catch (QUI\Exception $Exception) {
+            return QUI\ERP\Defaults::getCurrency();
+        }
     }
 
     /**
@@ -77,7 +81,11 @@ class InvoiceView extends QUI\QDOM
      */
     public function getCustomer()
     {
-        return $this->Invoice->getCustomer();
+        try {
+            return $this->Invoice->getCustomer();
+        } catch (QUI\Exception $Exception) {
+            return null;
+        }
     }
 
     /**
