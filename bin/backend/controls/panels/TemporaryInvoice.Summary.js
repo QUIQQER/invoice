@@ -113,15 +113,34 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
                 self.$BruttoSum.set('html', self.$Formatter.format(data.sum));
 
 
+                if (typeOf(data.vatArray) === 'array' && !data.vatArray.length) {
+                    self.$VAT.set('html', '---');
+                    return;
+                }
+
                 var key, Entry;
                 var vatText = '';
 
                 for (key in data.vatArray) {
-                    Entry = data.vatArray[key];
-
-                    if (!Entry.sum) {
+                    if (!data.vatArray.hasOwnProperty(key)) {
                         continue;
                     }
+
+                    Entry = data.vatArray[key];
+
+                    if (typeof Entry.sum === 'undefined') {
+                        Entry.sum = 0;
+                    }
+
+                    if (typeof Entry.text === 'undefined') {
+                        Entry.text = '';
+                    }
+
+                    if (Entry.text === '') {
+                        Entry.text = '';
+                    }
+
+                    Entry.sum = parseFloat(Entry.sum);
 
                     vatText = vatText + Entry.text + ' (' + self.$Formatter.format(Entry.sum) + ')<br />';
                 }
