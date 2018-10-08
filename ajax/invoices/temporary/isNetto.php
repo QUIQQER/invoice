@@ -12,8 +12,16 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_isNetto',
     function ($uid) {
-        $User   = QUI::getUsers()->get($uid);
-        $status = QUI\ERP\Utils\User::getBruttoNettoUserStatus($User);
+        if (empty($uid)) {
+            return QUI\ERP\Defaults::getBruttoNettoStatus() === QUI\ERP\Utils\User::IS_NETTO_USER;
+        }
+
+        try {
+            $User   = QUI::getUsers()->get($uid);
+            $status = QUI\ERP\Utils\User::getBruttoNettoUserStatus($User);
+        } catch (QUI\Exception $Exception) {
+            return QUI\ERP\Defaults::getBruttoNettoStatus() === QUI\ERP\Utils\User::IS_NETTO_USER;
+        }
 
         return $status === QUI\ERP\Utils\User::IS_NETTO_USER;
     },

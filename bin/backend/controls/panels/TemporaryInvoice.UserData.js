@@ -246,6 +246,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             var self = this;
 
             return new Promise(function (resolve) {
+                if (self.getAttribute('userId') === '') {
+                    return Promise.resolve([]);
+                }
+
                 QUIAjax.get('ajax_users_address_get', function (address) {
                     self.$Company.set('value', address.company);
                     self.$Street.set('value', address.street_no);
@@ -442,7 +446,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                             callback: function () {
                                 self.$Extras.set({
                                     html: '<span class="fa fa-chevron-up"></span> ' +
-                                    QUILocale.get(lg, 'invoice.temporary.extend.view.close')
+                                        QUILocale.get(lg, 'invoice.temporary.extend.view.close')
                                 });
 
                                 self.$extrasAreOpen = true;
@@ -473,7 +477,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                         self.$Extras.set({
                             html: '<span class="fa fa-chevron-right"></span> ' +
-                            QUILocale.get(lg, 'invoice.temporary.extend.view.open')
+                                QUILocale.get(lg, 'invoice.temporary.extend.view.open')
                         });
 
                         resolve();
