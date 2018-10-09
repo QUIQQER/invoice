@@ -253,7 +253,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.renderDataDone = false;
             this.Loader.show();
 
-            console.log('openData');
             return this.$closeCategory().then(function () {
                 var Container = self.getContent().getElement('.container');
 
