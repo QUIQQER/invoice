@@ -99,7 +99,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 this.$periodFilter = this.$TimeFilter.getValue();
             }
 
+            var status = '';
+            var from   = '',
+                to     = '';
+
             this.$currentSearch = this.$Search.value;
+
+            if (this.$currentSearch !== '') {
+                this.disableFilter();
+            } else {
+                this.enableFilter();
+
+                status = this.$Status.getValue();
+                from   = this.$TimeFilter.getValue().from;
+                to     = this.$TimeFilter.getValue().to;
+            }
 
             Invoices.search({
                 perPage: this.$Grid.options.perPage,
@@ -107,11 +121,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 sortBy : this.$Grid.options.sortBy,
                 sortOn : this.$Grid.options.sortOn
             }, {
-                from       : this.$TimeFilter.getValue().from,
-                to         : this.$TimeFilter.getValue().to,
-                paid_status: [
-                    this.$Status.getValue()
-                ],
+                from       : from,
+                to         : to,
+                paid_status: [status],
                 search     : this.$currentSearch
             }).then(function (result) {
                 var gridData = result.grid;
@@ -1065,6 +1077,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
         },
 
+        /**
+         * Disable the filter
+         */
+        disableFilter: function () {
+            this.$TimeFilter.disable();
+            this.$Status.disable();
+        },
+
+        /**
+         * Enable the filter
+         */
+        enableFilter: function () {
+            this.$TimeFilter.enable();
+            this.$Status.enable();
+        },
 
         /**
          * key up event at the search input
