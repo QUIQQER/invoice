@@ -97,6 +97,11 @@ class InvoiceSearch extends Singleton
                 }
             }
 
+            if (empty($val)
+                && ($filter === 'from' || $filter === 'to')) {
+                continue;
+            }
+
             if ($filter === 'from' && is_numeric($val)) {
                 $val = date('Y-m-d 00:00:00', $val);
             }

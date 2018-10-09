@@ -68,8 +68,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$Total      = null;
             this.$Search     = null;
 
-            this.$periodFilter = null;
-            this.$loaded       = false;
+            this.$currentSearch = '';
+            this.$searchDelay   = null;
+            this.$periodFilter  = null;
+            this.$loaded        = false;
 
             this.addEvents({
                 onCreate: this.$onCreate,
@@ -97,18 +99,32 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 this.$periodFilter = this.$TimeFilter.getValue();
             }
 
+            var status = '';
+            var from   = '',
+                to     = '';
+
+            this.$currentSearch = this.$Search.value;
+
+            if (this.$currentSearch !== '') {
+                this.disableFilter();
+            } else {
+                this.enableFilter();
+
+                status = this.$Status.getValue();
+                from   = this.$TimeFilter.getValue().from;
+                to     = this.$TimeFilter.getValue().to;
+            }
+
             Invoices.search({
                 perPage: this.$Grid.options.perPage,
                 page   : this.$Grid.options.page,
                 sortBy : this.$Grid.options.sortBy,
                 sortOn : this.$Grid.options.sortOn
             }, {
-                from       : this.$TimeFilter.getValue().from,
-                to         : this.$TimeFilter.getValue().to,
-                paid_status: [
-                    this.$Status.getValue()
-                ],
-                search     : this.$Search.value
+                from       : from,
+                to         : to,
+                paid_status: [status],
+                search     : this.$currentSearch
             }).then(function (result) {
                 var gridData = result.grid;
 
@@ -324,6 +340,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
 
             this.$Search = new Element('input', {
+                type       : 'search',
+                name       : 'search-value',
                 placeholder: 'Search...',
                 styles     : {
                     'float': 'right',
@@ -331,7 +349,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width  : 200
                 },
                 events     : {
-                    keyup: this.$onSearchKeyUp
+                    keyup : this.$onSearchKeyUp,
+                    search: this.$onSearchKeyUp,
+                    click : this.$onSearchKeyUp
                 }
             });
 
@@ -1057,6 +1077,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             });
         },
 
+        /**
+         * Disable the filter
+         */
+        disableFilter: function () {
+            this.$TimeFilter.disable();
+            this.$Status.disable();
+        },
+
+        /**
+         * Enable the filter
+         */
+        enableFilter: function () {
+            this.$TimeFilter.enable();
+            this.$Status.enable();
+        },
 
         /**
          * key up event at the search input
@@ -1071,8 +1106,30 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return;
             }
 
+            if (this.$searchDelay) {
+                clearTimeout(this.$searchDelay);
+            }
+
+            if (event.type === 'click') {
+                // workaround, cancel needs time to clear
+                (function () {
+                    if (this.$currentSearch !== this.$Search.value) {
+                        this.$searchDelay = (function () {
+                            this.refresh();
+                        }).delay(250, this);
+                    }
+                }).delay(100, this);
+            }
+
+            if (this.$currentSearch === this.$Search.value) {
+                return;
+            }
+
             if (event.key === 'enter') {
-                this.refresh();
+                this.$searchDelay = (function () {
+                    this.refresh();
+                }).delay(250, this);
+                return;
             }
         }
     });

@@ -177,6 +177,24 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
         },
 
         /**
+         * enable the controls
+         */
+        enable: function () {
+            this.$Prev.enable();
+            this.$Next.enable();
+            this.$Select.enable();
+        },
+
+        /**
+         * disable the controls
+         */
+        disable: function () {
+            this.$Prev.disable();
+            this.$Next.disable();
+            this.$Select.disable();
+        },
+
+        /**
          * Return the selected period / time
          *
          * @return {{from: number, to: number}}
@@ -495,11 +513,11 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
 
                     var Ghost = new Element('div', {
                         html: '<div class="dhx_cal_navline">' +
-                        '<div class="dhx_cal_date"></div>' +
-                        '<div class="dhx_cal_tab" name="day_tab" style="right:76px;"></div>' +
-                        '</div>' +
-                        '<div class="dhx_cal_header"></div>' +
-                        '<div class="dhx_cal_data"></div>'
+                            '<div class="dhx_cal_date"></div>' +
+                            '<div class="dhx_cal_tab" name="day_tab" style="right:76px;"></div>' +
+                            '</div>' +
+                            '<div class="dhx_cal_header"></div>' +
+                            '<div class="dhx_cal_data"></div>'
                     });
 
                     Handler.config.xml_date = "%Y-%m-%d";
