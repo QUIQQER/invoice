@@ -248,11 +248,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         openData: function () {
-            var self           = this,
-                renderDataDone = false;
+            var self = this;
 
+            this.renderDataDone = false;
             this.Loader.show();
 
+            console.log('openData');
             return this.$closeCategory().then(function () {
                 var Container = self.getContent().getElement('.container');
 
@@ -320,7 +321,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 var OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
 
                 Data.addEvent('onChange', function () {
-                    if (renderDataDone === false) {
+                    if (self.renderDataDone === false) {
                         return;
                     }
 
@@ -439,9 +440,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 return self.Loader.hide();
             }).then(function () {
-                renderDataDone = true;
-
                 return self.$openCategory();
+            }).then(function () {
+                self.renderDataDone = true;
             });
         },
 

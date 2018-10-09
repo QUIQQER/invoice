@@ -22,8 +22,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
              Mustache, template) {
     "use strict";
 
-    var lg  = 'quiqqer/invoice';
-    var pkg = 'quiqqer/invoice';
+    var lg = 'quiqqer/invoice';
 
     return new Class({
 
@@ -318,6 +317,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          * event on import
          */
         $onInject: function () {
+            var loaded         = false;
             var CustomerSelect = this.$Elm.getElements('[name="customer"]');
 
             QUI.parse(this.$Elm).then(function () {
@@ -329,7 +329,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 this.$CustomerSelect.addEvents({
                     change      : function (Control) {
-                        self.setUserId(Control.getValue());
+                        console.log(loaded);
+                        if (loaded) {
+                            self.setUserId(Control.getValue());
+                        }
                     },
                     onRemoveItem: function () {
                         if (self.$CustomerEdit) {
@@ -339,7 +342,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 });
 
                 if (this.getAttribute('userId')) {
+                    this.$CustomerEdit.addEvent('onAddItem', function () {
+                        loaded = true;
+                    });
+
                     this.$CustomerSelect.addItem(this.getAttribute('userId'));
+                } else {
+                    loaded = true;
                 }
 
                 if (this.getElm().getParent('.qui-panel')) {
