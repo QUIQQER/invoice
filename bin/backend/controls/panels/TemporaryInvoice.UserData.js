@@ -329,7 +329,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 this.$CustomerSelect.addEvents({
                     change      : function (Control) {
-                        console.log(loaded);
                         if (loaded) {
                             self.setUserId(Control.getValue());
                         }
