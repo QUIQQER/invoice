@@ -1305,10 +1305,10 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Parses the payment for the invoice payment method data field
      *
-     * @param QUI\ERP\Accounting\Payments\Types\Payment $Payment
+     * @param QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment
      * @return array
      */
-    protected function parsePaymentForPaymentData(QUI\ERP\Accounting\Payments\Types\Payment $Payment)
+    protected function parsePaymentForPaymentData(QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment)
     {
         $data      = $Payment->toArray();
         $languages = [];
