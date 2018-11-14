@@ -145,15 +145,22 @@ class Invoice
         $customerId = $Invoice->getAttribute('customer_id');
         $addressId  = $Invoice->getAttribute('invoice_address_id');
 
+        if ($Invoice->getCustomer() === null) {
+            $customerId = false;
+            $addressId  = false;
+        }
+
         //customer
         if (empty($customerId)) {
             $missing[] = 'customer_id';
         }
 
-        try {
-            $Customer = QUI::getUsers()->get($customerId);
-        } catch (QUI\Exception $Exception) {
-            $missing[] = 'customer_id';
+        if ($customerId) {
+            try {
+                $Customer = QUI::getUsers()->get($customerId);
+            } catch (QUI\Exception $Exception) {
+                $missing[] = 'customer_id';
+            }
         }
 
         try {
@@ -184,7 +191,7 @@ class Invoice
 
         // company check
         // @todo better company check
-        if ($Customer->isCompany() && in_array('invoice_address_lastname', $missing)) {
+        if ($Customer && $Customer->isCompany() && in_array('invoice_address_lastname', $missing)) {
             unset($missing[array_search('invoice_address_lastname', $missing)]);
         }
 
