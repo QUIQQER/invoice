@@ -152,6 +152,12 @@ class InvoiceTemporary extends QUI\QDOM
         $data['time_for_payment'] = (int)$data['time_for_payment'];
 
         $this->setAttributes($data);
+
+
+        if (!$this->getCustomer()) {
+            $this->setAttribute('invoice_address', false);
+            $this->setAttribute('customer_id', false);
+        }
     }
 
     //region Getter
@@ -274,6 +280,9 @@ class InvoiceTemporary extends QUI\QDOM
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
         }
+
+        $this->setAttribute('customer_id', false);
+        $this->setAttribute('invoice_address', false);
 
         return null;
     }
