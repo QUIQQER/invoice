@@ -305,6 +305,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     return self.openCreateAddressDialog(User).then(function () {
                         return User.getAddressList().then(resolve);
                     }).catch(reject);
+                }).catch(function() {
+                    resolve([]);
                 });
             });
         },

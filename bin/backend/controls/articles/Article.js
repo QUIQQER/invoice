@@ -153,6 +153,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             this.$VAT.addEvent('click', this.$onEditVat);
             this.$Discount.addEvent('click', this.$onEditDiscount);
 
+            this.$Elm.getElements('.cell-editable').set('tabindex', -1);
+
             this.$Loader = new Element('div', {
                 html  : '<span class="fa fa-spinner fa-spin"></span>',
                 styles: {
@@ -181,8 +183,25 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 'class': 'quiqqer-invoice-backend-invoiceArticle-text-description cell-editable'
             }).inject(this.$Text);
 
-            this.$Title.addEvent('click', this.$onEditTitle);
+            this.$Title.addEvent('click', this.$onEditDescription);
             this.$Description.addEvent('click', this.$onEditDescription);
+
+            this.$VAT.addEvent('keydown', function (event) {
+                if (event.key === 'tab') {
+                    this.$editNext(event);
+                    return;
+                }
+
+                if (event.key === 'enter') {
+                    QUIElements.simulateEvent(event.target, 'click');
+                }
+            }.bind(this));
+
+            this.$VAT.addEvent('blur', function (event) {
+                if (event.key === 'tab') {
+                    this.$editNext(event);
+                }
+            }.bind(this));
 
             this.setArticleNo(this.getAttribute('articleNo'));
             this.setVat(this.getAttribute('vat'));
@@ -571,6 +590,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
         /**
          * event : on title edit
+         *
+         * @deprecated
          */
         $onEditTitle: function () {
             this.$createEditField(
@@ -584,7 +605,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
         /**
          * event : on description edit
          */
-        $onEditDescription: function () {
+        $onEditDescription: function (event) {
             if (this.$Editor) {
                 return;
             }
@@ -600,9 +621,29 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                 maxHeight: 600,
                 maxWidth : 800,
                 events   : {
-                    onOpen  : function (Win) {
+                    onOpen: function (Win) {
                         Win.Loader.show();
-                        Win.getContent().set('html', '');
+
+                        var Content = Win.getContent();
+
+                        Content.addClass(
+                            'quiqqer-invoice-dialog-edit-article-description'
+                        );
+
+                        Content.set({
+                            html: '' +
+                                '<label><input type="text" name="title" /></label>' +
+                                '<div class="quiqqer-invoice-dialog-edit-article-description-editor"></div>'
+                        });
+
+                        var Title           = Content.getElement('[name="title"]');
+                        var EditorContainer = Content.getElement(
+                            '.quiqqer-invoice-dialog-edit-article-description-editor'
+                        );
+
+                        Title.set('value', self.getAttribute('title'));
+                        Title.set('placeholder', QUILocale.get('quiqqer/system', 'title'));
+                        Title.focus();
 
                         Editors.getEditor(null).then(function (Editor) {
                             self.$Editor = Editor;
@@ -653,14 +694,24 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                                 Win.Loader.hide();
                             });
 
-                            self.$Editor.inject(Win.getContent());
-                            self.$Editor.setHeight(200);
+                            self.$Editor.inject(EditorContainer);
+                            self.$Editor.setHeight(340);
+                        });
+
+                        Title.addEvent('keyup', function (event) {
+                            if (event.key === 'enter') {
+                                Win.submit();
+                            }
                         });
                     },
-                    onSubmit: function () {
+
+                    onSubmit: function (Win) {
                         self.setDescription(self.$Editor.getContent());
+                        self.setTitle(Win.getContent().getElement('[name="title"]').value);
+                        self.$editNext(event);
                     },
-                    onClose : function () {
+
+                    onClose: function () {
                         self.$Editor.destroy();
                         self.$Editor = null;
                     }
@@ -817,19 +868,54 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          * @param event
          */
         $editNext: function (event) {
-            var Target = event.target,
-                Cell   = Target.getParent('.cell');
+            var Cell = event.target;
+
+            if (!Cell.hasClass('cell')) {
+                Cell = Cell.getParent('.cell');
+            }
 
             if (!Cell) {
                 return;
             }
 
-            var Next;
+            var Next, Article, NextArticle, PreviousArticle;
 
             if (event.shift) {
                 Next = Cell.getPrevious('.cell-editable');
+
+                if (!Next) {
+                    // previous row
+                    Article         = Cell.getParent('.article');
+                    PreviousArticle = Article.getPrevious('.article');
+
+                    if (!PreviousArticle) {
+                        PreviousArticle = Cell.getParent('.quiqqer-invoice-backend-invoiceItems-items')
+                                              .getLast('.article');
+                    }
+
+                    Next = PreviousArticle.getLast('.cell-editable');
+                }
             } else {
                 Next = Cell.getNext('.cell-editable');
+
+                if (!Next) {
+                    // next row
+                    Article     = Cell.getParent('.article');
+                    NextArticle = Article.getNext('.article');
+
+                    if (!NextArticle) {
+                        NextArticle = Cell.getParent('.quiqqer-invoice-backend-invoiceItems-items')
+                                          .getElement('.article');
+                    }
+
+                    Next = NextArticle.getElement('.cell-editable');
+                }
+            }
+
+            if (Next.hasClass('quiqqer-invoice-backend-invoiceArticle-vat')) {
+                event.stop();
+                Next.focus();
+                return;
             }
 
             if (Next) {
