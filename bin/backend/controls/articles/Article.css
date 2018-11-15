@@ -11,6 +11,10 @@
     width: 100%;
 }
 
+.quiqqer-invoice-backend-invoiceArticle .cell-editable:focus {
+    box-shadow: 0 0 5px #2F8FC6;
+}
+
 .quiqqer-invoice-backend-invoiceArticle-select {
     border-left: 2px solid #2F8FC6;
 }
@@ -111,4 +115,9 @@
 .quiqqer-invoice-backend-invoiceArticle:hover .quiqqer-invoice-backend-invoiceArticle-buttons {
     opacity: 1;
     transition: opacity 0.2s;
+}
+
+.quiqqer-invoice-dialog-edit-article-description input {
+    margin-bottom: 10px;
+    width: 100%;
 }
