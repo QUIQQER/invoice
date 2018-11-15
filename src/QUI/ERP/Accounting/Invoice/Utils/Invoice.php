@@ -107,6 +107,8 @@ class Invoice
      *
      * @param InvoiceTemporary $Invoice
      * @return array
+     *
+     * @todo better address check
      */
     protected static function getMissingAddressFields(InvoiceTemporary $Invoice)
     {
@@ -118,7 +120,7 @@ class Invoice
         $addressNeedles = [
             'lastname',
             'street_no',
-            'zip',
+//            'zip',
             'city',
             'country'
         ];
