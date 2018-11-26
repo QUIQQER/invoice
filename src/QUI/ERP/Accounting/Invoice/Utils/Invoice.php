@@ -371,6 +371,8 @@ class Invoice
             $fileName = str_replace($placeholder, $value, $fileName);
         }
 
+        $fileName = QUI\Utils\Security\Orthos::clearFilename($fileName);
+
         return $fileName;
     }
 
