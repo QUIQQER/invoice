@@ -3,6 +3,7 @@
 </h1>
 
 <table class="quiqqer-invoice-profile-invoices-table">
+    {if count($invoices)}
     <thead>
     <tr>
         <th>
@@ -16,6 +17,7 @@
         </th>
     </tr>
     </thead>
+    {/if}
     <tbody>
     {foreach $invoices as $Invoice}
     <tr class="quiqqer-invoice-profile-invoices-table-invoice">
@@ -34,7 +36,9 @@
     {foreachelse}
     <tr>
         <td colspan="3">
-            {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.empty.message"}
+            <div class="invoice-message-empty-invoices">
+                {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.empty.message"}
+            </div>
         </td>
     </tr>
     {/foreach}
