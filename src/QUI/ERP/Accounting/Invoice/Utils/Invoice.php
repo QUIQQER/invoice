@@ -107,6 +107,8 @@ class Invoice
      *
      * @param InvoiceTemporary $Invoice
      * @return array
+     *
+     * @todo better address check
      */
     protected static function getMissingAddressFields(InvoiceTemporary $Invoice)
     {
@@ -118,7 +120,7 @@ class Invoice
         $addressNeedles = [
             'lastname',
             'street_no',
-            'zip',
+//            'zip',
             'city',
             'country'
         ];
@@ -368,6 +370,8 @@ class Invoice
         foreach ($placeholders as $placeholder => $value) {
             $fileName = str_replace($placeholder, $value, $fileName);
         }
+
+        $fileName = QUI\Utils\Security\Orthos::clearFilename($fileName);
 
         return $fileName;
     }
