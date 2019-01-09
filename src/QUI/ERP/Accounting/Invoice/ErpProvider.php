@@ -29,7 +29,7 @@ class ErpProvider extends AbstractErpProvider
             $Accounting = new Item([
                 'icon'     => 'fa fa-book',
                 'name'     => 'accounting',
-                'text'     => ['quiqqer/order', 'erp.panel.accounting.text'],
+                'text'     => ['quiqqer/invoice', 'erp.panel.accounting.text'],
                 'opened'   => true,
                 'priority' => 1
             ]);
