@@ -310,6 +310,10 @@ class InvoiceView extends QUI\QDOM
         if ($this->Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
             $timeForPayment = (int)$timeForPayment;
 
+            if ($timeForPayment < 0) {
+                $timeForPayment = 0;
+            }
+
             if ($timeForPayment) {
                 $timeForPayment = strtotime('+'.$timeForPayment.' day');
                 $timeForPayment = $Formatter->format($timeForPayment);

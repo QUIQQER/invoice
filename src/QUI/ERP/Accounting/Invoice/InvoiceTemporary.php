@@ -151,6 +151,10 @@ class InvoiceTemporary extends QUI\QDOM
         // database attributes
         $data['time_for_payment'] = (int)$data['time_for_payment'];
 
+        if ($data['time_for_payment'] < 0) {
+            $data['time_for_payment'] = 0;
+        }
+
         $this->setAttributes($data);
 
 
@@ -562,6 +566,10 @@ class InvoiceTemporary extends QUI\QDOM
             $timeForPayment = Settings::getInstance()->get('invoice', 'time_for_payment');
         }
 
+        if ($timeForPayment < 0) {
+            $timeForPayment = 0;
+        }
+
         if ($this->getAttribute('date')
             && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('date'))
         ) {
@@ -934,6 +942,10 @@ class InvoiceTemporary extends QUI\QDOM
 
         $paymentMethodData = $this->parsePaymentForPaymentData($Payment);
         $paymentTime       = (int)$this->getAttribute('time_for_payment');
+
+        if ($paymentTime < 0) {
+            $paymentTime = 0;
+        }
 
         $timeForPayment = strtotime(date('Y-m-d').' 00:00 + '.$paymentTime.' days');
         $timeForPayment = date('Y-m-d', $timeForPayment);
