@@ -191,19 +191,15 @@ class InvoiceSearch extends Singleton
         $count = (int)$count[0]['count'];
 
 
-        // total - calculation is without limit and paid_status
-        $oldFiler = $this->filter;
+        // quiqqer/invoice#38
+        // total - calculation is without limit
         $oldLimit = $this->limit;
 
-        $this->limit  = false;
-        $this->filter = array_filter($this->filter, function ($filter) {
-            return $filter['filter'] != 'paid_status';
-        });
+        $this->limit = false;
+        $calc        = $this->parseListForGrid($this->executeQueryParams($this->getQuery()));
 
-        $calc = $this->parseListForGrid($this->executeQueryParams($this->getQuery()));
-
-        $this->filter = $oldFiler;
-        $this->limit  = $oldLimit;
+        //$this->filter = $oldFiler;
+        $this->limit = $oldLimit;
 
 
         // result
