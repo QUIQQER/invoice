@@ -591,7 +591,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }).inject(ParentContainer);
 
                 if (Object.getLength(missing)) {
-                    Missing.set('html', Mustache.render(templateMissing));
+                    Missing.set('html', Mustache.render(templateMissing, {
+                        message: QUILocale.get(lg, 'message.invoice.missing')
+                    }));
 
                     var Info = new Element('info', {
                         'class': 'quiqqer-invoice-backend-temporaryInvoice-missing-miss-message',
@@ -630,7 +632,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     }
                 } else {
                     // post available
-                    Missing.set('html', Mustache.render(templatePost));
+                    Missing.set('html', Mustache.render(templatePost, {
+                        message: QUILocale.get(lg, 'message.invoice.ok')
+                    }));
 
                     new QUIButton({
                         text    : QUILocale.get(lg, 'journal.btn.post'),
