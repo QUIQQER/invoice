@@ -1189,6 +1189,27 @@
             <de><![CDATA[Betrag kann über die Gutschrift angepasst werden.]]></de>
             <en><![CDATA[The amount can be adjusted in the credit note.]]></en>
         </locale>
+
+        <locale name="message.invoice.missing" html="true">
+            <de><![CDATA[
+                Leider fehlen einige Rechnungsangaben um die Rechnung buchen zu können.<br/>
+                Bitte füllen Sie alle notwendigen Angaben aus.
+            ]]></de>
+            <en><![CDATA[
+                Unfortunately some invoice details are missing to be able to book the invoice.<br/>
+                Please fill in all necessary information.
+            ]]></en>
+        </locale>
+        <locale name="message.invoice.ok" html="true">
+            <de><![CDATA[
+                Alle nötigenden Eigenschaften für die Rechnung sind vorhanden.<br/>
+                Sie können die Rechnung nun buchen.
+            ]]></de>
+            <en><![CDATA[
+                All necessary properties for the invoice are available.<br/>
+                You can now post the invoice.
+            ]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
