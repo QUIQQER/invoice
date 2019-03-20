@@ -382,8 +382,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                 }, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
-                    onError  : reject,
-                    showError: false
+                    onError  : reject
                 });
             });
         },

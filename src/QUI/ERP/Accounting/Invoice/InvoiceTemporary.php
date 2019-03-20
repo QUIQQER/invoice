@@ -1359,6 +1359,36 @@ class InvoiceTemporary extends QUI\QDOM
 
     //endregion
 
+    //region Payment Data
+
+    /**
+     * Set a payment data value
+     *
+     * @param string $key
+     * @param mixed $value
+     */
+    public function setPaymentData($key, $value)
+    {
+        $this->paymentData[$key] = $value;
+    }
+
+    /**
+     * Return a payment data field
+     *
+     * @param string $key
+     * @return bool|mixed
+     */
+    public function getPaymentData($key)
+    {
+        if (isset($this->paymentData[$key])) {
+            return $this->paymentData[$key];
+        }
+
+        return false;
+    }
+
+    //endregion
+
     //region LOCK
 
     /**

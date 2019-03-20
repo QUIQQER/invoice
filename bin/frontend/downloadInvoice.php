@@ -9,6 +9,10 @@ $User     = QUI::getUserBySession();
 $Request  = QUI::getRequest();
 $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
+if (!QUI::getUsers()->isAuth($User) || QUI::getUsers()->isNobodyUser($User)) {
+    exit;
+}
+
 $hash    = $Request->query->get('hash');
 $Invoice = null;
 
