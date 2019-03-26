@@ -22,21 +22,21 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
  */
 class Invoice extends QUI\QDOM
 {
-    const PAYMENT_STATUS_OPEN     = 0;
-    const PAYMENT_STATUS_PAID     = 1;
-    const PAYMENT_STATUS_PART     = 2;
-    const PAYMENT_STATUS_ERROR    = 4;
+    const PAYMENT_STATUS_OPEN = 0;
+    const PAYMENT_STATUS_PAID = 1;
+    const PAYMENT_STATUS_PART = 2;
+    const PAYMENT_STATUS_ERROR = 4;
     const PAYMENT_STATUS_CANCELED = 5;
-    const PAYMENT_STATUS_DEBIT    = 11;
+    const PAYMENT_STATUS_DEBIT = 11;
 
     //    const PAYMENT_STATUS_CANCEL = 3;
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -621,6 +621,7 @@ class Invoice extends QUI\QDOM
                 'customer_data'           => $currentData['customer_data'],
                 'isbrutto'                => $currentData['isbrutto'],
                 'currency_data'           => $currentData['currency_data'],
+                'currency'                => $currentData['currency'],
                 'nettosum'                => $currentData['nettosum'],
                 'nettosubsum'             => $currentData['nettosubsum'],
                 'subsum'                  => $currentData['subsum'],
