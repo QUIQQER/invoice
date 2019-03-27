@@ -273,6 +273,10 @@
             <de><![CDATA[<span class="payment-status-11">Lastschrift</span>]]></de>
             <en><![CDATA[<span class="payment-status-11">Debit</span>]]></en>
         </locale>
+        <locale name="payment.status.12" html="true">
+            <de><![CDATA[<span class="payment-status-12">Abonnement</span>]]></de>
+            <en><![CDATA[<span class="payment-status-12">Subscription plan</span>]]></en>
+        </locale>
         <locale name="dunning.level.0" html="true">
             <de><![CDATA[---]]></de>
             <en><![CDATA[---]]></en>

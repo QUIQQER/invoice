@@ -715,6 +715,7 @@ class InvoiceTemporary extends QUI\QDOM
                 // Calc data
                 'isbrutto'                => $isBrutto,
                 'currency_data'           => json_encode($listCalculations['currencyData']),
+                'currency'                => $listCalculations['currencyData']['code'],
                 'nettosum'                => $listCalculations['nettoSum'],
                 'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
                 'sum'                     => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
@@ -1023,6 +1024,7 @@ class InvoiceTemporary extends QUI\QDOM
                 // calculation data
                 'isbrutto'                => $isBrutto,
                 'currency_data'           => json_encode($listCalculations['currencyData']),
+                'currency'                => $listCalculations['currencyData']['code'],
                 'nettosum'                => $listCalculations['nettoSum'],
                 'nettosubsum'             => $listCalculations['nettoSubSum'],
                 'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),

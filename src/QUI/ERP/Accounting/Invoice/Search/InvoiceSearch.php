@@ -682,6 +682,7 @@ class InvoiceSearch extends Singleton
             'isbrutto',
 
             'currency_data',
+            'currency',
 
             'nettosum',
             'nettosubsum',

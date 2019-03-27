@@ -48,6 +48,7 @@
             <field type="FLOAT NOT NULL">isbrutto</field>
 
             <field type="TEXT NOT NULL">currency_data</field>
+            <field type="VARCHAR(10) NULL">currency</field>
 
             <field type="FLOAT NOT NULL">nettosum</field>
             <field type="FLOAT NOT NULL">nettosubsum</field>
@@ -112,7 +113,9 @@
             <field type="TEXT NULL">comments</field>
             <field type="TEXT NULL">customer_data</field>
             <field type="FLOAT NULL">isbrutto</field>
+
             <field type="TEXT NULL">currency_data</field>
+            <field type="VARCHAR(10) NULL">currency</field>
 
             <field type="FLOAT NULL">nettosum</field>
             <field type="FLOAT NULL">nettosubsum</field>
