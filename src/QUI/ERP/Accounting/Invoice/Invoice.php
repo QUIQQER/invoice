@@ -189,6 +189,12 @@ class Invoice extends QUI\QDOM
             $articles = \json_decode($articles, true);
         }
 
+        try {
+            $articles['calculations']['currencyData'] = $this->getCurrency()->toArray();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
         return new ArticleListUnique($articles);
     }
 

@@ -633,7 +633,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'vatId' => $this->getCustomer()->getAttribute('quiqqer.erp.euVatId')
             ]);
 
-            if (strpos($invoiceText, $extraText) === false) {
+            if (\strpos($invoiceText, $extraText) === false) {
                 $invoiceText .= $extraText;
             }
         }
@@ -714,8 +714,8 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // Calc data
                 'isbrutto'                => $isBrutto,
-                'currency_data'           => \json_encode($listCalculations['currencyData']),
-                'currency'                => $listCalculations['currencyData']['code'],
+                'currency_data'           => \json_encode($this->getCurrency()->toArray()),
+                'currency'                => $this->getCurrency()->getCode(),
                 'nettosum'                => $listCalculations['nettoSum'],
                 'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
                 'sum'                     => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
@@ -967,6 +967,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // article calc
         $this->Articles->setUser($Customer);
+        $this->Articles->setCurrency($this->getCurrency());
         $this->Articles->calc();
 
         $listCalculations = $this->Articles->getCalculations();
@@ -1023,8 +1024,8 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // calculation data
                 'isbrutto'                => $isBrutto,
-                'currency_data'           => \json_encode($listCalculations['currencyData']),
-                'currency'                => $listCalculations['currencyData']['code'],
+                'currency_data'           => \json_encode($this->getCurrency()->toArray()),
+                'currency'                => $this->getCurrency()->getCode(),
                 'nettosum'                => $listCalculations['nettoSum'],
                 'nettosubsum'             => $listCalculations['nettoSubSum'],
                 'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
