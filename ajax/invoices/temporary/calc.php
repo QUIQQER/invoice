@@ -15,8 +15,8 @@ use QUI\ERP\Accounting\ArticleList;
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_calc',
     function ($articles, $user) {
-        $articles = json_decode($articles, true);
-        $user     = json_decode($user, true);
+        $articles = \json_decode($articles, true);
+        $user     = \json_decode($user, true);
         $List     = new ArticleList();
 
         try {

@@ -18,9 +18,9 @@ QUI::$Ajax->registerFunction(
             $invoiceData = '';
         }
 
-        $invoiceData = json_decode($invoiceData, true);
+        $invoiceData = \json_decode($invoiceData, true);
 
-        if (!is_array($invoiceData)) {
+        if (!\is_array($invoiceData)) {
             $invoiceData = [];
         }
 

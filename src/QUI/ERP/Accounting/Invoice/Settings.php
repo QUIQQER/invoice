@@ -107,7 +107,7 @@ class Settings extends Singleton
     public function getInvoicePrefix()
     {
         if ($this->invoicePrefix !== null) {
-            return strftime($this->invoicePrefix);
+            return \strftime($this->invoicePrefix);
         }
 
         $Package = QUI::getPackage('quiqqer/invoice');
@@ -120,7 +120,7 @@ class Settings extends Singleton
             $this->invoicePrefix = $setting;
         }
 
-        return strftime($this->invoicePrefix);
+        return \strftime($this->invoicePrefix);
     }
 
     /**
@@ -134,7 +134,7 @@ class Settings extends Singleton
     public function getTemporaryInvoicePrefix()
     {
         if ($this->temporaryInvoicePrefix !== null) {
-            return strftime($this->temporaryInvoicePrefix);
+            return \strftime($this->temporaryInvoicePrefix);
         }
 
         $Package = QUI::getPackage('quiqqer/invoice');
@@ -147,7 +147,7 @@ class Settings extends Singleton
             $this->temporaryInvoicePrefix = $setting;
         }
 
-        return strftime($this->temporaryInvoicePrefix);
+        return \strftime($this->temporaryInvoicePrefix);
     }
 
     /**
@@ -215,7 +215,7 @@ class Settings extends Singleton
             return '';
         }
 
-        $first = reset($available);
+        $first = \reset($available);
 
         return $first['name'];
     }

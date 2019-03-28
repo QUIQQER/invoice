@@ -67,8 +67,8 @@ class Text extends QUI\ERP\Accounting\Article
      */
     public function toArray()
     {
-        return array_merge(parent::toArray(), [
-            'class'        => get_class($this),
+        return \array_merge(parent::toArray(), [
+            'class'        => \get_class($this),
             'control'      => 'package/quiqqer/invoice/bin/backend/controls/articles/Text',
             'displayPrice' => $this->displayPrice()
         ]);

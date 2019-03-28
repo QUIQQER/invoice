@@ -78,7 +78,7 @@ class Invoice
         $missing = [];
 
         // address / customer fields
-        $missing = array_merge(
+        $missing = \array_merge(
             $missing,
             self::getMissingAddressFields($Invoice)
         );
@@ -96,7 +96,7 @@ class Invoice
             $missing[] = 'payment';
         }
 
-        $missing = array_unique($missing);
+        $missing = \array_unique($missing);
 
         return $missing;
     }
@@ -126,7 +126,7 @@ class Invoice
         ];
 
         if (!empty($address)) {
-            $address = json_decode($address, true);
+            $address = \json_decode($address, true);
 
             foreach ($addressNeedles as $addressNeedle) {
                 if (!isset($address[$addressNeedle])) {
@@ -193,8 +193,8 @@ class Invoice
 
         // company check
         // @todo better company check
-        if ($Customer && $Customer->isCompany() && in_array('invoice_address_lastname', $missing)) {
-            unset($missing[array_search('invoice_address_lastname', $missing)]);
+        if ($Customer && $Customer->isCompany() && \in_array('invoice_address_lastname', $missing)) {
+            unset($missing[\array_search('invoice_address_lastname', $missing)]);
         }
 
         return $missing;
@@ -253,10 +253,10 @@ class Invoice
      */
     public static function formatArticlesArray($articles)
     {
-        $isString = is_string($articles);
+        $isString = \is_string($articles);
 
         if ($isString) {
-            $articles = json_decode($articles, true);
+            $articles = \json_decode($articles, true);
         }
 
         try {
@@ -287,7 +287,7 @@ class Invoice
         }
 
         if ($isString) {
-            return json_encode($articles);
+            return \json_encode($articles);
         }
 
         return $articles;
@@ -337,11 +337,11 @@ class Invoice
         );
 
         $date = $Invoice->getAttribute('date');
-        $date = strtotime($date);
+        $date = \strtotime($date);
 
-        $year  = date('Y', $date);
-        $month = date('m', $date);
-        $day   = date('d', $date);
+        $year  = \date('Y', $date);
+        $month = \date('m', $date);
+        $day   = \date('d', $date);
 
         $placeholders = [
             '%HASH%'  => $Invoice->getHash(),
@@ -368,7 +368,7 @@ class Invoice
         $fileName = $Locale->get('quiqqer/invoice', 'pdf.download.name');
 
         foreach ($placeholders as $placeholder => $value) {
-            $fileName = str_replace($placeholder, $value, $fileName);
+            $fileName = \str_replace($placeholder, $value, $fileName);
         }
 
         $fileName = QUI\Utils\Security\Orthos::clearFilename($fileName);
@@ -402,10 +402,10 @@ class Invoice
             $timeForPayment = (int)$timeForPayment;
 
             if ($timeForPayment) {
-                $timeForPayment = strtotime('+'.$timeForPayment.' day');
+                $timeForPayment = \strtotime('+'.$timeForPayment.' day');
             }
         } else {
-            $timeForPayment = strtotime($timeForPayment);
+            $timeForPayment = \strtotime($timeForPayment);
         }
 
         return $timeForPayment;
@@ -418,15 +418,15 @@ class Invoice
      */
     public static function getVatTextArrayFromVatArray($vatArray, QUI\ERP\Currency\Currency $Currency)
     {
-        if (is_string($vatArray)) {
-            $vatArray = json_decode($vatArray, true);
+        if (\is_string($vatArray)) {
+            $vatArray = \json_decode($vatArray, true);
         }
 
-        if (!is_array($vatArray)) {
+        if (!\is_array($vatArray)) {
             $vatArray = [];
         }
 
-        return array_map(function ($data) use ($Currency) {
+        return \array_map(function ($data) use ($Currency) {
             return $data['text'].': '.$Currency->format($data['sum']);
         }, $vatArray);
     }
@@ -437,15 +437,15 @@ class Invoice
      */
     public static function getVatSumArrayFromVatArray($vatArray)
     {
-        if (is_string($vatArray)) {
-            $vatArray = json_decode($vatArray, true);
+        if (\is_string($vatArray)) {
+            $vatArray = \json_decode($vatArray, true);
         }
 
-        if (!is_array($vatArray)) {
+        if (!\is_array($vatArray)) {
             $vatArray = [];
         }
 
-        return array_map(function ($data) {
+        return \array_map(function ($data) {
             return $data['sum'];
         }, $vatArray);
     }
@@ -458,7 +458,7 @@ class Invoice
      */
     public static function getVatSumFromVatArray($vatArray)
     {
-        return array_sum(
+        return \array_sum(
             self::getVatSumArrayFromVatArray($vatArray)
         );
     }

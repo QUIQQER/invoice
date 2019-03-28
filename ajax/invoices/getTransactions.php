@@ -17,7 +17,7 @@ QUI::$Ajax->registerFunction(
     function ($invoiceId) {
         $transactions = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTransactionsByInvoice($invoiceId);
 
-        return array_map(function ($Transaction) {
+        return \array_map(function ($Transaction) {
             /* @var $Transaction \QUI\ERP\Accounting\Payments\Transactions\Transaction */
             return $Transaction->getAttributes();
         }, $transactions);

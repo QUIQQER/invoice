@@ -266,7 +266,7 @@ class Handler extends QUI\Utils\Singleton
     {
         $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
 
-        if (strpos($id, $prefix) !== false) {
+        if (\strpos($id, $prefix) !== false) {
             return $this->getTemporaryInvoice($id);
         }
 
@@ -330,7 +330,7 @@ class Handler extends QUI\Utils\Singleton
     {
         $prefix = Settings::getInstance()->getInvoicePrefix();
 
-        if (!is_numeric(str_replace($prefix, '', $id))) {
+        if (!\is_numeric(\str_replace($prefix, '', $id))) {
             throw new Exception(
                 ['quiqqer/invoice', 'exception.invoice.not.found'],
                 404
@@ -340,7 +340,7 @@ class Handler extends QUI\Utils\Singleton
         $result = QUI::getDataBase()->fetch([
             'from'  => self::invoiceTable(),
             'where' => [
-                'id' => (int)str_replace($prefix, '', $id)
+                'id' => (int)\str_replace($prefix, '', $id)
             ],
             'limit' => 1
         ]);
@@ -427,7 +427,7 @@ class Handler extends QUI\Utils\Singleton
         $result = QUI::getDataBase()->fetch([
             'from'  => self::temporaryInvoiceTable(),
             'where' => [
-                'id' => (int)str_replace($prefix, '', $id)
+                'id' => (int)\str_replace($prefix, '', $id)
             ],
             'limit' => 1
         ]);
@@ -547,12 +547,12 @@ class Handler extends QUI\Utils\Singleton
      */
     protected function canBeUseAsOrderField($str)
     {
-        if (!is_string($str)) {
+        if (!\is_string($str)) {
             return false;
         }
 
-        $fields = array_flip($this->getOrderGroupFields());
-        $str    = explode(' ', $str);
+        $fields = \array_flip($this->getOrderGroupFields());
+        $str    = \explode(' ', $str);
 
         if (!isset($fields[$str[0]])) {
             return false;
@@ -562,8 +562,8 @@ class Handler extends QUI\Utils\Singleton
             return true;
         }
 
-        if (mb_strtoupper($fields[$str[1]]) === 'DESC' ||
-            mb_strtoupper($fields[$str[1]]) === 'ASC') {
+        if (\mb_strtoupper($fields[$str[1]]) === 'DESC' ||
+            \mb_strtoupper($fields[$str[1]]) === 'ASC') {
             return true;
         }
 

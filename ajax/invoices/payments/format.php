@@ -12,7 +12,7 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_payments_format',
     function ($payments) {
-        $payments = json_decode($payments, true);
+        $payments = \json_decode($payments, true);
         $result   = [];
 
         $Locale   = QUI::getLocale();

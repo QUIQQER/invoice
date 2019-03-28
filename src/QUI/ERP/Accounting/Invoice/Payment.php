@@ -78,7 +78,7 @@ class Payment
             return $this->attributes['title'][$current];
         }
 
-        return reset($this->attributes['title']);
+        return \reset($this->attributes['title']);
     }
 
     /**
@@ -103,7 +103,7 @@ class Payment
             return $this->attributes['description'][$current];
         }
 
-        return reset($this->attributes['description']);
+        return \reset($this->attributes['description']);
     }
 
     /**

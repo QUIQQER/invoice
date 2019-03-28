@@ -50,7 +50,7 @@ class Invoice implements NumberRangeInterface
      */
     public function setRange($range)
     {
-        if (!is_numeric($range)) {
+        if (!\is_numeric($range)) {
             return;
         }
 

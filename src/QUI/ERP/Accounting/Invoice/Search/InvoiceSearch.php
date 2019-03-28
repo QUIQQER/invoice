@@ -66,13 +66,13 @@ class InvoiceSearch extends Singleton
             return;
         }
 
-        $keys = array_flip($this->getAllowedFields());
+        $keys = \array_flip($this->getAllowedFields());
 
         if (!isset($keys[$filter]) && $filter !== 'from' && $filter !== 'to') {
             return;
         }
 
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             $value = [$value];
         }
 
@@ -102,12 +102,12 @@ class InvoiceSearch extends Singleton
                 continue;
             }
 
-            if ($filter === 'from' && is_numeric($val)) {
-                $val = date('Y-m-d 00:00:00', $val);
+            if ($filter === 'from' && \is_numeric($val)) {
+                $val = \date('Y-m-d 00:00:00', $val);
             }
 
-            if ($filter === 'to' && is_numeric($val)) {
-                $val = date('Y-m-d 23:59:59', $val);
+            if ($filter === 'to' && \is_numeric($val)) {
+                $val = \date('Y-m-d 23:59:59', $val);
             }
 
             $this->filter[] = [
@@ -153,8 +153,8 @@ class InvoiceSearch extends Singleton
             $allowed[] = $field.' desc';
         }
 
-        $order   = trim($order);
-        $allowed = array_flip($allowed);
+        $order   = \trim($order);
+        $allowed = \array_flip($allowed);
 
         if (isset($allowed[$order])) {
             $this->order = $order;
@@ -374,9 +374,9 @@ class InvoiceSearch extends Singleton
             ];
         }
 
-        $whereQuery = 'WHERE '.implode(' AND ', $where);
+        $whereQuery = 'WHERE '.\implode(' AND ', $where);
 
-        if (!count($where)) {
+        if (!\count($where)) {
             $whereQuery = '';
         }
 
@@ -513,7 +513,7 @@ class InvoiceSearch extends Singleton
             $fillFields($invoiceData);
 
             try {
-                $currency = json_decode($Invoice->getAttribute('currency_data'), true);
+                $currency = \json_decode($Invoice->getAttribute('currency_data'), true);
                 $Currency = Currencies::getCurrency($currency['code']);
             } catch (QUI\Exception $Exception) {
                 $Currency = QUI\ERP\Defaults::getCurrency();
@@ -538,14 +538,14 @@ class InvoiceSearch extends Singleton
             }
 
 
-            $timeForPayment = strtotime($Invoice->getAttribute('time_for_payment'));
+            $timeForPayment = \strtotime($Invoice->getAttribute('time_for_payment'));
 
             $invoiceData['globalProcessId']  = $Invoice->getGlobalProcessId();
-            $invoiceData['date']             = $DateFormatter->format(strtotime($Invoice->getAttribute('date')));
+            $invoiceData['date']             = $DateFormatter->format(\strtotime($Invoice->getAttribute('date')));
             $invoiceData['time_for_payment'] = $DateFormatter->format($timeForPayment);
 
             if ($Invoice->getAttribute('paid_date')) {
-                $invoiceData['paid_date'] = date('Y-m-d', $Invoice->getAttribute('paid_date'));
+                $invoiceData['paid_date'] = \date('Y-m-d', $Invoice->getAttribute('paid_date'));
             } else {
                 $invoiceData['paid_date'] = Handler::EMPTY_VALUE;
             }
@@ -574,7 +574,7 @@ class InvoiceSearch extends Singleton
             }
 
             $invoiceData['id'] = $invoiceData['id_prefix'].$invoiceData['id'];
-            $invoiceAddress    = json_decode($invoiceData['invoice_address'], true);
+            $invoiceAddress    = \json_decode($invoiceData['invoice_address'], true);
 
             $invoiceData['customer_name'] = $invoiceAddress['salutation'].' '.
                                             $invoiceAddress['firstname'].' '.
@@ -609,7 +609,7 @@ class InvoiceSearch extends Singleton
             $invoiceData['calculated_vatsum'] = $vatSum;
 
             // customer data
-            $customerData = json_decode($invoiceData['customer_data'], true);
+            $customerData = \json_decode($invoiceData['customer_data'], true);
 
             if (empty($customerData['erp.taxId'])) {
                 $customerData['erp.taxId'] = Handler::EMPTY_VALUE;
@@ -618,7 +618,7 @@ class InvoiceSearch extends Singleton
             $invoiceData['taxId'] = $customerData['erp.taxId'];
 
             // overdue check
-            if (time() > $timeForPayment &&
+            if (\time() > $timeForPayment &&
                 $Invoice->getAttribute('paid_status') != Invoice::PAYMENT_STATUS_PAID &&
                 $Invoice->getAttribute('paid_status') != Invoice::PAYMENT_STATUS_CANCELED
             ) {

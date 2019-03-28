@@ -183,9 +183,9 @@ class EventHandler
 
         $result = '';
         $result .= '<style>';
-        $result .= file_get_contents(dirname(__FILE__).'/FrontendUsers/userProfileAddressSelect.css');
+        $result .= \file_get_contents(\dirname(__FILE__).'/FrontendUsers/userProfileAddressSelect.css');
         $result .= '</style>';
-        $result .= $Engine->fetch(dirname(__FILE__).'/FrontendUsers/userProfileAddressSelect.html');
+        $result .= $Engine->fetch(\dirname(__FILE__).'/FrontendUsers/userProfileAddressSelect.html');
 
         $Collector->append($result);
     }

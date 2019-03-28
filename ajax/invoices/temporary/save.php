@@ -15,7 +15,7 @@ QUI::$Ajax->registerFunction(
     function ($invoiceId, $data) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $Invoice  = $Invoices->getTemporaryInvoice($invoiceId);
-        $data     = json_decode($data, true);
+        $data     = \json_decode($data, true);
 
         if (empty($data['customer_id'])) {
             $data['invoice_address_id'] = '';

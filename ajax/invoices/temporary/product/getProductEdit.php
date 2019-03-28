@@ -14,7 +14,7 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_product_getProductEdit',
     function ($productId, $user) {
         $Product = Products::getProduct($productId);
-        $user    = json_encode($user, true);
+        $user    = \json_encode($user, true);
 
         $Control = new ProductEdit([
             'Product' => $Product

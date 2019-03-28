@@ -12,8 +12,8 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_product_calc',
     function ($params, $user) {
-        $params = json_decode($params, true);
-        $user   = json_decode($user, true);
+        $params = \json_decode($params, true);
+        $user   = \json_decode($user, true);
 
         if (!empty($user)) {
             try {

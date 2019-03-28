@@ -26,20 +26,20 @@ QUI::$Ajax->registerFunction(
         QUI\ERP\Accounting\Calc::calculatePayments($Invoice);
 
         $History = $Invoice->getHistory();
-        $history = array_map(function ($history) {
+        $history = \array_map(function ($history) {
             $history['type'] = 'history';
 
             return $history;
         }, $History->toArray());
 
         $Comments = $Invoice->getComments();
-        $comments = array_map(function ($comment) {
+        $comments = \array_map(function ($comment) {
             $comment['type'] = 'comment';
 
             return $comment;
         }, $Comments->toArray());
 
-        $history = array_merge($history, $comments);
+        $history = \array_merge($history, $comments);
 
         // transactions
         $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
@@ -49,13 +49,13 @@ QUI::$Ajax->registerFunction(
             /* @var $Tx \QUI\ERP\Accounting\Payments\Transactions\Transaction */
             $history[] = [
                 'message' => $Tx->parseToText(),
-                'time'    => strtotime($Tx->getDate()),
+                'time'    => \strtotime($Tx->getDate()),
                 'type'    => 'transaction',
             ];
         }
 
         // sort
-        usort($history, function ($a, $b) {
+        \usort($history, function ($a, $b) {
             if ($a['time'] == $b['time']) {
                 return 0;
             }

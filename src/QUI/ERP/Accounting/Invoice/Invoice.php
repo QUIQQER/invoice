@@ -90,7 +90,7 @@ class Invoice extends QUI\QDOM
             $this->prefix = Settings::getInstance()->getInvoicePrefix();
         }
 
-        $this->id   = (int)str_replace($this->prefix, '', $id);
+        $this->id   = (int)\str_replace($this->prefix, '', $id);
         $this->type = Handler::TYPE_INVOICE;
 
         switch ((int)$this->getAttribute('type')) {
@@ -103,7 +103,7 @@ class Invoice extends QUI\QDOM
         }
 
         if ($this->getAttribute('data')) {
-            $this->data = json_decode($this->getAttribute('data'), true);
+            $this->data = \json_decode($this->getAttribute('data'), true);
         }
 
         if ($this->getAttribute('global_process_id')) {
@@ -113,9 +113,9 @@ class Invoice extends QUI\QDOM
         // invoice payment data
         if ($this->getAttribute('payment_data')) {
             $paymentData = QUI\Security\Encryption::decrypt($this->getAttribute('payment_data'));
-            $paymentData = json_decode($paymentData, true);
+            $paymentData = \json_decode($paymentData, true);
 
-            if (is_array($paymentData)) {
+            if (\is_array($paymentData)) {
                 $this->paymentData = $paymentData;
             }
         }
@@ -159,7 +159,7 @@ class Invoice extends QUI\QDOM
      */
     public function getCleanId()
     {
-        return (int)str_replace($this->prefix, '', $this->getId());
+        return (int)\str_replace($this->prefix, '', $this->getId());
     }
 
     /**
@@ -185,8 +185,8 @@ class Invoice extends QUI\QDOM
     {
         $articles = $this->getAttribute('articles');
 
-        if (is_string($articles)) {
-            $articles = json_decode($articles, true);
+        if (\is_string($articles)) {
+            $articles = \json_decode($articles, true);
         }
 
         return new ArticleListUnique($articles);
@@ -207,8 +207,8 @@ class Invoice extends QUI\QDOM
             return QUI\ERP\Defaults::getCurrency();
         }
 
-        if (is_string($currency)) {
-            $currency = json_decode($currency, true);
+        if (\is_string($currency)) {
+            $currency = \json_decode($currency, true);
         }
 
         if (!$currency || !isset($currency['code'])) {
@@ -228,13 +228,13 @@ class Invoice extends QUI\QDOM
         $invoiceAddress = $this->getAttribute('invoice_address');
         $customerData   = $this->getAttribute('customer_data');
 
-        if (is_string($customerData)) {
-            $customerData = json_decode($customerData, true);
+        if (\is_string($customerData)) {
+            $customerData = \json_decode($customerData, true);
         }
 
         // address
-        if (is_string($invoiceAddress)) {
-            $invoiceAddress = json_decode($invoiceAddress, true);
+        if (\is_string($invoiceAddress)) {
+            $invoiceAddress = \json_decode($invoiceAddress, true);
         }
 
         $userData = $customerData;
@@ -311,7 +311,7 @@ class Invoice extends QUI\QDOM
      */
     public function getPaymentDataEntry($key)
     {
-        if (array_key_exists($key, $this->paymentData)) {
+        if (\array_key_exists($key, $this->paymentData)) {
             return $this->paymentData[$key];
         }
 
@@ -365,8 +365,8 @@ class Invoice extends QUI\QDOM
             return new Payment([]);
         }
 
-        if (is_string($data)) {
-            $data = json_decode($data, true);
+        if (\is_string($data)) {
+            $data = \json_decode($data, true);
         }
 
         return new Payment($data);
@@ -492,7 +492,7 @@ class Invoice extends QUI\QDOM
             Handler::getInstance()->invoiceTable(),
             [
                 'type'        => $this->type,
-                'data'        => json_encode($this->data),
+                'data'        => \json_encode($this->data),
                 'paid_status' => self::PAYMENT_STATUS_CANCELED
             ],
             ['id' => $this->getCleanId()]
@@ -706,9 +706,9 @@ class Invoice extends QUI\QDOM
         $currentDate = $this->getAttribute('date');
 
         if (!$currentDate) {
-            $currentDate = time();
+            $currentDate = \time();
         } else {
-            $currentDate = strtotime($currentDate);
+            $currentDate = \strtotime($currentDate);
         }
 
         $message = QUI::getLocale()->get(
@@ -730,7 +730,7 @@ class Invoice extends QUI\QDOM
 
         // saving copy
         $Copy->setData('originalId', $this->getCleanId());
-        $Copy->setAttribute('date', date('Y-m-d H:i:s'));
+        $Copy->setAttribute('date', \date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setInvoiceType(Handler::TYPE_INVOICE_CREDIT_NOTE);
         $Copy->save(QUI::getUsers()->getSystemUser());
@@ -788,8 +788,8 @@ class Invoice extends QUI\QDOM
             return;
         }
 
-        if (!is_array($paidData)) {
-            $paidData = json_decode($paidData, true);
+        if (!\is_array($paidData)) {
+            $paidData = \json_decode($paidData, true);
         }
 
         if ($date === false) {
@@ -823,10 +823,10 @@ class Invoice extends QUI\QDOM
         };
 
         if ($isValidTimeStamp($date) === false) {
-            $date = strtotime($date);
+            $date = \strtotime($date);
 
             if ($isValidTimeStamp($date) === false) {
-                $date = time();
+                $date = \time();
             }
         }
 
@@ -937,17 +937,17 @@ class Invoice extends QUI\QDOM
         $Mailer->addRecipient($recipient);
 
         // invoice pdf file
-        $dir     = dirname($pdfFile);
+        $dir     = \dirname($pdfFile);
         $newFile = $dir.'/'.InvoiceUtils::getInvoiceFilename($this).'.pdf';
 
-        if ($newFile !== $pdfFile && file_exists($newFile)) {
-            unlink($newFile);
+        if ($newFile !== $pdfFile && \file_exists($newFile)) {
+            \unlink($newFile);
         }
 
-        rename($pdfFile, $newFile);
+        \rename($pdfFile, $newFile);
 
         $user = $this->getCustomer()->getName();
-        $user = trim($user);
+        $user = \trim($user);
 
         if (empty($user)) {
             $user = $this->getCustomer()->getAddress()->getName();
@@ -979,8 +979,8 @@ class Invoice extends QUI\QDOM
             ])
         );
 
-        if (file_exists($pdfFile)) {
-            unlink($pdfFile);
+        if (\file_exists($pdfFile)) {
+            \unlink($pdfFile);
         }
     }
 

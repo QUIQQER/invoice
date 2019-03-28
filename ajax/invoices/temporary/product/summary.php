@@ -13,7 +13,7 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_product_summary',
     function ($article) {
-        $article = json_decode($article, true);
+        $article = \json_decode($article, true);
 
         $Brutto = new QUI\ERP\User([
             'id'        => 'BRUTTO',
