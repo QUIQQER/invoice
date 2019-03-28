@@ -15,7 +15,7 @@ QUI::$Ajax->registerFunction(
         $Product = Products::getProduct($productId);
         $fields  = $Product->createUniqueProduct()->getCustomFields();
 
-        return count($fields);
+        return \count($fields);
     },
     ['productId'],
     'Permission::checkAdminUser'

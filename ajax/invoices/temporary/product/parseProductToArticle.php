@@ -13,8 +13,8 @@ use QUI\ERP\Products\Handler\Products;
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_product_parseProductToArticle',
     function ($productId, $attributes, $user) {
-        $user       = json_decode($user, true);
-        $attributes = json_decode($attributes, true);
+        $user       = \json_decode($user, true);
+        $attributes = \json_decode($attributes, true);
         $User       = null;
         $Locale     = QUI::getLocale();
 
@@ -27,11 +27,11 @@ QUI::$Ajax->registerFunction(
             $Product = Products::getProduct((int)$productId);
 
             foreach ($attributes as $field => $value) {
-                if (strpos($field, 'field-') === false) {
+                if (\strpos($field, 'field-') === false) {
                     continue;
                 }
 
-                $field = str_replace('field-', '', $field);
+                $field = \str_replace('field-', '', $field);
                 $Field = $Product->getField((int)$field);
 
                 $Field->setValue($value);
@@ -48,7 +48,7 @@ QUI::$Ajax->registerFunction(
                     $Description->setValue($InvoiceText->getValue());
                 }
             } catch (QUI\Exception $Exception) {
-                \QUI\System\Log::addNotice($Exception->getMessage());
+                QUI\System\Log::addNotice($Exception->getMessage());
             }
 
 

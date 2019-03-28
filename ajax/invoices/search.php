@@ -21,17 +21,17 @@ QUI::$Ajax->registerFunction(
         $Grid   = new QUI\Utils\Grid();
 
         // filter
-        $filter = json_decode($filter);
+        $filter = \json_decode($filter);
 
         foreach ($filter as $entry => $value) {
             $Search->setFilter($entry, $value);
         }
 
         // query params
-        $query = $Grid->parseDBParams(json_decode($params, true));
+        $query = $Grid->parseDBParams(\json_decode($params, true));
 
         if (isset($query['limit'])) {
-            $limit = explode(',', $query['limit']);
+            $limit = \explode(',', $query['limit']);
 
             $Search->limit($limit[0], $limit[1]);
         }

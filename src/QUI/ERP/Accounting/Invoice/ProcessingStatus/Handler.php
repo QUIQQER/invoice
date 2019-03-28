@@ -34,11 +34,16 @@ class Handler extends QUI\Utils\Singleton
             return $this->list;
         }
 
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config  = $Package->getConfig();
-        $result  = $Config->getSection('processing_status');
+        try {
+            $Package = QUI::getPackage('quiqqer/invoice');
+            $Config  = $Package->getConfig();
+        } catch (QUI\Exception $Exception) {
+            return [];
+        }
 
-        if (!$result || !is_array($result)) {
+        $result = $Config->getSection('processing_status');
+
+        if (!$result || !\is_array($result)) {
             $this->list = [];
 
             return $this->list;
@@ -74,6 +79,8 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param $id
      * @return Status
+     *
+     * @throws Exception
      */
     public function getProcessingStatus($id)
     {
@@ -84,6 +91,9 @@ class Handler extends QUI\Utils\Singleton
      * Delete / Remove a processing status
      *
      * @param string|int $id
+     *
+     * @throws Exception
+     * @throws QUI\Exception
      *
      * @todo permissions
      */
@@ -113,6 +123,9 @@ class Handler extends QUI\Utils\Singleton
      * @param int|string $id
      * @param int|string $color
      * @param array $title
+     *
+     * @throws Exception
+     * @throws QUI\Exception
      *
      * @todo permissions
      */

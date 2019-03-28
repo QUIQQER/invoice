@@ -31,6 +31,11 @@
     font-weight: bold;
 }
 
+.payment-status-12 {
+    color: #004e5a;
+    font-weight: bold;
+}
+
 .payment-status-amountCell {
     text-align: right !important;
     padding-right: 5px;

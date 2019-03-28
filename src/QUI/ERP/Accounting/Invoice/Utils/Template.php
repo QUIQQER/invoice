@@ -79,7 +79,7 @@ class Template
     {
         $output = '';
         $output .= '<style>';
-        $output .= file_get_contents(dirname(__FILE__).'/Template.Preview.css');
+        $output .= \file_get_contents(\dirname(__FILE__).'/Template.Preview.css');
         $output .= '</style>';
         $output .= $this->render();
 
@@ -163,15 +163,15 @@ class Template
         $Engine = $this->getEngine();
         $output = '';
 
-        if (file_exists($phpFile)) {
+        if (\file_exists($phpFile)) {
             include $phpFile;
         }
 
-        if (file_exists($cssFile)) {
-            $output .= '<style>'.file_get_contents($cssFile).'</style>';
+        if (\file_exists($cssFile)) {
+            $output .= '<style>'.\file_get_contents($cssFile).'</style>';
         }
 
-        if (file_exists($htmlFile)) {
+        if (\file_exists($htmlFile)) {
             $output .= $Engine->fetch($htmlFile);
         }
 
@@ -191,22 +191,22 @@ class Template
         $usrPath = USR_DIR.$package.'/template/';
         $type    = $this->getTemplateType();
 
-        if (file_exists($usrPath.$type.'/'.$wanted)) {
+        if (\file_exists($usrPath.$type.'/'.$wanted)) {
             return $usrPath.$type.'/'.$wanted;
         }
 
-        if (file_exists($usrPath.$wanted)) {
+        if (\file_exists($usrPath.$wanted)) {
             return $usrPath.$wanted;
         }
 
 
         $optPath = OPT_DIR.$package.'/template/';
 
-        if (file_exists($optPath.$type.'/'.$wanted)) {
+        if (\file_exists($optPath.$type.'/'.$wanted)) {
             return $optPath.$type.'/'.$wanted;
         }
 
-        if (file_exists($optPath.$wanted)) {
+        if (\file_exists($optPath.$wanted)) {
             return $optPath.$wanted;
         }
 

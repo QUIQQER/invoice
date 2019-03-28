@@ -15,7 +15,7 @@ QUI::$Ajax->registerFunction(
         Factory::getInstance()->createProcessingStatus(
             $id,
             $color,
-            json_decode($title, true)
+            \json_decode($title, true)
         );
     },
     array('id', 'color', 'title'),

@@ -27,7 +27,7 @@ QUI::$Ajax->registerFunction(
         $Locale   = QUI::getLocale();
 
         $data = $Invoices->searchTemporaryInvoices(
-            $Grid->parseDBParams(json_decode($params, true))
+            $Grid->parseDBParams(\json_decode($params, true))
         );
 
         $localeCode = QUI::getLocale()->getLocalesByLang(
@@ -118,7 +118,7 @@ QUI::$Ajax->registerFunction(
                             $customer .= ' ';
                             $customer .= $Address->getAttribute('lastname');
 
-                            $customer = trim($customer);
+                            $customer = \trim($customer);
                         }
 
                         if ($Customer->isCompany() && $Address && !empty($Address->getAttribute('company'))) {
@@ -146,7 +146,7 @@ QUI::$Ajax->registerFunction(
 
             // format
             $data[$key]['date'] = $DateFormatter->format(
-                strtotime($TemporaryInvoice->getAttribute('date'))
+                \strtotime($TemporaryInvoice->getAttribute('date'))
             );
 
             //$vatTextArray = InvoiceUtils::getVatTextArrayFromVatArray($invoiceData['vat_array'], $Currency);

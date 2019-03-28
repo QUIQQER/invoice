@@ -37,7 +37,7 @@ QUI::$Ajax->registerFunction(
 
         if (!empty($attributes['time_for_payment'])) {
             $attributes['time_for_payment'] = $DateFormatter->format(
-                strtotime($attributes['time_for_payment'])
+                \strtotime($attributes['time_for_payment'])
             );
         }
 

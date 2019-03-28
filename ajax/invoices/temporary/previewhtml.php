@@ -14,7 +14,7 @@ QUI::$Ajax->registerFunction(
     function ($invoiceId, $data) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $Invoice  = $Invoices->getTemporaryInvoice($invoiceId);
-        $data     = json_decode($data, true);
+        $data     = \json_decode($data, true);
 
         $Invoice->clearArticles();
 

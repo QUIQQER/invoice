@@ -46,7 +46,7 @@ class Factory extends QUI\Utils\Singleton
         $Config->save();
 
         // translations
-        if (is_array($title)) {
+        if (\is_array($title)) {
             $languages = QUI::availableLanguages();
 
             foreach ($languages as $language) {
@@ -78,11 +78,11 @@ class Factory extends QUI\Utils\Singleton
     {
         $list = Handler::getInstance()->getList();
 
-        if (!count($list)) {
+        if (!\count($list)) {
             return 1;
         }
 
-        $max = max(array_keys($list));
+        $max = \max(\array_keys($list));
 
         return $max + 1;
     }
