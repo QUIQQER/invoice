@@ -462,7 +462,7 @@
         </locale>
         <locale name="journal.btn.total">
             <de><![CDATA[Summe anzeigen]]></de>
-            <en><![CDATA[Show total]]></en>
+            <en><![CDATA[Show sum]]></en>
         </locale>
         <locale name="journal.contextMenu.open.invoice">
             <de><![CDATA[Rechnung öffnen]]></de>
