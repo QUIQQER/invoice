@@ -1214,6 +1214,10 @@
                 You can now post the invoice.
             ]]></en>
         </locale>
+        <locale name="currency.select.all">
+            <de><![CDATA[Alle]]></de>
+            <en><![CDATA[All]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">

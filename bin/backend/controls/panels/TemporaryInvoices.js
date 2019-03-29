@@ -10,13 +10,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
     'qui/controls/desktop/Panel',
     'qui/controls/windows/Confirm',
     'qui/controls/buttons/Button',
+    'qui/controls/contextmenu/Item',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
     'Locale',
+    'Ajax',
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
 
-], function (QUI, QUIPanel, QUIConfirm, QUIButton, Grid, Invoices, QUILocale) {
+], function (QUI, QUIPanel, QUIConfirm, QUIButton, QUIContextMenuItem, Grid, Invoices, QUILocale, QUIAjax) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -49,7 +51,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             this.parent(options);
 
-            this.$Grid = null;
+            this.$Grid     = null;
+            this.$Currency = null;
 
             this.addEvents({
                 onCreate : this.$onCreate,
@@ -83,6 +86,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 page   : this.$Grid.options.page,
                 sortBy : this.$Grid.options.sortBy,
                 sortOn : this.$Grid.options.sortOn
+            }, {
+                currency: this.$Currency.getAttribute('value')
             }).then(function (result) {
                 result.data = result.data.map(function (entry) {
                     var Icon = new Element('span');
@@ -207,6 +212,31 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             // Buttons
 
+            // currency
+            this.$Currency = new QUIButton({
+                name      : 'currency',
+                disabled  : true,
+                showIcons : false,
+                menuCorner: 'topRight',
+                styles    : {
+                    'float': 'right'
+                },
+                events    : {
+                    onChange: function (Menu, Item) {
+                        var value = Item.getAttribute('value'),
+                            text  = value;
+
+                        if (value === '') {
+                            text = QUILocale.get(lg, 'currency.select.all');
+                        }
+
+                        self.$Currency.setAttribute('value', value);
+                        self.$Currency.setAttribute('text', text);
+                        self.refresh();
+                    }
+                }
+            });
+
             // Grid
             this.getContent().setStyles({
                 padding: 10
@@ -280,7 +310,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 toggleiconTitle      : '',
                 accordionLiveRenderer: this.$onClickInvoiceDetails,
 
-                buttons    : [Actions, {
+                buttons    : [Actions, this.$Currency, {
                     name     : 'create',
                     text     : QUILocale.get(lg, 'temporary.btn.createInvoice'),
                     textimage: 'fa fa-plus',
@@ -590,6 +620,53 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * event: on panel inject
          */
         $onInject: function () {
+            var self = this;
+
+            QUIAjax.get([
+                'package_quiqqer_currency_ajax_getAllowedCurrencies',
+                'package_quiqqer_currency_ajax_getDefault'
+            ], function (currencies, currency) {
+                var i, len, entry, text;
+
+                if (!currencies.length || currencies.length === 1) {
+                    self.$Currency.hide();
+                    return;
+                }
+
+                for (i = 0, len = currencies.length; i < len; i++) {
+                    entry = currencies[i];
+
+                    text = entry.code + ' ' + entry.sign;
+                    text = text.trim();
+
+                    self.$Currency.appendChild(
+                        new QUIContextMenuItem({
+                            name : entry.code,
+                            value: entry.code,
+                            text : text
+                        })
+                    );
+                }
+
+                self.$Currency.appendChild(
+                    new QUIContextMenuItem({
+                        name : 'all',
+                        value: '',
+                        text : QUILocale.get(lg, 'currency.select.all')
+                    })
+                );
+
+                self.$Currency.enable();
+                self.$Currency.setAttribute('value', currency.code);
+                self.$Currency.setAttribute('text', currency.code);
+            }, {
+                'package': 'quiqqer/currency'
+            });
+
+            this.$Currency.getContextMenu(function (ContextMenu) {
+                ContextMenu.setAttribute('showIcons', false);
+            });
+
             this.refresh();
         },
 

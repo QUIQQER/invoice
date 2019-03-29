@@ -69,6 +69,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$TimeFilter = null;
             this.$Total      = null;
             this.$Search     = null;
+            this.$Currency   = null;
 
             this.$currentSearch = '';
             this.$searchDelay   = null;
@@ -663,6 +664,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
                 if (!currencies.length || currencies.length === 1) {
                     self.$Currency.hide();
+                    return;
                 }
 
                 for (i = 0, len = currencies.length; i < len; i++) {

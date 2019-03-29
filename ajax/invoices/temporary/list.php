@@ -20,15 +20,19 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_list',
-    function ($params) {
+    function ($params, $filter) {
         $Invoices = Handler::getInstance();
         $Grid     = new QUI\Utils\Grid();
-        $Payments = Payments::getInstance();
         $Locale   = QUI::getLocale();
 
-        $data = $Invoices->searchTemporaryInvoices(
-            $Grid->parseDBParams(\json_decode($params, true))
-        );
+        $query  = $Grid->parseDBParams(\json_decode($params, true));
+        $filter = \json_decode($filter, true);
+
+        if (!empty($filter['currency'])) {
+            $query['where']['currency'] = $filter['currency'];
+        }
+
+        $data = $Invoices->searchTemporaryInvoices($query);
 
         $localeCode = QUI::getLocale()->getLocalesByLang(
             QUI::getLocale()->getCurrent()
@@ -161,6 +165,6 @@ QUI::$Ajax->registerFunction(
 
         return $Grid->parseResult($data, $Invoices->countTemporaryInvoices());
     },
-    ['params'],
+    ['params', 'filter'],
     'Permission::checkAdminUser'
 );

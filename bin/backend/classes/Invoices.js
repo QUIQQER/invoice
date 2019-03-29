@@ -224,15 +224,18 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * Return invoices for a grid
          *
          * @param {Object} [params] - Grid params
+         * @param {Object} filter - Filter
+         *
          * @returns {Promise}
          */
-        getTemporaryInvoicesList: function (params) {
+        getTemporaryInvoicesList: function (params, filter) {
             params = params || {};
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_list', resolve, {
                     'package': 'quiqqer/invoice',
                     params   : JSON.encode(params),
+                    filter   : JSON.encode(filter),
                     onError  : reject,
                     showError: false
                 });
