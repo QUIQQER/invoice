@@ -48,6 +48,13 @@ class InvoiceSearch extends Singleton
     protected $order = 'id DESC';
 
     /**
+     * currency of the searched invoices
+     *
+     * @var string
+     */
+    protected $currency = '';
+
+    /**
      * @var array
      */
     protected $cache = [];
@@ -62,6 +69,33 @@ class InvoiceSearch extends Singleton
     {
         if ($filter === 'search') {
             $this->search = $value;
+
+            return;
+        }
+
+        if ($filter === 'currency') {
+            if (empty($value)) {
+                $this->currency = QUI\ERP\Currency\Handler::getDefaultCurrency()->getCode();
+
+                return;
+            }
+
+            try {
+                $allowed = QUI\ERP\Currency\Handler::getAllowedCurrencies();
+            } catch (QUI\Exception $Exception) {
+                return;
+            }
+
+            $allowed = \array_map(function ($Currency) {
+                /* @var $Currency QUI\ERP\Currency\Currency */
+                return $Currency->getCode();
+            }, $allowed);
+
+            $allowed = \array_flip($allowed);
+
+            if (isset($allowed[$value])) {
+                $this->currency = $value;
+            }
 
             return;
         }
@@ -93,7 +127,7 @@ class InvoiceSearch extends Singleton
                         break;
 
                     default:
-                        continue;
+                        continue 2;
                 }
             }
 
@@ -260,10 +294,32 @@ class InvoiceSearch extends Singleton
             ];
         }
 
+        // filter
         $where = [];
         $binds = [];
         $fc    = 0;
 
+        // currency
+        $DefaultCurrency = QUI\ERP\Currency\Handler::getDefaultCurrency();
+
+        if (empty($this->currency)) {
+            $this->currency = $DefaultCurrency->getCode();
+        }
+
+        // fallback for old invoices
+        if ($DefaultCurrency->getCode() === $this->currency) {
+            $where[] = "(currency = :currency OR currency = '')";
+        } else {
+            $where[] = 'currency = :currency';
+        }
+
+        $binds[':currency'] = [
+            'value' => $this->currency,
+            'type'  => \PDO::PARAM_STR
+        ];
+
+
+        // filter
         foreach ($this->filter as $filter) {
             $bind = ':filter'.$fc;
             $flr  = $filter['filter'];
@@ -295,7 +351,7 @@ class InvoiceSearch extends Singleton
                             'type'  => \PDO::PARAM_INT
                         ];
 
-                        continue;
+                        break;
                     }
 
                     $where[] = 'paid_status = '.$bind;
@@ -305,8 +361,7 @@ class InvoiceSearch extends Singleton
                         'type'  => \PDO::PARAM_INT
                     ];
 
-                    continue 2;
-
+                    break;
 
                 case 'customer_id':
                 case 'c_user':
@@ -321,10 +376,8 @@ class InvoiceSearch extends Singleton
                         'value' => (int)$filter['value'],
                         'type'  => \PDO::PARAM_INT
                     ];
-                    continue 2;
 
-                default:
-                    continue 2;
+                    break;
             }
 
             $binds[$bind] = [
@@ -379,7 +432,6 @@ class InvoiceSearch extends Singleton
         if (!\count($where)) {
             $whereQuery = '';
         }
-
 
         if ($count) {
             return [

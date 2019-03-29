@@ -12,18 +12,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'qui/controls/buttons/Separator',
     'qui/controls/buttons/Select',
     'qui/controls/windows/Confirm',
+    'qui/controls/contextmenu/Item',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
     'package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter',
     'Locale',
+    'Ajax',
     'Mustache',
 
     'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html',
     'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.Total.html',
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
 
-], function (QUI, QUIPanel, QUIButton, QUISeparator, QUISelect, QUIConfirm, Grid, Invoices, TimeFilter,
-             QUILocale, Mustache, templateInvoiceDetails, templateTotal) {
+], function (QUI, QUIPanel, QUIButton, QUISeparator, QUISelect, QUIConfirm, QUIContextMenuItem, Grid, Invoices, TimeFilter,
+             QUILocale, QUIAjax, Mustache, templateInvoiceDetails, templateTotal) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -124,7 +126,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 from       : from,
                 to         : to,
                 paid_status: [status],
-                search     : this.$currentSearch
+                search     : this.$currentSearch,
+                currency   : this.$Currency.getAttribute('value')
             }).then(function (result) {
                 var gridData = result.grid;
 
@@ -189,6 +192,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 );
 
                 this.Loader.hide();
+            }.bind(this)).catch(function (err) {
+                console.error(err);
+                this.Loader.hide();
             }.bind(this));
         },
 
@@ -252,6 +258,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     onClick: this.toggleTotal
                 }
             });
+
+            // currency
+            this.$Currency = new QUIButton({
+                name     : 'currency',
+                disabled : true,
+                showIcons: false,
+                events   : {
+                    onChange: function (Menu, Item) {
+                        self.$Currency.setAttribute('value', Item.getAttribute('value'));
+                        self.$Currency.setAttribute('text', Item.getAttribute('value'));
+                        self.refresh();
+                    }
+                }
+            });
+
+            this.addButton(this.$Currency);
+
 
             this.$Status = new QUISelect({
                 showIcons: false,
@@ -623,13 +646,50 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * event: on inject
          */
         $onInject: function () {
-            var value = this.$Status.getValue();
+            var self  = this,
+                value = this.$Status.getValue();
 
             if (value === '' || !value) {
                 this.$Status.setValue('');
             }
 
             this.$loaded = true;
+
+            QUIAjax.get([
+                'package_quiqqer_currency_ajax_getAllowedCurrencies',
+                'package_quiqqer_currency_ajax_getDefault'
+            ], function (currencies, currency) {
+                var i, len, entry, text;
+
+                if (!currencies.length || currencies.length === 1) {
+                    self.$Currency.hide();
+                }
+
+                for (i = 0, len = currencies.length; i < len; i++) {
+                    entry = currencies[i];
+
+                    text = entry.code + ' ' + entry.sign;
+                    text = text.trim();
+
+                    self.$Currency.appendChild(
+                        new QUIContextMenuItem({
+                            name : entry.code,
+                            value: entry.code,
+                            text : text
+                        })
+                    );
+                }
+
+                self.$Currency.enable();
+                self.$Currency.setAttribute('value', currency.code);
+                self.$Currency.setAttribute('text', currency.code);
+            }, {
+                'package': 'quiqqer/currency'
+            });
+
+            this.$Currency.getContextMenu(function (ContextMenu) {
+                ContextMenu.setAttribute('showIcons', false);
+            });
         },
 
         /**
