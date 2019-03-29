@@ -235,15 +235,22 @@ class InvoiceSearch extends Singleton
         //$this->filter = $oldFiler;
         $this->limit = $oldLimit;
 
+        $Currency = null;
+
+        if (!empty($this->currency)) {
+            try {
+                $Currency = QUI\ERP\Currency\Handler::getCurrency($this->currency);
+            } catch (QUI\Exception $Exception) {
+            }
+        }
 
         // result
         $result = $this->parseListForGrid($invoices);
         $Grid   = new QUI\Utils\Grid();
 
-
         return [
             'grid'  => $Grid->parseResult($result, $count),
-            'total' => QUI\ERP\Accounting\Calc::calculateTotal($calc)
+            'total' => QUI\ERP\Accounting\Calc::calculateTotal($calc, $Currency)
         ];
     }
 
