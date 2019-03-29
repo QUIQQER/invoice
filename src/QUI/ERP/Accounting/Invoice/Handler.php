@@ -217,7 +217,11 @@ class Handler extends QUI\Utils\Singleton
             $query['order'] = $params['order'];
         }
 
-        return QUI::getDataBase()->fetch($query);
+        try {
+            return QUI::getDataBase()->fetch($query);
+        } catch (QUi\Exception $Exception) {
+            return [];
+        }
     }
 
     /**
