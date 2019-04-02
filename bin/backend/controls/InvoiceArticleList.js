@@ -42,6 +42,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             '$onInject'
         ],
 
+        options: {
+            currency: false // bool || string -> EUR, USD ...
+        },
+
         initialize: function (options) {
             this.parent(options);
 
@@ -225,6 +229,11 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             if (!(Child instanceof Article)) {
                 return;
             }
+
+            if (this.getAttribute('currency')) {
+                Child.setCurrency(this.getAttribute('currency'));
+            }
+
 
             this.$articles.push(Child);
 

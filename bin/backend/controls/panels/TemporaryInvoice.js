@@ -462,10 +462,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary'
                     ], function (List, Summary) {
                         self.$ArticleList = new List({
-                            events: {
+                            currency: self.getAttribute('currency'),
+                            events  : {
                                 onArticleReplaceClick: self.$onArticleReplaceClick
                             },
-                            styles: {
+                            styles  : {
                                 height: 'calc(100% - 120px)'
                             }
                         }).inject(Container);
@@ -473,8 +474,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         Container.setStyle('height', '100%');
 
                         self.$ArticleListSummary = new Summary({
-                            List  : self.$ArticleList,
-                            styles: {
+                            currency: self.getAttribute('currency'),
+                            List    : self.$ArticleList,
+                            styles  : {
                                 bottom  : -20,
                                 left    : 0,
                                 opacity : 0,
