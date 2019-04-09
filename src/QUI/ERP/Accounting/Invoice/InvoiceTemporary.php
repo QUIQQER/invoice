@@ -1226,9 +1226,15 @@ class InvoiceTemporary extends QUI\QDOM
 
                 $Article = new QUI\ERP\Accounting\Article($article);
                 $this->addArticle($Article);
-            } catch (QUI\Exception $Exception) {
+            } catch (\Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
+        }
+
+        try {
+            $this->Articles->setCurrency($this->getCurrency());
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
         }
     }
 

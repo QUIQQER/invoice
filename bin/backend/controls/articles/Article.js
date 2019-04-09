@@ -30,6 +30,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
     'qui/utils/Elements',
     'package/quiqqer/erp/bin/backend/utils/Discount',
     'package/quiqqer/erp/bin/backend/utils/Money',
+    'package/quiqqer/currency/bin/Currency',
     'Mustache',
     'Locale',
     'Ajax',
@@ -38,7 +39,7 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
     'text!package/quiqqer/invoice/bin/backend/controls/articles/Article.html',
     'css!package/quiqqer/invoice/bin/backend/controls/articles/Article.css'
 
-], function (QUI, QUIControl, QUIButton, QUIConfirm, QUIElements, DiscountUtils, MoneyUtils, Mustache, QUILocale, QUIAjax, Editors, template) {
+], function (QUI, QUIControl, QUIButton, QUIConfirm, QUIElements, DiscountUtils, MoneyUtils, Currency, Mustache, QUILocale, QUIAjax, Editors, template) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -74,7 +75,8 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
             unitPrice  : 0,
             vat        : '',
             'class'    : 'QUI\\ERP\\Accounting\\Invoice\\Articles\\Article',
-            params     : false // mixed value for API Articles
+            params     : false, // mixed value for API Articles
+            currency   : false
         },
 
         initialize: function (options) {
@@ -108,12 +110,6 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
                     )
                 );
             }
-
-            // admin format
-            this.$Formatter = QUILocale.getNumberFormatter({
-                style   : 'currency',
-                currency: 'EUR'
-            });
         },
 
         /**
@@ -292,41 +288,59 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
 
             this.showLoader();
 
-            return new Promise(function (resolve, reject) {
-                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_calc', function (product) {
-                    var unitPrice = self.$Formatter.format(product.unitPrice);
-                    var price     = self.$Formatter.format(product.calculated.nettoSubSum);
-                    var total     = self.$Formatter.format(product.calculated.nettoSum);
+            return this.getCurrencyFormatter().then(function (Formatter) {
+                return Promise.all([
+                    self.$calc(),
+                    Formatter
+                ]);
+            }).then(function (result) {
+                var product   = result[0];
+                var Formatter = result[1];
 
-                    self.$calculations = product;
+                var unitPrice = Formatter.format(product.unitPrice);
+                var price     = Formatter.format(product.calculated.nettoSubSum);
+                var total     = Formatter.format(product.calculated.nettoSum);
 
-                    var setElement = function (Node, text) {
-                        var isInEditMode = Node.getElement('input');
+                self.$calculations = product;
 
-                        if (isInEditMode) {
-                            Node.set({
-                                title: text
-                            });
-                            return;
-                        }
+                var setElement = function (Node, text) {
+                    var isInEditMode = Node.getElement('input');
 
+                    if (isInEditMode) {
                         Node.set({
-                            html : text,
                             title: text
                         });
-                    };
+                        return;
+                    }
 
-                    setElement(self.$Total, total);
-                    setElement(self.$UnitPrice, unitPrice);
-                    setElement(self.$Price, price);
-                    setElement(self.$VAT, product.vat + '%');
+                    Node.set({
+                        html : text,
+                        title: text
+                    });
+                };
 
-                    self.hideLoader();
+                setElement(self.$Total, total);
+                setElement(self.$UnitPrice, unitPrice);
+                setElement(self.$Price, price);
+                setElement(self.$VAT, product.vat + '%');
 
-                    resolve(product);
+                self.hideLoader();
+                self.fireEvent('calc', [self]);
 
-                    self.fireEvent('calc', [self]);
-                }, {
+                return product;
+            });
+        },
+
+        /**
+         * Calculate the current article
+         *
+         * @return {Promise}
+         */
+        $calc: function () {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                QUIAjax.get('package_quiqqer_invoice_ajax_invoices_temporary_product_calc', resolve, {
                     'package': 'quiqqer/invoice',
                     onError  : reject,
                     params   : JSON.encode(self.getAttributes()),
@@ -342,6 +356,55 @@ define('package/quiqqer/invoice/bin/backend/controls/articles/Article', [
          */
         getCalculations: function () {
             return this.$calculations;
+        },
+
+        /**
+         * Return the article currency
+         *
+         * @return {Promise|*}
+         */
+        getCurrencyFormatter: function () {
+            if (this.$Formatter) {
+                return Promise.resolve(this.$Formatter);
+            }
+
+            // admin format
+            if (this.getAttribute('currency')) {
+                this.$Formatter = QUILocale.getNumberFormatter({
+                    style   : 'currency',
+                    currency: this.getAttribute('currency')
+                });
+
+                return Promise.resolve(this.$Formatter);
+            }
+
+
+            var self = this;
+
+            return new Promise(function (resolve) {
+                Currency.getCurrency().then(function (currency) {
+                    self.$Formatter = QUILocale.getNumberFormatter({
+                        style   : 'currency',
+                        currency: currency.code
+                    });
+
+                    resolve(self.$Formatter);
+                });
+            });
+        },
+
+        /**
+         * Set the currency to the article
+         *
+         * @param {String} currency
+         */
+        setCurrency: function (currency) {
+            if (this.getAttribute('currency') === currency) {
+                return;
+            }
+
+            this.setAttribute('currency', currency);
+            this.$Formatter = null;
         },
 
         /**

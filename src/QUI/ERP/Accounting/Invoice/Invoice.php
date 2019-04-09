@@ -681,6 +681,7 @@ class Invoice extends QUI\QDOM
         // change all prices
         $ArticleList = $Copy->getArticles();
         $ArticleList->clear();
+        $ArticleList->setCurrency($this->getCurrency());
 
         foreach ($articles as $Article) {
             /* @var $Article QUI\ERP\Accounting\Article */
@@ -738,6 +739,7 @@ class Invoice extends QUI\QDOM
         $Copy->setData('originalId', $this->getCleanId());
         $Copy->setAttribute('date', \date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
+        $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
         $Copy->setInvoiceType(Handler::TYPE_INVOICE_CREDIT_NOTE);
         $Copy->save(QUI::getUsers()->getSystemUser());
 

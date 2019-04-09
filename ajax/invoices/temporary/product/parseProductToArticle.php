@@ -19,7 +19,16 @@ QUI::$Ajax->registerFunction(
         $Locale     = QUI::getLocale();
 
         if (!empty($user)) {
-            $User   = QUI\ERP\User::convertUserDataToErpUser($user);
+            try {
+                $User = QUI\ERP\User::convertUserDataToErpUser($user);
+            } catch (QUI\Exception $Exception) {
+                if (!isset($user['uid'])) {
+                    throw $Exception;
+                }
+
+                $User = QUI::getUsers()->get($user['uid']);
+            }
+
             $Locale = $User->getLocale();
         }
 

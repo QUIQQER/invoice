@@ -159,7 +159,10 @@ QUI::$Ajax->registerFunction(
             $data[$key]['display_subsum']   = $Currency->format($data[$key]['subsum']);
         }
 
-        return $Grid->parseResult($data, $Invoices->countTemporaryInvoices());
+        return $Grid->parseResult(
+            $data,
+            $Invoices->countTemporaryInvoices($query)
+        );
     },
     ['params', 'filter'],
     'Permission::checkAdminUser'

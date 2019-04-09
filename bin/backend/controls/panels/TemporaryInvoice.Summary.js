@@ -24,8 +24,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
         Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary',
 
         options: {
-            List  : null,
-            styles: false
+            List    : null,
+            styles  : false,
+            currency: 'EUR'
         },
 
         Binds: [
@@ -41,7 +42,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
 
             this.$Formatter = QUILocale.getNumberFormatter({
                 style                : 'currency',
-                currency             : 'EUR',
+                currency             : this.getAttribute('currency'),
                 minimumFractionDigits: 2
             });
 
@@ -103,15 +104,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
             List.addEvent('onCalc', function (List) {
                 var data = List.getCalculation();
 
-                self.$Formatter = QUILocale.getNumberFormatter({
-                    style                : 'currency',
-                    currency             : data.currencyData.code,
-                    minimumFractionDigits: 2
-                });
-
                 self.$NettoSum.set('html', self.$Formatter.format(data.nettoSum));
                 self.$BruttoSum.set('html', self.$Formatter.format(data.sum));
-
 
                 if (typeOf(data.vatArray) === 'array' && !data.vatArray.length) {
                     self.$VAT.set('html', '---');
