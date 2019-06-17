@@ -153,12 +153,15 @@ class InvoiceView extends QUI\QDOM
     public function previewHTML()
     {
         try {
-            return $this->getTemplate()->renderPreview();
+            $previewHtml = $this->getTemplate()->renderPreview();
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
+            $previewHtml = '';
         }
 
-        return '';
+        QUI::getLocale()->resetCurrent();
+
+        return $previewHtml;
     }
 
     /**
@@ -352,6 +355,8 @@ class InvoiceView extends QUI\QDOM
                 'payment' => $payment
             ]);
         }
+
+        QUI::getLocale()->setTemporaryCurrent($Customer->getLang());
 
         $Engine->assign([
             'this'           => $this,
