@@ -1032,7 +1032,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'articles'                => $uniqueList,
                 'history'                 => $this->getHistory()->toJSON(),
                 'comments'                => $this->getComments()->toJSON(),
-                'customData'              => \json_encode($this->customData),
+                'custom_data'             => \json_encode($this->customData),
 
                 // calculation data
                 'isbrutto'                => $isBrutto,
