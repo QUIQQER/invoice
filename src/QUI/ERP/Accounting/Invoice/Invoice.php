@@ -67,6 +67,13 @@ class Invoice extends QUI\QDOM
     protected $data = [];
 
     /**
+     * variable data for developers
+     *
+     * @var array
+     */
+    protected $customData = [];
+
+    /**
      * @var array
      */
     protected $paymentData = [];
@@ -104,6 +111,10 @@ class Invoice extends QUI\QDOM
 
         if ($this->getAttribute('data')) {
             $this->data = \json_decode($this->getAttribute('data'), true);
+        }
+
+        if ($this->getAttribute('custom_data')) {
+            $this->customData = \json_decode($this->getAttribute('custom_data'), true);
         }
 
         if ($this->getAttribute('global_process_id')) {
@@ -1087,6 +1098,57 @@ class Invoice extends QUI\QDOM
         $history = $this->getAttribute('history');
 
         return QUI\ERP\Comments::unserialize($history);
+    }
+
+    /**
+     * Add a custom data entry
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
+     * @throws QUI\ExceptionStack
+     */
+    public function addCustomDataEntry($key, $value)
+    {
+        $this->customData[$key] = $value;
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->invoiceTable(),
+            ['custom_data' => \json_encode($this->customData)],
+            ['id' => $this->getCleanId()]
+        );
+
+        QUI::getEvents()->fireEvent(
+            'onQuiqqerInvoiceAddCustomData',
+            [$this, $this, $this->customData, $key, $value]
+        );
+    }
+
+    /**
+     * Return a wanted custom data entry
+     *
+     * @param $key
+     * @return mixed|null
+     */
+    public function getCustomDataEntry($key)
+    {
+        if (isset($this->customData[$key])) {
+            return $this->customData[$key];
+        }
+
+        return null;
+    }
+
+    /**
+     * Return all custom data
+     *
+     * @return array|mixed
+     */
+    public function getCustomData()
+    {
+        return $this->customData;
     }
 
     //endregion

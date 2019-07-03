@@ -47,6 +47,13 @@ class InvoiceTemporary extends QUI\QDOM
     protected $data = [];
 
     /**
+     * variable data for developers
+     *
+     * @var array
+     */
+    protected $customData = [];
+
+    /**
      * @var array
      */
     protected $paymentData = [];
@@ -126,6 +133,10 @@ class InvoiceTemporary extends QUI\QDOM
 
         if (!\is_array($this->data)) {
             $this->data = [];
+        }
+
+        if ($data['custom_data']) {
+            $this->customData = \json_decode($data['custom_data'], true);
         }
 
         // invoice payment data
@@ -1021,6 +1032,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'articles'                => $uniqueList,
                 'history'                 => $this->getHistory()->toJSON(),
                 'comments'                => $this->getComments()->toJSON(),
+                'customData'              => \json_encode($this->customData),
 
                 // calculation data
                 'isbrutto'                => $isBrutto,
@@ -1300,6 +1312,61 @@ class InvoiceTemporary extends QUI\QDOM
             'quiqqerInvoiceTemporaryInvoiceAddHistory',
             [$this, $message]
         );
+    }
+
+    //endregion
+
+    //region custom data for dev's
+
+    /**
+     * Add a custom data entry
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
+     * @throws QUI\ExceptionStack
+     */
+    public function addCustomDataEntry($key, $value)
+    {
+        $this->customData[$key] = $value;
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->invoiceTable(),
+            ['custom_data' => \json_encode($this->customData)],
+            ['id' => $this->getCleanId()]
+        );
+
+        QUI::getEvents()->fireEvent(
+            'onQuiqqerInvoiceAddCustomData',
+            [$this, $this, $this->customData, $key, $value]
+        );
+    }
+
+    /**
+     * Return a wanted custom data entry
+     *
+     * @param $key
+     * @return mixed|null
+     */
+    public function getCustomDataEntry($key)
+    {
+        if (isset($this->customData[$key])) {
+            return $this->customData[$key];
+        }
+
+        return null;
+    }
+
+    /**
+     * Return all custom data
+     *
+     * @return array|mixed
+     */
+    public function getCustomData()
+    {
+        return $this->customData;
     }
 
     //endregion
