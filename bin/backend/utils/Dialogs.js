@@ -196,7 +196,8 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
             var self = this;
 
             return Invoices.get(invoiceId).then(function (result) {
-                var id = result.id_prefix + result.id;
+                var paymentHasRefund = false;
+                var id               = result.id_prefix + result.id;
 
                 return new Promise(function (resolve, reject) {
                     new QUIConfirm({
@@ -223,7 +224,9 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                 Win.Loader.show();
 
                                 Invoices.hasRefund(id).then(function (hasRefund) {
-                                    if (!hasRefund) {
+                                    paymentHasRefund = hasRefund;
+
+                                    if (!paymentHasRefund) {
                                         Win.Loader.hide();
                                         return;
                                     }
@@ -264,7 +267,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                     });
                                 };
 
-                                if (Refund.checked) {
+                                if (paymentHasRefund && Refund.checked) {
                                     self.openRefundWindow(invoiceId).then(function (RefundWindow) {
                                         if (!RefundWindow) {
                                             Win.Loader.hide();
