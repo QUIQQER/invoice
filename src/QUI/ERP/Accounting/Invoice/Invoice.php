@@ -79,6 +79,11 @@ class Invoice extends QUI\QDOM
     protected $paymentData = [];
 
     /**
+     * @var null|integer
+     */
+    protected $Shipping = null;
+
+    /**
      * Invoice constructor.
      *
      * @param $id
@@ -128,6 +133,16 @@ class Invoice extends QUI\QDOM
 
             if (\is_array($paymentData)) {
                 $this->paymentData = $paymentData;
+            }
+        }
+
+        // shipping
+        if ($this->getAttribute('shipping_id')) {
+            $shippingData = $this->getAttribute('shipping_data');
+            $shippingData = \json_decode($shippingData, true);
+
+            if (!\class_exists('QUI\ERP\Shipping\Types\ShippingUnique')) {
+                $this->Shipping = new QUI\ERP\Shipping\Types\ShippingUnique($shippingData);
             }
         }
     }
@@ -387,6 +402,16 @@ class Invoice extends QUI\QDOM
         }
 
         return new Payment($data);
+    }
+
+    /**
+     * Return the Shipping, if a shipping is set
+     *
+     * @return int|QUI\ERP\Shipping\Types\ShippingUnique|null
+     */
+    public function getShipping()
+    {
+        return $this->Shipping;
     }
 
     /**
@@ -1025,7 +1050,6 @@ class Invoice extends QUI\QDOM
         $Comments = QUI\ERP\Comments::unserialize($comments);
 
         $Comments->addComment($comment);
-
         $this->setAttribute('comments', $Comments->toJSON());
 
         $this->addHistory(
@@ -1058,9 +1082,9 @@ class Invoice extends QUI\QDOM
      */
     public function getComments()
     {
-        $comments = $this->getAttribute('comments');
-
-        return QUI\ERP\Comments::unserialize($comments);
+        return QUI\ERP\Comments::unserialize(
+            $this->getAttribute('comments')
+        );
     }
 
     /**
