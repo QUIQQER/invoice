@@ -79,6 +79,11 @@ class InvoiceTemporary extends QUI\QDOM
     protected $History;
 
     /**
+     * @var integer|null
+     */
+    protected $shippingId = null;
+
+    /**
      * Invoice constructor.
      *
      * @param $id
@@ -172,6 +177,11 @@ class InvoiceTemporary extends QUI\QDOM
         if (!$this->getCustomer()) {
             $this->setAttribute('invoice_address', false);
             $this->setAttribute('customer_id', false);
+        }
+
+        // shipping
+        if (\is_numeric($data['shipping_id'])) {
+            $this->shippingId = (int)$data['shipping_id'];
         }
     }
 
@@ -677,6 +687,15 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        // shipping
+        $shippingId   = null;
+        $shippingData = null;
+
+        if ($this->getShipping()) {
+            $shippingId   = $this->getShipping()->getId();
+            $shippingData = $this->getShipping()->toJSON();
+        }
+
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
             [$this]
@@ -713,6 +732,10 @@ class InvoiceTemporary extends QUI\QDOM
                 'paid_data'               => '',   // nicht in gui
                 'processing_status'       => null,
                 'customer_data'           => '',   // nicht in gui
+
+                // shipping
+                'shipping_id'             => $shippingId,
+                'shipping_data'           => $shippingData,
 
                 // invoice data
                 'date'                    => $date,
@@ -988,6 +1011,15 @@ class InvoiceTemporary extends QUI\QDOM
         $uniqueList['calculations']['subSum'] = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['subSum']);
         $uniqueList                           = \json_encode($uniqueList);
 
+        //shipping
+        $shippingId   = null;
+        $shippingData = null;
+
+        if ($this->getShipping()) {
+            $shippingId   = $this->getShipping()->getId();
+            $shippingData = $this->getShipping()->toJSON();
+        }
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
@@ -1022,6 +1054,10 @@ class InvoiceTemporary extends QUI\QDOM
                 'paid_status'             => Invoice::PAYMENT_STATUS_OPEN,
                 'paid_date'               => null,
                 'paid_data'               => '',
+
+                // shipping
+                'shipping_id'             => $shippingId,
+                'shipping_data'           => $shippingData,
 
                 // data
                 'hash'                    => $this->getAttribute('hash'),
@@ -1528,7 +1564,6 @@ class InvoiceTemporary extends QUI\QDOM
 
     //endregion
 
-
     //region mails
 
     /**
@@ -1558,6 +1593,46 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $Invoice->sendTo($User->getAttribute('email'));
+    }
+
+    //endregion
+
+    //region shipping
+
+    /**
+     * Return the shipping
+     *
+     * @return QUI\ERP\Shipping\Types\ShippingEntry|null
+     */
+    public function getShipping()
+    {
+        if ($this->shippingId === null) {
+            return null;
+        }
+
+        if (!\class_exists('QUI\ERP\Shipping\Shipping')) {
+            return null;
+        }
+
+        $Shipping = QUI\ERP\Shipping\Shipping::getInstance();
+
+        try {
+            return $Shipping->getShippingEntry($this->shippingId);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * Set the shipping
+     *
+     * @param QUI\ERP\Shipping\Api\ShippingInterface $Shipping
+     */
+    public function setShipping(QUI\ERP\Shipping\Api\ShippingInterface $Shipping)
+    {
+        $this->shippingId = $Shipping->getId();
     }
 
     //endregion
