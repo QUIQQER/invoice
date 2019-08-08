@@ -667,6 +667,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     return;
                 }
 
+                self.$Currency.appendChild(
+                    new QUIContextMenuItem({
+                        name : '---',
+                        value: '---',
+                        text : '---'
+                    })
+                );
+
                 for (i = 0, len = currencies.length; i < len; i++) {
                     entry = currencies[i];
 
