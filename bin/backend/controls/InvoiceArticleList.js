@@ -248,7 +248,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                 onCalc    : this.$calc
             });
 
-            Child.inject(this.$Container);
+            if (this.$Container) {
+                Child.inject(this.$Container);
+            }
+
             Child.getElm().addClass('article');
         },
 
