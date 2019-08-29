@@ -1369,13 +1369,13 @@ class InvoiceTemporary extends QUI\QDOM
         $this->customData[$key] = $value;
 
         QUI::getDataBase()->update(
-            Handler::getInstance()->invoiceTable(),
+            Handler::getInstance()->temporaryInvoiceTable(),
             ['custom_data' => \json_encode($this->customData)],
             ['id' => $this->getCleanId()]
         );
 
         QUI::getEvents()->fireEvent(
-            'onQuiqqerInvoiceAddCustomData',
+            'onQuiqqerInvoiceTemporaryAddCustomData',
             [$this, $this, $this->customData, $key, $value]
         );
     }
