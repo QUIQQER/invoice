@@ -1295,11 +1295,11 @@
             <en><![CDATA[No invoice address has yet been assigned to the invoice.]]></en>
         </locale>
         <locale name="exception.invoice.verification.firstname">
-            <de><![CDATA[Der Vornamen des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <de><![CDATA[Der Vorname des Rechnungsempfänger ist nicht korrekt.]]></de>
             <en><![CDATA[The first name of the invoice recipient is incorrect.]]></en>
         </locale>
         <locale name="exception.invoice.verification.lastname">
-            <de><![CDATA[Der Vornamen des Rechnungsempfänger ist nicht korrekt.]]></de>
+            <de><![CDATA[Der Nachname des Rechnungsempfänger ist nicht korrekt.]]></de>
             <en><![CDATA[The last name of the invoice recipient is incorrect.]]></en>
         </locale>
         <locale name="exception.invoice.verification.street_no">

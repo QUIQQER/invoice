@@ -67,9 +67,21 @@ class Invoice extends QUI\QDOM
     protected $data = [];
 
     /**
+     * variable data for developers
+     *
+     * @var array
+     */
+    protected $customData = [];
+
+    /**
      * @var array
      */
     protected $paymentData = [];
+
+    /**
+     * @var null|integer
+     */
+    protected $Shipping = null;
 
     /**
      * Invoice constructor.
@@ -106,6 +118,10 @@ class Invoice extends QUI\QDOM
             $this->data = \json_decode($this->getAttribute('data'), true);
         }
 
+        if ($this->getAttribute('custom_data')) {
+            $this->customData = \json_decode($this->getAttribute('custom_data'), true);
+        }
+
         if ($this->getAttribute('global_process_id')) {
             $this->globalProcessId = $this->getAttribute('global_process_id');
         }
@@ -117,6 +133,16 @@ class Invoice extends QUI\QDOM
 
             if (\is_array($paymentData)) {
                 $this->paymentData = $paymentData;
+            }
+        }
+
+        // shipping
+        if ($this->getAttribute('shipping_id')) {
+            $shippingData = $this->getAttribute('shipping_data');
+            $shippingData = \json_decode($shippingData, true);
+
+            if (!\class_exists('QUI\ERP\Shipping\Types\ShippingUnique')) {
+                $this->Shipping = new QUI\ERP\Shipping\Types\ShippingUnique($shippingData);
             }
         }
     }
@@ -376,6 +402,16 @@ class Invoice extends QUI\QDOM
         }
 
         return new Payment($data);
+    }
+
+    /**
+     * Return the Shipping, if a shipping is set
+     *
+     * @return int|QUI\ERP\Shipping\Types\ShippingUnique|null
+     */
+    public function getShipping()
+    {
+        return $this->Shipping;
     }
 
     /**
@@ -1014,7 +1050,6 @@ class Invoice extends QUI\QDOM
         $Comments = QUI\ERP\Comments::unserialize($comments);
 
         $Comments->addComment($comment);
-
         $this->setAttribute('comments', $Comments->toJSON());
 
         $this->addHistory(
@@ -1047,9 +1082,9 @@ class Invoice extends QUI\QDOM
      */
     public function getComments()
     {
-        $comments = $this->getAttribute('comments');
-
-        return QUI\ERP\Comments::unserialize($comments);
+        return QUI\ERP\Comments::unserialize(
+            $this->getAttribute('comments')
+        );
     }
 
     /**
@@ -1087,6 +1122,57 @@ class Invoice extends QUI\QDOM
         $history = $this->getAttribute('history');
 
         return QUI\ERP\Comments::unserialize($history);
+    }
+
+    /**
+     * Add a custom data entry
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
+     * @throws QUI\ExceptionStack
+     */
+    public function addCustomDataEntry($key, $value)
+    {
+        $this->customData[$key] = $value;
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->invoiceTable(),
+            ['custom_data' => \json_encode($this->customData)],
+            ['id' => $this->getCleanId()]
+        );
+
+        QUI::getEvents()->fireEvent(
+            'onQuiqqerInvoiceAddCustomData',
+            [$this, $this, $this->customData, $key, $value]
+        );
+    }
+
+    /**
+     * Return a wanted custom data entry
+     *
+     * @param $key
+     * @return mixed|null
+     */
+    public function getCustomDataEntry($key)
+    {
+        if (isset($this->customData[$key])) {
+            return $this->customData[$key];
+        }
+
+        return null;
+    }
+
+    /**
+     * Return all custom data
+     *
+     * @return array|mixed
+     */
+    public function getCustomData()
+    {
+        return $this->customData;
     }
 
     //endregion
