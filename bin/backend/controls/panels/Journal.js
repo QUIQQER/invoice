@@ -1035,10 +1035,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
         /**
          * Add a payment to an invoice
+         *
          * @param {String|Number} hash
          * @param {String|Number} amount
          * @param {String} paymentMethod
          * @param {String|Number} date
+         *
+         * @return {Promise}
          */
         addPayment: function (hash, amount, paymentMethod, date) {
             var self = this;
