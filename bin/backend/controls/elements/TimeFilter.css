@@ -1,7 +1,7 @@
 .timefilter-period-select {
     background: #FFFFFF;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
-    height: 280px;
+    height: 310px;
     outline: none;
     position: absolute;
     z-index: 1000;
@@ -13,9 +13,31 @@
 
 .timefilter-period-select-calendarContainer {
     float: left;
-    height: 230px;
+    height: 260px;
     margin: 10px 0 0 10px;
+    position: relative;
     width: calc(50% - 20px)
+}
+
+.timefilter-period-select-calendarContainer .dhx_year_month {
+    font-size: 14px !important;
+}
+
+.timefilter-period-select-calendarContainer-year {
+    background-color: #f7f7f7;
+    border-radius: 3px;
+    color: #e2e3e6;
+    cursor: pointer;
+    display: inline-block;
+    line-height: 22px;
+    padding: 0 5px;
+    text-align: center;
+    width: 100%;
+}
+
+.timefilter-period-select-calendarContainer-year:hover {
+    background-color: #d1d4da;
+    color: #4b595e;
 }
 
 .timefilter-marked {
