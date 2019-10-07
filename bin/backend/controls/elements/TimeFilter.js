@@ -14,11 +14,12 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
     'qui/controls/Control',
     'qui/controls/buttons/Button',
     'qui/controls/buttons/Select',
+    'package/quiqqer/invoice/bin/backend/controls/elements/YearFilter',
     'Locale',
 
     'css!package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter.css'
 
-], function (QUI, QUIControl, QUIButton, QUISelect, QUILocale) {
+], function (QUI, QUIControl, QUIButton, QUISelect, YearFilter, QUILocale) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -31,7 +32,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
         Binds: [
             'previous',
             'next',
-            '$onChange'
+            '$onChange',
+            '$renderCalendar'
         ],
 
         options: {
@@ -493,9 +495,7 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                 }
             }).inject(document.body);
 
-            require([
-                'package/quiqqer/calendar-controls/bin/Scheduler'
-            ], function (Scheduler) {
+            require(['package/quiqqer/calendar-controls/bin/Scheduler'], function (Scheduler) {
                 Scheduler.loadExtension('minical').then(function () {
                     self.fireEvent('periodSelectOpen', [self]);
 
@@ -504,11 +504,13 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                     Container.set('html', '');
 
                     var Left = new Element('div', {
-                        'class': 'timefilter-period-select-calendarContainer'
+                        'class': 'left timefilter-period-select-calendarContainer',
+                        html   : '<span class="timefilter-period-select-calendarContainer-year">Jahr ändern</span>'
                     }).inject(Container);
 
                     var Right = new Element('div', {
-                        'class': 'timefilter-period-select-calendarContainer'
+                        'class': 'right timefilter-period-select-calendarContainer',
+                        html   : '<span class="timefilter-period-select-calendarContainer-year">Jahr ändern</span>'
                     }).inject(Container);
 
                     var Ghost = new Element('div', {
@@ -531,23 +533,9 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                         self.$To = new window.Date(self.getAttribute('to') * 1000);
                     }
 
-                    var CalFrom = Handler.renderCalendar({
-                        container : Left,
-                        date      : new window.Date(self.$Current.getTime()), // we need to clone, because of date reset -.-
-                        navigation: true,
-                        handler   : function (date) {
-                            self.$Current = date;
-                        }
-                    });
+                    self.$renderCalendar(Left, self.$Current);
+                    self.$renderCalendar(Right, self.$To);
 
-                    var CalTo = Handler.renderCalendar({
-                        container : Right,
-                        date      : new window.Date(self.$To.getTime()), // we need to clone, because of date reset -.-
-                        navigation: true,
-                        handler   : function (date) {
-                            self.$To = date;
-                        }
-                    });
 
                     var Accept = new QUIButton({
                         text  : QUILocale.get('quiqqer/system', 'accept'),
@@ -563,10 +551,106 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
 
                     Container.focus();
 
-                    Handler.markCalendar(CalFrom, self.$Current, 'dhx_calendar_click');
-                    Handler.markCalendar(CalTo, self.$To, 'dhx_calendar_click');
+
+                    // change year
+                    var changeYear = function (event) {
+                        var Target    = event.target;
+                        var Container = Target.getParent('.timefilter-period-select-calendarContainer');
+
+                        var getYear = function () {
+                            var Month = Container.getElement('.dhx_year_month').clone();
+                            Month.getChildren().destroy();
+                            var month = Month.get('text');
+                            month     = month.replace(/\D/g, '');
+                            month     = month.trim();
+
+                            return parseInt(month);
+                        };
+
+                        var Change = new YearFilter({
+                            year  : getYear(),
+                            events: {
+                                onClose : function (Change) {
+                                    moofx(Change.getElm()).animate({
+                                        opacity: 0
+                                    }, {
+                                        callback: function () {
+                                            Change.getElm().destroy();
+                                        }
+                                    });
+                                },
+                                onSelect: function (Change, value) {
+                                    if (Container.hasClass('right')) {
+                                        self.$To.setFullYear(value);
+                                        self.$renderCalendar(Right, self.$To);
+                                    } else {
+                                        self.$Current.setFullYear(value);
+                                        self.$renderCalendar(Left, self.$Current);
+                                    }
+                                }
+                            },
+                            styles: {
+                                left      : 0,
+                                opacity   : 0,
+                                position  : 'absolute',
+                                paddingTop: 30,
+                                top       : 0
+                            }
+                        }).inject(Container);
+
+                        moofx(Change.getElm()).animate({
+                            opacity: 1
+                        });
+                    };
+
+                    Left.getElement('.timefilter-period-select-calendarContainer-year').addEvent('click', changeYear);
+                    Right.getElement('.timefilter-period-select-calendarContainer-year').addEvent('click', changeYear);
 
                     self.fireEvent('periodSelectOpenEnd', [self]);
+                });
+            });
+        },
+
+        /**
+         * Render one calendar
+         *
+         * @param Container - container to insert the calendar
+         * @param DateTime - marked day
+         */
+        $renderCalendar: function (Container, DateTime) {
+            var self          = this;
+            var DateTimeClone = null;
+
+            // we need to clone, because of date reset -.-
+            if (typeof DateTime !== 'undefined') {
+                DateTimeClone = new window.Date(DateTime.getTime());
+            }
+
+            Container.getElements('.dhx_cal_container').destroy();
+
+            require(['package/quiqqer/calendar-controls/bin/Scheduler'], function (Scheduler) {
+                Scheduler.loadExtension('minical').then(function () {
+                    var Handler = Scheduler.getScheduler();
+
+                    var Calendar = Handler.renderCalendar({
+                        container : Container,
+                        date      : DateTime,
+                        navigation: true,
+                        handler   : function (date) {
+                            if (Container.hasClass('right')) {
+                                self.$To = date;
+                            } else {
+                                self.$Current = date;
+                            }
+                        }
+                    });
+
+                    if (typeof DateTime !== 'undefined') {
+                        Handler.markCalendar(Calendar, DateTimeClone, 'dhx_calendar_click active');
+
+                        // workaround
+                        Container.getElement('.active').click();
+                    }
                 });
             });
         },
