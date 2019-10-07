@@ -78,6 +78,9 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/YearFilter', [
             this.$Elm.getElement('.year-header-prev').addEvent('click', this.prev);
             this.$Elm.getElement('.year-header-next').addEvent('click', this.next);
             this.$Elm.getElement('button').addEvent('click', this.close);
+            this.$Elm.getElement('button').addEvent('mousedown', function (event) {
+                event.stop();
+            });
 
             this.renderCurrent();
 
@@ -136,6 +139,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/YearFilter', [
          * event: on select
          */
         $onSelect: function (event) {
+            event.stop();
+
             var Target = event.target;
 
             if (!Target.hasClass('year-years-entry')) {
