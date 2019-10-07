@@ -631,7 +631,7 @@
         </locale>
         <locale name="journal.timeFilter.change.year">
             <de><![CDATA[Jahr ändern]]></de>
-            <en><![CDATA[]Change year]></en>
+            <en><![CDATA[Change year]]></en>
         </locale>
 
         <locale name="erp.panel.temporary.invoice.title">
