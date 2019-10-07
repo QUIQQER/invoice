@@ -615,6 +615,11 @@ class InvoiceSearch extends Singleton
                 'payment.status.'.$Invoice->getAttribute('paid_status')
             );
 
+            $invoiceData['paid_status_clean'] = \strip_tags($Locale->get(
+                'quiqqer/invoice',
+                'payment.status.'.$Invoice->getAttribute('paid_status')
+            ));
+
             $invoiceData['dunning_level_display'] = $Locale->get(
                 'quiqqer/invoice',
                 'dunning.level.'.$invoiceData['dunning_level']
