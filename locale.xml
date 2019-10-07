@@ -629,6 +629,10 @@
             <de><![CDATA[[from] bis [to]]]></de>
             <en><![CDATA[[from] to [to]]]></en>
         </locale>
+        <locale name="journal.timeFilter.change.year">
+            <de><![CDATA[Jahr ändern]]></de>
+            <en><![CDATA[]Change year]></en>
+        </locale>
 
         <locale name="erp.panel.temporary.invoice.title">
             <de><![CDATA[Rechnungsentwürfe]]></de>

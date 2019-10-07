@@ -6,13 +6,12 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/YearFilter', [
 
     'qui/QUI',
     'qui/controls/Control',
+    'Locale',
 
     'css!package/quiqqer/invoice/bin/backend/controls/elements/YearFilter.css'
 
-], function (QUI, QUIControl) {
+], function (QUI, QUIControl, QUILocale) {
     "use strict";
-
-    var lg = 'quiqqer/invoice';
 
     return new Class({
 
@@ -63,7 +62,9 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/YearFilter', [
                 '</div>' +
                 '<div class="year-years"></div>' +
                 '<div class="year-cancel">' +
-                '   <button class="qui-button--no-icon qui-button">Abbrechen</button>' +
+                '   <button class="qui-button--no-icon qui-button">' +
+                QUILocale.get('quiqqer/quiqqer', 'cancel') +
+                '</button>' +
                 '</div>'
             );
 
