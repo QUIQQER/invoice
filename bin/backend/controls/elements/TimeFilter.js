@@ -505,12 +505,16 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
 
                     var Left = new Element('div', {
                         'class': 'left timefilter-period-select-calendarContainer',
-                        html   : '<span class="timefilter-period-select-calendarContainer-year">Jahr ändern</span>'
+                        html   : '<span class="timefilter-period-select-calendarContainer-year">' +
+                            QUILocale.get(lg, 'journal.timeFilter.change.year') +
+                            '</span>'
                     }).inject(Container);
 
                     var Right = new Element('div', {
                         'class': 'right timefilter-period-select-calendarContainer',
-                        html   : '<span class="timefilter-period-select-calendarContainer-year">Jahr ändern</span>'
+                        html   : '<span class="timefilter-period-select-calendarContainer-year">' +
+                            QUILocale.get(lg, 'journal.timeFilter.change.year') +
+                            '</span>'
                     }).inject(Container);
 
                     var Ghost = new Element('div', {
