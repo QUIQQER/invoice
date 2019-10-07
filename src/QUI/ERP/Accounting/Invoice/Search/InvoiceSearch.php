@@ -74,7 +74,7 @@ class InvoiceSearch extends Singleton
         }
 
         if ($filter === 'currency') {
-            if (empty($value)) {
+            if (empty($value) || $value === '---') {
                 $this->currency = QUI\ERP\Currency\Handler::getDefaultCurrency()->getCode();
 
                 return;
@@ -237,7 +237,7 @@ class InvoiceSearch extends Singleton
 
         $Currency = null;
 
-        if (!empty($this->currency)) {
+        if (!empty($this->currency) && $this->currency !== '---') {
             try {
                 $Currency = QUI\ERP\Currency\Handler::getCurrency($this->currency);
             } catch (QUI\Exception $Exception) {
@@ -315,7 +315,7 @@ class InvoiceSearch extends Singleton
 
         // fallback for old invoices
         if ($DefaultCurrency->getCode() === $this->currency) {
-            $where[] = "(currency = :currency OR currency = '')";
+            $where[] = "(currency = :currency OR currency = '' OR currency IS NULL)";
         } else {
             $where[] = 'currency = :currency';
         }
@@ -614,6 +614,11 @@ class InvoiceSearch extends Singleton
                 'quiqqer/invoice',
                 'payment.status.'.$Invoice->getAttribute('paid_status')
             );
+
+            $invoiceData['paid_status_clean'] = \strip_tags($Locale->get(
+                'quiqqer/invoice',
+                'payment.status.'.$Invoice->getAttribute('paid_status')
+            ));
 
             $invoiceData['dunning_level_display'] = $Locale->get(
                 'quiqqer/invoice',
