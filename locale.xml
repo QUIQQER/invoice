@@ -6,6 +6,10 @@
             <de><![CDATA[QUIQQER - Shop - Rechnungssystem]]></de>
             <en><![CDATA[QUIQQER - Shop - Invoice]]></en>
         </locale>
+        <locale name="package.description">
+            <de><![CDATA[Das QUIQQER Rechnungsmodul integriert ein komplettes Rechnungsmanagement in QUIQQER.]]></de>
+            <en><![CDATA[The QUIQQER Invoice Module integrates complete invoice management in QUIQQER.]]></en>
+        </locale>
 
         <locale name="erp.panel.accounting.text">
             <de><![CDATA[Buchhaltung]]></de>

@@ -6,8 +6,27 @@
         </title>
 
         <description>
-            <locale group="quiqqer/invoice" var="package.title"/>
+            <locale group="quiqqer/invoice" var="package.description"/>
         </description>
+
+        <image src="URL_OPT_DIR/quiqqer/invoice/bin/images/Logo.jpg"/>
+
+        <preview>
+            <!-- <image src="URL_OPT_DIR/quiqqer/invoice/bin/images/preview/log_settings.jpg"/> -->
+        </preview>
+
+        <support>
+            <email><![CDATA[support@pcsg.de]]></email>
+            <forum><![CDATA[https://community.quiqqer.com]]></forum>
+            <source><![CDATA[https://dev.quiqqer.com/quiqqer/invoice]]></source>
+            <issues><![CDATA[https://dev.quiqqer.com/quiqqer/invoice/issues]]></issues>
+            <wiki><![CDATA[https://dev.quiqqer.com/quiqqer/invoice/wikis/home]]></wiki>
+        </support>
+
+        <copyright>
+            <name><![CDATA[PCSG - Computer & Internet Service OHG]]></name>
+            <license><![CDATA[GPL-3.0+]]></license>
+        </copyright>
 
         <provider>
             <erp src="\QUI\ERP\Accounting\Invoice\ErpProvider"/>
