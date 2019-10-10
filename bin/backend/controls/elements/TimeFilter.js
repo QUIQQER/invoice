@@ -136,6 +136,10 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
 
                     var quarter = Math.ceil(this.$Current.getMonth() / 3);
 
+                    if (quarter <= 0) {
+                        quarter = 1;
+                    }
+
                     text = QUILocale.get(lg, 'quarter.' + quarter);
                     text = text + ' ' + this.$Current.getFullYear();
                     break;
@@ -234,8 +238,8 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
                 return;
             }
 
-            this.$Current = new window.Date();
-            this.$To      = null;
+            //this.$Current = new window.Date();
+            this.$To = null;
 
             this.$triggerChange();
         },
@@ -268,6 +272,10 @@ define('package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter', [
 
                 case 'quarter':
                     var quarter = Math.ceil(this.$Current.getMonth() / 3);
+
+                    if (quarter <= 0) {
+                        quarter = 1;
+                    }
 
                     month = quarter * 3 - 3;
 
