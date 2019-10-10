@@ -40,6 +40,12 @@ QUI::$Ajax->registerFunction(
             \IntlDateFormatter::NONE
         );
 
+        $DateFormatterLong = new \IntlDateFormatter(
+            $localeCode[0],
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::SHORT
+        );
+
         $needleFields = [
             'id',
             'order_id',
@@ -146,6 +152,10 @@ QUI::$Ajax->registerFunction(
 
             // format
             $data[$key]['date'] = $DateFormatter->format(
+                \strtotime($TemporaryInvoice->getAttribute('date'))
+            );
+
+            $data[$key]['c_date'] = $DateFormatterLong->format(
                 \strtotime($TemporaryInvoice->getAttribute('date'))
             );
 
