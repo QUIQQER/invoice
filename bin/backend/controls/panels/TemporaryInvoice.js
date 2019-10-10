@@ -289,12 +289,30 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     dateTime = time[1];
                 }
 
+                // set invoice date to today
+                // quiqqer/invoice#46
+                var local = new Date();
+                local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
+                dateDate = local.toJSON().slice(0, 10);
+
                 QUIFormUtils.setDataToForm({
                     date            : dateDate,
                     time_for_payment: self.getAttribute('time_for_payment'),
                     project_name    : self.getAttribute('project_name'),
                     editor_id       : self.getAttribute('editor_id')
                 }, Form);
+
+                Form.elements.date.set('disabled', true);
+                Form.elements.date.set('title', QUILocale.get(lg, 'permissions.set.invoice.date'));
+
+                require(['Permissions'], function (Permissions) {
+                    Permissions.hasPermission('quiqqer.invoice.changeDate').then(function (has) {
+                        if (has) {
+                            Form.elements.date.set('disabled', false);
+                            Form.elements.date.set('title', '');
+                        }
+                    });
+                });
 
                 return QUI.parse(Container);
             }).then(function () {

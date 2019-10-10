@@ -6,6 +6,10 @@
             <de><![CDATA[QUIQQER - Shop - Rechnungssystem]]></de>
             <en><![CDATA[QUIQQER - Shop - Invoice]]></en>
         </locale>
+        <locale name="package.description">
+            <de><![CDATA[Das QUIQQER Rechnungsmodul integriert ein komplettes Rechnungsmanagement in QUIQQER.]]></de>
+            <en><![CDATA[The QUIQQER Invoice Module integrates complete invoice management in QUIQQER.]]></en>
+        </locale>
 
         <locale name="erp.panel.accounting.text">
             <de><![CDATA[Buchhaltung]]></de>
@@ -113,6 +117,10 @@
         <locale name="permission.quiqqer.invoice.temporary.copy">
             <de><![CDATA[Darf Rechnungsentwürfe kopieren.]]></de>
             <en><![CDATA[Is allowed to copy temporary invoices.]]></en>
+        </locale>
+        <locale name="permission.quiqqer.invoice.changeDate">
+            <de><![CDATA[Darf Rechnungsdatum setzen.]]></de>
+            <en><![CDATA[Is allowed to set invoice date.]]></en>
         </locale>
 
         <locale name="paidstatus.open">
@@ -1221,6 +1229,15 @@
         <locale name="currency.select.all">
             <de><![CDATA[Alle]]></de>
             <en><![CDATA[All]]></en>
+        </locale>
+
+        <locale name="permissions.set.invoice.date">
+            <de><![CDATA[
+            Du besitzt nicht die nötigen Rechte das Rechnungsdatum zu setzen. Daher wird das heutige Datum verwendet.
+            ]]></de>
+            <en><![CDATA[
+            You do not have the necessary rights to set the invoice date. Therefore today's date is used.
+            ]]></en>
         </locale>
     </groups>
 

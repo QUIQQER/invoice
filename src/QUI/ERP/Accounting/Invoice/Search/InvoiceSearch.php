@@ -514,6 +514,13 @@ class InvoiceSearch extends Singleton
             \IntlDateFormatter::NONE
         );
 
+        $DateFormatterLong = new \IntlDateFormatter(
+            $localeCode[0],
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::SHORT
+        );
+
+
         $needleFields = [
             'customer_id',
             'customer_name',
@@ -585,6 +592,7 @@ class InvoiceSearch extends Singleton
                 );
 
                 $invoiceData['order_date'] = $Order->getCreateDate();
+                $invoiceData['order_date'] = $DateFormatterLong->format(\strtotime($invoiceData['order_date']));
             } catch (QUI\Exception $Exception) {
             }
 
@@ -602,9 +610,10 @@ class InvoiceSearch extends Singleton
             $invoiceData['globalProcessId']  = $Invoice->getGlobalProcessId();
             $invoiceData['date']             = $DateFormatter->format(\strtotime($Invoice->getAttribute('date')));
             $invoiceData['time_for_payment'] = $DateFormatter->format($timeForPayment);
+            $invoiceData['c_date']           = $DateFormatterLong->format(\strtotime($Invoice->getAttribute('c_date')));
 
             if ($Invoice->getAttribute('paid_date')) {
-                $invoiceData['paid_date'] = \date('Y-m-d', $Invoice->getAttribute('paid_date'));
+                $invoiceData['paid_date'] = $DateFormatter->format($Invoice->getAttribute('paid_date'));
             } else {
                 $invoiceData['paid_date'] = Handler::EMPTY_VALUE;
             }
