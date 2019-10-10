@@ -1226,6 +1226,15 @@
             <de><![CDATA[Alle]]></de>
             <en><![CDATA[All]]></en>
         </locale>
+
+        <locale name="permissions.set.invoice.date">
+            <de><![CDATA[
+            Du besitzt nicht die nötigen Rechte das Rechnungsdatum zu setzen. Daher wird das heutige Datum verwendet.
+            ]]></de>
+            <en><![CDATA[
+            You do not have the necessary rights to set the invoice date. Therefore today's date is used.
+            ]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">

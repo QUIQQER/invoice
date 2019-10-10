@@ -897,15 +897,17 @@ class InvoiceTemporary extends QUI\QDOM
 
         // data
         $User     = QUI::getUserBySession();
-        $date     = \date('Y-m-d H:i:s');
+        $date     = \date('Y-m-d H:i:s'); // invoice date, to today
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
         $Customer = $this->getCustomer();
         $Handler  = Handler::getInstance();
 
-        if ($this->getAttribute('date')
-            && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('date'))
-        ) {
-            $date = $this->getAttribute('date');
+        if (QUI\Permissions\Permission::hasPermission('quiqqer.invoice.change.date')) {
+            if ($this->getAttribute('date')
+                && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('date'))
+            ) {
+                $date = $this->getAttribute('date');
+            }
         }
 
         if ($Customer) {

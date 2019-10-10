@@ -129,8 +129,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 events   : {
                     onClick: this.print
                 }
-
-
             });
 
             this.addButton({
