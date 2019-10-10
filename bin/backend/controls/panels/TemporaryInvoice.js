@@ -276,24 +276,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 QUIFormUtils.setDataToForm(self.getAttribute('data'), Form);
 
-                // time fields
-                var time;
-
-                var dateDate = '',
-                    dateTime = '';
-
-                if (self.getAttribute('date')) {
-                    time = self.getAttribute('date').split(' ');
-
-                    dateDate = time[0];
-                    dateTime = time[1];
-                }
-
                 // set invoice date to today
                 // quiqqer/invoice#46
                 var local = new Date();
                 local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
-                dateDate = local.toJSON().slice(0, 10);
+                var dateDate = local.toJSON().slice(0, 10);
 
                 QUIFormUtils.setDataToForm({
                     date            : dateDate,
