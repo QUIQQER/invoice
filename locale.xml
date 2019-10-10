@@ -118,6 +118,10 @@
             <de><![CDATA[Darf Rechnungsentwürfe kopieren.]]></de>
             <en><![CDATA[Is allowed to copy temporary invoices.]]></en>
         </locale>
+        <locale name="quiqqer.invoice.changeDate">
+            <de><![CDATA[Darf Rechnungsdatum setzen.]]></de>
+            <en><![CDATA[Is allowed to set invoice date.]]></en>
+        </locale>
 
         <locale name="paidstatus.open">
             <de><![CDATA[offen]]></de>

@@ -306,7 +306,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 Form.elements.date.set('title', QUILocale.get(lg, 'permissions.set.invoice.date'));
 
                 require(['Permissions'], function (Permissions) {
-                    Permissions.hasPermission('quiqqer.invoice.change.date').then(function (has) {
+                    Permissions.hasPermission('quiqqer.invoice.changeDate').then(function (has) {
                         if (has) {
                             Form.elements.date.set('disabled', false);
                             Form.elements.date.set('title', '');

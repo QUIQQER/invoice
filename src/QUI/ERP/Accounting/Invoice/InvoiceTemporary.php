@@ -902,7 +902,7 @@ class InvoiceTemporary extends QUI\QDOM
         $Customer = $this->getCustomer();
         $Handler  = Handler::getInstance();
 
-        if (QUI\Permissions\Permission::hasPermission('quiqqer.invoice.change.date')) {
+        if (QUI\Permissions\Permission::hasPermission('quiqqer.invoice.changeDate')) {
             if ($this->getAttribute('date')
                 && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('date'))
             ) {
