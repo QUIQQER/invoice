@@ -885,12 +885,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
                         Menu.appendChild(
                             new QUIMenuItem({
-                                icon  : 'fa fa-users',
+                                icon  : 'fa fa-user-o',
                                 text  : QUILocale.get(lg, 'journal.contextMenu.open.user'),
                                 events: {
                                     onClick: function () {
-                                        require(['utils/Panels'], function (PanelUtils) {
-                                            PanelUtils.openUserPanel(rowData.customer_id);
+                                        require(['package/quiqqer/customer/bin/backend/Handler'], function (CustomerHandler) {
+                                            CustomerHandler.openCustomer(rowData.customer_id);
                                         });
                                     }
                                 }

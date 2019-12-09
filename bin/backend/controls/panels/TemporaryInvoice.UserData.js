@@ -508,11 +508,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 this.$Panel.Loader.show();
             }
 
-            require(['utils/Panels'], function (PanelUtils) {
-                PanelUtils.openUserPanel(self.getAttribute('userId')).then(function () {
-                    if (self.$Panel) {
-                        self.$Panel.Loader.hide();
-                    }
+            require(['package/quiqqer/customer/bin/backend/Handler'], function (CustomerHandler) {
+                CustomerHandler.openCustomer(self.getAttribute('userId')).then(function() {
+                    self.$Panel.Loader.hide();
                 });
             });
         }
