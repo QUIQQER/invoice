@@ -222,4 +222,20 @@ class EventHandler
             QUI\System\Log::writeDebugException($Exception);
         }
     }
+
+    /**
+     * @param QUI\Users\User $User
+     * @param QUI\ERP\Comments $Comments
+     */
+    public static function onQuiqqerErpGetCommentsByUser(
+        QUI\Users\User $User,
+        QUI\ERP\Comments $Comments
+    ) {
+        $Handler  = Handler::getInstance();
+        $invoices = $Handler->getInvoicesByUser($User);
+
+        foreach ($invoices as $Invoice) {
+            $Comments->import($Invoice->getComments());
+        }
+    }
 }

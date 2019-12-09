@@ -88,17 +88,41 @@ class Handler extends QUI\Utils\Singleton
     }
 
     /**
-     * Return the temporary invoice table name
+     * Return all invoices by an user
      *
-     * @return string
+     * @param QUI\Users\User $User
+     * @return Invoice[]
      */
-    public function temporaryInvoiceTable()
+    public function getInvoicesByUser(QUI\Users\User $User)
     {
-        return QUI::getDBTableName(self::TABLE_TEMPORARY_INVOICE);
+        $result = [];
+
+        try {
+            $invoices = QUI::getDataBase()->fetch([
+                'select' => 'id',
+                'from'   => self::invoiceTable(),
+                'where'  => [
+                    'customer_id' => $User->getId()
+                ]
+            ]);
+        } catch (QUI\Exception $Exception) {
+            return [];
+        }
+
+        foreach ($invoices as $invoice) {
+            try {
+                $result[] = $this->getInvoice($invoice['id']);
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::addDebug($Exception->getMessage());
+            }
+        }
+
+        return $result;
     }
 
     /**
      * Delete a temporary invoice
+     * Only temporary invoices are deletable
      *
      * @param string $invoiceId - ID of a temporary Invoice
      * @param QUI\Interfaces\Users\User|null $User
@@ -122,6 +146,8 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param array $params - search params
      * @return array
+     *
+     * @throws QUI\DataBase\Exception
      */
     public function search($params = [])
     {
@@ -160,6 +186,8 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param array $queryParams - optional
      * @return int
+     *
+     * @throws QUI\DataBase\Exception
      */
     public function count($queryParams = [])
     {
@@ -229,6 +257,8 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param array $queryParams - optional
      * @return int
+     *
+     * @throws QUI\DataBase\Exception
      */
     public function countTemporaryInvoices($queryParams = [])
     {
@@ -371,6 +401,18 @@ class Handler extends QUI\Utils\Singleton
         return $result[0];
     }
 
+    //region temporary
+
+    /**
+     * Return the temporary invoice table name
+     *
+     * @return string
+     */
+    public function temporaryInvoiceTable()
+    {
+        return QUI::getDBTableName(self::TABLE_TEMPORARY_INVOICE);
+    }
+
     /**
      * Return a temporary invoice
      *
@@ -467,11 +509,15 @@ class Handler extends QUI\Utils\Singleton
         return $result[0];
     }
 
+    //endregion
+
     /**
      * Return all invoices from a process id
      *
      * @param $processId
      * @return Invoice[]|InvoiceTemporary[]
+     *
+     * @throws QUI\DataBase\Exception
      */
     public function getInvoicesByGlobalProcessId($processId)
     {

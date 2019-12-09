@@ -159,7 +159,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 return Promise.resolve();
             }
 
-            if (this.$CustomerSelect.getValue() === '' &&
+            if (this.$CustomerSelect &&
+                this.$CustomerSelect.getValue() === '' &&
                 this.getAttribute('userId')) {
                 this.$CustomerSelect.addItem(this.getAttribute('userId'));
             }
@@ -305,7 +306,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     return self.openCreateAddressDialog(User).then(function () {
                         return User.getAddressList().then(resolve);
                     }).catch(reject);
-                }).catch(function() {
+                }).catch(function () {
                     resolve([]);
                 });
             });
@@ -320,7 +321,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          */
         $onInject: function () {
             var loaded         = false;
-            var CustomerSelect = this.$Elm.getElements('[name="customer"]');
+            var CustomerSelect = this.$Elm.getElement('[name="customer"]');
 
             QUI.parse(this.$Elm).then(function () {
                 var self = this;
@@ -328,6 +329,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 this.$CustomerSelect = QUI.Controls.getById(
                     CustomerSelect.get('data-quiid')
                 );
+
 
                 this.$CustomerSelect.addEvents({
                     change      : function (Control) {
@@ -506,11 +508,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 this.$Panel.Loader.show();
             }
 
-            require(['utils/Panels'], function (PanelUtils) {
-                PanelUtils.openUserPanel(self.getAttribute('userId')).then(function () {
-                    if (self.$Panel) {
-                        self.$Panel.Loader.hide();
-                    }
+            require(['package/quiqqer/customer/bin/backend/Handler'], function (CustomerHandler) {
+                CustomerHandler.openCustomer(self.getAttribute('userId')).then(function() {
+                    self.$Panel.Loader.hide();
                 });
             });
         }
