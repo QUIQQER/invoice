@@ -1125,7 +1125,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                     self.setAttribute('articles', data.articles.articles);
                 }
-                
+
                 if (data.invoice_address) {
                     self.setAttribute('invoice_address', data.invoice_address);
                 }

@@ -68,6 +68,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             this.$extrasAreOpen = false;
             this.$oldUserId     = false;
 
+            this.$loading   = true;
+            this.$setValues = false;
+
             this.$Panel = null;
         },
 
@@ -165,7 +168,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
             this.refreshValues();
 
-            return this.refresh();
+            if (this.$CustomerSelect &&
+                this.$CustomerSelect.getValue() === '' &&
+                this.getAttribute('userId')) {
+
+                this.$setValues = true;
+                this.$CustomerSelect.addItem(this.getAttribute('userId'));
+            }
         },
 
         /**
@@ -285,6 +294,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 self.setAttributes(address);
 
                 self.$AddressField.value = address.id;
+
                 self.refreshValues();
             });
         },
@@ -462,9 +472,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          * event on import
          */
         $onInject: function () {
-            var self   = this;
-            var loaded = false;
-
+            var self           = this;
             var CustomerSelect = this.$Elm.getElement('[name="customer"]');
 
             this.$Elm.getElement('button').addEvent('click', function () {
@@ -484,7 +492,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 this.$CustomerSelect.addEvents({
                     change      : function (Control) {
-                        if (loaded) {
+                        if (self.$setValues) {
+                            self.$setValues = false;
+                            return;
+                        }
+
+                        if (self.$loading === false) {
                             self.setUserId(Control.getValue());
                         }
                     },
@@ -497,12 +510,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 if (this.getAttribute('userId')) {
                     this.$CustomerEdit.addEvent('onAddItem', function () {
-                        loaded = true;
+                        self.$loading = false;
                     });
 
                     this.$CustomerSelect.addItem(this.getAttribute('userId'));
                 } else {
-                    loaded = true;
+                    self.$loading = false;
                 }
 
                 this.refreshValues();

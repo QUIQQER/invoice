@@ -605,6 +605,13 @@ class InvoiceTemporary extends QUI\QDOM
                 (int)$this->getAttribute('invoice_address_id')
             );
 
+            $invoiceAddressData = $this->getAttribute('invoice_address');
+            $invoiceAddressData = \json_decode($invoiceAddressData, true);
+
+            if ($invoiceAddressData) {
+                $Address->setAttributes($invoiceAddressData);
+            }
+
             $invoiceAddress = $Address->toJSON();
             $this->Articles->setUser($Customer);
         } catch (QUI\Exception $Exception) {
