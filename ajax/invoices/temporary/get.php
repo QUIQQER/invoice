@@ -15,8 +15,13 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_get',
     function ($invoiceId) {
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
+        $invoice = $Invoice->toArray();
 
-        return $Invoice->toArray();
+        if (isset($invoice['invoice_address']) && \is_string($invoice['invoice_address'])) {
+            $invoice['invoice_address'] = \json_decode($invoice['invoice_address'], true);
+        }
+
+        return $invoice;
     },
     ['invoiceId'],
     'Permission::checkAdminUser'

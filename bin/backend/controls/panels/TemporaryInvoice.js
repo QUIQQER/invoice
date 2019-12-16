@@ -64,6 +64,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         options: {
             invoiceId         : false,
             customer_id       : false,
+            invoice_address   : false,
             invoice_address_id: false,
             project_name      : '',
             date              : '',
@@ -349,6 +350,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 });
 
+                //Data.setAddress();
+
                 // editor
                 EditorId.addEvent('onChange', function () {
                     self.setAttribute('editor_id', EditorId.getValue());
@@ -386,10 +389,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     OrderedBy.addItem(self.getAttribute('ordered_by'));
                 }
 
-                return Data.setValue(
-                    self.getAttribute('customer_id'),
-                    self.getAttribute('invoice_address_id')
-                );
+                // invoice address
+                var address = self.getAttribute('invoice_address');
+
+                if (!address) {
+                    address = {};
+                }
+
+                address.userId    = self.getAttribute('customer_id');
+                address.addressId = self.getAttribute('invoice_address_id');
+
+                return Data.setValue(address);
             }).then(function () {
                 var Container = self.getContent().getElement('.container');
 
@@ -1114,6 +1124,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     };
 
                     self.setAttribute('articles', data.articles.articles);
+                }
+                
+                if (data.invoice_address) {
+                    self.setAttribute('invoice_address', data.invoice_address);
                 }
 
                 self.refresh();
