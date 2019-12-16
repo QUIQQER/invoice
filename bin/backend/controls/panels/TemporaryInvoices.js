@@ -335,6 +335,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'node',
                     width    : 30
                 }, {
+                    header   : QUILocale.get(lg, 'journal.grid.status'),
+                    dataIndex: 'paid_status_display',
+                    dataType : 'string',
+                    width    : 120
+                }, {
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
                     dataType : 'integer',
@@ -371,11 +376,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataIndex: 'c_username',
                     dataType : 'integer',
                     width    : 180
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.status'),
-                    dataIndex: 'paid_status_display',
-                    dataType : 'string',
-                    width    : 120
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.netto'),
                     dataIndex: 'display_nettosum',

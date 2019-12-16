@@ -1,14 +1,32 @@
+
+.payment-status-0,
+.payment-status-1,
+.payment-status-2,
+    /*.payment-status-3,*/
+.payment-status-4,
+    /*.payment-status-5,*/
+.payment-status-11,
+.payment-status-12 {
+    border-width: 1px;
+    border-style: solid;
+    padding: 2px 5px;
+    text-transform: uppercase;
+}
+
 .payment-status-0 {
+    border-color: blue;
     color: blue;
     font-weight: bold;
 }
 
 .payment-status-1 {
+    border-color: green;
     color: green;
     font-weight: bold;
 }
 
 .payment-status-2 {
+    border-color: orange;
     color: orange;
     font-weight: bold;
 }
@@ -18,6 +36,7 @@
 }
 
 .payment-status-4 {
+    border-color: red;
     color: red;
     font-weight: bold;
 }
@@ -27,11 +46,13 @@
 }
 
 .payment-status-11 {
+    border-color: purple;
     color: purple;
     font-weight: bold;
 }
 
 .payment-status-12 {
+    border-color: #004e5a;
     color: #004e5a;
     font-weight: bold;
 }

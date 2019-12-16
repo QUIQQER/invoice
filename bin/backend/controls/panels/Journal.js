@@ -481,6 +481,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     showNotInExport: true,
                     export         : false
                 }, {
+                    header   : QUILocale.get(lg, 'journal.grid.status'),
+                    dataIndex: 'paid_status_display',
+                    dataType : 'string',
+                    width    : 120,
+                    export   : false
+                }, {
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
                     dataType : 'integer',
@@ -519,12 +525,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 130,
                     sortable : false
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.status'),
-                    dataIndex: 'paid_status_display',
-                    dataType : 'string',
-                    width    : 120,
-                    export   : false
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_clean',
