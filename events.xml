@@ -15,5 +15,11 @@
            fire="\QUI\ERP\Accounting\Invoice\EventHandler::onFrontendUsersAddressTop"
     />
 
-    <event on="onUserSaveBegin" fire="\QUI\ERP\Accounting\Invoice\EventHandler::onUserSaveBegin"/>
+    <event on="onUserSaveBegin"
+           fire="\QUI\ERP\Accounting\Invoice\EventHandler::onUserSaveBegin"
+    />
+
+    <event on="onQuiqqerErpGetCommentsByUser"
+           fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerErpGetCommentsByUser"
+    />
 </events>

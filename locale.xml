@@ -240,8 +240,8 @@
             <en><![CDATA[Close the extended view]]></en>
         </locale>
         <locale name="invoice.temporary.extend.userEdit">
-            <de><![CDATA[Benutzer bearbeiten]]></de>
-            <en><![CDATA[Edit User]]></en>
+            <de><![CDATA[Kunde bearbeiten]]></de>
+            <en><![CDATA[Edit customer]]></en>
         </locale>
 
         <locale name="netto">
@@ -477,8 +477,8 @@
             <en><![CDATA[Open invoice]]></en>
         </locale>
         <locale name="journal.contextMenu.open.user">
-            <de><![CDATA[Benutzer öffnen]]></de>
-            <en><![CDATA[Open user]]></en>
+            <de><![CDATA[Kunde öffnen]]></de>
+            <en><![CDATA[Open customer]]></en>
         </locale>
 
         <locale name="temporary.btn.deleteInvoice">
@@ -1239,6 +1239,17 @@
             You do not have the necessary rights to set the invoice date. Therefore today's date is used.
             ]]></en>
         </locale>
+
+
+        <locale name="window.customer.address.select.title">
+            <de><![CDATA[Kundenadresse auswählen]]></de>
+            <en><![CDATA[Select customer address]]></en>
+        </locale>
+        <locale name="window.customer.address.select.information">
+            <de><![CDATA[Bitte wähle eine Kundenadresse aus:]]></de>
+            <en><![CDATA[Please select a customer address:]]></en>
+        </locale>
+
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">

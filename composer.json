@@ -2,7 +2,6 @@
   "name": "quiqqer\/invoice",
   "type": "quiqqer-module",
   "description": "",
-  "version": "dev-master",
   "license": [
     "PCSG QEL-1.0"
   ],
@@ -22,11 +21,12 @@
     "php": ">=5.6",
     "quiqqer\/quiqqer": "1.*|dev-master|dev-dev",
     "quiqqer\/erp": "1.*|dev-master|dev-dev",
+    "quiqqer\/customer": "1.*|dev-master|dev-dev",
     "quiqqer\/payments": "1.*|dev-master|dev-dev",
     "quiqqer\/invoice-accounting-template": "dev-master|dev-dev",
-    "quiqqer/payment-transactions": "1.*|dev-master|dev-dev",
-    "quiqqer/htmltopdf": "1.*|dev-master|dev-dev",
-    "ramsey/uuid": "3.*"
+    "quiqqer\/payment-transactions": "1.*|dev-master|dev-dev",
+    "quiqqer\/htmltopdf": "1.*|dev-master|dev-dev",
+    "ramsey\/uuid": "3.*"
   },
   "autoload": {
     "psr-4": {

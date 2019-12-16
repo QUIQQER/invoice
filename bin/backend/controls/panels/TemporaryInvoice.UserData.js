@@ -22,7 +22,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
              Mustache, template) {
     "use strict";
 
-    var lg = 'quiqqer/invoice';
+    var lg     = 'quiqqer/invoice';
+    var fields = ['company', 'street_no', 'zip', 'city'];
 
     return new Class({
 
@@ -37,7 +38,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
         options: {
             userId   : false,
-            addressId: false
+            addressId: false,
+
+            company: false,
+            street : false,
+            zip    : false,
+            city   : false
         },
 
         initialize: function (options) {
@@ -49,18 +55,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
             this.$CustomerSelect = null;
 
-            this.$Extras        = null;
-            this.$Company       = null;
-            this.$Street        = null;
-            this.$Zip           = null;
-            this.$City          = null;
-            this.$Table         = null;
-            this.$AddressRow    = null;
-            this.$AddressSelect = null;
+            this.$Extras       = null;
+            this.$Company      = null;
+            this.$Street       = null;
+            this.$Zip          = null;
+            this.$City         = null;
+            this.$Table        = null;
+            this.$AddressRow   = null;
+            this.$AddressField = null;
 
             this.$rows          = [];
             this.$extrasAreOpen = false;
             this.$oldUserId     = false;
+
+            this.$loading   = true;
+            this.$setValues = false;
 
             this.$Panel = null;
         },
@@ -70,8 +79,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          * @returns {*}
          */
         create: function () {
-            var self = this;
-
             this.$Elm = new Element('div', {
                 html: Mustache.render(template, {
                     textTitle   : QUILocale.get(lg, 'cutomerData'),
@@ -97,15 +104,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             this.$Zip     = this.$Elm.getElement('[name="zip"]');
             this.$City    = this.$Elm.getElement('[name="city"]');
 
-            this.$Table         = this.$Elm.getElement('.invoice-data-customer');
-            this.$rows          = this.$Table.getElements('.closable');
-            this.$AddressRow    = this.$Table.getElement('.address-row');
-            this.$AddressSelect = this.$Table.getElement('[name="address"]');
-            this.$triggerChange = null;
+            this.$Table          = this.$Elm.getElement('.invoice-data-customer');
+            this.$rows           = this.$Table.getElements('.closable');
+            this.$AddressRow     = this.$Table.getElement('.address-row');
+            this.$AddressField   = this.$Table.getElement('[name="address"]');
+            this.$AddressDisplay = null;
+            this.$triggerChange  = null;
 
+
+            this.$AddressField.type = 'hidden';
+
+            this.$AddressDisplay = new Element('input', {
+                'class' : 'field-container-field',
+                disabled: true
+            }).inject(this.$AddressField, 'after');
+
+
+            /*
             this.$AddressSelect.addEvent('change', function () {
                 self.setAddressId(this.value);
             });
+            */
 
             return this.$Elm;
         },
@@ -116,23 +135,89 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          * @returns {{userId: *, addressId: *}}
          */
         getValue: function () {
-            return {
+            var result = {
                 userId   : this.getAttribute('userId'),
                 addressId: this.getAttribute('addressId')
             };
+
+            fields.forEach(function (field) {
+                if (this.getAttribute(field)) {
+                    result[field] = this.getAttribute(field);
+                }
+            }.bind(this));
+
+            return result;
         },
 
         /**
          * Set the complete data values
          *
-         * @param {String|Number} userId
-         * @param {String|Number} addressId
+         * @param {Object} data
          */
-        setValue: function (userId, addressId) {
-            this.setAttribute('userId', userId);
-            this.setAttribute('addressId', addressId);
+        setValue: function (data) {
+            var self = this;
 
-            return this.refresh();
+            this.setAttribute('userId', data.userId);
+            this.setAttribute('addressId', data.addressId);
+
+            fields.forEach(function (field) {
+                if (typeof data[field] !== 'undefined') {
+                    self.setAttribute(field, data[field]);
+                }
+            });
+
+            this.refreshValues();
+
+            if (this.$CustomerSelect &&
+                this.$CustomerSelect.getValue() === '' &&
+                this.getAttribute('userId')) {
+
+                this.$setValues = true;
+                this.$CustomerSelect.addItem(this.getAttribute('userId'));
+            }
+        },
+
+        /**
+         * refresh the values
+         */
+        refreshValues: function () {
+            var checkVal = function (val) {
+                return !(!val || val === '' || val === 'false');
+            };
+
+            var str = [];
+
+            if (checkVal(this.getAttribute('company'))) {
+                this.$Company.value = this.getAttribute('company');
+
+                str.push(this.getAttribute('company'));
+            }
+
+            if (checkVal(this.getAttribute('street_no'))) {
+                this.$Street.value = this.getAttribute('street_no');
+
+                str.push(this.getAttribute('street_no'));
+            }
+
+            if (checkVal(this.getAttribute('zip'))) {
+                this.$Zip.value = this.getAttribute('zip');
+
+                str.push(this.getAttribute('zip'));
+            }
+
+            if (checkVal(this.getAttribute('city'))) {
+                this.$City.value = this.getAttribute('city');
+
+                str.push(this.getAttribute('city'));
+            }
+
+            str = str.join(', ');
+
+            if (str === '') {
+                return;
+            }
+
+            this.$AddressDisplay.value = str;
         },
 
         /**
@@ -141,7 +226,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          * @return {Promise}
          */
         refresh: function () {
-            if (!this.$Elm || !this.$AddressSelect) {
+            if (!this.$Elm || !this.$AddressField) {
                 return Promise.resolve();
             }
 
@@ -159,7 +244,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 return Promise.resolve();
             }
 
-            if (this.$CustomerSelect.getValue() === '' &&
+            if (this.$CustomerSelect &&
+                this.$CustomerSelect.getValue() === '' &&
                 this.getAttribute('userId')) {
                 this.$CustomerSelect.addItem(this.getAttribute('userId'));
             }
@@ -175,8 +261,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 return self.getAddressList(User);
             }).then(function (addresses) {
-                self.$AddressSelect.set('html', '');
-
                 if (!addresses.length) {
                     self.$AddressRow.setStyle('display', 'none');
                     return;
@@ -184,24 +268,34 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 self.$AddressRow.setStyle('display', null);
 
-                for (var i = 0, len = addresses.length; i < len; i++) {
-                    new Element('option', {
-                        value: addresses[i].id,
-                        html : addresses[i].text
-                    }).inject(self.$AddressSelect);
-                }
-
+                var address   = null;
                 var addressId = self.getAttribute('addressId');
 
-                if (TemporaryUser.getAttribute('quiqqer.erp.address')) {
-                    addressId = TemporaryUser.getAttribute('quiqqer.erp.address');
+                // reset fields
+                fields.forEach(function (field) {
+                    self.setAttribute(field, '');
+                });
+
+                if (addressId) {
+                    var filter = addresses.filter(function (address) {
+                        return address.id === addressId;
+                    });
+
+                    if (filter.length) {
+                        address = filter[0];
+                    }
                 }
 
-                if (!self.$AddressSelect.getElement('[value="' + addressId + '"]')) {
-                    addressId = addresses[0].id;
+                if (address === null) {
+                    address = addresses[0];
                 }
 
-                self.$AddressSelect.value = addressId || addresses[0].id;
+                // set fields
+                self.setAttributes(address);
+
+                self.$AddressField.value = address.id;
+
+                self.refreshValues();
             });
         },
 
@@ -228,7 +322,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
             return this.refresh().then(function () {
                 self.$fireChange();
-                self.$AddressSelect.fireEvent('change');
+                self.$AddressField.fireEvent('change');
             }, function () {
                 self.setAttribute('userId', self.$oldUserId);
                 self.$CustomerSelect.addItem(self.$oldUserId);
@@ -250,10 +344,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 }
 
                 QUIAjax.get('ajax_users_address_get', function (address) {
-                    self.$Company.set('value', address.company);
-                    self.$Street.set('value', address.street_no);
-                    self.$Zip.set('value', address.zip);
-                    self.$City.set('value', address.city);
+                    self.setAttributes(address);
+                    self.refreshValues();
 
                     self.setAttribute('addressId', addressId);
                     self.$fireChange();
@@ -305,8 +397,69 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     return self.openCreateAddressDialog(User).then(function () {
                         return User.getAddressList().then(resolve);
                     }).catch(reject);
-                }).catch(function() {
+                }).catch(function () {
                     resolve([]);
+                });
+            });
+        },
+
+        /**
+         * Open the address window
+         *
+         * @return {Promise}
+         */
+        openAddressWindow: function () {
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                require(['qui/controls/windows/Confirm'], function (QUIWindow) {
+                    new QUIWindow({
+                        icon     : 'fa fa-address-book-o',
+                        title    : QUILocale.get(lg, 'window.customer.address.select.title'),
+                        maxHeight: 300,
+                        maxWidth : 500,
+                        autoclose: false,
+                        events   : {
+                            onOpen: function (Win) {
+                                Win.Loader.show();
+
+                                Win.getContent()
+                                   .set('html', QUILocale.get(lg, 'window.customer.address.select.information'));
+
+                                var Select = new Element('select', {
+                                    styles: {
+                                        display: 'block',
+                                        clear  : 'both',
+                                        margin : '1rem auto 0',
+                                        width  : 300
+                                    }
+                                }).inject(Win.getContent());
+
+                                self.$getUser().then(function (User) {
+                                    return self.getAddressList(User);
+                                }).then(function (addresses) {
+                                    for (var i = 0, len = addresses.length; i < len; i++) {
+                                        new Element('option', {
+                                            value: addresses[i].id,
+                                            html : addresses[i].text
+                                        }).inject(Select);
+                                    }
+
+                                    Win.Loader.hide();
+                                });
+                            },
+
+                            onSubmit: function (Win) {
+                                var Select    = Win.getContent().getElement('select');
+                                var addressId = parseInt(Select.value);
+
+                                resolve(addressId);
+                                Win.close();
+                            },
+
+                            onCancel: reject
+                        }
+                    }).open();
                 });
             });
         },
@@ -319,8 +472,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          * event on import
          */
         $onInject: function () {
-            var loaded         = false;
-            var CustomerSelect = this.$Elm.getElements('[name="customer"]');
+            var self           = this;
+            var CustomerSelect = this.$Elm.getElement('[name="customer"]');
+
+            this.$Elm.getElement('button').addEvent('click', function () {
+                self.openAddressWindow().then(function (addressId) {
+                    return self.setAddressId(addressId);
+                }).catch(function () {
+                    // nothing
+                });
+            });
 
             QUI.parse(this.$Elm).then(function () {
                 var self = this;
@@ -331,7 +492,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 this.$CustomerSelect.addEvents({
                     change      : function (Control) {
-                        if (loaded) {
+                        if (self.$setValues) {
+                            self.$setValues = false;
+                            return;
+                        }
+
+                        if (self.$loading === false) {
                             self.setUserId(Control.getValue());
                         }
                     },
@@ -344,13 +510,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 if (this.getAttribute('userId')) {
                     this.$CustomerEdit.addEvent('onAddItem', function () {
-                        loaded = true;
+                        self.$loading = false;
                     });
 
                     this.$CustomerSelect.addItem(this.getAttribute('userId'));
                 } else {
-                    loaded = true;
+                    self.$loading = false;
                 }
+
+                this.refreshValues();
 
                 if (this.getElm().getParent('.qui-panel')) {
                     this.$Panel = QUI.Controls.getById(
@@ -506,11 +674,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 this.$Panel.Loader.show();
             }
 
-            require(['utils/Panels'], function (PanelUtils) {
-                PanelUtils.openUserPanel(self.getAttribute('userId')).then(function () {
-                    if (self.$Panel) {
-                        self.$Panel.Loader.hide();
-                    }
+            require(['package/quiqqer/customer/bin/backend/Handler'], function (CustomerHandler) {
+                CustomerHandler.openCustomer(self.getAttribute('userId')).then(function () {
+                    self.$Panel.Loader.hide();
                 });
             });
         }
