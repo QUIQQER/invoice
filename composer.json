@@ -1,36 +1,36 @@
 {
-  "name": "quiqqer\/invoice",
-  "type": "quiqqer-module",
-  "description": "",
-  "license": [
-    "PCSG QEL-1.0"
-  ],
-  "authors": [
-    {
-      "name": "Henning Leutz",
-      "email": "leutz@pcsg.de",
-      "homepage": "http:\/\/www.pcsg.de",
-      "role": "Developer"
+    "name": "quiqqer\/invoice",
+    "type": "quiqqer-module",
+    "description": "",
+    "license": [
+        "PCSG QEL-1.0"
+    ],
+    "authors": [
+        {
+            "name": "Henning Leutz",
+            "email": "leutz@pcsg.de",
+            "homepage": "http:\/\/www.pcsg.de",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "support@pcsg.de",
+        "url": "http:\/\/www.pcsg.de"
+    },
+    "require": {
+        "php": ">=5.6",
+        "quiqqer\/quiqqer": "1.*|dev-master|dev-dev",
+        "quiqqer\/erp": "1.*|dev-master|dev-dev",
+        "quiqqer\/customer": "1.*|dev-master|dev-dev",
+        "quiqqer\/payments": "1.*|dev-master|dev-dev",
+        "quiqqer\/invoice-accounting-template": "dev-master|dev-dev",
+        "quiqqer\/payment-transactions": "1.*|dev-master|dev-dev",
+        "quiqqer\/htmltopdf": "1.*|dev-master|dev-dev",
+        "ramsey\/uuid": "3.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "QUI\\ERP\\": "src\/QUI\/ERP"
+        }
     }
-  ],
-  "support": {
-    "email": "support@pcsg.de",
-    "url": "http:\/\/www.pcsg.de"
-  },
-  "require": {
-    "php": ">=5.6",
-    "quiqqer\/quiqqer": "1.*|dev-master|dev-dev",
-    "quiqqer\/erp": "1.*|dev-master|dev-dev",
-    "quiqqer\/customer": "1.*|dev-master|dev-dev",
-    "quiqqer\/payments": "1.*|dev-master|dev-dev",
-    "quiqqer\/invoice-accounting-template": "dev-master|dev-dev",
-    "quiqqer\/payment-transactions": "1.*|dev-master|dev-dev",
-    "quiqqer\/htmltopdf": "1.*|dev-master|dev-dev",
-    "ramsey\/uuid": "3.*"
-  },
-  "autoload": {
-    "psr-4": {
-      "QUI\\ERP\\": "src\/QUI\/ERP"
-    }
-  }
 }
