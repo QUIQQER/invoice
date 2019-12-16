@@ -252,8 +252,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 return self.getAddressList(User);
             }).then(function (addresses) {
-                self.$AddressField.set('html', '');
-
                 if (!addresses.length) {
                     self.$AddressRow.setStyle('display', 'none');
                     return;
@@ -261,24 +259,33 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 self.$AddressRow.setStyle('display', null);
 
-                for (var i = 0, len = addresses.length; i < len; i++) {
-                    new Element('option', {
-                        value: addresses[i].id,
-                        html : addresses[i].text
-                    }).inject(self.$AddressField);
-                }
-
+                var address   = null;
                 var addressId = self.getAttribute('addressId');
 
-                if (TemporaryUser.getAttribute('quiqqer.erp.address')) {
-                    addressId = TemporaryUser.getAttribute('quiqqer.erp.address');
+                // reset fields
+                fields.forEach(function (field) {
+                    self.setAttribute(field, '');
+                });
+
+                if (addressId) {
+                    var filter = addresses.filter(function (address) {
+                        return address.id === addressId;
+                    });
+
+                    if (filter.length) {
+                        address = filter[0];
+                    }
                 }
 
-                if (!self.$AddressField.getElement('[value="' + addressId + '"]')) {
-                    addressId = addresses[0].id;
+                if (address === null) {
+                    address = addresses[0];
                 }
 
-                self.$AddressField.value = addressId || addresses[0].id;
+                // set fields
+                self.setAttributes(address);
+
+                self.$AddressField.value = address.id;
+                self.refreshValues();
             });
         },
 
@@ -433,10 +440,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                             },
 
                             onSubmit: function (Win) {
-                                resolve(
-                                    parseInt(Win.getContent().getElement('select').value)
-                                );
+                                var Select    = Win.getContent().getElement('select');
+                                var addressId = parseInt(Select.value);
 
+                                resolve(addressId);
                                 Win.close();
                             },
 
