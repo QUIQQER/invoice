@@ -210,3 +210,7 @@
 .invoices-invoice-details td {
     padding: 3px 10px;
 }
+
+.invoices-invoice-details .articles-sum td {
+    font-size: 14px !important;
+}
