@@ -16,7 +16,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
     'Locale',
     'Ajax',
 
-    'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
+    'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css',
+    'css!package/quiqqer/erp/bin/backend/payment-status.css'
 
 ], function (QUI, QUIPanel, QUIConfirm, QUIButton, QUIContextMenuItem, Grid, Invoices, QUILocale, QUIAjax) {
     "use strict";
@@ -338,7 +339,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_display',
                     dataType : 'string',
-                    width    : 120
+                    width    : 120,
+                    className: 'grid-align-center'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',

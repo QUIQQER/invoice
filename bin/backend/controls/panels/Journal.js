@@ -22,7 +22,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
     'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html',
     'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.Total.html',
-    'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
+
+    'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css',
+    'css!package/quiqqer/erp/bin/backend/payment-status.css'
 
 ], function (QUI, QUIPanel, QUIButton, QUISeparator, QUISelect, QUIConfirm, QUIContextMenuItem, Grid, Invoices, TimeFilter,
              QUILocale, QUIAjax, Mustache, templateInvoiceDetails, templateTotal) {
@@ -485,7 +487,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataIndex: 'paid_status_display',
                     dataType : 'string',
                     width    : 120,
-                    export   : false
+                    export   : false,
+                    className: 'grid-align-center'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',

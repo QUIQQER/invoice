@@ -123,3 +123,32 @@
     right: 10px;
     width: 400px;
 }
+
+
+/** invoice details
+ ================================================= */
+
+.invoices-invoice-details table {
+    border-collapse: collapse;
+    border: 0 solid;
+    font: normal 11px verdana, arial, helvetica, sans-serif;
+    width: 100%;
+}
+
+.invoices-invoice-details thead,
+.invoices-invoice-details tfoot {
+    height: 24px;
+}
+
+.invoices-invoice-details tfoot th {
+    padding: 5px;
+}
+
+.invoices-invoice-details thead th {
+    padding: 5px;
+    border-right: 1px solid #DDDDDD;
+}
+
+.invoices-invoice-details td {
+    padding: 3px 10px;
+}

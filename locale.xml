@@ -253,39 +253,39 @@
             <en><![CDATA[Gross]]></en>
         </locale>
 
-        <locale name="payment.status.0" html="true">
-            <de><![CDATA[<span class="payment-status-0">offen</span>]]></de>
-            <en><![CDATA[<span class="payment-status-0">open</span>]]></en>
+        <locale name="payment.status.0">
+            <de><![CDATA[offen]]></de>
+            <en><![CDATA[open]]></en>
         </locale>
-        <locale name="payment.status.1" html="true">
-            <de><![CDATA[<span class="payment-status-1">bezahlt</span>]]></de>
-            <en><![CDATA[<span class="payment-status-1">paid</span>]]></en>
+        <locale name="payment.status.1">
+            <de><![CDATA[bezahlt]]></de>
+            <en><![CDATA[paid]]></en>
         </locale>
-        <locale name="payment.status.2" html="true">
-            <de><![CDATA[<span class="payment-status-2">Teilzahlung</span>]]></de>
-            <en><![CDATA[<span class="payment-status-2">part payment</span>]]></en>
+        <locale name="payment.status.2">
+            <de><![CDATA[Teilzahlung]]></de>
+            <en><![CDATA[part payment]]></en>
         </locale>
-        <locale name="payment.status.3" html="true">
-            <de><![CDATA[<span class="payment-status-3">storniert</span>]]></de>
-            <en><![CDATA[<span class="payment-status-3">canceled</span>]]></en>
+        <locale name="payment.status.3">
+            <de><![CDATA[storniert]]></de>
+            <en><![CDATA[canceled]]></en>
         </locale>
-        <locale name="payment.status.4" html="true">
-            <de><![CDATA[<span class="payment-status-4">error</span>]]></de>
-            <en><![CDATA[<span class="payment-status-4">error</span>]]></en>
+        <locale name="payment.status.4">
+            <de><![CDATA[error]]></de>
+            <en><![CDATA[error]]></en>
         </locale>
-        <locale name="payment.status.5" html="true">
-            <de><![CDATA[<span class="payment-status-5">storniert</span>]]></de>
-            <en><![CDATA[<span class="payment-status-5">canceled</span>]]></en>
+        <locale name="payment.status.5">
+            <de><![CDATA[storniert]]></de>
+            <en><![CDATA[canceled]]></en>
         </locale>
-        <locale name="payment.status.11" html="true">
-            <de><![CDATA[<span class="payment-status-11">Lastschrift</span>]]></de>
-            <en><![CDATA[<span class="payment-status-11">Debit</span>]]></en>
+        <locale name="payment.status.11">
+            <de><![CDATA[Lastschrift]]></de>
+            <en><![CDATA[Debit]]></en>
         </locale>
-        <locale name="payment.status.12" html="true">
-            <de><![CDATA[<span class="payment-status-12">Abonnement</span>]]></de>
-            <en><![CDATA[<span class="payment-status-12">Subscription plan</span>]]></en>
+        <locale name="payment.status.12">
+            <de><![CDATA[Abonnement]]></de>
+            <en><![CDATA[Subscription plan]]></en>
         </locale>
-        <locale name="dunning.level.0" html="true">
+        <locale name="dunning.level.0">
             <de><![CDATA[---]]></de>
             <en><![CDATA[---]]></en>
         </locale>

@@ -1,62 +1,4 @@
 
-.payment-status-0,
-.payment-status-1,
-.payment-status-2,
-    /*.payment-status-3,*/
-.payment-status-4,
-    /*.payment-status-5,*/
-.payment-status-11,
-.payment-status-12 {
-    border-width: 1px;
-    border-style: solid;
-    padding: 2px 5px;
-    text-transform: uppercase;
-}
-
-.payment-status-0 {
-    border-color: blue;
-    color: blue;
-    font-weight: bold;
-}
-
-.payment-status-1 {
-    border-color: green;
-    color: green;
-    font-weight: bold;
-}
-
-.payment-status-2 {
-    border-color: orange;
-    color: orange;
-    font-weight: bold;
-}
-
-.payment-status-3 {
-    text-decoration: line-through;
-}
-
-.payment-status-4 {
-    border-color: red;
-    color: red;
-    font-weight: bold;
-}
-
-.payment-status-5 {
-
-}
-
-.payment-status-11 {
-    border-color: purple;
-    color: purple;
-    font-weight: bold;
-}
-
-.payment-status-12 {
-    border-color: #004e5a;
-    color: #004e5a;
-    font-weight: bold;
-}
-
 .payment-status-amountCell {
     text-align: right !important;
     padding-right: 5px;
@@ -239,4 +181,32 @@
 
 .journal-total-row:hover {
     background: #eaeff4;
+}
+
+/** invoice details
+ ================================================= */
+
+.invoices-invoice-details table {
+    border-collapse: collapse;
+    border: 0 solid;
+    font: normal 11px verdana, arial, helvetica, sans-serif;
+    width: 100%;
+}
+
+.invoices-invoice-details thead,
+.invoices-invoice-details tfoot {
+    height: 24px;
+}
+
+.invoices-invoice-details tfoot th {
+    padding: 5px;
+}
+
+.invoices-invoice-details thead th {
+    padding: 5px;
+    border-right: 1px solid #DDDDDD;
+}
+
+.invoices-invoice-details td {
+    padding: 3px 10px;
 }

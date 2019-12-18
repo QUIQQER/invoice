@@ -618,16 +618,15 @@ class InvoiceSearch extends Singleton
                 $invoiceData['paid_date'] = Handler::EMPTY_VALUE;
             }
 
-
-            $invoiceData['paid_status_display'] = $Locale->get(
+            $paidStatus = $Invoice->getAttribute('paid_status');
+            $textStatus = $Locale->get(
                 'quiqqer/invoice',
-                'payment.status.'.$Invoice->getAttribute('paid_status')
+                'payment.status.'.$paidStatus
             );
 
-            $invoiceData['paid_status_clean'] = \strip_tags($Locale->get(
-                'quiqqer/invoice',
-                'payment.status.'.$Invoice->getAttribute('paid_status')
-            ));
+            $invoiceData['paid_status']         = $textStatus;
+            $invoiceData['paid_status_display'] = '<span class="payment-status payment-status-'.$paidStatus.'">'.$textStatus.'</span>';
+            $invoiceData['paid_status_clean']   = \strip_tags($textStatus);
 
             $invoiceData['dunning_level_display'] = $Locale->get(
                 'quiqqer/invoice',

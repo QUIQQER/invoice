@@ -103,10 +103,10 @@ QUI::$Ajax->registerFunction(
                 $data[$key]['payment_title'] = Handler::EMPTY_VALUE;
             }
 
-            $data[$key]['paid_status_display'] = $Locale->get(
-                'quiqqer/invoice',
-                'payment.status.'.$TemporaryInvoice->getAttribute('paid_status')
-            );
+            $paidStatus = $TemporaryInvoice->getAttribute('paid_status');
+            $paidText   = $Locale->get('quiqqer/invoice', 'payment.status.'.$paidStatus);
+
+            $data[$key]['paid_status_display'] = '<span class="payment-status payment-status-'.$paidStatus.'">'.$paidText.'</span>';
 
 
             // customer data
