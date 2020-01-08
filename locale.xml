@@ -1096,7 +1096,7 @@
             <en><![CDATA[Print]]></en>
         </locale>
         <locale name="dialog.print.data.output.pdf.btn">
-            <de><![CDATA[Herrunterladen]]></de>
+            <de><![CDATA[Herunterladen]]></de>
             <en><![CDATA[Download]]></en>
         </locale>
         <locale name="dialog.print.data.output.email.btn">
