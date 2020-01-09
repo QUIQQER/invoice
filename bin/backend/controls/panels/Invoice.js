@@ -40,6 +40,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             'openHistory',
             'openComments',
             'openPreview',
+            'openAddCommentDialog',
             '$onCreate',
             '$onInject',
             '$onDestroy',
@@ -659,15 +660,38 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.Loader.show();
             this.getCategory('comments').setActive();
 
-            return this.$closeCategory().then(function (Container) {
-                new Comments({
-                    comments: self.getAttribute('data').comments
-                }).inject(Container);
+            return this.$closeCategory().then(function () {
+                self.refreshComments();
             }).then(function () {
                 return self.$openCategory();
             }).then(function () {
                 self.Loader.hide();
             });
+        },
+
+        /**
+         * Refresh the comment display
+         */
+        refreshComments: function () {
+            var Container = this.getContent().getElement('.container');
+
+            Container.set('html', '');
+
+            new QUIButton({
+                textimage: 'fa fa-comments',
+                text     : QUILocale.get(lg, 'invoice.panel.comment.add'),
+                styles   : {
+                    'float'     : 'right',
+                    marginBottom: 10
+                },
+                events   : {
+                    onClick: this.openAddCommentDialog
+                }
+            }).inject(Container);
+
+            new Comments({
+                comments: this.getAttribute('data').comments
+            }).inject(Container);
         },
 
         /**
@@ -774,6 +798,70 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     }.bind(this)
                 });
             }.bind(this));
+        },
+
+        //endregion
+
+        //region comments
+
+        /**
+         * Open the add dialog window
+         */
+        openAddCommentDialog: function () {
+            var self = this;
+
+            new QUIConfirm({
+                title    : QUILocale.get(lg, 'dialog.add.comment.title'),
+                icon     : 'fa fa-edit',
+                maxHeight: 600,
+                maxWidth : 800,
+                events   : {
+                    onOpen: function (Win) {
+                        Win.getContent().set('html', '');
+                        Win.Loader.show();
+
+                        require([
+                            'Editors'
+                        ], function (Editors) {
+                            Editors.getEditor(null).then(function (Editor) {
+                                Win.$Editor = Editor;
+
+                                Win.$Editor.addEvent('onLoaded', function () {
+                                    Win.$Editor.switchToWYSIWYG();
+                                    Win.$Editor.showToolbar();
+                                    Win.$Editor.setContent(self.getAttribute('content'));
+                                    Win.Loader.hide();
+                                });
+
+                                Win.$Editor.inject(Win.getContent());
+                                Win.$Editor.setHeight(200);
+                            });
+                        });
+                    },
+
+                    onSubmit: function (Win) {
+                        Win.Loader.show();
+
+                        self.addComment(Win.$Editor.getContent()).then(function () {
+                            return self.doRefresh();
+                        }).then(function () {
+                            Win.$Editor.destroy();
+                            Win.close();
+
+                            self.refreshComments();
+                        });
+                    }
+                }
+            }).open();
+        },
+
+        /**
+         * add a comment to the order
+         *
+         * @param {String} message
+         */
+        addComment: function (message) {
+            return Invoices.addComment(this.getAttribute('invoiceId'), message);
         }
 
         //endregion

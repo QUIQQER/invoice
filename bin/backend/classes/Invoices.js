@@ -593,6 +593,25 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                     showError: false
                 });
             });
+        },
+
+        /**
+         * Add a comment to the invoice
+         *
+         * @param {Number} invoiceId
+         * @param {String} comment
+         * @return {Promise}
+         */
+        addComment: function (invoiceId, comment) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_addComment', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    comment  : comment,
+                    onError  : reject,
+                    showError: false
+                });
+            });
         }
     });
 });

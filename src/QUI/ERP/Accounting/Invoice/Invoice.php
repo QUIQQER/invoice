@@ -1043,10 +1043,16 @@ class Invoice extends QUI\QDOM
      */
     public function addComment($comment, $PermissionUser = null)
     {
+        if (empty($comment)) {
+            return;
+        }
+
         Permission::checkPermission(
             'quiqqer.invoice.addComment',
             $PermissionUser
         );
+
+        $comment = \strip_tags($comment);
 
         $User     = QUI::getUserBySession();
         $comments = $this->getAttribute('comments');

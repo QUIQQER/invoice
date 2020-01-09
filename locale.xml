@@ -1250,6 +1250,11 @@
             <en><![CDATA[Please select a customer address:]]></en>
         </locale>
 
+        <locale name="invoice.panel.comment.add">
+            <de><![CDATA[Kommentar hinzufügen]]></de>
+            <en><![CDATA[Add comment]]></en>
+        </locale>
+
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
