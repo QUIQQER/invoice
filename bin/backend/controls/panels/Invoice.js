@@ -553,12 +553,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             return Promise.all([
                 this.$closeCategory(),
-                Invoices.getArticlesHtml(self.getAttribute('data').id)
+                Invoices.getInvoicePreview(self.getAttribute('data').hash, true)
+                //Invoices.getArticlesHtml(self.getAttribute('data').id)
             ]).then(function (result) {
                 var Container = result[0];
 
                 return new Promise(function (resolve) {
                     Container.set('html', '');
+                    Container.setStyle('padding', 0);
+
+                    var Pager = new Element('div', {
+                        'class': 'quiqqer-invoice-backend-invoice-previewContainer'
+                    }).inject(Container);
 
                     new Sandbox({
                         content: result[1],
@@ -568,13 +574,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             width : '100%'
                         },
                         events : {
-                            onLoad: resolve
+                            onLoad: function (Box) {
+                                Box.getElm().addClass('quiqqer-invoice-backend-invoice-preview');
+                                resolve();
+                            }
                         }
-                    }).inject(Container);
+                    }).inject(Pager);
                 });
             }).then(function () {
                 return self.$openCategory();
             }).then(function () {
+                self.Loader.hide();
+            }).catch(function (err) {
+                console.error(err.getMessage());
+                console.error(err);
                 self.Loader.hide();
             });
         },

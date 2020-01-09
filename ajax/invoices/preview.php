@@ -11,12 +11,22 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_preview',
-    function ($invoiceId) {
+    function ($invoiceId, $onlyArticles) {
         $Invoice = InvoiceUtils::getInvoiceByString($invoiceId);
         $View    = $Invoice->getView();
 
+        if (!isset($onlyArticles)) {
+            $onlyArticles = false;
+        }
+
+        $onlyArticles = (int)$onlyArticles;
+
+        if ($onlyArticles) {
+            return $View->previewOnlyArticles();
+        }
+
         return $View->previewHTML();
     },
-    ['invoiceId'],
+    ['invoiceId', 'onlyArticles'],
     'Permission::checkAdminUser'
 );
