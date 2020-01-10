@@ -485,7 +485,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_display',
-                    dataType : 'string',
+                    dataType : 'html',
                     width    : 120,
                     export   : false,
                     className: 'grid-align-center'
@@ -531,24 +531,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_clean',
-                    dataType : 'string',
+                    dataType : 'html',
                     width    : 120,
                     hidden   : true,
                     export   : true
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.netto'),
+                    type     : 'html',
                     dataIndex: 'display_nettosum',
                     dataType : 'currency',
                     width    : 100,
                     className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.vat'),
+                    type     : 'html',
                     dataIndex: 'display_vatsum',
                     dataType : 'currency',
                     width    : 100,
                     className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.sum'),
+                    type     : 'html',
                     dataIndex: 'display_sum',
                     dataType : 'currency',
                     width    : 100,
@@ -570,12 +573,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width    : 120
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paid'),
+                    type     : 'html',
                     dataIndex: 'display_paid',
                     dataType : 'currency',
                     width    : 100,
                     className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.open'),
+                    type     : 'html',
                     dataIndex: 'display_toPay',
                     dataType : 'currency',
                     width    : 100,

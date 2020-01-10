@@ -1320,7 +1320,9 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function addComment($message)
     {
-        $message = \strip_tags($message, '<div><span><pre><p><br><hr>
+        $message = \strip_tags(
+            $message,
+            '<div><span><pre><p><br><hr>
             <ul><ol><li><dl><dt><dd><strong><em><b><i><u>
             <img><table><tbody><td><tfoot><th><thead><tr>'
         );
@@ -1334,7 +1336,7 @@ class InvoiceTemporary extends QUI\QDOM
         );
 
         $User = QUI::getUserBySession();
-        
+
         $this->addHistory(
             QUI::getLocale()->get(
                 'quiqqer/invoice',

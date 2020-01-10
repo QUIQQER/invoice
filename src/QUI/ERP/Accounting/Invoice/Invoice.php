@@ -1052,7 +1052,9 @@ class Invoice extends QUI\QDOM
             $PermissionUser
         );
 
-        $comment = \strip_tags($comment, '<div><span><pre><p><br><hr>
+        $comment = \strip_tags(
+            $comment,
+            '<div><span><pre><p><br><hr>
             <ul><ol><li><dl><dt><dd><strong><em><b><i><u>
             <img><table><tbody><td><tfoot><th><thead><tr>'
         );

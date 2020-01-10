@@ -338,7 +338,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_display',
-                    dataType : 'string',
+                    dataType : 'html',
                     width    : 120,
                     className: 'grid-align-center'
                 }, {
@@ -441,7 +441,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.processing'),
                     dataIndex: 'processing_status',
-                    dataType : 'string',
+                    dataType : 'html',
                     width    : 150
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.comments'),
