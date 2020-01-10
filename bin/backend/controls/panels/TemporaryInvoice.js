@@ -15,6 +15,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'qui/utils/Form',
     'controls/users/address/Select',
     'package/quiqqer/invoice/bin/Invoices',
+    'package/quiqqer/erp/bin/backend/controls/Comments',
     'package/quiqqer/invoice/bin/backend/controls/articles/Text',
     'package/quiqqer/payments/bin/backend/Payments',
     'utils/Lock',
@@ -30,7 +31,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
-             AddressSelect, Invoices, TextArticle,
+             AddressSelect, Invoices, Comments, TextArticle,
              Payments, Locker, QUILocale, Mustache, Users, Editors,
              templateData, templatePost, templateMissing) {
     "use strict";
@@ -47,6 +48,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             'post',
             'openData',
             'openArticles',
+            'openComments',
+            'openAddCommentDialog',
             'openVerification',
             '$openCategory',
             '$closeCategory',
@@ -138,6 +141,32 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.setAttribute('title', title);
             this.parent();
+        },
+
+        /**
+         * Refresh the invoice data
+         */
+        doRefresh: function () {
+            var self      = this,
+                invoiceId = this.getAttribute('invoiceId');
+
+            return Invoices.getTemporaryInvoice(invoiceId).then(function (data) {
+                self.setAttributes(data);
+
+                if (data.articles.articles.length) {
+                    self.$serializedList = {
+                        articles: data.articles.articles
+                    };
+
+                    self.setAttribute('articles', data.articles.articles);
+                }
+
+                if (data.invoice_address) {
+                    self.setAttribute('invoice_address', data.invoice_address);
+                }
+
+                self.refresh();
+            });
         },
 
         /**
@@ -547,6 +576,51 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }).then(function () {
                 return self.$openCategory();
             });
+        },
+
+        /**
+         * open the comments
+         *
+         * @return {Promise<Promise>}
+         */
+        openComments: function () {
+            var self = this;
+
+            this.Loader.show();
+            this.getCategory('comments').setActive();
+
+            return this.$closeCategory().then(function () {
+                self.refreshComments();
+            }).then(function () {
+                return self.$openCategory();
+            }).then(function () {
+                self.Loader.hide();
+            });
+        },
+
+        /**
+         * Refresh the comment display
+         */
+        refreshComments: function () {
+            var Container = this.getContent().getElement('.container');
+
+            Container.set('html', '');
+
+            new QUIButton({
+                textimage: 'fa fa-comments',
+                text     : QUILocale.get(lg, 'invoice.panel.comment.add'),
+                styles   : {
+                    'float'     : 'right',
+                    marginBottom: 10
+                },
+                events   : {
+                    onClick: this.openAddCommentDialog
+                }
+            }).inject(Container);
+
+            new Comments({
+                comments: this.getAttribute('comments')
+            }).inject(Container);
         },
 
         /**
@@ -1074,6 +1148,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             });
 
             this.addCategory({
+                name  : 'comments',
+                icon  : 'fa fa-comments',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.comments'),
+                events: {
+                    onClick: this.openComments
+                }
+            });
+
+            this.addCategory({
                 name  : 'verification',
                 icon  : 'fa fa-check',
                 text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review'),
@@ -1114,24 +1197,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.$getLockGroups()
                 );
             }).then(function () {
-                return Invoices.getTemporaryInvoice(invoiceId);
-            }).then(function (data) {
-                self.setAttributes(data);
-
-                if (data.articles.articles.length) {
-                    self.$serializedList = {
-                        articles: data.articles.articles
-                    };
-
-                    self.setAttribute('articles', data.articles.articles);
-                }
-
-                if (data.invoice_address) {
-                    self.setAttribute('invoice_address', data.invoice_address);
-                }
-
-                self.refresh();
-
+                return self.doRefresh();
+            }).then(function () {
                 return Invoices.getMissingAttributes(invoiceId);
             }).then(function (missing) {
                 if (Object.getLength(missing)) {
@@ -1394,6 +1461,70 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }
 
             this.$ArticleSort.setNormal();
+        },
+
+        //region comments
+
+        /**
+         * Open the add dialog window
+         */
+        openAddCommentDialog: function () {
+            var self = this;
+
+            new QUIConfirm({
+                title    : QUILocale.get(lg, 'dialog.add.comment.title'),
+                icon     : 'fa fa-edit',
+                maxHeight: 600,
+                maxWidth : 800,
+                events   : {
+                    onOpen: function (Win) {
+                        Win.getContent().set('html', '');
+                        Win.Loader.show();
+
+                        require([
+                            'Editors'
+                        ], function (Editors) {
+                            Editors.getEditor(null).then(function (Editor) {
+                                Win.$Editor = Editor;
+
+                                Win.$Editor.addEvent('onLoaded', function () {
+                                    Win.$Editor.switchToWYSIWYG();
+                                    Win.$Editor.showToolbar();
+                                    Win.$Editor.setContent(self.getAttribute('content'));
+                                    Win.Loader.hide();
+                                });
+
+                                Win.$Editor.inject(Win.getContent());
+                                Win.$Editor.setHeight(200);
+                            });
+                        });
+                    },
+
+                    onSubmit: function (Win) {
+                        Win.Loader.show();
+
+                        self.addComment(Win.$Editor.getContent()).then(function () {
+                            return self.doRefresh();
+                        }).then(function () {
+                            Win.$Editor.destroy();
+                            Win.close();
+
+                            self.refreshComments();
+                        });
+                    }
+                }
+            }).open();
+        },
+
+        /**
+         * add a comment to the order
+         *
+         * @param {String} message
+         */
+        addComment: function (message) {
+            return Invoices.addComment(this.getAttribute('invoiceId'), message);
         }
+
+        //endregion
     });
 });

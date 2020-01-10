@@ -714,6 +714,10 @@
             <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
             <en><![CDATA[Additional invoice text]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.comments">
+            <de><![CDATA[Kommentare]]></de>
+            <en><![CDATA[Comments]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.deleteButton.title">
             <de><![CDATA[Rechnung löschen]]></de>
             <en><![CDATA[Delete Invoice]]></en>
@@ -1137,6 +1141,11 @@
         <locale name="dialog.add.payment.date">
             <de><![CDATA[Datum]]></de>
             <en><![CDATA[Date]]></en>
+        </locale>
+
+        <locale name="dialog.add.comment.title">
+            <de><![CDATA[Kommentar hinzufügen]]></de>
+            <en><![CDATA[Add new comment]]></en>
         </locale>
 
         <locale name="exception.post.invoices.missing.attributes">
