@@ -68,6 +68,86 @@
         </tbody>
     </table>
 
+    <table class="data-table data-table-flexbox invoice-delivery"
+           data-qui="package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress"
+    >
+        <thead>
+        <tr>
+            <th>{{textInvoiceDeliveryAddress}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <input type="checkbox" name="differentDeliveryAddress"/>
+                    <span>{{messageDifferentDeliveryAddress}}</span>
+                </label>
+            </td>
+        </tr>
+        <tr class="closable" style="display: none">
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textCustomer}}">
+                        {{textAddresses}}
+                    </span>
+                    <select name="delivery-addresses" class="field-container-field" disabled></select>
+                </label>
+            </td>
+        </tr>
+        <tr class="closable" style="display: none">
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textCompany}}">
+                        {{textCompany}}
+                    </span>
+                    <input type="text" class="field-container-field" name="delivery-company" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr class="closable" style="display: none">
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textStreet}}">
+                        {{textStreet}}
+                    </span>
+                    <input type="text" class="field-container-field" name="delivery-street_no" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr class="closable" style="display: none">
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textZip}}">
+                        {{textZip}}
+                    </span>
+                    <input type="text" class="field-container-field" name="delivery-zip" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr class="closable" style="display: none">
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textCity}}">
+                        {{textCity}}
+                    </span>
+                    <input type="text" class="field-container-field" name="delivery-city" disabled/>
+                </label>
+            </td>
+        </tr>
+        <tr class="closable" style="display: none">
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textCountry}}">
+                        {{textCountry}}
+                    </span>
+                    <select type="text" class="field-container-field" name="delivery-country" disabled></select>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
     <table class="data-table data-table-flexbox invoice-data">
         <thead>
         <tr>

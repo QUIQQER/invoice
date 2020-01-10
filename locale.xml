@@ -433,6 +433,48 @@
             <de><![CDATA[Der Rechnungsentwurf wurde erfolgreich gespeichert.]]></de>
             <en><![CDATA[The invoice was successfully saved.]]></en>
         </locale>
+
+        <locale name="message.different,delivery.address">
+            <de><![CDATA[Der Lieferadresse weicht von der Rechnungsadresse ab]]></de>
+            <en><![CDATA[The delivery address differs from the billing address.]]></en>
+        </locale>
+
+        <locale name="deliveryAddress">
+            <de><![CDATA[Lieferadresse]]></de>
+            <en><![CDATA[Delivery address]]></en>
+        </locale>
+        <locale name="customer">
+            <de><![CDATA[Kunde]]></de>
+            <en><![CDATA[Customer]]></en>
+        </locale>
+        <locale name="customerTitle">
+            <de><![CDATA[Kundendaten]]></de>
+            <en><![CDATA[Customer data]]></en>
+        </locale>
+        <locale name="address">
+            <de><![CDATA[Adresse]]></de>
+            <en><![CDATA[Address]]></en>
+        </locale>
+        <locale name="company">
+            <de><![CDATA[Firma]]></de>
+            <en><![CDATA[Company]]></en>
+        </locale>
+        <locale name="street">
+            <de><![CDATA[Straße]]></de>
+            <en><![CDATA[Street]]></en>
+        </locale>
+        <locale name="zip">
+            <de><![CDATA[PLZ]]></de>
+            <en><![CDATA[ZIP]]></en>
+        </locale>
+        <locale name="city">
+            <de><![CDATA[Ort]]></de>
+            <en><![CDATA[City]]></en>
+        </locale>
+        <locale name="country">
+            <de><![CDATA[Land]]></de>
+            <en><![CDATA[Country]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -1264,6 +1306,10 @@
             <en><![CDATA[Add comment]]></en>
         </locale>
 
+        <locale name="message.select.customer">
+            <de><![CDATA[Bitte wählen Sie einen Kunden aus.]]></de>
+            <en><![CDATA[Please select a customer.]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">

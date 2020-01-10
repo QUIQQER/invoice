@@ -298,7 +298,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textEditor        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textEditor'),
                         textInvoicePayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoicePayment'),
                         textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod'),
-                        textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText')
+                        textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText'),
+
+                        textInvoiceDeliveryAddress     : QUILocale.get(lg, 'deliveryAddress'),
+                        messageDifferentDeliveryAddress: QUILocale.get(lg, 'message.different,delivery.address'),
+                        textAddresses                  : QUILocale.get(lg, 'address'),
+                        textCompany                    : QUILocale.get(lg, 'company'),
+                        textStreet                     : QUILocale.get(lg, 'street'),
+                        textZip                        : QUILocale.get(lg, 'zip'),
+                        textCity                       : QUILocale.get(lg, 'city'),
+                        textCountry                    : QUILocale.get(lg, 'country')
                     })
                 });
 
@@ -429,6 +438,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 address.addressId = self.getAttribute('invoice_address_id');
 
                 return Data.setValue(address);
+            }).then(function () {
+                // delivery address
+                self.$AddressDelivery = QUI.Controls.getById(
+                    self.getContent().getElement(
+                        '[data-qui="package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress"]'
+                    ).get('data-quiid')
+                );
+
+                console.log(self.getAttribute('addressDelivery'));
+
+                if (self.getAttribute('addressDelivery') && self.getAttribute('hasDeliveryAddress')) {
+                    self.$AddressDelivery.setValue(self.getAttribute('addressDelivery'));
+                }
             }).then(function () {
                 var Container = self.getContent().getElement('.container');
 
