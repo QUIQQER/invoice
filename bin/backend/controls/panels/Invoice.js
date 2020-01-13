@@ -504,6 +504,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         data.textZip              = QUILocale.get(lg, 'zip');
                         data.textCity             = QUILocale.get(lg, 'city');
 
+                        data.textInvoiceDelivery = QUILocale.get(lg, 'deliveryAddress');
+                        data.textDeliveryCompany = QUILocale.get(lg, 'company');
+                        data.textDeliveryStreet  = QUILocale.get(lg, 'street');
+                        data.textDeliveryZip     = QUILocale.get(lg, 'zip');
+                        data.textDeliveryCity    = QUILocale.get(lg, 'city');
+                        data.textDeliveryCountry = QUILocale.get(lg, 'country');
+
                         data.textInvoiceData = QUILocale.get(lg, 'erp.panel.invoice.data.title');
                         data.textInvoiceDate = QUILocale.get(lg, 'erp.panel.invoice.data.date');
                         data.textProjectName = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
@@ -520,9 +527,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             html: Mustache.render(template, data)
                         });
 
+                        var Form    = Container.getElement('form');
+                        var address = {};
+
                         try {
-                            var Form    = Container.getElement('form'),
-                                address = JSON.decode(data.invoice_address);
+                            address = JSON.decode(data.invoice_address);
 
                             Form.elements.customer.value  = address.salutation + ' ' + address.firstname + ' ' + address.lastname;
                             Form.elements.company.value   = address.company;
@@ -532,6 +541,40 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         } catch (e) {
                             console.error(e);
                         }
+
+                        if (data.delivery_address !== '') {
+                            Container.getElement('.invoice-delivery-data').setStyle('display', null);
+
+                            try {
+                                var deliveryAddress = JSON.decode(data.delivery_address);
+
+                                if (typeof deliveryAddress.salutation === 'undefined') {
+                                    deliveryAddress.salutation = '';
+                                }
+
+                                if (typeof deliveryAddress.firstname === 'undefined') {
+                                    deliveryAddress.firstname = address.firstname;
+                                }
+
+                                if (typeof deliveryAddress.lastname === 'undefined') {
+                                    deliveryAddress.lastname = address.lastname;
+                                }
+
+                                Form.elements['delivery-customer'].value = deliveryAddress.salutation + ' ' +
+                                    deliveryAddress.firstname + ' ' +
+                                    deliveryAddress.lastname;
+
+                                Form.elements['delivery-company'].value   = deliveryAddress.company;
+                                Form.elements['delivery-street_no'].value = deliveryAddress.street_no;
+                                Form.elements['delivery-zip'].value       = deliveryAddress.zip;
+                                Form.elements['delivery-city'].value      = deliveryAddress.city;
+                            } catch (e) {
+                                console.error(e);
+                            }
+                        }
+
+                        console.log(data);
+
 
                         resolve();
                     });

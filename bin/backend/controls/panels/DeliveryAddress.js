@@ -225,6 +225,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
             return this.getUser().then(function (User) {
                 return User.getAddressList();
             }).then(function (addresses) {
+                self.$Addresses.set('html', '');
+
                 new Element('option', {
                     value       : '',
                     html        : '',

@@ -88,6 +88,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.$ArticleListSummary = null;
             this.$AddProduct         = null;
             this.$ArticleSort        = null;
+            this.$AddressDelivery    = null;
 
             this.$AddSeparator  = null;
             this.$SortSeparator = null;
@@ -254,7 +255,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 ordered_by             : this.getAttribute('ordered_by'),
                 time_for_payment       : this.getAttribute('time_for_payment'),
                 payment_method         : this.getAttribute('payment_method'),
-                additional_invoice_text: this.getAttribute('additional_invoice_text')
+                additional_invoice_text: this.getAttribute('additional_invoice_text'),
+                addressDelivery        : this.getAttribute('addressDelivery')
             };
         },
 
@@ -446,10 +448,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     ).get('data-quiid')
                 );
 
-                console.log(self.getAttribute('addressDelivery'));
+                if (self.getAttribute('delivery_address')) {
+                    var deliveryAddress = self.getAttribute('delivery_address');
 
-                if (self.getAttribute('addressDelivery') && self.getAttribute('hasDeliveryAddress')) {
-                    self.$AddressDelivery.setValue(self.getAttribute('addressDelivery'));
+                    try {
+                        deliveryAddress = JSON.decode(deliveryAddress);
+
+                        if (deliveryAddress) {
+                            self.getContent().getElement('[name="differentDeliveryAddress"]').checked = true;
+
+                            self.$AddressDelivery.setAttribute('userId', self.getAttribute('customer_id'));
+                            self.$AddressDelivery.setValue(deliveryAddress);
+                        }
+                    } catch (e) {
+                    }
                 }
             }).then(function () {
                 var Container = self.getContent().getElement('.container');
@@ -464,7 +476,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     },
                     events   : {
                         onClick: function () {
-                            self.openArticles();
+                            self.openArticles().catch(function (e) {
+                                console.error(e);
+                            });
                         }
                     }
                 }).inject(Container);
@@ -935,6 +949,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     callback: function () {
                         self.$unloadCategory();
 
+                        if (self.$AddressDelivery) {
+                            self.$AddressDelivery.destroy();
+                            self.$AddressDelivery = null;
+                        }
+
                         Container.set('html', '');
                         Container.setStyle('padding', 20);
 
@@ -992,6 +1011,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     this.$ArticleList.destroy();
                     this.$ArticleList = null;
                 }
+            }
+
+            if (this.$AddressDelivery) {
+                this.setAttribute('addressDelivery', this.$AddressDelivery.getValue());
             }
 
             if (this.$AdditionalText) {

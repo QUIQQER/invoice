@@ -84,6 +84,11 @@ class InvoiceTemporary extends QUI\QDOM
     protected $shippingId = null;
 
     /**
+     * @var array
+     */
+    protected $addressDelivery = [];
+
+    /**
      * Invoice constructor.
      *
      * @param $id
@@ -103,6 +108,12 @@ class InvoiceTemporary extends QUI\QDOM
         $this->Articles = new ArticleList();
         $this->History  = new QUI\ERP\Comments();
         $this->Comments = new QUI\ERP\Comments();
+
+        $this->addressDelivery = \json_decode($data['delivery_address'], true);
+
+        if (!empty($data['delivery_address_id'])) {
+            $this->addressDelivery['id'] = (int)$data['delivery_address_id'];
+        }
 
         if (isset($data['articles'])) {
             $articles = \json_decode($data['articles'], true);
@@ -172,7 +183,6 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->setAttributes($data);
-
 
         if (!$this->getCustomer()) {
             $this->setAttribute('invoice_address', false);
@@ -703,6 +713,20 @@ class InvoiceTemporary extends QUI\QDOM
             $shippingData = $this->getShipping()->toJSON();
         }
 
+        // delivery address
+        $deliveryAddress   = '';
+        $deliveryAddressId = null;
+
+        if ($this->getDeliveryAddress()) {
+            $deliveryAddress   = $this->getDeliveryAddress()->toJSON();
+            $deliveryAddressId = $this->getDeliveryAddress()->getId();
+
+            if (empty($deliveryAddressId)) {
+                $deliveryAddressId = null;
+            }
+        }
+
+
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
             [$this]
@@ -729,8 +753,8 @@ class InvoiceTemporary extends QUI\QDOM
                 // address
                 'invoice_address_id'      => (int)$this->getAttribute('invoice_address_id'),
                 'invoice_address'         => $invoiceAddress,
-                'delivery_address_id'     => null,
-                'delivery_address'        => null,
+                'delivery_address_id'     => $deliveryAddressId,
+                'delivery_address'        => $deliveryAddress,
 
                 // processing
                 'time_for_payment'        => $timeForPayment,
@@ -1029,6 +1053,17 @@ class InvoiceTemporary extends QUI\QDOM
             $shippingData = $this->getShipping()->toJSON();
         }
 
+        // delivery address
+        $deliveryAddress = $this->getAttribute('delivery_address');
+
+        if (empty($deliveryAddress)) {
+            $DeliveryAddress = $this->getDeliveryAddress();
+
+            if ($DeliveryAddress) {
+                $deliveryAddress = $DeliveryAddress->toJSON();
+            }
+        }
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
@@ -1050,7 +1085,7 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // addresses
                 'invoice_address'         => $invoiceAddress,
-                'delivery_address'        => $this->getAttribute('delivery_address'),
+                'delivery_address'        => $deliveryAddress,
 
                 // payments
                 'payment_method'          => $this->getAttribute('payment_method'),
@@ -1665,4 +1700,94 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     //endregion
+
+    //region delivery address
+
+    /**
+     * Return delivery address
+     *
+     * @return QUI\ERP\Address|null
+     */
+    public function getDeliveryAddress()
+    {
+        $delivery = $this->addressDelivery;
+
+        if (isset($delivery['id'])) {
+            unset($delivery['id']);
+        }
+
+        if (empty($delivery)) {
+            try {
+                $Customer = QUI::getUsers()->get((int)$this->getAttribute('customer_id'));
+
+                $Address = $Customer->getAddress(
+                    (int)$this->getAttribute('invoice_address_id')
+                );
+
+                if ($Address) {
+                    return new QUI\ERP\Address(
+                        $Address->getAttributes(),
+                        $this->getCustomer()
+                    );
+                }
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::addDebug($Exception->getMessage());
+            }
+        }
+
+        if (empty($this->addressDelivery)) {
+            return null;
+        }
+
+        return new QUI\ERP\Address($this->addressDelivery, $this->getCustomer());
+    }
+
+    /**
+     * Set the delivery address
+     *
+     * @param array|QUI\ERP\Address $address
+     */
+    public function setDeliveryAddress($address)
+    {
+        if ($address instanceof QUI\ERP\Address) {
+            $this->addressDelivery = $address->getAttributes();
+
+            return;
+        }
+
+        if (\is_array($address)) {
+            $this->addressDelivery = $this->parseAddressData($address);
+        }
+    }
+
+    /**
+     * @param array $address
+     * @return array
+     */
+    protected function parseAddressData(array $address)
+    {
+        $fields = \array_flip([
+            'id',
+            'salutation',
+            'firstname',
+            'lastname',
+            'street_no',
+            'zip',
+            'city',
+            'country',
+            'company'
+        ]);
+
+        $result = [];
+
+        foreach ($address as $entry => $value) {
+            if (isset($fields[$entry])) {
+                $result[$entry] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    // endregion
 }
