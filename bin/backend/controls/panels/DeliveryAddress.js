@@ -1,6 +1,8 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress
  * @author www.pcsg.de (Henning Leutz)
+ *
+ * @event onLoaded [this] - Fires if Control finished loading
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
 
@@ -57,11 +59,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
             this.$Checked.addEvent('change', this.$checkBoxChange);
 
             // address stuff
-            this.$Company = Elm.getElement('[name="delivery-company"]');
-            this.$Street  = Elm.getElement('[name="delivery-street_no"]');
-            this.$ZIP     = Elm.getElement('[name="delivery-zip"]');
-            this.$City    = Elm.getElement('[name="delivery-city"]');
-            this.$Country = Elm.getElement('[name="delivery-country"]');
+            this.$addressId = false;
+            this.$Company   = Elm.getElement('[name="delivery-company"]');
+            this.$Street    = Elm.getElement('[name="delivery-street_no"]');
+            this.$ZIP       = Elm.getElement('[name="delivery-zip"]');
+            this.$City      = Elm.getElement('[name="delivery-city"]');
+            this.$Country   = Elm.getElement('[name="delivery-country"]');
 
             this.$Addresses = Elm.getElement('[name="delivery-addresses"]');
             this.$Addresses.addEvent('change', this.$onSelectChange);
@@ -106,6 +109,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
 
                 self.$Country.disabled = false;
                 self.$loaded           = true;
+
+                self.fireEvent('loaded', [self]);
             });
         },
 
@@ -117,6 +122,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
         getValue: function () {
             return {
                 uid      : this.$userId,
+                id       : this.$addressId,
                 company  : this.$Company.value,
                 street_no: this.$Street.value,
                 zip      : this.$ZIP.value,
@@ -133,6 +139,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
         setValue: function (value) {
             if (typeOf(value) !== 'object') {
                 return;
+            }
+
+            if ("id" in value) {
+                this.$addressId = value.id;
             }
 
             if ("company" in value) {
@@ -161,9 +171,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
 
             if ("uid" in value) {
                 this.$userId = value.uid;
-                this.loadAddresses().catch(function () {
-                    this.$Addresses.disabled = true;
-                }.bind(this));
+                //this.loadAddresses().catch(function () {
+                //    this.$Addresses.disabled = true;
+                //}.bind(this));
             }
 
             this.$checkBoxChange();
@@ -241,6 +251,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
                     }).inject(self.$Addresses);
                 }
 
+                if (self.$addressId) {
+                    self.$Addresses.value = self.$addressId;
+                }
+
                 self.$Addresses.disabled = false;
             }).catch(function (err) {
                 console.error(err);
@@ -257,16 +271,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
                 return Option.value === Select.value;
             });
 
-            if (!options.length) {
+            if (!options.length || options[0].get('data-value') === '') {
+                this.$addressId = false;
                 return;
             }
 
             var data = JSON.decode(options[0].get('data-value'));
 
+            this.$addressId     = data.id;
             this.$Company.value = data.company;
             this.$Street.value  = data.street_no;
             this.$ZIP.value     = data.zip;
             this.$City.value    = data.city;
+            this.$Country.value = data.country;
         },
 
         /**
