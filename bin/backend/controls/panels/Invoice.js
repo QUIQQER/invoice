@@ -523,6 +523,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
                         data.textInvoiceText = QUILocale.get(lg, 'erp.panel.invoice.data.invoiceText');
 
+                        if (data.additional_invoice_text === '') {
+                            data.additional_invoice_text = '&nbsp;';
+                        }
+
                         Container.set({
                             html: Mustache.render(template, data)
                         });
@@ -572,9 +576,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                                 console.error(e);
                             }
                         }
-
-                        console.log(data);
-
 
                         resolve();
                     });

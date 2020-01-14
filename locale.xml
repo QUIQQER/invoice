@@ -756,6 +756,10 @@
             <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
             <en><![CDATA[Additional invoice text]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textStatus">
+            <de><![CDATA[Status]]></de>
+            <en><![CDATA[Status]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.comments">
             <de><![CDATA[Kommentare]]></de>
             <en><![CDATA[Comments]]></en>

@@ -439,7 +439,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'date',
                     width    : 130
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.processing'),
+                    header   : '#####' + QUILocale.get(lg, 'journal.grid.processing'),
                     dataIndex: 'processing_status',
                     dataType : 'html',
                     width    : 150

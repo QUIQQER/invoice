@@ -301,6 +301,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textInvoicePayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoicePayment'),
                         textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod'),
                         textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText'),
+                        textStatus        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textStatus'),
 
                         textInvoiceDeliveryAddress     : QUILocale.get(lg, 'deliveryAddress'),
                         messageDifferentDeliveryAddress: QUILocale.get(lg, 'message.different,delivery.address'),
