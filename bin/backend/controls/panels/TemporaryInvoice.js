@@ -256,7 +256,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 time_for_payment       : this.getAttribute('time_for_payment'),
                 payment_method         : this.getAttribute('payment_method'),
                 additional_invoice_text: this.getAttribute('additional_invoice_text'),
-                addressDelivery        : this.getAttribute('addressDelivery')
+                addressDelivery        : this.getAttribute('addressDelivery'),
+                processing_status      : this.getAttribute('processing_status')
             };
         },
 
@@ -325,10 +326,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 var dateDate = local.toJSON().slice(0, 10);
 
                 QUIFormUtils.setDataToForm({
-                    date            : dateDate,
-                    time_for_payment: self.getAttribute('time_for_payment'),
-                    project_name    : self.getAttribute('project_name'),
-                    editor_id       : self.getAttribute('editor_id')
+                    date             : dateDate,
+                    time_for_payment : self.getAttribute('time_for_payment'),
+                    project_name     : self.getAttribute('project_name'),
+                    editor_id        : self.getAttribute('editor_id'),
+                    processing_status: self.getAttribute('processing_status')
                 }, Form);
 
                 Form.elements.date.set('disabled', true);
@@ -1040,6 +1042,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }
 
             [
+                'processing_status',
                 'time_for_payment',
                 'project_name',
                 'payment_method',

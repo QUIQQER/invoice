@@ -8,8 +8,10 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 use QUI\Utils\Security\Orthos;
+
 use QUI\ERP\Accounting\ArticleList;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus;
 
 /**
  * Class InvoiceTemporary
@@ -726,6 +728,19 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        // processing status
+        $processingStatus = null;
+
+        if (\is_numeric($this->getAttribute('processing_status'))) {
+            $processingStatus = (int)$this->getAttribute('processing_status');
+
+            try {
+                ProcessingStatus\Handler::getInstance()->getProcessingStatus($processingStatus);
+            } catch (ProcessingStatus\Exception $Exception) {
+                $processingStatus = null;
+            }
+        }
+
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
@@ -761,7 +776,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'paid_status'             => Invoice::PAYMENT_STATUS_OPEN, // nicht in gui
                 'paid_date'               => null, // nicht in gui
                 'paid_data'               => '',   // nicht in gui
-                'processing_status'       => null,
+                'processing_status'       => $processingStatus,
                 'customer_data'           => '',   // nicht in gui
 
                 // shipping

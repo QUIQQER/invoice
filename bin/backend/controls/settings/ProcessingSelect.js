@@ -71,14 +71,14 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingSelect',
 
                         if (!entry.length) {
                             self.$Color.setStyle('background-color', null);
-                            self.$Elm.value = '';
+                            self.$Input.value = '';
                             return;
                         }
 
                         entry = entry[0];
 
                         self.$Color.setStyle('background-color', entry.color);
-                        self.$Elm.value = entry.id;
+                        self.$Input.value = entry.id;
                     }
                 }
             }).inject(this.$Elm);
@@ -93,6 +93,10 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingSelect',
                         data[i].title,
                         data[i].id
                     );
+                }
+
+                if (self.$Input.value !== '') {
+                    self.$Select.setValue(self.$Input.value);
                 }
             });
         },
