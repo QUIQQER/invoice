@@ -394,9 +394,10 @@ class Handler extends QUI\Utils\Singleton
         $result[0]['canceled']    = (int)$result[0]['canceled'];
         $result[0]['c_user']      = (int)$result[0]['c_user'];
 
-        $result[0]['nettosum'] = (float)$result[0]['nettosum'];
-        $result[0]['subsum']   = (float)$result[0]['subsum'];
-        $result[0]['sum']      = (float)$result[0]['sum'];
+        $result[0]['nettosum']          = (float)$result[0]['nettosum'];
+        $result[0]['subsum']            = (float)$result[0]['subsum'];
+        $result[0]['sum']               = (float)$result[0]['sum'];
+        $result[0]['processing_status'] = (int)$result[0]['processing_status'];
 
         return $result[0];
     }

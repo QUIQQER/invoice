@@ -2,6 +2,27 @@
     <table class="data-table data-table-flexbox invoice-data">
         <thead>
         <tr>
+            <th>{{textInvoiceStatus}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="padding: 0">
+                <label class="field-container">
+                    <input type="hidden"
+                           class="field-container-field"
+                           name="processing_status"
+                           data-qui="package/quiqqer/invoice/bin/backend/controls/settings/ProcessingSelect"
+                    />
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="data-table data-table-flexbox invoice-data">
+        <thead>
+        <tr>
             <th>{{textInvoiceRecipient}}</th>
         </tr>
         </thead>

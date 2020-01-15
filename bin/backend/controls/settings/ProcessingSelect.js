@@ -72,6 +72,8 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingSelect',
                         if (!entry.length) {
                             self.$Color.setStyle('background-color', null);
                             self.$Input.value = '';
+
+                            self.fireEvent('change', [self]);
                             return;
                         }
 
@@ -79,6 +81,8 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingSelect',
 
                         self.$Color.setStyle('background-color', entry.color);
                         self.$Input.value = entry.id;
+
+                        self.fireEvent('change', [self]);
                     }
                 }
             }).inject(this.$Elm);
@@ -117,6 +121,15 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingSelect',
 
             this.create().wraps(this.$Input);
             this.$onInject();
+        },
+
+        /**
+         * Return the selected value
+         *
+         * @return {integer}
+         */
+        getValue: function () {
+            return parseInt(this.$Input.value);
         }
     });
 });

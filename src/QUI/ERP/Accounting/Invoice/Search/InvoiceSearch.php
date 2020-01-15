@@ -16,6 +16,7 @@ use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\ERP\Currency\Handler as Currencies;
 use QUI\ERP\Accounting\Payments\Payments as Payments;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatusHandler;
 
 /**
  * Class Search
@@ -547,6 +548,7 @@ class InvoiceSearch extends Singleton
             'payment_time',
             'payment_title',
             'processing_status',
+            'processing_status_display',
             'sum',
             'taxId'
         ];
@@ -558,6 +560,16 @@ class InvoiceSearch extends Singleton
                 }
             }
         };
+
+        // processing status stuff
+        $ProcessingStatus = ProcessingStatusHandler::getInstance();
+        $list             = $ProcessingStatus->getProcessingStatusList();
+        $processing       = [];
+
+        foreach ($list as $Status) {
+            $processing[$Status->getId()] = $Status;
+        }
+
 
         $result = [];
 
@@ -655,6 +667,19 @@ class InvoiceSearch extends Singleton
             if (!empty($invoiceAddress['company'])) {
                 $invoiceData['customer_name'] = trim($invoiceData['customer_name']);
                 $invoiceData['customer_name'] = $invoiceAddress['company'].' ('.$invoiceData['customer_name'].')';
+            }
+
+            // processing status
+            $processStatus = $invoiceData['processing_status'];
+
+            if (isset($processing[$processStatus])) {
+                /* @var $Status QUI\ERP\Accounting\Invoice\ProcessingStatus\Status */
+                $Status = $processing[$processStatus];
+                $color  = $Status->getColor();
+
+                $invoiceData['processing_status_display'] = '<span class="processing-status" style="color: '.$color.'">'.
+                                                            $Status->getTitle().
+                                                            '</span>';
             }
 
             // display totals

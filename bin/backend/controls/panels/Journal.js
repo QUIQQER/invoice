@@ -606,9 +606,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 80
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.processingStatus'),
-                    dataIndex: 'processing',
-                    dataType : 'string',
+                    header   : QUILocale.get(lg, 'journal.grid.processing'),
+                    dataIndex: 'processing_status_display',
+                    dataType : 'html',
                     width    : 150
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.hash'),

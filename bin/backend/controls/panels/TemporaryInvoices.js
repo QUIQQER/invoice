@@ -434,11 +434,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'string',
                     width    : 120
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.processing'),
-                    dataIndex: 'processing_status_display',
-                    dataType : 'html',
-                    width    : 150
-                }, {
                     header   : QUILocale.get(lg, 'journal.grid.comments'),
                     dataIndex: 'comments',
                     dataType : 'string',
@@ -448,6 +443,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataIndex: 'payment_data',
                     dataType : 'string',
                     width    : 100
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.processing'),
+                    dataIndex: 'processing_status_display',
+                    dataType : 'html',
+                    width    : 150
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.hash'),
                     dataIndex: 'hash',

@@ -1079,6 +1079,19 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        // processing status
+        $processingStatus = null;
+
+        if (\is_numeric($this->getAttribute('processing_status'))) {
+            $processingStatus = (int)$this->getAttribute('processing_status');
+
+            try {
+                ProcessingStatus\Handler::getInstance()->getProcessingStatus($processingStatus);
+            } catch (ProcessingStatus\Exception $Exception) {
+                $processingStatus = null;
+            }
+        }
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
@@ -1113,6 +1126,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'paid_status'             => Invoice::PAYMENT_STATUS_OPEN,
                 'paid_date'               => null,
                 'paid_data'               => '',
+                'processing_status'       => $processingStatus,
 
                 // shipping
                 'shipping_id'             => $shippingId,

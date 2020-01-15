@@ -1202,4 +1202,73 @@ class Invoice extends QUI\QDOM
 
         return $attributes;
     }
+
+    //region processing status
+
+    /**
+     * Set the processing status
+     *
+     * @param integer $statusId
+     * @throws QUI\Exception
+     */
+    public function setProcessingStatus($statusId)
+    {
+        try {
+            $Status = ProcessingStatus\Handler::getInstance()->getProcessingStatus($statusId);
+        } catch (ProcessingStatus\Exception $Exception) {
+            QUI\System\Log::addDebug($Exception->getMessage());
+
+            return;
+        }
+
+        $CurrentStatus = $this->getProcessingStatus();
+
+        try {
+            QUI::getDataBase()->update(
+                Handler::getInstance()->invoiceTable(),
+                ['processing_status' => $Status->getId()],
+                ['id' => $this->getCleanId()]
+            );
+
+            $this->setAttribute('processing_status', $Status->getId());
+        } catch (QUI\DataBase\Exception $Exception) {
+            QUI\System\Log::addDebug($Exception->getMessage());
+        }
+
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceProcessingStatusSet',
+            [$this, $Status]
+        );
+
+        if ($CurrentStatus && $CurrentStatus->getId() !== $Status->getId()
+            || !$CurrentStatus) {
+            QUI::getEvents()->fireEvent(
+                'quiqqerInvoiceProcessingStatusChange',
+                [$this, $Status]
+            );
+        }
+    }
+
+    /**
+     * Return the current processing status
+     *
+     * @return ProcessingStatus\Status|null
+     */
+    public function getProcessingStatus()
+    {
+        try {
+            $Status = ProcessingStatus\Handler::getInstance()->getProcessingStatus(
+                $this->getAttribute('processing_status')
+            );
+        } catch (ProcessingStatus\Exception $Exception) {
+            QUI\System\Log::addDebug($Exception->getMessage());
+
+            return null;
+        }
+
+        return $Status;
+    }
+
+    //endregion
 }

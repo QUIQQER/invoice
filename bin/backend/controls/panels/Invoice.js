@@ -497,6 +497,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             data = {};
                         }
 
+                        data.textInvoiceStatus    = QUILocale.get(lg, 'invoice.settings.processingStatus.title');
                         data.textInvoiceRecipient = QUILocale.get(lg, 'cutomerData');
                         data.textCustomer         = QUILocale.get(lg, 'customer');
                         data.textCompany          = QUILocale.get(lg, 'company');
@@ -577,7 +578,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             }
                         }
 
-                        resolve();
+                        if (Form.elements.processing_status) {
+                            Form.elements.processing_status.value = data.processing_status;
+                        }
+
+                        QUI.parse(Container).then(function () {
+                            var Processing = QUI.Controls.getById(
+                                Container.getElement('[name="processing_status"]').get('data-quiid')
+                            );
+
+                            Processing.addEvent('onChange', function () {
+                                self.Loader.show();
+                                self.setProcessingStatus(Processing.getValue()).then(function () {
+                                    self.Loader.hide();
+                                });
+                            });
+
+                            resolve();
+                        });
                     });
                 });
             }).then(function () {
@@ -906,8 +924,28 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          */
         addComment: function (message) {
             return Invoices.addComment(this.getAttribute('invoiceId'), message);
-        }
+        },
 
         //endregion
+
+        /**
+         * Set the processing status for the invoice
+         *
+         * @param {Number} processingStatus
+         * @return {Promise}
+         */
+        setProcessingStatus: function (processingStatus) {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                require(['Ajax'], function (QUIAjax) {
+                    QUIAjax.post('package_quiqqer_invoice_ajax_invoices_setStatus', resolve, {
+                        'package': 'quiqqer/invoice',
+                        invoiceId: self.getAttribute('invoiceId'),
+                        status   : processingStatus
+                    });
+                });
+            });
+        }
     });
 });
