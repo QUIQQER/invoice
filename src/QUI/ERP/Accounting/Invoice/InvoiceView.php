@@ -165,6 +165,29 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
+     * return string
+     */
+    public function previewOnlyArticles()
+    {
+        try {
+            $output = '';
+            $output .= '<style>';
+            $output .= \file_get_contents(\dirname(__FILE__).'/Utils/Template.Articles.Preview.css');
+            $output .= '</style>';
+            $output .= $this->getArticles()->toHTML();
+
+            $previewHtml = $output;
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            $previewHtml = '';
+        }
+
+        QUI::getLocale()->resetCurrent();
+
+        return $previewHtml;
+    }
+
+    /**
      * Output the invoice as HTML
      *
      * @return string

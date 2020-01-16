@@ -463,15 +463,25 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * Return the invoice html form a temporary invoice
          *
          * @param {String} invoiceId
+         * @param {Boolean|Number} [onlyArticles]
          * @returns {Promise}
          */
-        getInvoicePreview: function (invoiceId) {
+        getInvoicePreview: function (invoiceId, onlyArticles) {
+            if (typeof onlyArticles === 'undefined') {
+                onlyArticles = 0;
+            }
+
+            if (onlyArticles) {
+                onlyArticles = 1;
+            }
+
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_preview', resolve, {
-                    'package': 'quiqqer/invoice',
-                    invoiceId: invoiceId,
-                    onError  : reject,
-                    showError: false
+                    'package'   : 'quiqqer/invoice',
+                    invoiceId   : invoiceId,
+                    onlyArticles: onlyArticles,
+                    onError     : reject,
+                    showError   : false
                 });
             });
         },
@@ -579,6 +589,25 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_articleHtml', resolve, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,
+                    onError  : reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
+         * Add a comment to the invoice
+         *
+         * @param {Number} invoiceId
+         * @param {String} comment
+         * @return {Promise}
+         */
+        addComment: function (invoiceId, comment) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_addComment', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    comment  : comment,
                     onError  : reject,
                     showError: false
                 });

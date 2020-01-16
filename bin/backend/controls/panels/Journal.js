@@ -22,7 +22,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
     'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html',
     'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.Total.html',
-    'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css'
+
+    'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css',
+    'css!package/quiqqer/erp/bin/backend/payment-status.css'
 
 ], function (QUI, QUIPanel, QUIButton, QUISeparator, QUISelect, QUIConfirm, QUIContextMenuItem, Grid, Invoices, TimeFilter,
              QUILocale, QUIAjax, Mustache, templateInvoiceDetails, templateTotal) {
@@ -481,6 +483,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     showNotInExport: true,
                     export         : false
                 }, {
+                    header   : QUILocale.get(lg, 'journal.grid.status'),
+                    dataIndex: 'paid_status_display',
+                    dataType : 'html',
+                    width    : 120,
+                    export   : false,
+                    className: 'grid-align-center'
+                }, {
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
                     dataType : 'integer',
@@ -521,31 +530,28 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     sortable : false
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
-                    dataIndex: 'paid_status_display',
-                    dataType : 'string',
-                    width    : 120,
-                    export   : false
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_clean',
-                    dataType : 'string',
+                    dataType : 'html',
                     width    : 120,
                     hidden   : true,
                     export   : true
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.netto'),
+                    type     : 'html',
                     dataIndex: 'display_nettosum',
                     dataType : 'currency',
                     width    : 100,
                     className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.vat'),
+                    type     : 'html',
                     dataIndex: 'display_vatsum',
                     dataType : 'currency',
                     width    : 100,
                     className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.sum'),
+                    type     : 'html',
                     dataIndex: 'display_sum',
                     dataType : 'currency',
                     width    : 100,
@@ -567,12 +573,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     width    : 120
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paid'),
+                    type     : 'html',
                     dataIndex: 'display_paid',
                     dataType : 'currency',
                     width    : 100,
                     className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.open'),
+                    type     : 'html',
                     dataIndex: 'display_toPay',
                     dataType : 'currency',
                     width    : 100,
@@ -598,9 +606,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'string',
                     width    : 80
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.processingStatus'),
-                    dataIndex: 'processing',
-                    dataType : 'string',
+                    header   : QUILocale.get(lg, 'journal.grid.processing'),
+                    dataIndex: 'processing_status_display',
+                    dataType : 'html',
                     width    : 150
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.hash'),

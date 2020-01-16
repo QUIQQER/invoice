@@ -253,39 +253,39 @@
             <en><![CDATA[Gross]]></en>
         </locale>
 
-        <locale name="payment.status.0" html="true">
-            <de><![CDATA[<span class="payment-status-0">offen</span>]]></de>
-            <en><![CDATA[<span class="payment-status-0">open</span>]]></en>
+        <locale name="payment.status.0">
+            <de><![CDATA[offen]]></de>
+            <en><![CDATA[open]]></en>
         </locale>
-        <locale name="payment.status.1" html="true">
-            <de><![CDATA[<span class="payment-status-1">bezahlt</span>]]></de>
-            <en><![CDATA[<span class="payment-status-1">paid</span>]]></en>
+        <locale name="payment.status.1">
+            <de><![CDATA[bezahlt]]></de>
+            <en><![CDATA[paid]]></en>
         </locale>
-        <locale name="payment.status.2" html="true">
-            <de><![CDATA[<span class="payment-status-2">Teilzahlung</span>]]></de>
-            <en><![CDATA[<span class="payment-status-2">part payment</span>]]></en>
+        <locale name="payment.status.2">
+            <de><![CDATA[Teilzahlung]]></de>
+            <en><![CDATA[part payment]]></en>
         </locale>
-        <locale name="payment.status.3" html="true">
-            <de><![CDATA[<span class="payment-status-3">storniert</span>]]></de>
-            <en><![CDATA[<span class="payment-status-3">canceled</span>]]></en>
+        <locale name="payment.status.3">
+            <de><![CDATA[storniert]]></de>
+            <en><![CDATA[canceled]]></en>
         </locale>
-        <locale name="payment.status.4" html="true">
-            <de><![CDATA[<span class="payment-status-4">error</span>]]></de>
-            <en><![CDATA[<span class="payment-status-4">error</span>]]></en>
+        <locale name="payment.status.4">
+            <de><![CDATA[error]]></de>
+            <en><![CDATA[error]]></en>
         </locale>
-        <locale name="payment.status.5" html="true">
-            <de><![CDATA[<span class="payment-status-5">storniert</span>]]></de>
-            <en><![CDATA[<span class="payment-status-5">canceled</span>]]></en>
+        <locale name="payment.status.5">
+            <de><![CDATA[storniert]]></de>
+            <en><![CDATA[canceled]]></en>
         </locale>
-        <locale name="payment.status.11" html="true">
-            <de><![CDATA[<span class="payment-status-11">Lastschrift</span>]]></de>
-            <en><![CDATA[<span class="payment-status-11">Debit</span>]]></en>
+        <locale name="payment.status.11">
+            <de><![CDATA[Lastschrift]]></de>
+            <en><![CDATA[Debit]]></en>
         </locale>
-        <locale name="payment.status.12" html="true">
-            <de><![CDATA[<span class="payment-status-12">Abonnement</span>]]></de>
-            <en><![CDATA[<span class="payment-status-12">Subscription plan</span>]]></en>
+        <locale name="payment.status.12">
+            <de><![CDATA[Abonnement]]></de>
+            <en><![CDATA[Subscription plan]]></en>
         </locale>
-        <locale name="dunning.level.0" html="true">
+        <locale name="dunning.level.0">
             <de><![CDATA[---]]></de>
             <en><![CDATA[---]]></en>
         </locale>
@@ -432,6 +432,48 @@
         <locale name="message.invoice.save.successfully">
             <de><![CDATA[Der Rechnungsentwurf wurde erfolgreich gespeichert.]]></de>
             <en><![CDATA[The invoice was successfully saved.]]></en>
+        </locale>
+
+        <locale name="message.different,delivery.address">
+            <de><![CDATA[Der Lieferadresse weicht von der Rechnungsadresse ab]]></de>
+            <en><![CDATA[The delivery address differs from the billing address.]]></en>
+        </locale>
+
+        <locale name="deliveryAddress">
+            <de><![CDATA[Lieferadresse]]></de>
+            <en><![CDATA[Delivery address]]></en>
+        </locale>
+        <locale name="customer">
+            <de><![CDATA[Kunde]]></de>
+            <en><![CDATA[Customer]]></en>
+        </locale>
+        <locale name="customerTitle">
+            <de><![CDATA[Kundendaten]]></de>
+            <en><![CDATA[Customer data]]></en>
+        </locale>
+        <locale name="address">
+            <de><![CDATA[Adresse]]></de>
+            <en><![CDATA[Address]]></en>
+        </locale>
+        <locale name="company">
+            <de><![CDATA[Firma]]></de>
+            <en><![CDATA[Company]]></en>
+        </locale>
+        <locale name="street">
+            <de><![CDATA[Straße]]></de>
+            <en><![CDATA[Street]]></en>
+        </locale>
+        <locale name="zip">
+            <de><![CDATA[PLZ]]></de>
+            <en><![CDATA[ZIP]]></en>
+        </locale>
+        <locale name="city">
+            <de><![CDATA[Ort]]></de>
+            <en><![CDATA[City]]></en>
+        </locale>
+        <locale name="country">
+            <de><![CDATA[Land]]></de>
+            <en><![CDATA[Country]]></en>
         </locale>
     </groups>
 
@@ -713,6 +755,14 @@
         <locale name="erp.panel.temporary.invoice.category.data.textInvoiceText">
             <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
             <en><![CDATA[Additional invoice text]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textStatus">
+            <de><![CDATA[Status]]></de>
+            <en><![CDATA[Status]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.comments">
+            <de><![CDATA[Kommentare]]></de>
+            <en><![CDATA[Comments]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.deleteButton.title">
             <de><![CDATA[Rechnung löschen]]></de>
@@ -1096,7 +1146,7 @@
             <en><![CDATA[Print]]></en>
         </locale>
         <locale name="dialog.print.data.output.pdf.btn">
-            <de><![CDATA[Herrunterladen]]></de>
+            <de><![CDATA[Herunterladen]]></de>
             <en><![CDATA[Download]]></en>
         </locale>
         <locale name="dialog.print.data.output.email.btn">
@@ -1137,6 +1187,11 @@
         <locale name="dialog.add.payment.date">
             <de><![CDATA[Datum]]></de>
             <en><![CDATA[Date]]></en>
+        </locale>
+
+        <locale name="dialog.add.comment.title">
+            <de><![CDATA[Kommentar hinzufügen]]></de>
+            <en><![CDATA[Add new comment]]></en>
         </locale>
 
         <locale name="exception.post.invoices.missing.attributes">
@@ -1250,6 +1305,15 @@
             <en><![CDATA[Please select a customer address:]]></en>
         </locale>
 
+        <locale name="invoice.panel.comment.add">
+            <de><![CDATA[Kommentar hinzufügen]]></de>
+            <en><![CDATA[Add comment]]></en>
+        </locale>
+
+        <locale name="message.select.customer">
+            <de><![CDATA[Bitte wählen Sie einen Kunden aus.]]></de>
+            <en><![CDATA[Please select a customer.]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">

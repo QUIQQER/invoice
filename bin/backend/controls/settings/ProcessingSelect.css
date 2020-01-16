@@ -1,0 +1,15 @@
+.invoice-status-select {
+    display: flex;
+    width: 100%;
+}
+
+.invoice-status-select-color {
+    background: #EFEFEF;
+    width: 50px;
+}
+
+.invoice-status-select-qui {
+    border: none;
+    float: none;
+    width: calc(100% - 50px);
+}

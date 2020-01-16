@@ -40,6 +40,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             'openHistory',
             'openComments',
             'openPreview',
+            'openAddCommentDialog',
             '$onCreate',
             '$onInject',
             '$onDestroy',
@@ -496,12 +497,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             data = {};
                         }
 
+                        data.textInvoiceStatus    = QUILocale.get(lg, 'invoice.settings.processingStatus.title');
                         data.textInvoiceRecipient = QUILocale.get(lg, 'cutomerData');
                         data.textCustomer         = QUILocale.get(lg, 'customer');
                         data.textCompany          = QUILocale.get(lg, 'company');
                         data.textStreet           = QUILocale.get(lg, 'street');
                         data.textZip              = QUILocale.get(lg, 'zip');
                         data.textCity             = QUILocale.get(lg, 'city');
+
+                        data.textInvoiceDelivery = QUILocale.get(lg, 'deliveryAddress');
+                        data.textDeliveryCompany = QUILocale.get(lg, 'company');
+                        data.textDeliveryStreet  = QUILocale.get(lg, 'street');
+                        data.textDeliveryZip     = QUILocale.get(lg, 'zip');
+                        data.textDeliveryCity    = QUILocale.get(lg, 'city');
+                        data.textDeliveryCountry = QUILocale.get(lg, 'country');
 
                         data.textInvoiceData = QUILocale.get(lg, 'erp.panel.invoice.data.title');
                         data.textInvoiceDate = QUILocale.get(lg, 'erp.panel.invoice.data.date');
@@ -515,13 +524,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
                         data.textInvoiceText = QUILocale.get(lg, 'erp.panel.invoice.data.invoiceText');
 
+                        if (data.additional_invoice_text === '') {
+                            data.additional_invoice_text = '&nbsp;';
+                        }
+
                         Container.set({
                             html: Mustache.render(template, data)
                         });
 
+                        var Form    = Container.getElement('form');
+                        var address = {};
+
                         try {
-                            var Form    = Container.getElement('form'),
-                                address = JSON.decode(data.invoice_address);
+                            address = JSON.decode(data.invoice_address);
 
                             Form.elements.customer.value  = address.salutation + ' ' + address.firstname + ' ' + address.lastname;
                             Form.elements.company.value   = address.company;
@@ -532,7 +547,55 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             console.error(e);
                         }
 
-                        resolve();
+                        if (data.delivery_address !== '') {
+                            Container.getElement('.invoice-delivery-data').setStyle('display', null);
+
+                            try {
+                                var deliveryAddress = JSON.decode(data.delivery_address);
+
+                                if (typeof deliveryAddress.salutation === 'undefined') {
+                                    deliveryAddress.salutation = '';
+                                }
+
+                                if (typeof deliveryAddress.firstname === 'undefined') {
+                                    deliveryAddress.firstname = address.firstname;
+                                }
+
+                                if (typeof deliveryAddress.lastname === 'undefined') {
+                                    deliveryAddress.lastname = address.lastname;
+                                }
+
+                                Form.elements['delivery-customer'].value = deliveryAddress.salutation + ' ' +
+                                    deliveryAddress.firstname + ' ' +
+                                    deliveryAddress.lastname;
+
+                                Form.elements['delivery-company'].value   = deliveryAddress.company;
+                                Form.elements['delivery-street_no'].value = deliveryAddress.street_no;
+                                Form.elements['delivery-zip'].value       = deliveryAddress.zip;
+                                Form.elements['delivery-city'].value      = deliveryAddress.city;
+                            } catch (e) {
+                                console.error(e);
+                            }
+                        }
+
+                        if (Form.elements.processing_status) {
+                            Form.elements.processing_status.value = data.processing_status;
+                        }
+
+                        QUI.parse(Container).then(function () {
+                            var Processing = QUI.Controls.getById(
+                                Container.getElement('[name="processing_status"]').get('data-quiid')
+                            );
+
+                            Processing.addEvent('onChange', function () {
+                                self.Loader.show();
+                                self.setProcessingStatus(Processing.getValue()).then(function () {
+                                    self.Loader.hide();
+                                });
+                            });
+
+                            resolve();
+                        });
                     });
                 });
             }).then(function () {
@@ -553,12 +616,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             return Promise.all([
                 this.$closeCategory(),
-                Invoices.getArticlesHtml(self.getAttribute('data').id)
+                Invoices.getInvoicePreview(self.getAttribute('data').hash, true)
+                //Invoices.getArticlesHtml(self.getAttribute('data').id)
             ]).then(function (result) {
                 var Container = result[0];
 
                 return new Promise(function (resolve) {
                     Container.set('html', '');
+                    Container.setStyle('padding', 0);
+
+                    var Pager = new Element('div', {
+                        'class': 'quiqqer-invoice-backend-invoice-previewContainer'
+                    }).inject(Container);
 
                     new Sandbox({
                         content: result[1],
@@ -568,13 +637,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             width : '100%'
                         },
                         events : {
-                            onLoad: resolve
+                            onLoad: function (Box) {
+                                Box.getElm().addClass('quiqqer-invoice-backend-invoice-preview');
+                                resolve();
+                            }
                         }
-                    }).inject(Container);
+                    }).inject(Pager);
                 });
             }).then(function () {
                 return self.$openCategory();
             }).then(function () {
+                self.Loader.hide();
+            }).catch(function (err) {
+                console.error(err.getMessage());
+                console.error(err);
                 self.Loader.hide();
             });
         },
@@ -646,15 +722,38 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.Loader.show();
             this.getCategory('comments').setActive();
 
-            return this.$closeCategory().then(function (Container) {
-                new Comments({
-                    comments: self.getAttribute('data').comments
-                }).inject(Container);
+            return this.$closeCategory().then(function () {
+                self.refreshComments();
             }).then(function () {
                 return self.$openCategory();
             }).then(function () {
                 self.Loader.hide();
             });
+        },
+
+        /**
+         * Refresh the comment display
+         */
+        refreshComments: function () {
+            var Container = this.getContent().getElement('.container');
+
+            Container.set('html', '');
+
+            new QUIButton({
+                textimage: 'fa fa-comments',
+                text     : QUILocale.get(lg, 'invoice.panel.comment.add'),
+                styles   : {
+                    'float'     : 'right',
+                    marginBottom: 10
+                },
+                events   : {
+                    onClick: this.openAddCommentDialog
+                }
+            }).inject(Container);
+
+            new Comments({
+                comments: this.getAttribute('data').comments
+            }).inject(Container);
         },
 
         /**
@@ -761,8 +860,92 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     }.bind(this)
                 });
             }.bind(this));
-        }
+        },
 
         //endregion
+
+        //region comments
+
+        /**
+         * Open the add dialog window
+         */
+        openAddCommentDialog: function () {
+            var self = this;
+
+            new QUIConfirm({
+                title    : QUILocale.get(lg, 'dialog.add.comment.title'),
+                icon     : 'fa fa-edit',
+                maxHeight: 600,
+                maxWidth : 800,
+                events   : {
+                    onOpen: function (Win) {
+                        Win.getContent().set('html', '');
+                        Win.Loader.show();
+
+                        require([
+                            'Editors'
+                        ], function (Editors) {
+                            Editors.getEditor(null).then(function (Editor) {
+                                Win.$Editor = Editor;
+
+                                Win.$Editor.addEvent('onLoaded', function () {
+                                    Win.$Editor.switchToWYSIWYG();
+                                    Win.$Editor.showToolbar();
+                                    Win.$Editor.setContent(self.getAttribute('content'));
+                                    Win.Loader.hide();
+                                });
+
+                                Win.$Editor.inject(Win.getContent());
+                                Win.$Editor.setHeight(200);
+                            });
+                        });
+                    },
+
+                    onSubmit: function (Win) {
+                        Win.Loader.show();
+
+                        self.addComment(Win.$Editor.getContent()).then(function () {
+                            return self.doRefresh();
+                        }).then(function () {
+                            Win.$Editor.destroy();
+                            Win.close();
+
+                            self.refreshComments();
+                        });
+                    }
+                }
+            }).open();
+        },
+
+        /**
+         * add a comment to the order
+         *
+         * @param {String} message
+         */
+        addComment: function (message) {
+            return Invoices.addComment(this.getAttribute('invoiceId'), message);
+        },
+
+        //endregion
+
+        /**
+         * Set the processing status for the invoice
+         *
+         * @param {Number} processingStatus
+         * @return {Promise}
+         */
+        setProcessingStatus: function (processingStatus) {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                require(['Ajax'], function (QUIAjax) {
+                    QUIAjax.post('package_quiqqer_invoice_ajax_invoices_setStatus', resolve, {
+                        'package': 'quiqqer/invoice',
+                        invoiceId: self.getAttribute('invoiceId'),
+                        status   : processingStatus
+                    });
+                });
+            });
+        }
     });
 });
