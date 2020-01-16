@@ -367,26 +367,30 @@ class InvoiceView extends QUI\QDOM
         }
 
         // get transactions
-        $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
-        $transactions = $Transactions->getTransactionsByHash($this->Invoice->getHash());
+        if ($this->Invoice instanceof Invoice) {
+            // @todo retrieve transaction text from attributes (set by temporary invoice)
+        } else {
+            $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
+            $transactions = $Transactions->getTransactionsByHash($this->Invoice->getHash());
 
-        if (!empty($transactions)) {
-            /* @var $Transaction QUI\ERP\Accounting\Payments\Transactions\Transaction */
-            $Transaction = \array_pop($transactions);
-            $Payment     = $Transaction->getPayment(); // payment method
-            $PaymentType = $this->getPayment(); // payment method
+            if (!empty($transactions)) {
+                /* @var $Transaction QUI\ERP\Accounting\Payments\Transactions\Transaction */
+                $Transaction = \array_pop($transactions);
+                $Payment     = $Transaction->getPayment(); // payment method
+                $PaymentType = $this->getPayment(); // payment method
 
-            $payment   = $Payment->getTitle();
-            $Formatter = $Locale->getDateFormatter();
+                $payment   = $Payment->getTitle();
+                $Formatter = $Locale->getDateFormatter();
 
-            if ($PaymentType->getPaymentType() === $Payment->getClass()) {
-                $payment = $PaymentType->getTitle($Locale);
+                if ($PaymentType->getPaymentType() === $Payment->getClass()) {
+                    $payment = $PaymentType->getTitle($Locale);
+                }
+
+                $transactionText = $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
+                    'date'    => $Formatter->format(\strtotime($Transaction->getDate())),
+                    'payment' => $payment
+                ]);
             }
-
-            $transactionText = $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
-                'date'    => $Formatter->format(\strtotime($Transaction->getDate())),
-                'payment' => $payment
-            ]);
         }
 
         QUI::getLocale()->setTemporaryCurrent($Customer->getLang());
