@@ -24,7 +24,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
         Binds: [
             '$onImport',
             '$checkBoxChange',
-            '$onSelectChange'
+            '$onSelectChange',
+            'isLoaded'
         ],
 
         initialize: function (options) {
@@ -358,6 +359,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
             }
 
             closables.setStyle('display', 'none');
+        },
+
+        /**
+         * Check if control has finished loading
+         *
+         * @return {boolean}
+         */
+        isLoaded: function() {
+            return this.$loaded;
         }
     });
 });
