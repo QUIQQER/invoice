@@ -41,6 +41,7 @@
             <field type="VARCHAR(200) NULL">editor_name</field>
             <field type="TEXT NULL">data</field>
             <field type="TEXT NULL">additional_invoice_text</field>
+            <field type="TEXT NULL">transaction_invoice_text</field>
             <field type="TEXT NOT NULL">articles</field>
             <field type="TEXT NULL">history</field>
             <field type="TEXT NULL">comments</field>

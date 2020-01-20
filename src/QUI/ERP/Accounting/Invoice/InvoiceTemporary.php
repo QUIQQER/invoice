@@ -1096,62 +1096,63 @@ class InvoiceTemporary extends QUI\QDOM
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             [
-                'type'                    => $type,
-                'id_prefix'               => Settings::getInstance()->getInvoicePrefix(),
-                'global_process_id'       => $this->getGlobalProcessId(),
+                'type'                     => $type,
+                'id_prefix'                => Settings::getInstance()->getInvoicePrefix(),
+                'global_process_id'        => $this->getGlobalProcessId(),
 
                 // user relationships
-                'c_user'                  => $User->getId(),
-                'c_username'              => $User->getName(),
-                'editor_id'               => $editorId,
-                'editor_name'             => $editorName,
-                'order_id'                => $this->getAttribute('order_id'),
-                'ordered_by'              => $orderedBy,
-                'ordered_by_name'         => $orderedByName,
-                'customer_id'             => $this->getCustomer()->getId(),
-                'customer_data'           => \json_encode($customerData),
+                'c_user'                   => $User->getId(),
+                'c_username'               => $User->getName(),
+                'editor_id'                => $editorId,
+                'editor_name'              => $editorName,
+                'order_id'                 => $this->getAttribute('order_id'),
+                'ordered_by'               => $orderedBy,
+                'ordered_by_name'          => $orderedByName,
+                'customer_id'              => $this->getCustomer()->getId(),
+                'customer_data'            => \json_encode($customerData),
 
                 // addresses
-                'invoice_address'         => $invoiceAddress,
-                'delivery_address'        => $deliveryAddress,
+                'invoice_address'          => $invoiceAddress,
+                'delivery_address'         => $deliveryAddress,
 
                 // payments
-                'payment_method'          => $this->getAttribute('payment_method'),
-                'payment_method_data'     => \json_encode($paymentMethodData),
-                'payment_data'            => QUI\Security\Encryption::encrypt(\json_encode($this->paymentData)),
-                'payment_time'            => null,
-                'time_for_payment'        => $timeForPayment,
+                'payment_method'           => $this->getAttribute('payment_method'),
+                'payment_method_data'      => \json_encode($paymentMethodData),
+                'payment_data'             => QUI\Security\Encryption::encrypt(\json_encode($this->paymentData)),
+                'payment_time'             => null,
+                'time_for_payment'         => $timeForPayment,
 
                 // paid status
-                'paid_status'             => Invoice::PAYMENT_STATUS_OPEN,
-                'paid_date'               => null,
-                'paid_data'               => '',
-                'processing_status'       => $processingStatus,
+                'paid_status'              => Invoice::PAYMENT_STATUS_OPEN,
+                'paid_date'                => null,
+                'paid_data'                => '',
+                'processing_status'        => $processingStatus,
 
                 // shipping
-                'shipping_id'             => $shippingId,
-                'shipping_data'           => $shippingData,
+                'shipping_id'              => $shippingId,
+                'shipping_data'            => $shippingData,
 
                 // data
-                'hash'                    => $this->getAttribute('hash'),
-                'project_name'            => $this->getAttribute('project_name'),
-                'date'                    => $date,
-                'data'                    => \json_encode($this->data),
-                'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
-                'articles'                => $uniqueList,
-                'history'                 => $this->getHistory()->toJSON(),
-                'comments'                => $this->getComments()->toJSON(),
-                'custom_data'             => \json_encode($this->customData),
+                'hash'                     => $this->getAttribute('hash'),
+                'project_name'             => $this->getAttribute('project_name'),
+                'date'                     => $date,
+                'data'                     => \json_encode($this->data),
+                'additional_invoice_text'  => $this->getAttribute('additional_invoice_text'),
+                'transaction_invoice_text' => $this->getView()->getTransactionText(),
+                'articles'                 => $uniqueList,
+                'history'                  => $this->getHistory()->toJSON(),
+                'comments'                 => $this->getComments()->toJSON(),
+                'custom_data'              => \json_encode($this->customData),
 
                 // calculation data
-                'isbrutto'                => $isBrutto,
-                'currency_data'           => \json_encode($this->getCurrency()->toArray()),
-                'currency'                => $this->getCurrency()->getCode(),
-                'nettosum'                => $listCalculations['nettoSum'],
-                'nettosubsum'             => $listCalculations['nettoSubSum'],
-                'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
-                'sum'                     => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
-                'vat_array'               => \json_encode($listCalculations['vatArray'])
+                'isbrutto'                 => $isBrutto,
+                'currency_data'            => \json_encode($this->getCurrency()->toArray()),
+                'currency'                 => $this->getCurrency()->getCode(),
+                'nettosum'                 => $listCalculations['nettoSum'],
+                'nettosubsum'              => $listCalculations['nettoSubSum'],
+                'subsum'                   => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
+                'sum'                      => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
+                'vat_array'                => \json_encode($listCalculations['vatArray'])
             ]
         );
 
