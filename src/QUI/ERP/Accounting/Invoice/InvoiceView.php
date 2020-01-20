@@ -356,6 +356,16 @@ class InvoiceView extends QUI\QDOM
             }
         }
 
+        // Delivery address
+        $DeliveryAddress = false;
+        $deliveryAdress  = $this->Invoice->getAttribute('delivery_address');
+
+        if (!empty($deliveryAdress)) {
+            $DeliveryAddress = new QUI\ERP\Address(\json_decode($deliveryAdress, true));
+            $DeliveryAddress->clearMail();
+            $DeliveryAddress->clearPhone();
+        }
+
         // get transactions
         if ($this->Invoice instanceof Invoice) {
             // @todo retrieve transaction text from attributes (set by temporary invoice)
@@ -386,14 +396,17 @@ class InvoiceView extends QUI\QDOM
         QUI::getLocale()->setTemporaryCurrent($Customer->getLang());
 
         $Engine->assign([
-            'this'           => $this,
-            'ArticleList'    => $Articles,
-            'Customer'       => $Customer,
-            'Editor'         => $Editor,
-            'Address'        => $Address,
-            'Payment'        => $this->Invoice->getPayment(),
-            'timeForPayment' => $timeForPayment,
-            'transaction'    => $transactionText
+            'this'            => $this,
+            'ArticleList'     => $Articles,
+            'Customer'        => $Customer,
+            'Editor'          => $Editor,
+            'Address'         => $Address,
+            'DeliveryAddress' => $DeliveryAddress,
+            'Payment'         => $this->Invoice->getPayment(),
+            'timeForPayment'  => $timeForPayment,
+            'transaction'     => $transactionText,
+            'projectName'     => $this->Invoice->getAttribute('project_name'),
+            'useShipping'     => QUI::getPackageManager()->isInstalled('quiqqer/shipping')
         ]);
 
         return $Template;
