@@ -6,6 +6,7 @@
 
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatusHandler;
 
 /**
  * Returns temporary invoices list for a grid
@@ -20,6 +21,14 @@ QUI::$Ajax->registerFunction(
         $Invoices = Handler::getInstance();
         $Grid     = new QUI\Utils\Grid();
         $Locale   = QUI::getLocale();
+
+        $ProcessingStatus = ProcessingStatusHandler::getInstance();
+        $list             = $ProcessingStatus->getProcessingStatusList();
+        $processing       = [];
+
+        foreach ($list as $Status) {
+            $processing[$Status->getId()] = $Status;
+        }
 
         $query  = $Grid->parseDBParams(\json_decode($params, true));
         $filter = \json_decode($filter, true);
@@ -66,7 +75,6 @@ QUI::$Ajax->registerFunction(
             'display_missing',
             'isbrutto',
             'taxId',
-            'order_id',
             'processing_status',
             'comments',
             'payment_data',
@@ -103,10 +111,24 @@ QUI::$Ajax->registerFunction(
                 $data[$key]['payment_title'] = Handler::EMPTY_VALUE;
             }
 
-            $data[$key]['paid_status_display'] = $Locale->get(
-                'quiqqer/invoice',
-                'payment.status.'.$TemporaryInvoice->getAttribute('paid_status')
-            );
+            $paidStatus = $TemporaryInvoice->getAttribute('paid_status');
+            $paidText   = $Locale->get('quiqqer/invoice', 'payment.status.'.$paidStatus);
+
+            $data[$key]['paid_status_display'] = '<span class="payment-status payment-status-'.$paidStatus.'">'.$paidText.'</span>';
+
+
+            // processing status
+            $processStatus = $data[$key]['processing_status'];
+
+            if (isset($processing[$processStatus])) {
+                /* @var $Status QUI\ERP\Accounting\Invoice\ProcessingStatus\Status */
+                $Status = $processing[$processStatus];
+                $color  = $Status->getColor();
+
+                $data[$key]['processing_status_display'] = '<span class="processing-status" style="color: '.$color.'">'.
+                                                           $Status->getTitle().
+                                                           '</span>';
+            }
 
 
             // customer data

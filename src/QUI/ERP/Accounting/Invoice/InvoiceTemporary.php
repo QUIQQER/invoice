@@ -8,8 +8,10 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 use QUI\Utils\Security\Orthos;
+
 use QUI\ERP\Accounting\ArticleList;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus;
 
 /**
  * Class InvoiceTemporary
@@ -84,6 +86,11 @@ class InvoiceTemporary extends QUI\QDOM
     protected $shippingId = null;
 
     /**
+     * @var array
+     */
+    protected $addressDelivery = [];
+
+    /**
      * Invoice constructor.
      *
      * @param $id
@@ -103,6 +110,12 @@ class InvoiceTemporary extends QUI\QDOM
         $this->Articles = new ArticleList();
         $this->History  = new QUI\ERP\Comments();
         $this->Comments = new QUI\ERP\Comments();
+
+        $this->addressDelivery = \json_decode($data['delivery_address'], true);
+
+        if (!empty($data['delivery_address_id'])) {
+            $this->addressDelivery['id'] = (int)$data['delivery_address_id'];
+        }
 
         if (isset($data['articles'])) {
             $articles = \json_decode($data['articles'], true);
@@ -172,7 +185,6 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->setAttributes($data);
-
 
         if (!$this->getCustomer()) {
             $this->setAttribute('invoice_address', false);
@@ -703,6 +715,33 @@ class InvoiceTemporary extends QUI\QDOM
             $shippingData = $this->getShipping()->toJSON();
         }
 
+        // delivery address
+        $deliveryAddress   = '';
+        $deliveryAddressId = null;
+
+        if ($this->getDeliveryAddress()) {
+            $deliveryAddress   = $this->getDeliveryAddress()->toJSON();
+            $deliveryAddressId = $this->getDeliveryAddress()->getId();
+
+            if (empty($deliveryAddressId)) {
+                $deliveryAddressId = null;
+            }
+        }
+
+        // processing status
+        $processingStatus = null;
+
+        if (\is_numeric($this->getAttribute('processing_status'))) {
+            $processingStatus = (int)$this->getAttribute('processing_status');
+
+            try {
+                ProcessingStatus\Handler::getInstance()->getProcessingStatus($processingStatus);
+            } catch (ProcessingStatus\Exception $Exception) {
+                $processingStatus = null;
+            }
+        }
+
+
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
             [$this]
@@ -729,15 +768,15 @@ class InvoiceTemporary extends QUI\QDOM
                 // address
                 'invoice_address_id'      => (int)$this->getAttribute('invoice_address_id'),
                 'invoice_address'         => $invoiceAddress,
-                'delivery_address_id'     => null,
-                'delivery_address'        => null,
+                'delivery_address_id'     => $deliveryAddressId,
+                'delivery_address'        => $deliveryAddress,
 
                 // processing
                 'time_for_payment'        => $timeForPayment,
                 'paid_status'             => Invoice::PAYMENT_STATUS_OPEN, // nicht in gui
                 'paid_date'               => null, // nicht in gui
                 'paid_data'               => '',   // nicht in gui
-                'processing_status'       => null,
+                'processing_status'       => $processingStatus,
                 'customer_data'           => '',   // nicht in gui
 
                 // shipping
@@ -1029,65 +1068,91 @@ class InvoiceTemporary extends QUI\QDOM
             $shippingData = $this->getShipping()->toJSON();
         }
 
+        // delivery address
+        $deliveryAddress = $this->getAttribute('delivery_address');
+
+        if (empty($deliveryAddress)) {
+            $DeliveryAddress = $this->getDeliveryAddress();
+
+            if ($DeliveryAddress) {
+                $deliveryAddress = $DeliveryAddress->toJSON();
+            }
+        }
+
+        // processing status
+        $processingStatus = null;
+
+        if (\is_numeric($this->getAttribute('processing_status'))) {
+            $processingStatus = (int)$this->getAttribute('processing_status');
+
+            try {
+                ProcessingStatus\Handler::getInstance()->getProcessingStatus($processingStatus);
+            } catch (ProcessingStatus\Exception $Exception) {
+                $processingStatus = null;
+            }
+        }
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             [
-                'type'                    => $type,
-                'id_prefix'               => Settings::getInstance()->getInvoicePrefix(),
-                'global_process_id'       => $this->getGlobalProcessId(),
+                'type'                     => $type,
+                'id_prefix'                => Settings::getInstance()->getInvoicePrefix(),
+                'global_process_id'        => $this->getGlobalProcessId(),
 
                 // user relationships
-                'c_user'                  => $User->getId(),
-                'c_username'              => $User->getName(),
-                'editor_id'               => $editorId,
-                'editor_name'             => $editorName,
-                'order_id'                => $this->getAttribute('order_id'),
-                'ordered_by'              => $orderedBy,
-                'ordered_by_name'         => $orderedByName,
-                'customer_id'             => $this->getCustomer()->getId(),
-                'customer_data'           => \json_encode($customerData),
+                'c_user'                   => $User->getId(),
+                'c_username'               => $User->getName(),
+                'editor_id'                => $editorId,
+                'editor_name'              => $editorName,
+                'order_id'                 => $this->getAttribute('order_id'),
+                'ordered_by'               => $orderedBy,
+                'ordered_by_name'          => $orderedByName,
+                'customer_id'              => $this->getCustomer()->getId(),
+                'customer_data'            => \json_encode($customerData),
 
                 // addresses
-                'invoice_address'         => $invoiceAddress,
-                'delivery_address'        => $this->getAttribute('delivery_address'),
+                'invoice_address'          => $invoiceAddress,
+                'delivery_address'         => $deliveryAddress,
 
                 // payments
-                'payment_method'          => $this->getAttribute('payment_method'),
-                'payment_method_data'     => \json_encode($paymentMethodData),
-                'payment_data'            => QUI\Security\Encryption::encrypt(\json_encode($this->paymentData)),
-                'payment_time'            => null,
-                'time_for_payment'        => $timeForPayment,
+                'payment_method'           => $this->getAttribute('payment_method'),
+                'payment_method_data'      => \json_encode($paymentMethodData),
+                'payment_data'             => QUI\Security\Encryption::encrypt(\json_encode($this->paymentData)),
+                'payment_time'             => null,
+                'time_for_payment'         => $timeForPayment,
 
                 // paid status
-                'paid_status'             => Invoice::PAYMENT_STATUS_OPEN,
-                'paid_date'               => null,
-                'paid_data'               => '',
+                'paid_status'              => Invoice::PAYMENT_STATUS_OPEN,
+                'paid_date'                => null,
+                'paid_data'                => '',
+                'processing_status'        => $processingStatus,
 
                 // shipping
-                'shipping_id'             => $shippingId,
-                'shipping_data'           => $shippingData,
+                'shipping_id'              => $shippingId,
+                'shipping_data'            => $shippingData,
 
                 // data
-                'hash'                    => $this->getAttribute('hash'),
-                'project_name'            => $this->getAttribute('project_name'),
-                'date'                    => $date,
-                'data'                    => \json_encode($this->data),
-                'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
-                'articles'                => $uniqueList,
-                'history'                 => $this->getHistory()->toJSON(),
-                'comments'                => $this->getComments()->toJSON(),
-                'custom_data'             => \json_encode($this->customData),
+                'hash'                     => $this->getAttribute('hash'),
+                'project_name'             => $this->getAttribute('project_name'),
+                'date'                     => $date,
+                'data'                     => \json_encode($this->data),
+                'additional_invoice_text'  => $this->getAttribute('additional_invoice_text'),
+                'transaction_invoice_text' => $this->getView()->getTransactionText(),
+                'articles'                 => $uniqueList,
+                'history'                  => $this->getHistory()->toJSON(),
+                'comments'                 => $this->getComments()->toJSON(),
+                'custom_data'              => \json_encode($this->customData),
 
                 // calculation data
-                'isbrutto'                => $isBrutto,
-                'currency_data'           => \json_encode($this->getCurrency()->toArray()),
-                'currency'                => $this->getCurrency()->getCode(),
-                'nettosum'                => $listCalculations['nettoSum'],
-                'nettosubsum'             => $listCalculations['nettoSubSum'],
-                'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
-                'sum'                     => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
-                'vat_array'               => \json_encode($listCalculations['vatArray'])
+                'isbrutto'                 => $isBrutto,
+                'currency_data'            => \json_encode($this->getCurrency()->toArray()),
+                'currency'                 => $this->getCurrency()->getCode(),
+                'nettosum'                 => $listCalculations['nettoSum'],
+                'nettosubsum'              => $listCalculations['nettoSubSum'],
+                'subsum'                   => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
+                'sum'                      => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
+                'vat_array'                => \json_encode($listCalculations['vatArray'])
             ]
         );
 
@@ -1320,12 +1385,32 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function addComment($message)
     {
+        $message = \strip_tags(
+            $message,
+            '<div><span><pre><p><br><hr>
+            <ul><ol><li><dl><dt><dd><strong><em><b><i><u>
+            <img><table><tbody><td><tfoot><th><thead><tr>'
+        );
+
         $this->Comments->addComment($message);
         $this->save();
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceAddComment',
             [$this, $message]
+        );
+
+        $User = QUI::getUserBySession();
+
+        $this->addHistory(
+            QUI::getLocale()->get(
+                'quiqqer/invoice',
+                'history.message.addComment',
+                [
+                    'username' => $User->getName(),
+                    'uid'      => $User->getId()
+                ]
+            )
         );
     }
 
@@ -1645,4 +1730,94 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     //endregion
+
+    //region delivery address
+
+    /**
+     * Return delivery address
+     *
+     * @return QUI\ERP\Address|null
+     */
+    public function getDeliveryAddress()
+    {
+        $delivery = $this->addressDelivery;
+
+        if (isset($delivery['id'])) {
+            unset($delivery['id']);
+        }
+
+        if (empty($delivery)) {
+            try {
+                $Customer = QUI::getUsers()->get((int)$this->getAttribute('customer_id'));
+
+                $Address = $Customer->getAddress(
+                    (int)$this->getAttribute('invoice_address_id')
+                );
+
+                if ($Address) {
+                    return new QUI\ERP\Address(
+                        $Address->getAttributes(),
+                        $this->getCustomer()
+                    );
+                }
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::addDebug($Exception->getMessage());
+            }
+        }
+
+        if (empty($this->addressDelivery)) {
+            return null;
+        }
+
+        return new QUI\ERP\Address($this->addressDelivery, $this->getCustomer());
+    }
+
+    /**
+     * Set the delivery address
+     *
+     * @param array|QUI\ERP\Address $address
+     */
+    public function setDeliveryAddress($address)
+    {
+        if ($address instanceof QUI\ERP\Address) {
+            $this->addressDelivery = $address->getAttributes();
+
+            return;
+        }
+
+        if (\is_array($address)) {
+            $this->addressDelivery = $this->parseAddressData($address);
+        }
+    }
+
+    /**
+     * @param array $address
+     * @return array
+     */
+    protected function parseAddressData(array $address)
+    {
+        $fields = \array_flip([
+            'id',
+            'salutation',
+            'firstname',
+            'lastname',
+            'street_no',
+            'zip',
+            'city',
+            'country',
+            'company'
+        ]);
+
+        $result = [];
+
+        foreach ($address as $entry => $value) {
+            if (isset($fields[$entry])) {
+                $result[$entry] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    // endregion
 }

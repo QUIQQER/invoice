@@ -41,6 +41,7 @@
             <field type="VARCHAR(200) NULL">editor_name</field>
             <field type="TEXT NULL">data</field>
             <field type="TEXT NULL">additional_invoice_text</field>
+            <field type="TEXT NULL">transaction_invoice_text</field>
             <field type="TEXT NOT NULL">articles</field>
             <field type="TEXT NULL">history</field>
             <field type="TEXT NULL">comments</field>
@@ -59,6 +60,8 @@
 
             <field type="INT(11) NULL DEFAULT NULL">shipping_id</field>
             <field type="TEXT NULL">shipping_data</field>
+
+            <field type="INT(5) NULL">processing_status</field>
 
             <!--<field type="int(2) NOT NULL">dunning_level</field>--> <!-- eigenes modul -->
             <!--<field type="int(11) NOT NULL">dunning_time</field>--> <!-- eigenes modul -->

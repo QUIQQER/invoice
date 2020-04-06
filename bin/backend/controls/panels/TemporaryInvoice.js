@@ -15,6 +15,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'qui/utils/Form',
     'controls/users/address/Select',
     'package/quiqqer/invoice/bin/Invoices',
+    'package/quiqqer/erp/bin/backend/controls/Comments',
     'package/quiqqer/invoice/bin/backend/controls/articles/Text',
     'package/quiqqer/payments/bin/backend/Payments',
     'utils/Lock',
@@ -30,7 +31,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
-             AddressSelect, Invoices, TextArticle,
+             AddressSelect, Invoices, Comments, TextArticle,
              Payments, Locker, QUILocale, Mustache, Users, Editors,
              templateData, templatePost, templateMissing) {
     "use strict";
@@ -47,6 +48,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             'post',
             'openData',
             'openArticles',
+            'openComments',
+            'openAddCommentDialog',
             'openVerification',
             '$openCategory',
             '$closeCategory',
@@ -85,6 +88,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.$ArticleListSummary = null;
             this.$AddProduct         = null;
             this.$ArticleSort        = null;
+            this.$AddressDelivery    = null;
 
             this.$AddSeparator  = null;
             this.$SortSeparator = null;
@@ -138,6 +142,32 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.setAttribute('title', title);
             this.parent();
+        },
+
+        /**
+         * Refresh the invoice data
+         */
+        doRefresh: function () {
+            var self      = this,
+                invoiceId = this.getAttribute('invoiceId');
+
+            return Invoices.getTemporaryInvoice(invoiceId).then(function (data) {
+                self.setAttributes(data);
+
+                if (data.articles.articles.length) {
+                    self.$serializedList = {
+                        articles: data.articles.articles
+                    };
+
+                    self.setAttribute('articles', data.articles.articles);
+                }
+
+                if (data.invoice_address) {
+                    self.setAttribute('invoice_address', data.invoice_address);
+                }
+
+                self.refresh();
+            });
         },
 
         /**
@@ -225,7 +255,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 ordered_by             : this.getAttribute('ordered_by'),
                 time_for_payment       : this.getAttribute('time_for_payment'),
                 payment_method         : this.getAttribute('payment_method'),
-                additional_invoice_text: this.getAttribute('additional_invoice_text')
+                additional_invoice_text: this.getAttribute('additional_invoice_text'),
+                addressDelivery        : this.getAttribute('addressDelivery'),
+                processing_status      : this.getAttribute('processing_status')
             };
         },
 
@@ -269,7 +301,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textEditor        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textEditor'),
                         textInvoicePayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoicePayment'),
                         textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod'),
-                        textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText')
+                        textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText'),
+                        textStatus        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textStatus'),
+
+                        textInvoiceDeliveryAddress     : QUILocale.get(lg, 'deliveryAddress'),
+                        messageDifferentDeliveryAddress: QUILocale.get(lg, 'message.different,delivery.address'),
+                        textAddresses                  : QUILocale.get(lg, 'address'),
+                        textCompany                    : QUILocale.get(lg, 'company'),
+                        textStreet                     : QUILocale.get(lg, 'street'),
+                        textZip                        : QUILocale.get(lg, 'zip'),
+                        textCity                       : QUILocale.get(lg, 'city'),
+                        textCountry                    : QUILocale.get(lg, 'country')
                     })
                 });
 
@@ -284,10 +326,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 var dateDate = local.toJSON().slice(0, 10);
 
                 QUIFormUtils.setDataToForm({
-                    date            : dateDate,
-                    time_for_payment: self.getAttribute('time_for_payment'),
-                    project_name    : self.getAttribute('project_name'),
-                    editor_id       : self.getAttribute('editor_id')
+                    date             : dateDate,
+                    time_for_payment : self.getAttribute('time_for_payment'),
+                    project_name     : self.getAttribute('project_name'),
+                    editor_id        : self.getAttribute('editor_id'),
+                    processing_status: self.getAttribute('processing_status')
                 }, Form);
 
                 Form.elements.date.set('disabled', true);
@@ -401,6 +444,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 return Data.setValue(address);
             }).then(function () {
+                // delivery address
+                self.$AddressDelivery = QUI.Controls.getById(
+                    self.getContent().getElement(
+                        '[data-qui="package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress"]'
+                    ).get('data-quiid')
+                );
+
+                if (self.getAttribute('delivery_address')) {
+                    var deliveryAddress = self.getAttribute('delivery_address');
+
+                    try {
+                        deliveryAddress = JSON.decode(deliveryAddress);
+
+                        if (deliveryAddress) {
+                            self.getContent().getElement('[name="differentDeliveryAddress"]').checked = true;
+
+                            self.$AddressDelivery.setAttribute('userId', self.getAttribute('customer_id'));
+                            self.$AddressDelivery.setValue(deliveryAddress);
+                        }
+                    } catch (e) {
+                    }
+                }
+            }).then(function () {
                 var Container = self.getContent().getElement('.container');
 
                 new QUIButton({
@@ -413,7 +479,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     },
                     events   : {
                         onClick: function () {
-                            self.openArticles();
+                            self.openArticles().catch(function (e) {
+                                console.error(e);
+                            });
                         }
                     }
                 }).inject(Container);
@@ -547,6 +615,51 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }).then(function () {
                 return self.$openCategory();
             });
+        },
+
+        /**
+         * open the comments
+         *
+         * @return {Promise<Promise>}
+         */
+        openComments: function () {
+            var self = this;
+
+            this.Loader.show();
+            this.getCategory('comments').setActive();
+
+            return this.$closeCategory().then(function () {
+                self.refreshComments();
+            }).then(function () {
+                return self.$openCategory();
+            }).then(function () {
+                self.Loader.hide();
+            });
+        },
+
+        /**
+         * Refresh the comment display
+         */
+        refreshComments: function () {
+            var Container = this.getContent().getElement('.container');
+
+            Container.set('html', '');
+
+            new QUIButton({
+                textimage: 'fa fa-comments',
+                text     : QUILocale.get(lg, 'invoice.panel.comment.add'),
+                styles   : {
+                    'float'     : 'right',
+                    marginBottom: 10
+                },
+                events   : {
+                    onClick: this.openAddCommentDialog
+                }
+            }).inject(Container);
+
+            new Comments({
+                comments: this.getAttribute('comments')
+            }).inject(Container);
         },
 
         /**
@@ -839,6 +952,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     callback: function () {
                         self.$unloadCategory();
 
+                        if (self.$AddressDelivery) {
+                            self.$AddressDelivery.destroy();
+                            self.$AddressDelivery = null;
+                        }
+
                         Container.set('html', '');
                         Container.setStyle('padding', 20);
 
@@ -898,6 +1016,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }
             }
 
+            if (this.$AddressDelivery) {
+                this.setAttribute('addressDelivery', this.$AddressDelivery.getValue());
+            }
+
             if (this.$AdditionalText) {
                 this.setAttribute(
                     'additional_invoice_text',
@@ -920,6 +1042,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }
 
             [
+                'processing_status',
                 'time_for_payment',
                 'project_name',
                 'payment_method',
@@ -1074,6 +1197,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             });
 
             this.addCategory({
+                name  : 'comments',
+                icon  : 'fa fa-comments',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.comments'),
+                events: {
+                    onClick: this.openComments
+                }
+            });
+
+            this.addCategory({
                 name  : 'verification',
                 icon  : 'fa fa-check',
                 text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review'),
@@ -1114,24 +1246,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.$getLockGroups()
                 );
             }).then(function () {
-                return Invoices.getTemporaryInvoice(invoiceId);
-            }).then(function (data) {
-                self.setAttributes(data);
-
-                if (data.articles.articles.length) {
-                    self.$serializedList = {
-                        articles: data.articles.articles
-                    };
-
-                    self.setAttribute('articles', data.articles.articles);
-                }
-
-                if (data.invoice_address) {
-                    self.setAttribute('invoice_address', data.invoice_address);
-                }
-
-                self.refresh();
-
+                return self.doRefresh();
+            }).then(function () {
                 return Invoices.getMissingAttributes(invoiceId);
             }).then(function (missing) {
                 if (Object.getLength(missing)) {
@@ -1394,6 +1510,70 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }
 
             this.$ArticleSort.setNormal();
+        },
+
+        //region comments
+
+        /**
+         * Open the add dialog window
+         */
+        openAddCommentDialog: function () {
+            var self = this;
+
+            new QUIConfirm({
+                title    : QUILocale.get(lg, 'dialog.add.comment.title'),
+                icon     : 'fa fa-edit',
+                maxHeight: 600,
+                maxWidth : 800,
+                events   : {
+                    onOpen: function (Win) {
+                        Win.getContent().set('html', '');
+                        Win.Loader.show();
+
+                        require([
+                            'Editors'
+                        ], function (Editors) {
+                            Editors.getEditor(null).then(function (Editor) {
+                                Win.$Editor = Editor;
+
+                                Win.$Editor.addEvent('onLoaded', function () {
+                                    Win.$Editor.switchToWYSIWYG();
+                                    Win.$Editor.showToolbar();
+                                    Win.$Editor.setContent(self.getAttribute('content'));
+                                    Win.Loader.hide();
+                                });
+
+                                Win.$Editor.inject(Win.getContent());
+                                Win.$Editor.setHeight(200);
+                            });
+                        });
+                    },
+
+                    onSubmit: function (Win) {
+                        Win.Loader.show();
+
+                        self.addComment(Win.$Editor.getContent()).then(function () {
+                            return self.doRefresh();
+                        }).then(function () {
+                            Win.$Editor.destroy();
+                            Win.close();
+
+                            self.refreshComments();
+                        });
+                    }
+                }
+            }).open();
+        },
+
+        /**
+         * add a comment to the order
+         *
+         * @param {String} message
+         */
+        addComment: function (message) {
+            return Invoices.addComment(this.getAttribute('invoiceId'), message);
         }
+
+        //endregion
     });
 });

@@ -165,6 +165,29 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
+     * return string
+     */
+    public function previewOnlyArticles()
+    {
+        try {
+            $output = '';
+            $output .= '<style>';
+            $output .= \file_get_contents(\dirname(__FILE__).'/Utils/Template.Articles.Preview.css');
+            $output .= '</style>';
+            $output .= $this->getArticles()->toHTML();
+
+            $previewHtml = $output;
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            $previewHtml = '';
+        }
+
+        QUI::getLocale()->resetCurrent();
+
+        return $previewHtml;
+    }
+
+    /**
      * Output the invoice as HTML
      *
      * @return string
@@ -214,6 +237,88 @@ class InvoiceView extends QUI\QDOM
         }
 
         return $Document;
+    }
+
+    /**
+     * Get text descriping the transaction
+     *
+     * This may be a payment date or a "successfull payment" text, depening on the
+     * existing invoice transactions.
+     *
+     * @return string
+     */
+    public function getTransactionText()
+    {
+        // Posted invoice
+        if ($this->Invoice instanceof Invoice) {
+            return $this->Invoice->getAttribute('transaction_invoice_text') ?: '';
+        }
+
+        try {
+            $Locale = $this->Invoice->getCustomer()->getLocale();
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            return '';
+        }
+
+        // Temporary invoice (draft)
+        $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
+        $transactions = $Transactions->getTransactionsByHash($this->Invoice->getHash());
+
+        if (empty($transactions)) {
+            // Time for payment text
+            $Formatter      = $Locale->getDateFormatter();
+            $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
+
+            // temporary invoice, the time for payment are days
+            if ($this->Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
+                $timeForPayment = (int)$timeForPayment;
+
+                if ($timeForPayment < 0) {
+                    $timeForPayment = 0;
+                }
+
+                if ($timeForPayment) {
+                    $timeForPayment = \strtotime('+'.$timeForPayment.' day');
+                    $timeForPayment = $Formatter->format($timeForPayment);
+                } else {
+                    $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
+                }
+            } else {
+                $timeForPayment = \strtotime($timeForPayment);
+
+                if (\date('Y-m-d') === \date('Y-m-d', $timeForPayment)) {
+                    $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
+                } else {
+                    $timeForPayment = $Formatter->format($timeForPayment);
+                }
+            }
+
+            return $Locale->get(
+                'quiqqer/invoice',
+                'additional.invoice.text.timeForPayment',
+                [
+                    'timeForPayment' => $timeForPayment
+                ]
+            );
+        }
+
+        /* @var $Transaction QUI\ERP\Accounting\Payments\Transactions\Transaction */
+        $Transaction = \array_pop($transactions);
+        $Payment     = $Transaction->getPayment(); // payment method
+        $PaymentType = $this->getPayment(); // payment method
+
+        $payment   = $Payment->getTitle();
+        $Formatter = $Locale->getDateFormatter();
+
+        if ($PaymentType->getPaymentType() === $Payment->getClass()) {
+            $payment = $PaymentType->getTitle($Locale);
+        }
+
+        return $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
+            'date'    => $Formatter->format(\strtotime($Transaction->getDate())),
+            'payment' => $payment
+        ]);
     }
 
     /**
@@ -304,69 +409,29 @@ class InvoiceView extends QUI\QDOM
             $Articles = $Articles->toUniqueList();
         }
 
-        // time for payment
-        $Formatter       = $Locale->getDateFormatter();
-        $timeForPayment  = $this->Invoice->getAttribute('time_for_payment');
-        $transactionText = '';
+        // Delivery address
+        $DeliveryAddress = false;
+        $deliveryAdress  = $this->Invoice->getAttribute('delivery_address');
 
-        // temporary invoice, the time for payment are days
-        if ($this->Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
-            $timeForPayment = (int)$timeForPayment;
-
-            if ($timeForPayment < 0) {
-                $timeForPayment = 0;
-            }
-
-            if ($timeForPayment) {
-                $timeForPayment = \strtotime('+'.$timeForPayment.' day');
-                $timeForPayment = $Formatter->format($timeForPayment);
-            } else {
-                $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
-            }
-        } else {
-            $timeForPayment = \strtotime($timeForPayment);
-
-            if (\date('Y-m-d') === \date('Y-m-d', $timeForPayment)) {
-                $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
-            } else {
-                $timeForPayment = $Formatter->format($timeForPayment);
-            }
-        }
-
-        // get transactions
-        $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
-        $transactions = $Transactions->getTransactionsByHash($this->Invoice->getHash());
-
-        if (!empty($transactions)) {
-            /* @var $Transaction QUI\ERP\Accounting\Payments\Transactions\Transaction */
-            $Transaction = \array_pop($transactions);
-            $Payment     = $Transaction->getPayment(); // payment method
-            $PaymentType = $this->getPayment(); // payment method
-
-            $payment   = $Payment->getTitle();
-            $Formatter = $Locale->getDateFormatter();
-
-            if ($PaymentType->getPaymentType() === $Payment->getClass()) {
-                $payment = $PaymentType->getTitle($Locale);
-            }
-
-            $transactionText = $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
-                'date'    => $Formatter->format(\strtotime($Transaction->getDate())),
-                'payment' => $payment
-            ]);
+        if (!empty($deliveryAdress)) {
+            $DeliveryAddress = new QUI\ERP\Address(\json_decode($deliveryAdress, true));
+            $DeliveryAddress->clearMail();
+            $DeliveryAddress->clearPhone();
         }
 
         QUI::getLocale()->setTemporaryCurrent($Customer->getLang());
 
         $Engine->assign([
-            'this'           => $this,
-            'ArticleList'    => $Articles,
-            'Customer'       => $Customer,
-            'Editor'         => $Editor,
-            'Address'        => $Address,
-            'Payment'        => $this->Invoice->getPayment(),
-            'timeForPayment' => $timeForPayment,
-            'transaction'    => $transactionText
+            'this'            => $this,
+            'ArticleList'     => $Articles,
+            'Customer'        => $Customer,
+            'Editor'          => $Editor,
+            'Address'         => $Address,
+            'DeliveryAddress' => $DeliveryAddress,
+            'Payment'         => $this->Invoice->getPayment(),
+            'transaction'     => $this->getTransactionText(),
+            'projectName'     => $this->Invoice->getAttribute('project_name'),
+            'useShipping'     => QUI::getPackageManager()->isInstalled('quiqqer/shipping')
         ]);
 
         return $Template;
