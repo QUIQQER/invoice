@@ -1646,6 +1646,11 @@
             <de><![CDATA[Nach Buchung einer Rechnung wird der Druckdialog für die Rechnung automatisch geöffnet.]]></de>
             <en><![CDATA[After posting an invoice, the print dialog for the invoice opens automatically.]]></en>
         </locale>
+
+        <locale name="erp.comment.invoice.created">
+            <de><![CDATA[Rechnung #[invoiceId] erstellt]]></de>
+            <en><![CDATA[Created invoice #[invoiceId]]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/products">

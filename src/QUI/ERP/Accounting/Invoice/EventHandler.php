@@ -236,6 +236,14 @@ class EventHandler
 
         foreach ($invoices as $Invoice) {
             $Comments->import($Invoice->getComments());
+
+            // created invoice
+            $Comments->addComment(
+                QUI::getLocale()->get('quiqqer/invoice', 'erp.comment.invoice.created', [
+                    'invoiceId' => $Invoice->getId()
+                ]),
+                \strtotime($Invoice->getAttribute('c_date'))
+            );
         }
     }
 }
