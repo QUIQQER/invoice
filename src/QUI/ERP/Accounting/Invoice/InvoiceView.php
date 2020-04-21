@@ -416,10 +416,10 @@ class InvoiceView extends QUI\QDOM
 
         // Delivery address
         $DeliveryAddress = false;
-        $deliveryAdress  = $this->Invoice->getAttribute('delivery_address');
+        $deliveryAddress = $this->Invoice->getAttribute('delivery_address');
 
-        if (!empty($deliveryAdress)) {
-            $DeliveryAddress = new QUI\ERP\Address(\json_decode($deliveryAdress, true));
+        if (!empty($deliveryAddress)) {
+            $DeliveryAddress = new QUI\ERP\Address(\json_decode($deliveryAddress, true));
             $DeliveryAddress->clearMail();
             $DeliveryAddress->clearPhone();
         }
