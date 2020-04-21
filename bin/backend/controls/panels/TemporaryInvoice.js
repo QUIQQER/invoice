@@ -689,6 +689,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.getAttribute('invoiceId'),
                     self.getCurrentData()
                 ).then(function (html) {
+
                     return new Promise(function (resolve) {
                         require(['qui/controls/elements/Sandbox'], function (Sandbox) {
                             new Sandbox({
@@ -793,6 +794,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 });
             }).then(function () {
+                return self.$openCategory();
+            }).catch(function (err) {
+                console.error('ERROR');
+                console.error(err);
+
                 return self.$openCategory();
             });
         },
