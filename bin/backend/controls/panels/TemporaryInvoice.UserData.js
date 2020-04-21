@@ -40,10 +40,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             userId   : false,
             addressId: false,
 
-            company: false,
-            street : false,
-            zip    : false,
-            city   : false
+            company  : false,
+            street_no: false,
+            zip      : false,
+            city     : false
         },
 
         initialize: function (options) {
@@ -100,7 +100,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             this.$CustomerEdit.addEvent('click', this.editCustomer);
 
             this.$Company = this.$Elm.getElement('[name="company"]');
-            this.$Street  = this.$Elm.getElement('[name="street"]');
+            this.$Street  = this.$Elm.getElement('[name="street_no"]');
             this.$Zip     = this.$Elm.getElement('[name="zip"]');
             this.$City    = this.$Elm.getElement('[name="city"]');
 
@@ -285,10 +285,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 // set fields
                 self.setAttributes(address);
-
                 self.$AddressField.value = address.id;
-                self.setAttribute('addressId', address.id);
 
+                self.setAttribute('addressId', address.id);
                 self.refreshValues();
             });
         },
@@ -342,6 +341,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     self.refreshValues();
 
                     self.setAttribute('addressId', addressId);
+
                     self.$fireChange();
 
                     resolve(address);

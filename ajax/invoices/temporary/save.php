@@ -46,6 +46,7 @@ QUI::$Ajax->registerFunction(
             unset($data['articles']);
         }
 
+        $Invoice->setAttribute('invoice_address', false); // needed because of address reset
         $Invoice->setAttributes($data);
         $Invoice->save();
     },
