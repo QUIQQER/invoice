@@ -255,6 +255,8 @@ class InvoiceView extends QUI\QDOM
         }
 
         try {
+            $Locale = QUI::getLocale();
+
             if ($this->Invoice->getCustomer()) {
                 $Locale = $this->Invoice->getCustomer()->getLocale();
             }
