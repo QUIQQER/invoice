@@ -119,13 +119,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 disabled: true
             }).inject(this.$AddressField, 'after');
 
-
-            /*
-            this.$AddressSelect.addEvent('change', function () {
-                self.setAddressId(this.value);
-            });
-            */
-
             return this.$Elm;
         },
 
@@ -276,7 +269,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                     self.setAttribute(field, '');
                 });
 
-                if (addressId) {
+                if (addressId || addressId === 0) {
                     var filter = addresses.filter(function (address) {
                         return address.id === addressId;
                     });
@@ -294,6 +287,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 self.setAttributes(address);
 
                 self.$AddressField.value = address.id;
+                self.setAttribute('addressId', address.id);
 
                 self.refreshValues();
             });
