@@ -67,8 +67,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             }
 
             return this.$displayAddress().catch(function () {
-                console.error(arguments);
-
                 self.getAttribute('userId', false);
                 self.getAttribute('addressId', false);
 
@@ -132,10 +130,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
             return this.$hideContainer().then(function () {
                 return self.getUser();
-
             }).then(function (User) {
                 return User.getAddressList();
-
             }).then(function (address) {
                 if (!address.length) {
                     return Promise.reject('User has no address');
