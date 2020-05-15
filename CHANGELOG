@@ -1,0 +1,15 @@
+
+1.0
+======
+
+Release notes for 1.0.0
+
+Features
+------
+
+- Invoice creation
+- Temporary Invoice creation
+- Order Connection - Automatic invoicing via the order module
+- Fits perfectly with the order, payment system
+- Invoice Template API
+- Invoice printing API
