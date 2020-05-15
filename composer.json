@@ -18,8 +18,8 @@
         "url": "http:\/\/www.pcsg.de"
     },
     "require": {
-        "php": ">=5.6",
-        "quiqqer\/quiqqer": "1.*|dev-master|dev-dev",
+        "php": ">=7.2",
+        "quiqqer\/quiqqer": ">=1.5|dev-master|dev-dev",
         "quiqqer\/erp": "1.*|dev-master|dev-dev",
         "quiqqer\/customer": "1.*|dev-master|dev-dev",
         "quiqqer\/payments": "1.*|dev-master|dev-dev",

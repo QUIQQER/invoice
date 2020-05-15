@@ -4,8 +4,6 @@ QUIQQER Invoice (ERP module)
 ========
 
 The QUIQQER Invoice Module integrates complete invoice management in QUIQQER.
-
-*This package is part of the QUIQQER ERP Stack. 
 The QUIQQER ERP Stack is in heavy development and is not yet intended for daily use*
 
 Package name:
@@ -21,7 +19,7 @@ Features
 - Order Connection - Automatic invoicing via the order module
 - Fits perfectly with the order, payment system
 - Invoice Template API
-- Invoice priting API
+- Invoice printing API
 
 ERP Stack
 ----
