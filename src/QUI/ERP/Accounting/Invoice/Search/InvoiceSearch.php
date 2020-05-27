@@ -172,6 +172,15 @@ class InvoiceSearch extends Singleton
     }
 
     /**
+     * Set no limit
+     * return all results
+     */
+    public function noLimit()
+    {
+        $this->limit = false;
+    }
+
+    /**
      * Set the order
      *
      * @param $order
