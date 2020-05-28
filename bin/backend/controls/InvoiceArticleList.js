@@ -8,6 +8,8 @@
  * @event onArticleSelect [self, {Object} Article]
  * @event onArticleUnSelect [self, {Object} Article]
  * @event onArticleReplaceClick [self, {Object} Article]
+ *
+ * @todo move to erp package
  */
 define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
 
@@ -67,8 +69,9 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                 vatText     : []
             };
 
-            this.$Container = null;
-            this.$Sortables = null;
+            this.$Container    = null;
+            this.$Sortables    = null;
+            this.$priceFactors = [];
 
             this.addEvents({
                 onInject: this.$onInject
@@ -132,7 +135,8 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
             });
 
             return {
-                articles: articles
+                articles    : articles,
+                priceFactors: this.$priceFactors
             };
         },
 
@@ -156,6 +160,10 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
                 }
             } else {
                 data = list;
+            }
+
+            if ("priceFactors" in data) {
+                this.$priceFactors = data.priceFactors;
             }
 
             if (!("articles" in data)) {
@@ -360,6 +368,32 @@ define('package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList', [
          */
         getCalculation: function () {
             return this.$calculations;
+        },
+
+        /**
+         * Return price factors
+         *
+         * @return {[]}
+         */
+        getPriceFactors: function () {
+            return this.$priceFactors;
+        },
+
+        /**
+         * Remove a price factor
+         *
+         * @param no
+         */
+        removePriceFactor: function (no) {
+            var newList = [];
+
+            for (var i = 0, len = this.$priceFactors.length; i < len; i++) {
+                if (i !== parseInt(no)) {
+                    newList.push(this.$priceFactors[i]);
+                }
+            }
+
+            this.$priceFactors = newList;
         },
 
         /**
