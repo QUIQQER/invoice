@@ -1,0 +1,53 @@
+<table class="data-table data-table-flexbox quiqqer-invoice-backend-temporaryInvoice-summaryWin-priceFactors">
+    <tbody>
+    {{#priceFactors}}
+    <tr data-index="{{index}}">
+        <td>
+            <label class="field-container">
+                <span class="field-container-item">{{title}}</span>
+                <span class="field-container-field">{{valueText}}</span>
+                <button style="width: 50px; cursor: pointer;">
+                    <span class="fa fa-close"></span>
+                </button>
+            </label>
+        </td>
+    </tr>
+    {{/priceFactors}}
+    {{^priceFactors}}
+    <tr>
+        <td>Keine Preisfaktoren vorhanden</td>
+    </tr>
+    {{/priceFactors}}
+    </tbody>
+</table>
+
+<table class="data-table data-table-flexbox quiqqer-invoice-backend-temporaryInvoice-summaryWin-total">
+    <tbody>
+    {{#vatArray}}
+    <tr>
+        <td>
+            <label class="field-container">
+                <span class="field-container-item vat-title">{{text}}</span>
+                <span class="field-container-field vat-value">{{sum}}</span>
+            </label>
+        </td>
+    </tr>
+    {{/vatArray}}
+    <tr>
+        <td>
+            <label class="field-container">
+                <span class="field-container-item netto-title">Netto</span>
+                <span class="field-container-field netto-value"></span>
+            </label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="field-container">
+                <span class="field-container-item brutto-title">Brutto</span>
+                <span class="field-container-field brutto-value"></span>
+            </label>
+        </td>
+    </tr>
+    </tbody>
+</table>

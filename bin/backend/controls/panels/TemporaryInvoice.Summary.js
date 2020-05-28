@@ -3,6 +3,8 @@
  * @author www.pcsg.de (Henning Leutz)
  *
  * Displays a posted Invoice
+ *
+ * @todo move to erp package
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary', [
 
@@ -31,7 +33,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
 
         Binds: [
             '$onInject',
-            '$refreshArticleSelect'
+            '$refreshArticleSelect',
+            'openSummary'
         ],
 
         initialize: function (options) {
@@ -61,6 +64,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
                 'class': 'quiqqer-invoice-backend-temporaryInvoice-summary',
                 html   : Mustache.render(template)
             });
+
+            this.$Elm.addEvent('click', this.openSummary);
 
             this.$NettoSum = this.$Elm.getElement(
                 '.quiqqer-invoice-backend-temporaryInvoice-summary-total .netto-value'
@@ -143,6 +148,77 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
             });
 
             List.addEvent('onArticleSelect', this.$refreshArticleSelect);
+        },
+
+        /**
+         * Open the summary with price factors
+         */
+        openSummary: function () {
+            if (!this.getAttribute('List')) {
+                return;
+            }
+
+            var self = this;
+
+            require(['qui/controls/windows/Popup'], function (Popup) {
+                new Popup({
+                    title    : QUILocale.get('quiqqer/erp', 'article.summary.window.title'),
+                    buttons  : false,
+                    maxHeight: 600,
+                    maxWidth : 600,
+                    events   : {
+                        onCreate: function (Win) {
+                            Win.Loader.show();
+
+                            self.$refreshSummaryContent(Win).then(function () {
+                                Win.Loader.hide();
+                            });
+                        }
+                    }
+                }).open();
+            });
+        },
+
+        $refreshSummaryContent: function (Win) {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                var Content      = Win.getContent();
+                var List         = self.getAttribute('List');
+                var priceFactors = List.getPriceFactors();
+                var calculations = List.getCalculation();
+
+                for (var i = 0, len = priceFactors.length; i < len; i++) {
+                    priceFactors[i].index = i;
+                }
+
+                Content.set('html', '');
+
+                require([
+                    'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary.Window.html'
+                ], function (template) {
+                    Content.set('html', Mustache.render(template, {
+                        priceFactors: priceFactors,
+                        vatArray    : Object.values(calculations.vatArray)
+                    }));
+
+                    var Total = Content.getElement('.quiqqer-invoice-backend-temporaryInvoice-summaryWin-total');
+
+                    Total.getElement('.netto-value').set('html', calculations.nettoSum);
+                    Total.getElement('.brutto-value').set('html', calculations.sum);
+
+                    Content.getElements(
+                        '.quiqqer-invoice-backend-temporaryInvoice-summaryWin-priceFactors'
+                    ).addEvent('click', function (event) {
+                        var index = event.target.getParent('tr').get('data-index');
+
+                        List.removePriceFactor(index);
+                        self.$refreshSummaryContent(Win);
+                    });
+
+                    resolve();
+                });
+            });
         },
 
         /**

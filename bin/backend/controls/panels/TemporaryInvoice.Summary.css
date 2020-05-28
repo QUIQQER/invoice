@@ -2,8 +2,13 @@
 .quiqqer-invoice-backend-temporaryInvoice-summary {
     background: #FFFFFF;
     border-top: 2px solid #DEDEDE;
+    cursor: pointer;
     float: left;
     width: 100%;
+}
+
+.quiqqer-invoice-backend-temporaryInvoice-summary:hover {
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .quiqqer-invoice-backend-temporaryInvoice-summary-pos,
