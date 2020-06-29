@@ -746,12 +746,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             return new Promise(function (resolve) {
                 require([
-                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
-                ], function (Dialogs) {
-                    Dialogs.openPrintDialog(hash).then(function () {
-                        Button.setAttribute('textimage', 'fa fa-print');
-                        resolve();
-                    });
+                    'package/quiqqer/erp/bin/backend/controls/OutputDialog'
+                ], function (OutputDialog) {
+                    new OutputDialog({
+                        entityId  : hash,
+                        entityType: 'Invoice',
+                        provider  : 'quiqqer/invoice'
+                    }).open();
                 });
             });
         },

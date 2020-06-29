@@ -30,6 +30,7 @@
 
         <provider>
             <erp src="\QUI\ERP\Accounting\Invoice\ErpProvider"/>
+            <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice"/>
         </provider>
 
     </package>

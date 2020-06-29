@@ -23,7 +23,7 @@ class OutputProviderInvoiceTemporary extends OutputProviderInvoice
      *
      * @return string
      */
-    public static function getOutputType()
+    public static function getEntityType()
     {
         return 'InvoiceTemporary';
     }

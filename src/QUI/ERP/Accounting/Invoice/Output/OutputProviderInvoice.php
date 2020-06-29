@@ -24,7 +24,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @return string
      */
-    public static function getOutputType()
+    public static function getEntityType()
     {
         return 'Invoice';
     }
@@ -34,11 +34,88 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @param string|int $entityId
      * @param OutputTemplate $Template
-     * @return void
+     * @return array
      */
-    public static function parseTemplate($entityId, OutputTemplate $Template)
+    public static function getTemplateData($entityId, OutputTemplate $Template)
     {
-        // TODO: Implement parseTemplate() method.
+        $Invoice     = InvoiceUtils::getInvoiceByString($entityId);
+        $InvoiceView = $Invoice->getView();
+        $Customer    = $Invoice->getCustomer();
+
+        if (!$Customer) {
+            $Customer = new QUI\ERP\User([
+                'id'        => '',
+                'country'   => '',
+                'username'  => '',
+                'firstname' => '',
+                'lastname'  => '',
+                'lang'      => '',
+                'isCompany' => '',
+                'isNetto'   => ''
+            ]);
+        }
+
+        $Editor    = $Invoice->getEditor();
+        $addressId = $Invoice->getAttribute('invoice_address_id');
+        $address   = [];
+
+        if ($Invoice->getAttribute('invoice_address')) {
+            $address = \json_decode($Invoice->getAttribute('invoice_address'), true);
+        }
+
+        $Engine = $Template->getEngine();
+        $Locale = $Customer->getLocale();
+
+//        $this->setAttributes($Invoice->getAttributes());
+
+        if (!empty($address)) {
+            $Address = new QUI\ERP\Address($address);
+            $Address->clearMail();
+            $Address->clearPhone();
+        } else {
+            try {
+                $Address = $Customer->getAddress($addressId);
+                $Address->clearMail();
+                $Address->clearPhone();
+            } catch (QUI\Exception $Exception) {
+                $Address = null;
+            }
+        }
+
+        // list calculation
+        $Articles = $Invoice->getArticles();
+
+        if (\get_class($Articles) !== QUI\ERP\Accounting\ArticleListUnique::class) {
+            $Articles->setUser($Customer);
+            $Articles = $Articles->toUniqueList();
+        }
+
+        // Delivery address
+        $DeliveryAddress = false;
+        $deliveryAddress = $Invoice->getAttribute('delivery_address');
+
+        if (!empty($deliveryAddress)) {
+            $DeliveryAddress = new QUI\ERP\Address(\json_decode($deliveryAddress, true));
+            $DeliveryAddress->clearMail();
+            $DeliveryAddress->clearPhone();
+        }
+
+        QUI::getLocale()->setTemporaryCurrent($Customer->getLang());
+
+        $InvoiceView->setAttributes($Invoice->getAttributes());
+
+        return [
+            'this'            => $InvoiceView,
+            'ArticleList'     => $Articles,
+            'Customer'        => $Customer,
+            'Editor'          => $Editor,
+            'Address'         => $Address,
+            'DeliveryAddress' => $DeliveryAddress,
+            'Payment'         => $Invoice->getPayment(),
+            'transaction'     => $InvoiceView->getTransactionText(),
+            'projectName'     => $Invoice->getAttribute('project_name'),
+            'useShipping'     => QUI::getPackageManager()->isInstalled('quiqqer/shipping')
+        ];
     }
 
     /**
