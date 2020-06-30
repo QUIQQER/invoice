@@ -740,8 +740,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return;
             }
 
-            var hash = selectedData[0].hash;
-
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
             return new Promise(function (resolve) {
@@ -749,10 +747,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'package/quiqqer/erp/bin/backend/controls/OutputDialog'
                 ], function (OutputDialog) {
                     new OutputDialog({
-                        entityId  : hash,
-                        entityType: 'Invoice',
-                        provider  : 'quiqqer/invoice'
+                        entityId  : selectedData[0].id,
+                        entityType: 'Invoice'
                     }).open();
+
+                    Button.setAttribute('textimage', 'fa fa-print');
+                    resolve();
                 });
             });
         },

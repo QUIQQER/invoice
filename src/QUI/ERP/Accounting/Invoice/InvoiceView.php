@@ -8,6 +8,7 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Output\Output as ERPOutput;
 
 /**
  * Class InvoiceView
@@ -109,7 +110,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function getDownloadLink()
     {
-        return URL_OPT_DIR.'quiqqer/invoice/bin/frontend/downloadInvoice.php?hash='.$this->getHash();
+        return QUI\ERP\Output\Output::getDocumentPdfDownloadUrl($this->getHash(), 'Invoice');
     }
 
     /**
@@ -195,7 +196,7 @@ class InvoiceView extends QUI\QDOM
     public function toHTML()
     {
         try {
-            return $this->getTemplate()->render();
+            return QUI\ERP\Output\Output::getDocumentHtml($this->Invoice->getId(), 'Invoice');
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
         }
@@ -212,31 +213,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function toPDF()
     {
-        $Customer = $this->Invoice->getCustomer();
-
-        $Document = new QUI\HtmlToPdf\Document([
-            'marginTop'         => 30, // dies ist variabel durch quiqqerInvoicePdfCreate
-            'filename'          => InvoiceUtils::getInvoiceFilename($this->Invoice).'.pdf',
-            'marginBottom'      => 80,  // dies ist variabel durch quiqqerInvoicePdfCreate,
-            'pageNumbersPrefix' => $Customer->getLocale()->get('quiqqer/htmltopdf', 'footer.page.prefix'),
-        ]);
-
-        $Template = $this->getTemplate();
-
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoicePdfCreate',
-            [$this, $Document, $Template]
-        );
-
-        try {
-            $Document->setHeaderHTML($Template->getHTMLHeader());
-            $Document->setContentHTML($Template->getHTMLBody());
-            $Document->setFooterHTML($Template->getHTMLFooter());
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeException($Exception);
-        }
-
-        return $Document;
+        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getId(), 'Invoice');
     }
 
     /**

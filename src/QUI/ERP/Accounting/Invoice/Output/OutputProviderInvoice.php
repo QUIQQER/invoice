@@ -5,14 +5,15 @@ namespace QUI\ERP\Accounting\Invoice\Output;
 use QUI;
 use QUI\ERP\Output\OutputProviderInterface;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
-use QUI\ERP\Output\OutputTemplate;
+use QUI\Interfaces\Users\User;
+use QUI\Locale;
 
 /**
  * Class OutputProvider
  *
  * Output provider for quiqqer/invoice:
  *
- * Outputs previews and PDF files for invoices
+ * Outputs previews and PDF files for invoices and temporary invoices
  */
 class OutputProviderInvoice implements OutputProviderInterface
 {
@@ -30,13 +31,46 @@ class OutputProviderInvoice implements OutputProviderInterface
     }
 
     /**
+     * Get download filename (without file extension)
+     *
+     * @param string|int $entityId
+     * @return string
+     *
+     * @throws QUI\Exception
+     */
+    public static function getDownloadFileName($entityId)
+    {
+        $Invoice = InvoiceUtils::getInvoiceByString($entityId);
+        return InvoiceUtils::getInvoiceFilename($Invoice);
+    }
+
+    /**
+     * Get output Locale by entity
+     *
+     * @param string|int $entityId
+     * @return Locale
+     *
+     * @throws QUI\Exception
+     */
+    public static function getLocale($entityId)
+    {
+        $Invoice  = InvoiceUtils::getInvoiceByString($entityId);
+        $Customer = $Invoice->getCustomer();
+
+        if ($Customer) {
+            return $Customer->getLocale();
+        }
+
+        return QUI::getLocale();
+    }
+
+    /**
      * Fill the OutputTemplate with appropriate entity data
      *
      * @param string|int $entityId
-     * @param OutputTemplate $Template
      * @return array
      */
-    public static function getTemplateData($entityId, OutputTemplate $Template)
+    public static function getTemplateData($entityId)
     {
         $Invoice     = InvoiceUtils::getInvoiceByString($entityId);
         $InvoiceView = $Invoice->getView();
@@ -62,11 +96,6 @@ class OutputProviderInvoice implements OutputProviderInterface
         if ($Invoice->getAttribute('invoice_address')) {
             $address = \json_decode($Invoice->getAttribute('invoice_address'), true);
         }
-
-        $Engine = $Template->getEngine();
-        $Locale = $Customer->getLocale();
-
-//        $this->setAttributes($Invoice->getAttributes());
 
         if (!empty($address)) {
             $Address = new QUI\ERP\Address($address);
@@ -119,6 +148,34 @@ class OutputProviderInvoice implements OutputProviderInterface
     }
 
     /**
+     * Checks if $User has permission to download the document of $entityId
+     *
+     * @param string|int $entityId
+     * @param User $User
+     * @return bool
+     */
+    public static function hasDownloadPermission($entityId, User $User)
+    {
+        if (!QUI::getUsers()->isAuth($User) || QUI::getUsers()->isNobodyUser($User)) {
+            return false;
+        }
+
+        try {
+            $Invoice  = InvoiceUtils::getInvoiceByString($entityId);
+            $Customer = $Invoice->getCustomer();
+
+            if (empty($Customer)) {
+                return false;
+            }
+
+            return $User->getId() === $Customer->getId();
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            return false;
+        }
+    }
+
+    /**
      * Get e-mail address of the document recipient
      *
      * @param string|int $entityId
@@ -138,5 +195,51 @@ class OutputProviderInvoice implements OutputProviderInterface
         $email = $Customer->getAttribute('email');
 
         return $email ?: false;
+    }
+
+    /**
+     * Get e-mail subject when document is sent via mail
+     *
+     * @param string|int $entityId
+     * @return string
+     *
+     * @throws QUI\Exception
+     */
+    public static function getMailSubject($entityId)
+    {
+        $Invoice = InvoiceUtils::getInvoiceByString($entityId);
+
+        return QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
+            'invoiceId' => $Invoice->getId()
+        ]);
+    }
+
+    /**
+     * Get e-mail body when document is sent via mail
+     *
+     * @param string|int $entityId
+     * @param string $outputHtml
+     * @return string
+     *
+     * @throws QUI\Exception
+     */
+    public static function getMailBody($entityId, string $outputHtml)
+    {
+        $Invoice  = InvoiceUtils::getInvoiceByString($entityId);
+        $Customer = $Invoice->getCustomer();
+
+        $user = $Customer->getName();
+        $user = \trim($user);
+
+        if (empty($user)) {
+            $user = $Customer->getAddress()->getName();
+        }
+
+        return QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
+            'invoiceId' => $Invoice->getId(),
+            'user'      => $user,
+            'address'   => $Customer->getAddress()->render(),
+            'invoice'   => $outputHtml
+        ]);
     }
 }

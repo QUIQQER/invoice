@@ -12,6 +12,7 @@ use QUI\ERP\Money\Price;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Output\Output as ERPOutput;
 
 /**
  * Class Invoice
@@ -22,21 +23,21 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
  */
 class Invoice extends QUI\QDOM
 {
-    const PAYMENT_STATUS_OPEN = 0;
-    const PAYMENT_STATUS_PAID = 1;
-    const PAYMENT_STATUS_PART = 2;
-    const PAYMENT_STATUS_ERROR = 4;
+    const PAYMENT_STATUS_OPEN     = 0;
+    const PAYMENT_STATUS_PAID     = 1;
+    const PAYMENT_STATUS_PART     = 2;
+    const PAYMENT_STATUS_ERROR    = 4;
     const PAYMENT_STATUS_CANCELED = 5;
-    const PAYMENT_STATUS_DEBIT = 11;
+    const PAYMENT_STATUS_DEBIT    = 11;
 
     //    const PAYMENT_STATUS_CANCEL = 3;
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -972,63 +973,14 @@ class Invoice extends QUI\QDOM
      */
     public function sendTo($recipient, $template = false)
     {
-        $View = $this->getView();
-
-        if ($template) {
-            $View->setAttribute('template', $template);
-        }
-
-        $pdfFile = $View->toPDF()->createPDF();
-
-        $Mailer = QUI::getMailManager()->getMailer();
-        $Mailer->addRecipient($recipient);
-
-        // invoice pdf file
-        $dir     = \dirname($pdfFile);
-        $newFile = $dir.'/'.InvoiceUtils::getInvoiceFilename($this).'.pdf';
-
-        if ($newFile !== $pdfFile && \file_exists($newFile)) {
-            \unlink($newFile);
-        }
-
-        \rename($pdfFile, $newFile);
-
-        $user = $this->getCustomer()->getName();
-        $user = \trim($user);
-
-        if (empty($user)) {
-            $user = $this->getCustomer()->getAddress()->getName();
-        }
-
-        // mail send
-        $Mailer->addAttachment($newFile);
-
-        $Mailer->setBody(
-            QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
-                'invoiceId' => $this->getId(),
-                'user'      => $user,
-                'address'   => $this->getCustomer()->getAddress()->render(),
-                'invoice'   => $View->getTemplate()->getHTMLBody()
-            ])
+        ERPOutput::sendPdfViaMail(
+            $this->getId(),
+            'Invoice',
+            null,
+            null,
+            $template,
+            $recipient
         );
-
-        $Mailer->setSubject(
-            QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
-                'invoiceId' => $this->getId()
-            ])
-        );
-
-        $Mailer->send();
-
-        $this->addHistory(
-            QUI::getLocale()->get('quiqqer/invoice', 'message.add.history.sent.to', [
-                'recipient' => $recipient
-            ])
-        );
-
-        if (\file_exists($pdfFile)) {
-            \unlink($pdfFile);
-        }
     }
 
     //region Comments & History

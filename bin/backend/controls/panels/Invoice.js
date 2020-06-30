@@ -389,7 +389,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 require([
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
                 ], function (Dialogs) {
-                    Dialogs.openPrintDialog(self.getAttribute('data').hash).then(resolve);
+                    Dialogs.openPrintDialog(self.getAttribute('data').id).then(resolve);
                 });
             });
         },
