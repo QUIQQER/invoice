@@ -154,7 +154,7 @@ class InvoiceView extends QUI\QDOM
     public function previewHTML()
     {
         try {
-            $previewHtml = $this->getTemplate()->renderPreview();
+            $previewHtml = ERPOutput::getDocumentHtml($this->getId(), 'Invoice');
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             $previewHtml = '';
@@ -301,121 +301,5 @@ class InvoiceView extends QUI\QDOM
             'date'    => $Formatter->format(\strtotime($Transaction->getDate())),
             'payment' => $payment
         ]);
-    }
-
-    /**
-     * Return the template package
-     *
-     * @return QUI\Package\Package
-     *
-     * @throws QUI\Exception
-     */
-    protected function getTemplatePackage()
-    {
-        $template = $this->getAttribute('template');
-        $Settings = Settings::getInstance();
-
-        if (empty($template)) {
-            $template = $Settings->getDefaultTemplate();
-        }
-
-        try {
-            return QUI::getPackage($template);
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeException($Exception);
-        }
-
-        return QUI::getPackage($Settings->getDefaultTemplate());
-    }
-
-    /**
-     * @return Utils\Template
-     *
-     * @throws Exception
-     * @throws QUI\Exception
-     */
-    public function getTemplate()
-    {
-        $Template = new Utils\Template(
-            $this->getTemplatePackage(),
-            $this->Invoice
-        );
-
-        $Customer = $this->Invoice->getCustomer();
-
-        if (!$Customer) {
-            $Customer = new QUI\ERP\User([
-                'id'        => '',
-                'country'   => '',
-                'username'  => '',
-                'firstname' => '',
-                'lastname'  => '',
-                'lang'      => '',
-                'isCompany' => '',
-                'isNetto'   => ''
-            ]);
-        }
-
-        $Editor    = $this->Invoice->getEditor();
-        $addressId = $this->Invoice->getAttribute('invoice_address_id');
-        $address   = [];
-
-        if ($this->Invoice->getAttribute('invoice_address')) {
-            $address = \json_decode($this->Invoice->getAttribute('invoice_address'), true);
-        }
-
-        $Engine = $Template->getEngine();
-        $Locale = $Customer->getLocale();
-
-        $this->setAttributes($this->Invoice->getAttributes());
-
-        if (!empty($address)) {
-            $Address = new QUI\ERP\Address($address);
-            $Address->clearMail();
-            $Address->clearPhone();
-        } else {
-            try {
-                $Address = $Customer->getAddress($addressId);
-                $Address->clearMail();
-                $Address->clearPhone();
-            } catch (QUI\Exception $Exception) {
-                $Address = null;
-            }
-        }
-
-        // list calculation
-        $Articles = $this->Invoice->getArticles();
-
-        if (\get_class($Articles) !== QUI\ERP\Accounting\ArticleListUnique::class) {
-            $Articles->setUser($Customer);
-            $Articles = $Articles->toUniqueList();
-        }
-
-        // Delivery address
-        $DeliveryAddress = false;
-        $deliveryAddress = $this->Invoice->getAttribute('delivery_address');
-
-        if (!empty($deliveryAddress)) {
-            $DeliveryAddress = new QUI\ERP\Address(\json_decode($deliveryAddress, true));
-            $DeliveryAddress->clearMail();
-            $DeliveryAddress->clearPhone();
-        }
-
-        QUI::getLocale()->setTemporaryCurrent($Customer->getLang());
-
-        $Engine->assign([
-            'this'            => $this,
-            'ArticleList'     => $Articles,
-            'Customer'        => $Customer,
-            'Editor'          => $Editor,
-            'Address'         => $Address,
-            'DeliveryAddress' => $DeliveryAddress,
-            'Payment'         => $this->Invoice->getPayment(),
-            'transaction'     => $this->getTransactionText(),
-            'projectName'     => $this->Invoice->getAttribute('project_name'),
-            'useShipping'     => QUI::getPackageManager()->isInstalled('quiqqer/shipping')
-        ]);
-
-        return $Template;
     }
 }
