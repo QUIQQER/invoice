@@ -330,6 +330,10 @@ class Invoice extends QUI\QDOM
             $this->calculatePayments();
         }
 
+        if ($this->getInvoiceType() === Handler::TYPE_INVOICE_STORNO) {
+            $this->setAttribute('paid_status', self::PAYMENT_STATUS_CANCELED);
+        }
+
         return [
             'paidData' => $this->getAttribute('paid_data'),
             'paidDate' => $this->getAttribute('paid_date'),
