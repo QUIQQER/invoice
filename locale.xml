@@ -475,6 +475,12 @@
             <de><![CDATA[Land]]></de>
             <en><![CDATA[Country]]></en>
         </locale>
+
+        <locale name="OutputProvider.entity.title.Invoice">
+            <de><![CDATA[Rechnung]]></de>
+            <en><![CDATA[Invoice]]></en>
+        </locale>
+
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
