@@ -46,6 +46,19 @@ class OutputProviderInvoice implements OutputProviderInterface
     }
 
     /**
+     * Get the entity the output is created for
+     *
+     * @param string|int $entityId
+     * @return mixed
+     *
+     * @throws QUI\Exception
+     */
+    public static function getEntity($entityId)
+    {
+        return InvoiceUtils::getInvoiceByString($entityId);
+    }
+
+    /**
      * Get download filename (without file extension)
      *
      * @param string|int $entityId
@@ -55,8 +68,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getDownloadFileName($entityId)
     {
-        $Invoice = InvoiceUtils::getInvoiceByString($entityId);
-        return InvoiceUtils::getInvoiceFilename($Invoice);
+        return InvoiceUtils::getInvoiceFilename(self::getEntity($entityId));
     }
 
     /**
@@ -69,7 +81,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getLocale($entityId)
     {
-        $Invoice  = InvoiceUtils::getInvoiceByString($entityId);
+        $Invoice  = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
         if ($Customer) {
@@ -87,7 +99,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getTemplateData($entityId)
     {
-        $Invoice     = InvoiceUtils::getInvoiceByString($entityId);
+        $Invoice     = self::getEntity($entityId);
         $InvoiceView = $Invoice->getView();
         $Customer    = $Invoice->getCustomer();
 
@@ -176,7 +188,7 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         try {
-            $Invoice  = InvoiceUtils::getInvoiceByString($entityId);
+            $Invoice  = self::getEntity($entityId);
             $Customer = $Invoice->getCustomer();
 
             if (empty($Customer)) {
@@ -200,7 +212,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getEmailAddress($entityId)
     {
-        $Invoice  = InvoiceUtils::getInvoiceByString($entityId);
+        $Invoice  = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
         if (empty($Customer)) {
@@ -222,7 +234,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getMailSubject($entityId)
     {
-        $Invoice = InvoiceUtils::getInvoiceByString($entityId);
+        $Invoice = self::getEntity($entityId);
 
         return QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
             'invoiceId' => $Invoice->getId()
@@ -239,7 +251,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getMailBody($entityId)
     {
-        $Invoice  = InvoiceUtils::getInvoiceByString($entityId);
+        $Invoice  = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
         $user = $Customer->getName();

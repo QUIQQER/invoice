@@ -480,6 +480,14 @@
             <de><![CDATA[Rechnung]]></de>
             <en><![CDATA[Invoice]]></en>
         </locale>
+        <locale name="OutputProvider.entity.title.CreditNote">
+            <de><![CDATA[Gutschrift]]></de>
+            <en><![CDATA[Credit note]]></en>
+        </locale>
+        <locale name="OutputProvider.entity.title.Canceled">
+            <de><![CDATA[Storno-Rechnung]]></de>
+            <en><![CDATA[Cancellation invoice]]></en>
+        </locale>
 
     </groups>
 
