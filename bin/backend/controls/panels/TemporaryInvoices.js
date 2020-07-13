@@ -13,13 +13,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
     'qui/controls/contextmenu/Item',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
+    'package/quiqqer/invoice/bin/backend/utils/Dialogs',
     'Locale',
     'Ajax',
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css',
     'css!package/quiqqer/erp/bin/backend/payment-status.css'
 
-], function (QUI, QUIPanel, QUIConfirm, QUIButton, QUIContextMenuItem, Grid, Invoices, QUILocale, QUIAjax) {
+], function (QUI, QUIPanel, QUIConfirm, QUIButton, QUIContextMenuItem, Grid, Invoices, Dialogs, QUILocale, QUIAjax) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -783,14 +784,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                                 }
 
                                 // open print dialog
-                                require([
-                                    'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
-                                ], function (PrintDialog) {
+                                Dialogs.openPrintDialog(selected[0].id).then(function() {
                                     Win.close();
-
-                                    new PrintDialog({
-                                        invoiceId: selected[0].hash
-                                    }).open();
                                 });
                             }).catch(function (Err) {
                                 QUI.getMessageHandler().then(function (MH) {
@@ -935,10 +930,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
             require([
-                'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
-            ], function (PrintDialog) {
-                new PrintDialog({
-                    invoiceId: selected.id
+                'package/quiqqer/erp/bin/backend/controls/OutputDialog'
+            ], function (OutputDialog) {
+                new OutputDialog({
+                    entityId  : selected.id,
+                    entityType: 'Invoice'
                 }).open();
 
                 Button.setAttribute('textimage', 'fa fa-file-pdf-o');

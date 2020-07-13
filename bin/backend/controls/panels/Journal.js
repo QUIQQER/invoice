@@ -626,6 +626,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataIndex: 'payment_method',
                     dataType : 'string',
                     hidden   : true
+                }, {
+                    dataIndex: 'type',
+                    dataType : 'number',
+                    hidden   : true
                 }]
             });
 
@@ -740,18 +744,35 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return;
             }
 
-            var hash = selectedData[0].hash;
-
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
+
+            var Entry = selectedData[0],
+                entityType;
+
+            switch (parseInt(Entry.type)) {
+                case 3:
+                    entityType = 'CreditNote';
+                    break;
+
+                case 4:
+                    entityType = 'Canceled';
+                    break;
+
+                default:
+                    entityType = 'Invoice';
+            }
 
             return new Promise(function (resolve) {
                 require([
-                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
-                ], function (Dialogs) {
-                    Dialogs.openPrintDialog(hash).then(function () {
-                        Button.setAttribute('textimage', 'fa fa-print');
-                        resolve();
-                    });
+                    'package/quiqqer/erp/bin/backend/controls/OutputDialog'
+                ], function (OutputDialog) {
+                    new OutputDialog({
+                        entityId  : Entry.id,
+                        entityType: entityType
+                    }).open();
+
+                    Button.setAttribute('textimage', 'fa fa-print');
+                    resolve();
                 });
             });
         },
