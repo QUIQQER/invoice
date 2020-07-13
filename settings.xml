@@ -4,13 +4,6 @@
 
         <config>
             <section name="invoice">
-                <conf name="template">
-                    <type><![CDATA[string]]></type>
-                </conf>
-                <conf name="deactivateDefaultTemplate">
-                    <type><![CDATA[bool]]></type>
-                    <defaultvalue><![CDATA[0]]></defaultvalue>
-                </conf>
                 <conf name="prefix">
                     <type><![CDATA[string]]></type>
                     <defaultvalue><![CDATA[INV-]]></defaultvalue>
@@ -64,26 +57,6 @@
                         <title>
                             <locale group="quiqqer/invoice" var="invoice.settings.title"/>
                         </title>
-
-                        <input type="hidden"
-                               conf="invoice.template"
-                               data-qui="package/quiqqer/invoice/bin/backend/controls/settings/Templates"
-                        >
-                            <text>
-                                <locale group="quiqqer/invoice" var="invoice.settings.template"/>
-                            </text>
-                        </input>
-
-                        <input type="checkbox"
-                               conf="invoice.deactivateDefaultTemplate"
-                        >
-                            <text>
-                                <locale group="quiqqer/invoice" var="invoice.settings.deactivateDefaultTemplate"/>
-                            </text>
-                            <description>
-                                <locale group="quiqqer/invoice" var="invoice.settings.deactivateDefaultTemplate.description"/>
-                            </description>
-                        </input>
 
                         <input type="text" conf="invoice.prefix">
                             <text>

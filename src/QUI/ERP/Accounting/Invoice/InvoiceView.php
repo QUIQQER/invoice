@@ -8,6 +8,7 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Output\Output as ERPOutput;
 
 /**
  * Class InvoiceView
@@ -109,7 +110,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function getDownloadLink()
     {
-        return URL_OPT_DIR.'quiqqer/invoice/bin/frontend/downloadInvoice.php?hash='.$this->getHash();
+        return QUI\ERP\Output\Output::getDocumentPdfDownloadUrl($this->getHash(), $this->getOutputType());
     }
 
     /**
@@ -153,7 +154,7 @@ class InvoiceView extends QUI\QDOM
     public function previewHTML()
     {
         try {
-            $previewHtml = $this->getTemplate()->renderPreview();
+            $previewHtml = ERPOutput::getDocumentHtml($this->getId(), $this->getOutputType(), null, null, null, true);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             $previewHtml = '';
@@ -195,7 +196,7 @@ class InvoiceView extends QUI\QDOM
     public function toHTML()
     {
         try {
-            return $this->getTemplate()->render();
+            return QUI\ERP\Output\Output::getDocumentHtml($this->Invoice->getId(), $this->getOutputType());
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
         }
@@ -212,31 +213,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function toPDF()
     {
-        $Customer = $this->Invoice->getCustomer();
-
-        $Document = new QUI\HtmlToPdf\Document([
-            'marginTop'         => 30, // dies ist variabel durch quiqqerInvoicePdfCreate
-            'filename'          => InvoiceUtils::getInvoiceFilename($this->Invoice).'.pdf',
-            'marginBottom'      => 80,  // dies ist variabel durch quiqqerInvoicePdfCreate,
-            'pageNumbersPrefix' => $Customer->getLocale()->get('quiqqer/htmltopdf', 'footer.page.prefix'),
-        ]);
-
-        $Template = $this->getTemplate();
-
-        QUI::getEvents()->fireEvent(
-            'quiqqerInvoicePdfCreate',
-            [$this, $Document, $Template]
-        );
-
-        try {
-            $Document->setHeaderHTML($Template->getHTMLHeader());
-            $Document->setContentHTML($Template->getHTMLBody());
-            $Document->setFooterHTML($Template->getHTMLFooter());
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeException($Exception);
-        }
-
-        return $Document;
+        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getId(), $this->getOutputType());
     }
 
     /**
@@ -327,118 +304,23 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
-     * Return the template package
+     * Get type string used for Invoice output (i.e. PDF / print)
      *
-     * @return QUI\Package\Package
-     *
-     * @throws QUI\Exception
+     * @return string
      */
-    protected function getTemplatePackage()
+    protected function getOutputType()
     {
-        $template = $this->getAttribute('template');
-        $Settings = Settings::getInstance();
+        switch ($this->Invoice->getInvoiceType()) {
+            case Handler::TYPE_INVOICE_CREDIT_NOTE:
+                return 'CreditNote';
+                break;
 
-        if (empty($template)) {
-            $template = $Settings->getDefaultTemplate();
+            case Handler::TYPE_INVOICE_CANCEL:
+                return 'Cancelled';
+                break;
+
+            default:
+                return 'Invoice';
         }
-
-        try {
-            return QUI::getPackage($template);
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeException($Exception);
-        }
-
-        return QUI::getPackage($Settings->getDefaultTemplate());
-    }
-
-    /**
-     * @return Utils\Template
-     *
-     * @throws Exception
-     * @throws QUI\Exception
-     */
-    public function getTemplate()
-    {
-        $Template = new Utils\Template(
-            $this->getTemplatePackage(),
-            $this->Invoice
-        );
-
-        $Customer = $this->Invoice->getCustomer();
-
-        if (!$Customer) {
-            $Customer = new QUI\ERP\User([
-                'id'        => '',
-                'country'   => '',
-                'username'  => '',
-                'firstname' => '',
-                'lastname'  => '',
-                'lang'      => '',
-                'isCompany' => '',
-                'isNetto'   => ''
-            ]);
-        }
-
-        $Editor    = $this->Invoice->getEditor();
-        $addressId = $this->Invoice->getAttribute('invoice_address_id');
-        $address   = [];
-
-        if ($this->Invoice->getAttribute('invoice_address')) {
-            $address = \json_decode($this->Invoice->getAttribute('invoice_address'), true);
-        }
-
-        $Engine = $Template->getEngine();
-        $Locale = $Customer->getLocale();
-
-        $this->setAttributes($this->Invoice->getAttributes());
-
-        if (!empty($address)) {
-            $Address = new QUI\ERP\Address($address);
-            $Address->clearMail();
-            $Address->clearPhone();
-        } else {
-            try {
-                $Address = $Customer->getAddress($addressId);
-                $Address->clearMail();
-                $Address->clearPhone();
-            } catch (QUI\Exception $Exception) {
-                $Address = null;
-            }
-        }
-
-        // list calculation
-        $Articles = $this->Invoice->getArticles();
-
-        if (\get_class($Articles) !== QUI\ERP\Accounting\ArticleListUnique::class) {
-            $Articles->setUser($Customer);
-            $Articles = $Articles->toUniqueList();
-        }
-
-        // Delivery address
-        $DeliveryAddress = false;
-        $deliveryAddress = $this->Invoice->getAttribute('delivery_address');
-
-        if (!empty($deliveryAddress)) {
-            $DeliveryAddress = new QUI\ERP\Address(\json_decode($deliveryAddress, true));
-            $DeliveryAddress->clearMail();
-            $DeliveryAddress->clearPhone();
-        }
-
-        QUI::getLocale()->setTemporaryCurrent($Customer->getLang());
-
-        $Engine->assign([
-            'this'            => $this,
-            'ArticleList'     => $Articles,
-            'Customer'        => $Customer,
-            'Editor'          => $Editor,
-            'Address'         => $Address,
-            'DeliveryAddress' => $DeliveryAddress,
-            'Payment'         => $this->Invoice->getPayment(),
-            'transaction'     => $this->getTransactionText(),
-            'projectName'     => $this->Invoice->getAttribute('project_name'),
-            'useShipping'     => QUI::getPackageManager()->isInstalled('quiqqer/shipping')
-        ]);
-
-        return $Template;
     }
 }
