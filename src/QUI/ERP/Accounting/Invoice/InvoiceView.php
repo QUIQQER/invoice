@@ -110,7 +110,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function getDownloadLink()
     {
-        return QUI\ERP\Output\Output::getDocumentPdfDownloadUrl($this->getHash(), 'Invoice');
+        return QUI\ERP\Output\Output::getDocumentPdfDownloadUrl($this->getHash(), $this->getOutputType());
     }
 
     /**
@@ -154,7 +154,7 @@ class InvoiceView extends QUI\QDOM
     public function previewHTML()
     {
         try {
-            $previewHtml = ERPOutput::getDocumentHtml($this->getId(), 'Invoice');
+            $previewHtml = ERPOutput::getDocumentHtml($this->getId(), $this->getOutputType(), null, null, null, true);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             $previewHtml = '';
@@ -196,7 +196,7 @@ class InvoiceView extends QUI\QDOM
     public function toHTML()
     {
         try {
-            return QUI\ERP\Output\Output::getDocumentHtml($this->Invoice->getId(), 'Invoice');
+            return QUI\ERP\Output\Output::getDocumentHtml($this->Invoice->getId(), $this->getOutputType());
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
         }
@@ -213,7 +213,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function toPDF()
     {
-        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getId(), 'Invoice');
+        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getId(), $this->getOutputType());
     }
 
     /**
@@ -301,5 +301,26 @@ class InvoiceView extends QUI\QDOM
             'date'    => $Formatter->format(\strtotime($Transaction->getDate())),
             'payment' => $payment
         ]);
+    }
+
+    /**
+     * Get type string used for Invoice output (i.e. PDF / print)
+     *
+     * @return string
+     */
+    protected function getOutputType()
+    {
+        switch ($this->Invoice->getInvoiceType()) {
+            case Handler::TYPE_INVOICE_CREDIT_NOTE:
+                return 'CreditNote';
+                break;
+
+            case Handler::TYPE_INVOICE_CANCEL:
+                return 'Cancelled';
+                break;
+
+            default:
+                return 'Invoice';
+        }
     }
 }
