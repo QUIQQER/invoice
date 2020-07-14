@@ -23,21 +23,21 @@ use QUI\ERP\Output\Output as ERPOutput;
  */
 class Invoice extends QUI\QDOM
 {
-    const PAYMENT_STATUS_OPEN     = 0;
-    const PAYMENT_STATUS_PAID     = 1;
-    const PAYMENT_STATUS_PART     = 2;
-    const PAYMENT_STATUS_ERROR    = 4;
+    const PAYMENT_STATUS_OPEN = 0;
+    const PAYMENT_STATUS_PAID = 1;
+    const PAYMENT_STATUS_PART = 2;
+    const PAYMENT_STATUS_ERROR = 4;
     const PAYMENT_STATUS_CANCELED = 5;
-    const PAYMENT_STATUS_DEBIT    = 11;
+    const PAYMENT_STATUS_DEBIT = 11;
 
     //    const PAYMENT_STATUS_CANCEL = 3;
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -734,6 +734,20 @@ class Invoice extends QUI\QDOM
 
             $Clone = new QUI\ERP\Accounting\Article($article);
             $ArticleList->addArticle($Clone);
+        }
+
+        $PriceFactors = $ArticleList->getPriceFactors();
+        $Currency     = $this->getCurrency();
+
+        /* @var $PriceFactor QUI\ERP\Accounting\PriceFactors\Factor */
+        foreach ($PriceFactors as $PriceFactor) {
+            $PriceFactor->setNettoSum($PriceFactor->getNettoSum() * -1);
+            $PriceFactor->setSum($PriceFactor->getSum() * -1);
+            $PriceFactor->setValue($PriceFactor->getValue() * -1);
+
+            $PriceFactor->setNettoSumFormatted($Currency->format($PriceFactor->getNettoSum()));
+            $PriceFactor->setSumFormatted($Currency->format($PriceFactor->getSum()));
+            $PriceFactor->setValueText($Currency->format($PriceFactor->getValue()));
         }
 
         $Copy->addHistory(
