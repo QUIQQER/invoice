@@ -30,6 +30,9 @@
 
         <provider>
             <erp src="\QUI\ERP\Accounting\Invoice\ErpProvider"/>
+            <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice"/>
+            <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote"/>
+            <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled"/>
         </provider>
 
     </package>

@@ -27,14 +27,14 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
         openPrintDialog: function (invoiceId) {
             return new Promise(function (resolve) {
                 require([
-                    'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
-                ], function (PrintDialog) {
-                    new PrintDialog({
-                        invoiceId: invoiceId,
-                        events   : {
-                            onOpen: resolve
-                        }
+                    'package/quiqqer/erp/bin/backend/controls/OutputDialog'
+                ], function (OutputDialog) {
+                    new OutputDialog({
+                        entityId  : invoiceId,
+                        entityType: 'Invoice'
                     }).open();
+
+                    resolve();
                 });
             });
         },

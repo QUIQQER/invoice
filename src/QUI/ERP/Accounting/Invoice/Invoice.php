@@ -12,6 +12,7 @@ use QUI\ERP\Money\Price;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Output\Output as ERPOutput;
 
 /**
  * Class Invoice
@@ -735,6 +736,20 @@ class Invoice extends QUI\QDOM
             $ArticleList->addArticle($Clone);
         }
 
+        $PriceFactors = $ArticleList->getPriceFactors();
+        $Currency     = $this->getCurrency();
+
+        /* @var $PriceFactor QUI\ERP\Accounting\PriceFactors\Factor */
+        foreach ($PriceFactors as $PriceFactor) {
+            $PriceFactor->setNettoSum($PriceFactor->getNettoSum() * -1);
+            $PriceFactor->setSum($PriceFactor->getSum() * -1);
+            $PriceFactor->setValue($PriceFactor->getValue() * -1);
+
+            $PriceFactor->setNettoSumFormatted($Currency->format($PriceFactor->getNettoSum()));
+            $PriceFactor->setSumFormatted($Currency->format($PriceFactor->getSum()));
+            $PriceFactor->setValueText($Currency->format($PriceFactor->getValue()));
+        }
+
         $Copy->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', [
                 'invoiceParentId' => $this->getId(),
@@ -976,63 +991,14 @@ class Invoice extends QUI\QDOM
      */
     public function sendTo($recipient, $template = false)
     {
-        $View = $this->getView();
-
-        if ($template) {
-            $View->setAttribute('template', $template);
-        }
-
-        $pdfFile = $View->toPDF()->createPDF();
-
-        $Mailer = QUI::getMailManager()->getMailer();
-        $Mailer->addRecipient($recipient);
-
-        // invoice pdf file
-        $dir     = \dirname($pdfFile);
-        $newFile = $dir.'/'.InvoiceUtils::getInvoiceFilename($this).'.pdf';
-
-        if ($newFile !== $pdfFile && \file_exists($newFile)) {
-            \unlink($newFile);
-        }
-
-        \rename($pdfFile, $newFile);
-
-        $user = $this->getCustomer()->getName();
-        $user = \trim($user);
-
-        if (empty($user)) {
-            $user = $this->getCustomer()->getAddress()->getName();
-        }
-
-        // mail send
-        $Mailer->addAttachment($newFile);
-
-        $Mailer->setBody(
-            QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
-                'invoiceId' => $this->getId(),
-                'user'      => $user,
-                'address'   => $this->getCustomer()->getAddress()->render(),
-                'invoice'   => $View->getTemplate()->getHTMLBody()
-            ])
+        ERPOutput::sendPdfViaMail(
+            $this->getId(),
+            'Invoice',
+            null,
+            null,
+            $template,
+            $recipient
         );
-
-        $Mailer->setSubject(
-            QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
-                'invoiceId' => $this->getId()
-            ])
-        );
-
-        $Mailer->send();
-
-        $this->addHistory(
-            QUI::getLocale()->get('quiqqer/invoice', 'message.add.history.sent.to', [
-                'recipient' => $recipient
-            ])
-        );
-
-        if (\file_exists($pdfFile)) {
-            \unlink($pdfFile);
-        }
     }
 
     //region Comments & History

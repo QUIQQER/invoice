@@ -15,6 +15,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'qui/utils/Form',
     'controls/users/address/Select',
     'package/quiqqer/invoice/bin/Invoices',
+    'package/quiqqer/invoice/bin/backend/utils/Dialogs',
     'package/quiqqer/erp/bin/backend/controls/Comments',
     'package/quiqqer/invoice/bin/backend/controls/articles/Text',
     'package/quiqqer/payments/bin/backend/Payments',
@@ -31,7 +32,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
-             AddressSelect, Invoices, Comments, TextArticle,
+             AddressSelect, Invoices, Dialogs, Comments, TextArticle,
              Payments, Locker, QUILocale, Mustache, Users, Editors,
              templateData, templatePost, templateMissing) {
     "use strict";
@@ -225,14 +226,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }
 
                 // open print dialog
-                require([
-                    'package/quiqqer/invoice/bin/backend/controls/elements/PrintDialog'
-                ], function (PrintDialog) {
+                Dialogs.openPrintDialog(newInvoiceHash).then(function () {
                     self.destroy();
-
-                    new PrintDialog({
-                        invoiceId: newInvoiceHash
-                    }).open();
                 });
             }).catch(function (err) {
                 console.error(err);
