@@ -230,6 +230,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                         Win.Loader.hide();
                                         return;
                                     }
+
                                     var Content = Win.getContent(),
                                         Body    = Content.getElement('.textbody');
 
