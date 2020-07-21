@@ -107,9 +107,9 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
 
                                 Win.Loader.show();
 
-                                Invoices.reversalInvoice(result.hash, value).then(function () {
+                                Invoices.reversalInvoice(result.hash, value).then(function (result) {
                                     Win.close();
-                                    resolve();
+                                    resolve(result);
                                 }).catch(function (Exception) {
                                     Win.close();
                                     reject(Exception);

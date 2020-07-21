@@ -303,7 +303,10 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_reversal', function (reversalId) {
                     self.fireEvent('createCreditNote', [self, invoiceId, reversalId]);
-                    resolve(invoiceId, reversalId);
+                    resolve({
+                        invoiceId : invoiceId,
+                        reversalId: reversalId
+                    });
                 }, {
                     'package': 'quiqqer/invoice',
                     onError  : reject,
