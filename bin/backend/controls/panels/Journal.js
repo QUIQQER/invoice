@@ -1001,7 +1001,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     Dialogs.openReversalDialog(invoiceId).then(function (result) {
                         new OutputDialog({
                             entityId  : result.reversalId,
-                            entityType: 'Invoice'
+                            entityType: 'Canceled'
                         }).open();
 
                         return self.refresh();
