@@ -384,13 +384,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          */
         print: function () {
             var self = this,
-                Data = self.getAttribute('data');
+                Data = self.getAttribute('data'),
+                entityType;
+
+            switch (parseInt(Data.type)) {
+                case 3:
+                    entityType = 'CreditNote';
+                    break;
+
+                case 4:
+                    entityType = 'Canceled';
+                    break;
+
+                default:
+                    entityType = 'Invoice';
+            }
 
             return new Promise(function (resolve) {
                 require([
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
                 ], function (Dialogs) {
-                    Dialogs.openPrintDialog(Data.id_prefix + Data.id).then(resolve);
+                    Dialogs.openPrintDialog(Data.id_prefix + Data.id, entityType).then(resolve);
                 });
             });
         },

@@ -24,6 +24,10 @@ QUI::$Ajax->registerFunction(
             $invoiceData = [];
         }
 
+        $Settings       = QUI\ERP\Accounting\Invoice\Settings::getInstance();
+        $currentSetting = $Settings->sendMailAtInvoiceCreation();
+        $Settings->set('invoice', 'sendMailAtCreation', false);
+
         $CreditNote = InvoiceUtils::getInvoiceByString($invoiceId)->createCreditNote();
 
         if (!empty($invoiceData)) {
@@ -33,6 +37,8 @@ QUI::$Ajax->registerFunction(
 
             $CreditNote->save();
         }
+
+        $Settings->set('invoice', 'sendMailAtCreation', $currentSetting);
 
         return $CreditNote->getId();
     },

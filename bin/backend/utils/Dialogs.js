@@ -22,16 +22,19 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
          * Opens the print dialog for a specific invoice
          *
          * @param {String} invoiceId - Invoice ID or Hash
+         * @param {String} [entityType]
          * @return {Promise}
          */
-        openPrintDialog: function (invoiceId) {
+        openPrintDialog: function (invoiceId, entityType) {
+            entityType = entityType || 'Invoice';
+
             return new Promise(function (resolve) {
                 require([
                     'package/quiqqer/erp/bin/backend/controls/OutputDialog'
                 ], function (OutputDialog) {
                     new OutputDialog({
                         entityId  : invoiceId,
-                        entityType: 'Invoice'
+                        entityType: entityType
                     }).open();
 
                     resolve();
@@ -107,9 +110,9 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
 
                                 Win.Loader.show();
 
-                                Invoices.reversalInvoice(result.hash, value).then(function () {
+                                Invoices.reversalInvoice(result.hash, value).then(function (result) {
                                     Win.close();
-                                    resolve();
+                                    resolve(result);
                                 }).catch(function (Exception) {
                                     Win.close();
                                     reject(Exception);
@@ -230,6 +233,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                         Win.Loader.hide();
                                         return;
                                     }
+
                                     var Content = Win.getContent(),
                                         Body    = Content.getElement('.textbody');
 
