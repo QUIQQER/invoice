@@ -783,8 +783,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                                     return;
                                 }
 
+                                var entityType;
+
+                                switch (parseInt(selected[0].type)) {
+                                    case 3:
+                                        entityType = 'CreditNote';
+                                        break;
+
+                                    case 4:
+                                        entityType = 'Canceled';
+                                        break;
+
+                                    default:
+                                        entityType = 'Invoice';
+                                }
+
                                 // open print dialog
-                                Dialogs.openPrintDialog(selected[0].id).then(function() {
+                                Dialogs.openPrintDialog(selected[0].id, entityType).then(function () {
                                     Win.close();
                                 });
                             }).catch(function (Err) {
@@ -932,9 +947,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             require([
                 'package/quiqqer/erp/bin/backend/controls/OutputDialog'
             ], function (OutputDialog) {
+                var entityType;
+
+                switch (parseInt(selected.type)) {
+                    case 3:
+                        entityType = 'CreditNote';
+                        break;
+
+                    case 4:
+                        entityType = 'Canceled';
+                        break;
+
+                    default:
+                        entityType = 'Invoice';
+                }
+
                 new OutputDialog({
                     entityId  : selected.id,
-                    entityType: 'Invoice'
+                    entityType: entityType
                 }).open();
 
                 Button.setAttribute('textimage', 'fa fa-file-pdf-o');
