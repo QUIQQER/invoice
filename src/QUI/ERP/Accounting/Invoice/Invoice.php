@@ -536,7 +536,9 @@ class Invoice extends QUI\QDOM
         // set the invoice status
         $this->type = Handler::TYPE_INVOICE_CANCEL;
 
-        $this->data['canceledId'] = $CreditNote->getId();
+        $CreditNote = $CreditNote->post(QUI::getUsers()->getSystemUser());
+
+        $this->data['canceledId'] = $CreditNote->getCleanId();
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
@@ -550,16 +552,12 @@ class Invoice extends QUI\QDOM
 
         $this->addComment($reason, QUI::getUsers()->getSystemUser());
 
-
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceReversalEnd',
             [$this]
         );
 
-        $CreditNote->post(QUI::getUsers()->getSystemUser());
-
-
-        return $CreditNote->getId();
+        return $CreditNote->getCleanId();
     }
 
     /**

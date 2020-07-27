@@ -225,8 +225,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     return;
                 }
 
+                var entityType;
+
+                switch (parseInt(Data.type)) {
+                    case 3:
+                        entityType = 'CreditNote';
+                        break;
+
+                    case 4:
+                        entityType = 'Canceled';
+                        break;
+
+                    default:
+                        entityType = 'Invoice';
+                }
+
                 // open print dialog
-                Dialogs.openPrintDialog(newInvoiceHash).then(function () {
+                Dialogs.openPrintDialog(newInvoiceHash, entityType).then(function () {
                     self.destroy();
                 });
             }).catch(function (err) {
