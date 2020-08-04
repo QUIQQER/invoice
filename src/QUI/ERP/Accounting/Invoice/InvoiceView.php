@@ -316,7 +316,7 @@ class InvoiceView extends QUI\QDOM
                 break;
 
             case Handler::TYPE_INVOICE_CANCEL:
-                return 'Cancelled';
+                return 'Canceled';
                 break;
 
             default:

@@ -111,6 +111,7 @@ class Invoice extends QUI\QDOM
             case Handler::TYPE_INVOICE_TEMPORARY:
             case Handler::TYPE_INVOICE_CREDIT_NOTE:
             case Handler::TYPE_INVOICE_REVERSAL:
+            case Handler::TYPE_INVOICE_CANCEL:
                 $this->type = (int)$this->getAttribute('type');
                 break;
         }
@@ -434,7 +435,7 @@ class Invoice extends QUI\QDOM
      */
     public function getInvoiceType()
     {
-        return $this->type;
+        return (int)$this->type;
     }
 
     /**
