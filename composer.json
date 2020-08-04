@@ -2,7 +2,7 @@
     "name": "quiqqer\/invoice",
     "type": "quiqqer-module",
     "description": "QUIQQER ERP Invoices",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "license": [
         "PCSG QEL-1.0"
     ],
