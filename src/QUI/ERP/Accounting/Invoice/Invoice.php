@@ -390,7 +390,7 @@ class Invoice extends QUI\QDOM
             try {
                 QUI\ERP\Accounting\Calc::calculatePayments($this);
             } catch (QUI\Exception $Exception) {
-                QUI\System\Log::writeDebugException($Exception);;
+                QUI\System\Log::writeDebugException($Exception);
             }
         }
 
