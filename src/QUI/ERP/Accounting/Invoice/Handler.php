@@ -35,38 +35,38 @@ class Handler extends QUI\Utils\Singleton
     /**
      * @var int
      */
-    const TYPE_INVOICE = 1;
+    const TYPE_INVOICE = QUI\ERP\Constants::TYPE_INVOICE;
 
     /**
      * @var int
      */
-    const TYPE_INVOICE_TEMPORARY = 2;
+    const TYPE_INVOICE_TEMPORARY = QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY;
 
     /**
      * Gutschrift / Credit note
      * @var int
      */
-    const TYPE_INVOICE_CREDIT_NOTE = 3;
+    const TYPE_INVOICE_CREDIT_NOTE = QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE;
 
     // Storno types
 
     /**
      * Reversal, storno, cancellation
      */
-    const TYPE_INVOICE_REVERSAL = 4;
+    const TYPE_INVOICE_REVERSAL = QUI\ERP\Constants::TYPE_INVOICE_REVERSAL;
 
     /**
      * Alias for reversal
      * @var int
      */
-    const TYPE_INVOICE_STORNO = 4;
+    const TYPE_INVOICE_STORNO = QUI\ERP\Constants::TYPE_INVOICE_STORNO;
 
     /**
      * Status für alte stornierte Rechnung
      *
      * @var int
      */
-    const TYPE_INVOICE_CANCEL = 5;
+    const TYPE_INVOICE_CANCEL = QUI\ERP\Constants::TYPE_INVOICE_CANCEL;
 
     /**
      * ID of the invoice product text field
