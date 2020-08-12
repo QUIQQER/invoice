@@ -12,7 +12,9 @@
         <image src="URL_OPT_DIR/quiqqer/invoice/bin/images/Logo.jpg"/>
 
         <preview>
-            <!-- <image src="URL_OPT_DIR/quiqqer/invoice/bin/images/preview/log_settings.jpg"/> -->
+            <image src="URL_OPT_DIR/quiqqer/invoice/bin/images/preview/preview-1.png"/>
+            <image src="URL_OPT_DIR/quiqqer/invoice/bin/images/preview/preview-2.png"/>
+            <image src="URL_OPT_DIR/quiqqer/invoice/bin/images/preview/preview-3.png"/>
         </preview>
 
         <support>
