@@ -23,12 +23,23 @@ use QUI\ERP\Output\Output as ERPOutput;
  */
 class Invoice extends QUI\QDOM
 {
-    const PAYMENT_STATUS_OPEN = 0;
-    const PAYMENT_STATUS_PAID = 1;
-    const PAYMENT_STATUS_PART = 2;
-    const PAYMENT_STATUS_ERROR = 4;
-    const PAYMENT_STATUS_CANCELED = 5;
-    const PAYMENT_STATUS_DEBIT = 11;
+    /* @deprecated */
+    const PAYMENT_STATUS_OPEN = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
+
+    /* @deprecated */
+    const PAYMENT_STATUS_PAID = QUI\ERP\Constants::PAYMENT_STATUS_PAID;
+
+    /* @deprecated */
+    const PAYMENT_STATUS_PART = QUI\ERP\Constants::PAYMENT_STATUS_PART;
+
+    /* @deprecated */
+    const PAYMENT_STATUS_ERROR = QUI\ERP\Constants::PAYMENT_STATUS_ERROR;
+
+    /* @deprecated */
+    const PAYMENT_STATUS_CANCELED = QUI\ERP\Constants::PAYMENT_STATUS_CANCELED;
+
+    /* @deprecated */
+    const PAYMENT_STATUS_DEBIT = QUI\ERP\Constants::PAYMENT_STATUS_DEBIT;
 
     //    const PAYMENT_STATUS_CANCEL = 3;
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
@@ -333,7 +344,7 @@ class Invoice extends QUI\QDOM
         }
 
         if ($this->getInvoiceType() === Handler::TYPE_INVOICE_STORNO) {
-            $this->setAttribute('paid_status', self::PAYMENT_STATUS_CANCELED);
+            $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_CANCELED);
         }
 
         return [
@@ -486,14 +497,14 @@ class Invoice extends QUI\QDOM
         // if invoice is parted paid, it could not be canceled
         $this->getPaidStatusInformation();
 
-        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PART) {
+        if ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PART) {
             throw new Exception([
                 'quiqqer/invoice',
                 'exception.parted.invoice.cant.be.canceled'
             ]);
         }
 
-        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_CANCELED) {
+        if ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED) {
             throw new Exception([
                 'quiqqer/invoice',
                 'exception.canceled.invoice.cant.be.canceled'
@@ -554,7 +565,7 @@ class Invoice extends QUI\QDOM
             [
                 'type'        => $this->type,
                 'data'        => \json_encode($this->data),
-                'paid_status' => self::PAYMENT_STATUS_CANCELED
+                'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
             ],
             ['id' => $this->getCleanId()]
         );
@@ -666,7 +677,7 @@ class Invoice extends QUI\QDOM
                 'payment_data'            => '',
                 'payment_time'            => $currentData['payment_time'],
                 'time_for_payment'        => (int)Settings::getInstance()->get('invoice', 'time_for_payment'),
-                'paid_status'             => self::PAYMENT_STATUS_OPEN,
+                'paid_status'             => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
                 'paid_date'               => null,
                 'paid_data'               => null,
                 'date'                    => $currentData['date'],
@@ -839,8 +850,8 @@ class Invoice extends QUI\QDOM
             return;
         }
 
-        if ($this->getAttribute('paid_status') == self::PAYMENT_STATUS_PAID ||
-            $this->getAttribute('paid_status') == self::PAYMENT_STATUS_CANCELED
+        if ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID ||
+            $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
         ) {
             return;
         }
@@ -946,16 +957,16 @@ class Invoice extends QUI\QDOM
         QUI\ERP\Accounting\Calc::calculatePayments($this);
 
         switch ($this->getAttribute('paid_status')) {
-            case self::PAYMENT_STATUS_OPEN:
-            case self::PAYMENT_STATUS_PAID:
-            case self::PAYMENT_STATUS_PART:
-            case self::PAYMENT_STATUS_ERROR:
-            case self::PAYMENT_STATUS_DEBIT:
-            case self::PAYMENT_STATUS_CANCELED:
+            case QUI\ERP\Constants::PAYMENT_STATUS_OPEN:
+            case QUI\ERP\Constants::PAYMENT_STATUS_PAID:
+            case QUI\ERP\Constants::PAYMENT_STATUS_PART:
+            case QUI\ERP\Constants::PAYMENT_STATUS_ERROR:
+            case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
+            case QUI\ERP\Constants::PAYMENT_STATUS_CANCELED:
                 break;
 
             default:
-                $this->setAttribute('paid_status', self::PAYMENT_STATUS_ERROR);
+                $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_ERROR);
         }
 
         $this->addHistory(
