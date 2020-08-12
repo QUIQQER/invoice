@@ -3,8 +3,6 @@
  * @author www.pcsg.de (Henning Leutz)
  *
  * Displays a posted Invoice
- *
- * @todo move to erp package
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary', [
 
@@ -197,6 +195,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Sum
                 require([
                     'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary.Window.html'
                 ], function (template) {
+                    if (typeof calculations.vatArray === 'undefined') {
+                        calculations.vatArray = {};
+                    }
+
                     Content.set('html', Mustache.render(template, {
                         priceFactors: priceFactors,
                         vatArray    : Object.values(calculations.vatArray)

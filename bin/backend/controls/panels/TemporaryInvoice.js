@@ -17,7 +17,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'package/quiqqer/invoice/bin/Invoices',
     'package/quiqqer/invoice/bin/backend/utils/Dialogs',
     'package/quiqqer/erp/bin/backend/controls/Comments',
-    'package/quiqqer/invoice/bin/backend/controls/articles/Text',
+    'package/quiqqer/erp/bin/backend/controls/articles/Text',
     'package/quiqqer/payments/bin/backend/Payments',
     'utils/Lock',
     'Locale',
@@ -551,7 +551,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             return self.$closeCategory().then(function (Container) {
                 return new Promise(function (resolve) {
                     require([
-                        'package/quiqqer/invoice/bin/backend/controls/InvoiceArticleList',
+                        'package/quiqqer/erp/bin/backend/controls/articles/ArticleList',
                         'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary'
                     ], function (List, Summary) {
                         self.$ArticleList = new List({
@@ -825,7 +825,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             return new Promise(function (resolve) {
                 require([
-                    'package/quiqqer/invoice/bin/backend/controls/panels/product/AddProductWindow',
+                    'package/quiqqer/erp/bin/backend/controls/articles/product/AddProductWindow',
                     'package/quiqqer/invoice/bin/backend/controls/articles/Article'
                 ], function (Win, Article) {
                     new Win({

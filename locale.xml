@@ -865,19 +865,6 @@
             <en><![CDATA[Please enter a reason for cancellation.]]></en>
         </locale>
 
-        <locale name="dialog.delete.article.title">
-            <de><![CDATA[Artikel wirklich löschen?]]></de>
-            <en><![CDATA[Delete the article?]]></en>
-        </locale>
-        <locale name="dialog.delete.article.text">
-            <de><![CDATA[Möchten Sie den Artikel wirklich löschen?]]></de>
-            <en><![CDATA[Are you sure you want to delete the article?]]></en>
-        </locale>
-        <locale name="dialog.delete.article.information">
-            <de><![CDATA[Der Artikel wird unwiderruflich gelöscht.]]></de>
-            <en><![CDATA[The article is irrevocably deleted.]]></en>
-        </locale>
-
         <locale name="dialog.create.address.title">
             <de><![CDATA[Rechnungsadresse anlegen]]></de>
             <en><![CDATA[Create invoice address]]></en>
