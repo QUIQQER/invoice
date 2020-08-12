@@ -71,7 +71,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * ID of the invoice product text field
      */
-    const INVOICE_PRODUCT_TEXT_ID = 102;
+    const INVOICE_PRODUCT_TEXT_ID = QUI\ERP\Constants::INVOICE_PRODUCT_TEXT_ID;
 
     /**
      * Tables
