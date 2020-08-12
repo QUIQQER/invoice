@@ -386,6 +386,14 @@ class Invoice extends QUI\QDOM
      */
     public function isPaid()
     {
+        if ($this->getAttribute('toPay') === false) {
+            try {
+                QUI\ERP\Accounting\Calc::calculatePayments($this);
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+            }
+        }
+
         return $this->getAttribute('toPay') <= 0;
     }
 
