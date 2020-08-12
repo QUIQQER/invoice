@@ -552,7 +552,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return new Promise(function (resolve) {
                     require([
                         'package/quiqqer/erp/bin/backend/controls/articles/ArticleList',
-                        'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Summary'
+                        'package/quiqqer/erp/bin/backend/controls/articles/ArticleSummary'
                     ], function (List, Summary) {
                         self.$ArticleList = new List({
                             currency: self.getAttribute('currency'),
