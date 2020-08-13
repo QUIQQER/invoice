@@ -505,10 +505,8 @@ class InvoiceSearch extends Singleton
      * @return array
      * @throws QUI\Exception
      */
-    protected
-    function executeQueryParams(
-        $queryData = []
-    ) {
+    protected function executeQueryParams($queryData = [])
+    {
         $PDO   = QUI::getDataBase()->getPDO();
         $binds = $queryData['binds'];
         $query = $queryData['query'];
