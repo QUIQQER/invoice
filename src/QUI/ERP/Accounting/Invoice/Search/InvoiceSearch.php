@@ -537,10 +537,8 @@ class InvoiceSearch extends Singleton
      *
      * @throws QUI\Exception
      */
-    protected
-    function parseListForGrid(
-        $data
-    ) {
+    protected function parseListForGrid($data)
+    {
         $Invoices = Handler::getInstance();
         $Locale   = QUI::getLocale();
         $Payments = Payments::getInstance();
@@ -775,8 +773,7 @@ class InvoiceSearch extends Singleton
     /**
      * @return array
      */
-    protected
-    function getAllowedFields()
+    protected function getAllowedFields()
     {
         return [
             'id',
