@@ -15,7 +15,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'qui/controls/contextmenu/Item',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
-    'package/quiqqer/invoice/bin/backend/controls/elements/TimeFilter',
+    'package/quiqqer/erp/bin/backend/controls/elements/TimeFilter',
     'Locale',
     'Ajax',
     'Mustache',

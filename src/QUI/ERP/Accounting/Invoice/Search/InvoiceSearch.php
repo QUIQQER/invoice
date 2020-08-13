@@ -120,11 +120,11 @@ class InvoiceSearch extends Singleton
                 $val = (int)$val;
 
                 switch ($val) {
-                    case Invoice::PAYMENT_STATUS_OPEN:
-                    case Invoice::PAYMENT_STATUS_PAID:
-                    case Invoice::PAYMENT_STATUS_PART:
-                    case Invoice::PAYMENT_STATUS_CANCELED:
-                    case Invoice::PAYMENT_STATUS_DEBIT:
+                    case QUI\ERP\Constants::PAYMENT_STATUS_OPEN:
+                    case QUI\ERP\Constants::PAYMENT_STATUS_PAID:
+                    case QUI\ERP\Constants::PAYMENT_STATUS_PART:
+                    case QUI\ERP\Constants::PAYMENT_STATUS_CANCELED:
+                    case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
                         break;
 
                     default:
@@ -351,7 +351,7 @@ class InvoiceSearch extends Singleton
                     break;
 
                 case 'paid_status':
-                    if ((int)$filter['value'] === Invoice::PAYMENT_STATUS_OPEN) {
+                    if ((int)$filter['value'] === QUI\ERP\Constants::PAYMENT_STATUS_OPEN) {
                         $bind1 = ':filter'.$fc;
                         $fc++;
                         $bind2 = ':filter'.$fc;
@@ -359,12 +359,12 @@ class InvoiceSearch extends Singleton
                         $where[] = '(paid_status = '.$bind1.' OR paid_status = '.$bind2.')';
 
                         $binds[$bind1] = [
-                            'value' => Invoice::PAYMENT_STATUS_OPEN,
+                            'value' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
                             'type'  => \PDO::PARAM_INT
                         ];
 
                         $binds[$bind2] = [
-                            'value' => Invoice::PAYMENT_STATUS_PART,
+                            'value' => QUI\ERP\Constants::PAYMENT_STATUS_PART,
                             'type'  => \PDO::PARAM_INT
                         ];
 
@@ -725,8 +725,8 @@ class InvoiceSearch extends Singleton
 
             // overdue check
             if (\time() > $timeForPayment &&
-                $Invoice->getAttribute('paid_status') != Invoice::PAYMENT_STATUS_PAID &&
-                $Invoice->getAttribute('paid_status') != Invoice::PAYMENT_STATUS_CANCELED
+                $Invoice->getAttribute('paid_status') != QUI\ERP\Constants::PAYMENT_STATUS_PAID &&
+                $Invoice->getAttribute('paid_status') != QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
             ) {
                 $invoiceData['overdue'] = 1;
             }

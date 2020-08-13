@@ -773,7 +773,7 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // processing
                 'time_for_payment'        => $timeForPayment,
-                'paid_status'             => Invoice::PAYMENT_STATUS_OPEN, // nicht in gui
+                'paid_status'             => QUI\ERP\Constants::PAYMENT_STATUS_OPEN, // nicht in gui
                 'paid_date'               => null, // nicht in gui
                 'paid_data'               => '',   // nicht in gui
                 'processing_status'       => $processingStatus,
@@ -1123,7 +1123,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'time_for_payment'         => $timeForPayment,
 
                 // paid status
-                'paid_status'              => Invoice::PAYMENT_STATUS_OPEN,
+                'paid_status'              => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
                 'paid_date'                => null,
                 'paid_data'                => '',
                 'processing_status'        => $processingStatus,
