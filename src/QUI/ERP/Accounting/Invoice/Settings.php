@@ -101,8 +101,6 @@ class Settings extends Singleton
      * eq: PREFIX-10022 (default = INV-)
      *
      * @return string
-     *
-     * @throws QUI\Exception
      */
     public function getInvoicePrefix()
     {
@@ -110,8 +108,15 @@ class Settings extends Singleton
             return \strftime($this->invoicePrefix);
         }
 
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config  = $Package->getConfig();
+        try {
+            $Package = QUI::getPackage('quiqqer/invoice');
+            $Config  = $Package->getConfig();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+
+            return 'INV-';
+        }
+
         $setting = $Config->getValue('invoice', 'prefix');
 
         $this->invoicePrefix = 'INV-';
@@ -128,8 +133,6 @@ class Settings extends Singleton
      * eq: PREFIX-10022 (default = EDIT-)
      *
      * @return string
-     *
-     * @throws QUI\Exception
      */
     public function getTemporaryInvoicePrefix()
     {
@@ -137,8 +140,15 @@ class Settings extends Singleton
             return \strftime($this->temporaryInvoicePrefix);
         }
 
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config  = $Package->getConfig();
+        try {
+            $Package = QUI::getPackage('quiqqer/invoice');
+            $Config  = $Package->getConfig();
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+
+            return 'EDIT-';
+        }
+
         $setting = $Config->getValue('temporaryInvoice', 'prefix');
 
         $this->temporaryInvoicePrefix = 'EDIT-';

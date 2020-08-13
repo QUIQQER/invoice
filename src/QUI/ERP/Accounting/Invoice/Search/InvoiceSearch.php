@@ -228,10 +228,13 @@ class InvoiceSearch extends Singleton
         $this->cache = [];
 
         // select display invoices
-        $invoices = $this->executeQueryParams($this->getQuery());
+        $query      = $this->getQuery();
+        $countQuery = $this->getQueryCount();
+
+        $invoices = $this->executeQueryParams($query);
 
         // count
-        $count = $this->executeQueryParams($this->getQueryCount());
+        $count = $this->executeQueryParams($countQuery);
         $count = (int)$count[0]['count'];
 
 
@@ -407,7 +410,7 @@ class InvoiceSearch extends Singleton
 
         if (!empty($this->search)) {
             $where[] = '(
-                id LIKE :search OR
+                id LIKE :searchId OR
                 customer_id LIKE :search OR
                 hash LIKE :search OR
                 global_process_id LIKE :search OR
@@ -437,6 +440,30 @@ class InvoiceSearch extends Singleton
                 subsum LIKE :search OR
                 sum LIKE :search
             )';
+
+            $prefix     = Settings::getInstance()->getInvoicePrefix();
+            $tempPrefix = Settings::getInstance()->getTemporaryInvoicePrefix();
+
+            if (\strpos($this->search, $prefix) === 0) {
+                $idSearch = \substr($this->search, \strlen($prefix));
+
+                $binds['searchId'] = [
+                    'value' => $idSearch.'%',
+                    'type'  => \PDO::PARAM_STR
+                ];
+            } elseif (\strpos($this->search, $tempPrefix) === 0) {
+                $idSearch = \substr($this->search, \strlen($tempPrefix));
+
+                $binds['searchId'] = [
+                    'value' => $idSearch.'%',
+                    'type'  => \PDO::PARAM_STR
+                ];
+            } else {
+                $binds['searchId'] = [
+                    'value' => '%'.$this->search.'%',
+                    'type'  => \PDO::PARAM_STR
+                ];
+            }
 
             $binds['search'] = [
                 'value' => '%'.$this->search.'%',
@@ -478,8 +505,10 @@ class InvoiceSearch extends Singleton
      * @return array
      * @throws QUI\Exception
      */
-    protected function executeQueryParams($queryData = [])
-    {
+    protected
+    function executeQueryParams(
+        $queryData = []
+    ) {
         $PDO   = QUI::getDataBase()->getPDO();
         $binds = $queryData['binds'];
         $query = $queryData['query'];
@@ -508,8 +537,10 @@ class InvoiceSearch extends Singleton
      *
      * @throws QUI\Exception
      */
-    protected function parseListForGrid($data)
-    {
+    protected
+    function parseListForGrid(
+        $data
+    ) {
         $Invoices = Handler::getInstance();
         $Locale   = QUI::getLocale();
         $Payments = Payments::getInstance();
@@ -744,7 +775,8 @@ class InvoiceSearch extends Singleton
     /**
      * @return array
      */
-    protected function getAllowedFields()
+    protected
+    function getAllowedFields()
     {
         return [
             'id',
