@@ -211,14 +211,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             return Invoices.saveInvoice(
                 this.getAttribute('invoiceId'),
                 this.getCurrentData()
-            ).then(function () {
+            ).then(function (Data) {
                 return Promise.all([
                     Invoices.postInvoice(self.getAttribute('invoiceId')),
-                    Invoices.getSetting('temporaryInvoice', 'openPrintDialogAfterPost')
+                    Invoices.getSetting('temporaryInvoice', 'openPrintDialogAfterPost'),
+                    Data
                 ]);
             }).then(function (result) {
                 var newInvoiceHash           = result[0],
-                    openPrintDialogAfterPost = result[1];
+                    openPrintDialogAfterPost = result[1],
+                    Data                     = result[2];
 
                 if (!openPrintDialogAfterPost) {
                     self.destroy();

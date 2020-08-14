@@ -15,8 +15,7 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_missing',
     function ($invoiceId) {
-        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice  = $Invoices->getTemporaryInvoice($invoiceId);
+        $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
 
         $missed = $Invoice->getMissingAttributes();
         $result = [];

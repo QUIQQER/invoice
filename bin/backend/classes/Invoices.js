@@ -359,9 +359,9 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
             var self = this;
 
             return new Promise(function (resolve, reject) {
-                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_save', function () {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_save', function (result) {
                     self.fireEvent('saveInvoice', [self, invoiceId, data]);
-                    resolve();
+                    resolve(result);
                 }, {
                     'package': 'quiqqer/invoice',
                     invoiceId: invoiceId,

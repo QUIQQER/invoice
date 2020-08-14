@@ -134,7 +134,8 @@ class Handler extends QUI\Utils\Singleton
      */
     public function delete($invoiceId, $User = null)
     {
-        $this->getTemporaryInvoice($invoiceId)->delete($User);
+        $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
+        $Invoice->delete($User);
     }
 
     /**

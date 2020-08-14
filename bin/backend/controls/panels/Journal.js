@@ -767,7 +767,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'package/quiqqer/erp/bin/backend/controls/OutputDialog'
                 ], function (OutputDialog) {
                     new OutputDialog({
-                        entityId  : Entry.id,
+                        entityId  : Entry.hash,
                         entityType: entityType
                     }).open();
 
@@ -859,7 +859,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             ParentNode.setStyle('padding', 10);
             ParentNode.set('html', '<div class="fa fa-spinner fa-spin"></div>');
 
-            Invoices.getArticleHtml(this.$Grid.getDataByRow(row).id).then(function (result) {
+            Invoices.getArticleHtml(this.$Grid.getDataByRow(row).hash).then(function (result) {
                 ParentNode.set('html', '');
 
                 new Element('div', {
@@ -943,7 +943,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return Promise.resolve();
             }
 
-            return this.openInvoice(selected[0].id);
+            return this.openInvoice(selected[0].hash);
         },
 
         /**
@@ -959,7 +959,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             }
 
             var self      = this,
-                invoiceId = selected[0].id;
+                invoiceId = selected[0].hash;
 
             return new Promise(function (resolve) {
                 require([

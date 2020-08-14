@@ -12,11 +12,9 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_copy',
     function ($invoiceId) {
-        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+        $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
 
-        return $Invoices->getTemporaryInvoice($invoiceId)
-            ->copy()
-            ->getId();
+        return $Invoice->copy()->getId();
     },
     ['invoiceId'],
     'Permission::checkAdminUser'

@@ -16,9 +16,8 @@ use QUI\ERP\Accounting\Invoice\Handler as InvoiceHandler;
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_save',
     function ($invoiceId, $data) {
-        $Invoices = InvoiceHandler::getInstance();
-        $Invoice  = $Invoices->getTemporaryInvoice($invoiceId);
-        $data     = \json_decode($data, true);
+        $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
+        $data    = \json_decode($data, true);
 
         if (empty($data['customer_id'])) {
             $data['invoice_address_id'] = '';
@@ -49,6 +48,8 @@ QUI::$Ajax->registerFunction(
         $Invoice->setAttribute('invoice_address', false); // needed because of address reset
         $Invoice->setAttributes($data);
         $Invoice->save();
+
+        return $Invoice->toArray();
     },
     ['invoiceId', 'data'],
     'Permission::checkAdminUser'

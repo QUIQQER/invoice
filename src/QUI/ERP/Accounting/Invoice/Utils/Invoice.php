@@ -50,6 +50,27 @@ class Invoice
         }
 
         try {
+            return self::getTemporaryInvoiceByString($str);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        throw $Exception;
+    }
+
+    /**
+     * @param $str
+     *
+     * @return InvoiceTemporary
+     *
+     * @throws Exception
+     * @throws QUI\Exception
+     */
+    public static function getTemporaryInvoiceByString($str)
+    {
+        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+
+        try {
             return $Invoices->getTemporaryInvoiceByHash($str);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
