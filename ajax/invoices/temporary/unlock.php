@@ -12,8 +12,8 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_unlock',
     function ($invoiceId) {
-        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice  = $Invoices->getTemporaryInvoice($invoiceId);
+        $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
+        $Invoice->unlock();
     },
     ['invoiceId'],
     'Permission::checkAdminUser'

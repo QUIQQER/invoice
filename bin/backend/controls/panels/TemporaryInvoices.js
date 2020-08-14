@@ -551,7 +551,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                                         text  : QUILocale.get(lg, 'journal.contextMenu.open.invoice'),
                                         events: {
                                             onClick: function () {
-                                                self.openInvoice(rowData.id);
+                                                self.openInvoice(rowData.hash);
                                             }
                                         }
                                     })
@@ -587,7 +587,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     }
 
                     self.openInvoice(
-                        self.$Grid.getSelectedData()[0].id
+                        self.$Grid.getSelectedData()[0].hash
                     );
                 }
             });
@@ -772,7 +772,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                             var posts = [];
 
                             for (var i = 0, len = selected.length; i < len; i++) {
-                                posts.push(Invoices.postInvoice(selected[i].id));
+                                posts.push(Invoices.postInvoice(selected[i].hash));
                             }
 
                             Promise.all(posts).then(function () {
@@ -799,7 +799,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                                 }
 
                                 // open print dialog
-                                Dialogs.openPrintDialog(selected[0].id, entityType).then(function () {
+                                Dialogs.openPrintDialog(selected[0].hash, entityType).then(function () {
                                     Win.close();
                                 });
                             }).catch(function (Err) {
@@ -853,7 +853,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         var posts = [];
 
                         for (var i = 0, len = selected.length; i < len; i++) {
-                            posts.push(Invoices.deleteInvoice(selected[i].id));
+                            posts.push(Invoices.deleteInvoice(selected[i].hash));
                         }
 
                         Promise.all(posts).then(function () {
@@ -907,7 +907,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     onSubmit: function (Win) {
                         Win.Loader.show();
 
-                        Invoices.copyTemporaryInvoice(selected[0].id).then(function (newId) {
+                        Invoices.copyTemporaryInvoice(selected[0].hash).then(function (newId) {
                             Win.close();
                             return self.openInvoice(newId);
                         }).then(function () {
@@ -963,7 +963,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 }
 
                 new OutputDialog({
-                    entityId  : selected.id,
+                    entityId  : selected.hash,
                     entityType: entityType
                 }).open();
 
@@ -991,7 +991,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             ParentNode.setStyle('padding', 10);
             ParentNode.set('html', '<div class="fa fa-spinner fa-spin"></div>');
 
-            Invoices.getArticleHtmlFromTemporary(this.$Grid.getDataByRow(row).id).then(function (result) {
+            Invoices.getArticleHtmlFromTemporary(this.$Grid.getDataByRow(row).hash).then(function (result) {
                 ParentNode.set('html', '');
 
                 if (result.indexOf('<table') === -1) {

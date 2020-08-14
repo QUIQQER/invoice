@@ -4,6 +4,8 @@
  * This file contains package_quiqqer_invoice_ajax_invoices_temporary_getArticleHtml
  */
 
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+
 /**
  * Returns the temporary invoice articles as html
  *
@@ -14,13 +16,7 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_getArticleHtml',
     function ($invoiceId) {
-        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-
-        try {
-            $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
-        } catch (QUI\Exception $Exception) {
-            $Invoice = $Invoices->getInvoiceByHash($invoiceId);
-        }
+        $Invoice = InvoiceUtils::getTemporaryInvoiceByString($invoiceId);
 
         return $Invoice->getView()->getArticles()->render();
     },
