@@ -4,7 +4,7 @@
  */
 define('package/quiqqer/invoice/bin/backend/controls/articles/Text', [
 
-    'package/quiqqer/invoice/bin/backend/controls/articles/Text'
+    'package/quiqqer/erp/bin/backend/controls/articles/Text'
 
 ], function (Text) {
     "use strict";
