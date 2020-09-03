@@ -312,6 +312,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 toggleiconTitle      : '',
                 accordionLiveRenderer: this.$onClickInvoiceDetails,
 
+                exportData : true,
+                exportTypes: {
+                    csv : true,
+                    json: true,
+                    xls : true
+                },
+
                 buttons    : [Actions, this.$Currency, {
                     name     : 'create',
                     text     : QUILocale.get(lg, 'temporary.btn.createInvoice'),

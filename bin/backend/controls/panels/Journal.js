@@ -120,6 +120,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 to     = this.$TimeFilter.getValue().to;
             }
 
+            this.$Grid.setAttribute('exportName', this.$TimeFilter.$Select.$placeholderText);
+
             Invoices.search({
                 perPage: this.$Grid.options.perPage,
                 page   : this.$Grid.options.page,
@@ -448,8 +450,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 accordionLiveRenderer: this.$onClickInvoiceDetails,
                 exportData           : true,
                 exportTypes          : {
-                    csv : 'CSV',
-                    json: 'JSON'
+                    csv : true,
+                    json: true,
+                    xls : true
                 },
                 buttons              : [Actions, {
                     name     : 'open',
