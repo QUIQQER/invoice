@@ -2,6 +2,7 @@
     "name": "quiqqer\/invoice",
     "type": "quiqqer-module",
     "description": "",
+    "version": "1.2.0",
     "license": [
         "PCSG QEL-1.0"
     ],
