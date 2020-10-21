@@ -1279,6 +1279,10 @@
             <de><![CDATA[Gutschrift zu Rechnung #[id] vom [date]]]></de>
             <en><![CDATA[Credit Note to invoice #[id] from [date]]]></en>
         </locale>
+        <locale name="message.invoice.cancellationInvoice.additionalInvoiceText" html="true">
+            <de><![CDATA[Storno-Rechnung zu Rechnung #[id] vom [date]]]></de>
+            <en><![CDATA[Cancelletion invoice to invoice #[id] from [date]]]></en>
+        </locale>
         <locale name="message.add.history.sent.to">
             <de><![CDATA[Rechnung wurde versendet an [recipient]]]></de>
             <en><![CDATA[Invoice was sent to [recipient]]]></en>
