@@ -13,6 +13,9 @@ use QUI\ERP\Products\Handler\Fields;
 use QUI\ERP\Products\Handler\Search;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use Quiqqer\Engine\Collector;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 
 /**
  * Class EventHandler
@@ -244,6 +247,46 @@ class EventHandler
                 ]),
                 \strtotime($Invoice->getAttribute('c_date'))
             );
+        }
+    }
+
+    /**
+     * quiqqer/erp: onQuiqqerErpOutputSendMail
+     *
+     * Save to invoice that a dunning was sent
+     *
+     * @param $entityId
+     * @param string $entityType
+     * @param string $recipient
+     * @return void
+     */
+    public static function onQuiqqerErpOutputSendMail($entityId, string $entityType, string $recipient)
+    {
+        switch ($entityType) {
+            case OutputProviderInvoice::getEntityType():
+            case OutputProviderCancelled::getEntityType():
+            case OutputProviderCreditNote::getEntityType():
+                break;
+
+            default:
+                return;
+        }
+
+        try {
+            $Invoice = OutputProviderInvoice::getEntity($entityId);
+
+            $Invoice->addHistory(
+                QUI::getLocale()->get(
+                    'quiqqer/invoice',
+                    'message.add.history.sent.to',
+                    [
+                        'recipient' => $recipient
+                    ]
+                )
+            );
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            return;
         }
     }
 }

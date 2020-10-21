@@ -22,4 +22,8 @@
     <event on="onQuiqqerErpGetCommentsByUser"
            fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerErpGetCommentsByUser"
     />
+
+    <event on="onQuiqqerErpOutputSendMail"
+           fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerErpOutputSendMail"
+    />
 </events>
