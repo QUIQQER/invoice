@@ -533,6 +533,42 @@ class Invoice extends QUI\QDOM
         );
 
         $CreditNote->setInvoiceType(Handler::TYPE_INVOICE_REVERSAL);
+
+        // Cancellation invoice extra text
+        $localeCode = QUI::getLocale()->getLocalesByLang(
+            QUI::getLocale()->getCurrent()
+        );
+
+        $Formatter = new \IntlDateFormatter(
+            $localeCode[0],
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::NONE
+        );
+
+        $currentDate = $this->getAttribute('date');
+
+        if (!$currentDate) {
+            $currentDate = \time();
+        } else {
+            $currentDate = \strtotime($currentDate);
+        }
+
+        $message = $this->getCustomer()->getLocale()->get(
+            'quiqqer/invoice',
+            'message.invoice.cancellationInvoice.additionalInvoiceText',
+            [
+                'id'   => $this->getId(),
+                'date' => $Formatter->format($currentDate)
+            ]
+        );
+
+        if (empty($message)) {
+            $message = '';
+        }
+
+        // saving copy
+        $CreditNote->setAttribute('additional_invoice_text', $message);
+
         $CreditNote->save(QUI::getUsers()->getSystemUser());
 
         try {
@@ -794,7 +830,7 @@ class Invoice extends QUI\QDOM
             $currentDate = \strtotime($currentDate);
         }
 
-        $message = QUI::getLocale()->get(
+        $message = $this->getCustomer()->getLocale()->get(
             'quiqqer/invoice',
             'message.invoice.creditNote.additionalInvoiceText',
             [
