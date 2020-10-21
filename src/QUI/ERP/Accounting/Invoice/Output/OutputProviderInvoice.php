@@ -236,7 +236,7 @@ class OutputProviderInvoice implements OutputProviderInterface
     {
         $Invoice = self::getEntity($entityId);
 
-        return QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
+        return $Invoice->getCustomer()->getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
             'invoiceId' => $Invoice->getId()
         ]);
     }
@@ -261,7 +261,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $user = $Customer->getAddress()->getName();
         }
 
-        return QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
+        return $Customer->getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
             'invoiceId' => $Invoice->getId(),
             'user'      => $user,
             'address'   => $Customer->getAddress()->render(),
