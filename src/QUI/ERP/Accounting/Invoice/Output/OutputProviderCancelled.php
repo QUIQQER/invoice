@@ -54,7 +54,7 @@ class OutputProviderCancelled extends OutputProviderInvoice
     {
         $Invoice = self::getEntity($entityId);
 
-        return QUI::getLocale()->get('quiqqer/invoice', 'invoice.cancelled.send.mail.subject', [
+        return $Invoice->getCustomer()->getLocale()->get('quiqqer/invoice', 'invoice.cancelled.send.mail.subject', [
             'invoiceId' => $Invoice->getId()
         ]);
     }
@@ -79,7 +79,7 @@ class OutputProviderCancelled extends OutputProviderInvoice
             $user = $Customer->getAddress()->getName();
         }
 
-        return QUI::getLocale()->get('quiqqer/invoice', 'invoice.cancelled.send.mail.message', [
+        return $Customer->getLocale()->get('quiqqer/invoice', 'invoice.cancelled.send.mail.message', [
             'invoiceId' => $Invoice->getId(),
             'user'      => $user,
             'address'   => $Customer->getAddress()->render(),
