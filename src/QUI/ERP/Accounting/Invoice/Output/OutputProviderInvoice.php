@@ -264,7 +264,28 @@ class OutputProviderInvoice implements OutputProviderInterface
         return QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
             'invoiceId' => $Invoice->getId(),
             'user'      => $user,
-            'address'   => $Customer->getAddress()->render()
+            'address'   => $Customer->getAddress()->render(),
+            'company'   => self::getCompanyName()
         ]);
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getCompanyName()
+    {
+        try {
+            $Conf    = QUI::getPackage('quiqqer/erp')->getConfig();
+            $company = $Conf->get('company', 'name');
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            return '';
+        }
+
+        if (empty($company)) {
+            return '';
+        }
+
+        return $company;
     }
 }
