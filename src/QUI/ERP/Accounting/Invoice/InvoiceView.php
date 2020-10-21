@@ -313,11 +313,10 @@ class InvoiceView extends QUI\QDOM
         switch ($this->Invoice->getInvoiceType()) {
             case Handler::TYPE_INVOICE_CREDIT_NOTE:
                 return 'CreditNote';
-                break;
 
             case Handler::TYPE_INVOICE_CANCEL:
+            case Handler::TYPE_INVOICE_REVERSAL:
                 return 'Canceled';
-                break;
 
             default:
                 return 'Invoice';
