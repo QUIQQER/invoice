@@ -463,6 +463,19 @@
             <en><![CDATA[Cancellation invoice]]></en>
         </locale>
 
+        <locale name="global.invoice.text">
+            <de><![CDATA[]]></de>
+            <en><![CDATA[]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.globalInvoiceText">
+            <de><![CDATA[Globaler Rechnungstext]]></de>
+            <en><![CDATA[Global invoice text]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.globalInvoiceText.description">
+            <de><![CDATA[Dieser Text wird in jeder Rechnung als zusätzlicher Text angezeigt.]]></de>
+            <en><![CDATA[This text is displayed in every invoice as additional text.]]></en>
+        </locale>
+
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
