@@ -916,8 +916,7 @@ class Invoice extends QUI\QDOM
             $date = time();
         }
 
-        function isTxAlreadyAdded($txid, $paidData)
-        {
+        $isTxAlreadyAdded = function ($txid, $paidData) {
             foreach ($paidData as $paidEntry) {
                 if (!isset($paidEntry['txid'])) {
                     continue;
@@ -929,10 +928,10 @@ class Invoice extends QUI\QDOM
             }
 
             return false;
-        }
+        };
 
         // already added
-        if (isTxAlreadyAdded($Transaction->getTxId(), $paidData)) {
+        if ($isTxAlreadyAdded($Transaction->getTxId(), $paidData)) {
             return;
         }
 
@@ -1005,17 +1004,6 @@ class Invoice extends QUI\QDOM
                 $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_ERROR);
         }
 
-        $this->addHistory(
-            QUI::getLocale()->get(
-                'quiqqer/invoice',
-                'history.message.edit',
-                [
-                    'username' => $User->getName(),
-                    'uid'      => $User->getId()
-                ]
-            )
-        );
-
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
             [
@@ -1028,6 +1016,17 @@ class Invoice extends QUI\QDOM
 
         // Payment Status has changed
         if ($oldPaidStatus != $this->getAttribute('paid_status')) {
+            $this->addHistory(
+                QUI::getLocale()->get(
+                    'quiqqer/invoice',
+                    'history.message.edit',
+                    [
+                        'username' => $User->getName(),
+                        'uid'      => $User->getId()
+                    ]
+                )
+            );
+
             QUI::getEvents()->fireEvent(
                 'onQuiqqerInvoiceAddComment',
                 [$this, $this->getAttribute('paid_status'), $oldPaidStatus]

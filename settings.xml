@@ -24,6 +24,9 @@
                     <type><![CDATA[integer]]></type>
                     <defaultvalue><![CDATA[1]]></defaultvalue>
                 </conf>
+                <conf name="globalInvoiceText">
+                    <type><![CDATA[string]]></type>
+                </conf>
             </section>
 
             <section name="temporaryInvoice">
@@ -121,6 +124,22 @@
                             <description>
                                 <locale group="quiqqer/invoice"
                                         var="invoice.settings.invoice.openPrintDialogAfterPost.description"/>
+                            </description>
+                        </input>
+
+                        <input type="hidden"
+                               data-qui="package/quiqqer/translator/bin/controls/Update"
+                               data-qui-options-group="quiqqer/invoice"
+                               data-qui-options-package="quiqqer/invoice"
+                               data-qui-options-var="global.invoice.text"
+                        >
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.globalInvoiceText"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.globalInvoiceText.description"/>
                             </description>
                         </input>
                     </settings>

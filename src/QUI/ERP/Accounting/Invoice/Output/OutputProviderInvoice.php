@@ -160,17 +160,25 @@ class OutputProviderInvoice implements OutputProviderInterface
 
         $InvoiceView->setAttributes($Invoice->getAttributes());
 
+        // global invoice text
+        $globalInvoiceText = '';
+
+        if (QUI::getLocale()->get('quiqqer/invoice', 'global.invoice.text') !== '') {
+            $globalInvoiceText = QUI::getLocale()->get('quiqqer/invoice', 'global.invoice.text');
+        }
+
         return [
-            'this'            => $InvoiceView,
-            'ArticleList'     => $Articles,
-            'Customer'        => $Customer,
-            'Editor'          => $Editor,
-            'Address'         => $Address,
-            'DeliveryAddress' => $DeliveryAddress,
-            'Payment'         => $Invoice->getPayment(),
-            'transaction'     => $InvoiceView->getTransactionText(),
-            'projectName'     => $Invoice->getAttribute('project_name'),
-            'useShipping'     => QUI::getPackageManager()->isInstalled('quiqqer/shipping')
+            'this'              => $InvoiceView,
+            'ArticleList'       => $Articles,
+            'Customer'          => $Customer,
+            'Editor'            => $Editor,
+            'Address'           => $Address,
+            'DeliveryAddress'   => $DeliveryAddress,
+            'Payment'           => $Invoice->getPayment(),
+            'transaction'       => $InvoiceView->getTransactionText(),
+            'projectName'       => $Invoice->getAttribute('project_name'),
+            'useShipping'       => QUI::getPackageManager()->isInstalled('quiqqer/shipping'),
+            'globalInvoiceText' => $globalInvoiceText
         ];
     }
 
@@ -198,6 +206,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             return $User->getId() === $Customer->getId();
         } catch (\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
+
             return false;
         }
     }
@@ -279,6 +288,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $company = $Conf->get('company', 'name');
         } catch (\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
+
             return '';
         }
 
