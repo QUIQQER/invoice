@@ -156,7 +156,7 @@ class Payment
 
         $invoiceInformationText = $Invoice->getCustomDataEntry('InvoiceInformationText');
 
-        if (!empty($invoiceInformationText)) {
+        if ($invoiceInformationText !== null) {
             return $invoiceInformationText;
         }
 
