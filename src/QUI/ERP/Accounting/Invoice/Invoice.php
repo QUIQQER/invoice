@@ -916,8 +916,7 @@ class Invoice extends QUI\QDOM
             $date = time();
         }
 
-        function isTxAlreadyAdded($txid, $paidData)
-        {
+        $isTxAlreadyAdded = function ($txid, $paidData) {
             foreach ($paidData as $paidEntry) {
                 if (!isset($paidEntry['txid'])) {
                     continue;
@@ -929,10 +928,10 @@ class Invoice extends QUI\QDOM
             }
 
             return false;
-        }
+        };
 
         // already added
-        if (isTxAlreadyAdded($Transaction->getTxId(), $paidData)) {
+        if ($isTxAlreadyAdded($Transaction->getTxId(), $paidData)) {
             return;
         }
 
