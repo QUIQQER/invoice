@@ -1092,6 +1092,13 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        // payment custom data
+        try {
+            $InvoicePayment                             = new Payment($paymentMethodData);
+            $this->customData['InvoiceInformationText'] = $InvoicePayment->getInvoiceInformationText($this);
+        } catch (\Exception $Exception) {
+        }
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),

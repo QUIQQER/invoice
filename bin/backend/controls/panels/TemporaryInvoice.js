@@ -707,9 +707,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             new Sandbox({
                                 content: html,
                                 styles : {
-                                    height : 1240,
-                                    padding: 20,
-                                    width  : 874
+                                    'min-height': 1240,
+                                    height      : '100%',
+                                    padding     : 20,
+                                    width       : 874
                                 },
                                 events : {
                                     onLoad: function (Box) {
