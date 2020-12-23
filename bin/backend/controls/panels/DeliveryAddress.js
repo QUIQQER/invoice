@@ -38,6 +38,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
             this.$City      = null;
             this.$Country   = null;
 
+            this.$Salutation = null;
+            this.$Firstname  = null;
+            this.$Lastname   = null;
+
             this.checked = false;
             this.$loaded = false;
             this.$userId = this.getAttribute('userId');
@@ -67,6 +71,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
             this.$City      = Elm.getElement('[name="delivery-city"]');
             this.$Country   = Elm.getElement('[name="delivery-country"]');
 
+            this.$Salutation = Elm.getElement('[name="delivery-salutation"]');
+            this.$Firstname  = Elm.getElement('[name="delivery-firstname"]');
+            this.$Lastname   = Elm.getElement('[name="delivery-lastname"]');
+
             this.$Addresses = Elm.getElement('[name="delivery-addresses"]');
             this.$Addresses.addEvent('change', this.$onSelectChange);
 
@@ -74,6 +82,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
             this.$Street.disabled  = false;
             this.$ZIP.disabled     = false;
             this.$City.disabled    = false;
+
+            this.$Salutation.disabled = false;
+            this.$Firstname.disabled  = false;
+            this.$Lastname.disabled   = false;
 
             var Panel = QUI.Controls.getById(
                 this.getElm().getParent('.qui-panel').get('data-quiid')
@@ -118,17 +130,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
         /**
          * Return the current value
          *
-         * @return {{company: *, street: (*|Document.street_no|Document.address.street_no), zip: *, city: (string|string|*)}}
+         * @return {{zip, uid: *, country, firstname, city, street_no, company, id: (boolean|*), salutation, lastname}}
          */
         getValue: function () {
             return {
-                uid      : this.$userId,
-                id       : this.$addressId,
-                company  : this.$Company.value,
-                street_no: this.$Street.value,
-                zip      : this.$ZIP.value,
-                city     : this.$City.value,
-                country  : this.$Country.value
+                uid       : this.$userId,
+                id        : this.$addressId,
+                company   : this.$Company.value,
+                salutation: this.$Salutation.value,
+                firstname : this.$Firstname.value,
+                lastname  : this.$Lastname.value,
+                street_no : this.$Street.value,
+                zip       : this.$ZIP.value,
+                city      : this.$City.value,
+                country   : this.$Country.value
             };
         },
 
@@ -148,6 +163,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
 
             if ("company" in value) {
                 this.$Company.value = value.company;
+            }
+
+            if ("salutation" in value) {
+                this.$Salutation.value = value.salutation;
+            }
+
+            if ("firstname" in value) {
+                this.$Firstname.value = value.firstname;
+            }
+
+            if ("lastname" in value) {
+                this.$Lastname.value = value.company;
             }
 
             if ("street_no" in value) {
@@ -210,6 +237,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
             this.$Addresses.set('html', '');
 
             if (!this.$userId) {
+                this.$Company.value = '';
+                this.$Street.value  = '';
+                this.$ZIP.value     = '';
+                this.$City.value    = '';
+                this.$Country.value = '';
+
+                this.$Salutation.value = '';
+                this.$Firstname.value  = '';
+                this.$Lastname.value   = '';
+
                 return Promise.reject();
             }
 
@@ -274,6 +311,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
 
             if (!options.length || options[0].get('data-value') === '') {
                 this.$addressId = false;
+
+                this.$Company.value = '';
+                this.$Street.value  = '';
+                this.$ZIP.value     = '';
+                this.$City.value    = '';
+                this.$Country.value = '';
+
+                this.$Salutation.value = '';
+                this.$Firstname.value  = '';
+                this.$Lastname.value   = '';
                 return;
             }
 
@@ -285,6 +332,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
             this.$ZIP.value     = data.zip;
             this.$City.value    = data.city;
             this.$Country.value = data.country;
+
+            this.$Salutation.value = data.salutation;
+            this.$Firstname.value  = data.firstname;
+            this.$Lastname.value   = data.lastname;
         },
 
         /**
@@ -366,7 +417,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
          *
          * @return {boolean}
          */
-        isLoaded: function() {
+        isLoaded: function () {
             return this.$loaded;
         }
     });

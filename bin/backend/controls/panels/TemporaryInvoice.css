@@ -28,6 +28,10 @@
     position: absolute;
 }
 
+.invoice-data .field-container-field [type="date"] {
+    width: 100%;
+}
+
 /** Preview
  ========================================== */
 

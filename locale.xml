@@ -230,6 +230,18 @@
             <de><![CDATA[Land]]></de>
             <en><![CDATA[Country]]></en>
         </locale>
+        <locale name="salutation">
+            <de><![CDATA[Anrede]]></de>
+            <en><![CDATA[Salutation]]></en>
+        </locale>
+        <locale name="firstname">
+            <de><![CDATA[Vorname]]></de>
+            <en><![CDATA[Firstname]]></en>
+        </locale>
+        <locale name="lastname">
+            <de><![CDATA[Nachname]]></de>
+            <en><![CDATA[Lastname]]></en>
+        </locale>
 
         <locale name="invoice.temporary.extend.view.open">
             <de><![CDATA[Erweiterte Ansicht öffnen]]></de>

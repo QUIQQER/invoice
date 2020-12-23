@@ -323,7 +323,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textStreet                     : QUILocale.get(lg, 'street'),
                         textZip                        : QUILocale.get(lg, 'zip'),
                         textCity                       : QUILocale.get(lg, 'city'),
-                        textCountry                    : QUILocale.get(lg, 'country')
+                        textCountry                    : QUILocale.get(lg, 'country'),
+                        textSalutation                 : QUILocale.get(lg, 'salutation'),
+                        textFirstname                  : QUILocale.get(lg, 'firstname'),
+                        textLastname                   : QUILocale.get(lg, 'lastname')
                     })
                 });
 
@@ -389,6 +392,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                     self.setAttribute('customer_id', userId);
                     self.setAttribute('invoice_address_id', Data.getValue().addressId);
+
+                    // reset deliver address
+                    if (self.$AddressDelivery) {
+                        self.$AddressDelivery.setAttribute('userId', userId);
+                        self.$AddressDelivery.refresh().catch(function () {
+                        });
+                    }
 
                     Promise.all([
                         Invoices.getPaymentTime(userId),
