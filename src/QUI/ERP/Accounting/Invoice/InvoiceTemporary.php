@@ -114,14 +114,13 @@ class InvoiceTemporary extends QUI\QDOM
 
         if (!empty($data['delivery_address_id'])) {
             $this->addressDelivery['id'] = (int)$data['delivery_address_id'];
-        } elseif (
-            empty($this->addressDelivery['company'])
-            && empty($this->addressDelivery['firstname'])
-            && empty($this->addressDelivery['lastname'])
-            && empty($this->addressDelivery['street_no'])
-            && empty($this->addressDelivery['zip'])
-            && empty($this->addressDelivery['city'])
-            && empty($this->addressDelivery['county'])
+        } elseif (empty($this->addressDelivery['company'])
+                  && empty($this->addressDelivery['firstname'])
+                  && empty($this->addressDelivery['lastname'])
+                  && empty($this->addressDelivery['street_no'])
+                  && empty($this->addressDelivery['zip'])
+                  && empty($this->addressDelivery['city'])
+                  && empty($this->addressDelivery['county'])
         ) {
             $this->addressDelivery = false;
         }
