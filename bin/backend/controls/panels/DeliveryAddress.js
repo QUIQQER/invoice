@@ -148,6 +148,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
         },
 
         /**
+         * Clears the selection - no address are selected
+         */
+        clear: function () {
+            this.$Addresses.value = '';
+            this.$onSelectChange();
+        },
+
+        /**
          * Set values
          *
          * @param {Object} value
@@ -309,7 +317,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
                 return Option.value === Select.value;
             });
 
-            if (!options.length || options[0].get('data-value') === '') {
+            if (Select.value === '' || !options.length || options[0].get('data-value') === '') {
                 this.$addressId = false;
 
                 this.$Company.value = '';
@@ -410,6 +418,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress', [
             }
 
             closables.setStyle('display', 'none');
+            this.clear();
         },
 
         /**

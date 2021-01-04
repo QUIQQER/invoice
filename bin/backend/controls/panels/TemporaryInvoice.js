@@ -473,7 +473,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     ).get('data-quiid')
                 );
 
-                if (self.getAttribute('delivery_address')) {
+                if (self.getAttribute('delivery_address_id')) {
                     var deliveryAddress = self.getAttribute('delivery_address');
 
                     try {
