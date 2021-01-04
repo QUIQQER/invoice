@@ -17,10 +17,15 @@ QUI::$Ajax->registerFunction(
             return QUI\ERP\Accounting\Invoice\Settings::getInstance()->get('invoice', 'time_for_payment');
         }
 
-        $permission = $User->getPermission(
-            'quiqqer.invoice.timeForPayment',
-            'maxInteger'
-        );
+        $permission = $User->getPermission('quiqqer.invoice.timeForPayment', 'maxInteger');
+
+        if (empty($permission)) {
+            $permission = QUI\ERP\Accounting\Invoice\Settings::getInstance()->get('invoice', 'time_for_payment');
+        }
+
+        if ($User->getAttribute('quiqqer.erp.customer.payment.term')) {
+            $permission = $User->getAttribute('quiqqer.erp.customer.payment.term');
+        }
 
         return $permission;
     },
