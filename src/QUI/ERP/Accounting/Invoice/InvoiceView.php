@@ -278,7 +278,7 @@ class InvoiceView extends QUI\QDOM
 
             return $Locale->get(
                 'quiqqer/invoice',
-                'additional.invoice.text.timeForPayment',
+                'additional.invoice.text.timeForPayment.inclVar',
                 [
                     'timeForPayment' => $timeForPayment
                 ]

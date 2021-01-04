@@ -751,6 +751,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     var Info = new Element('info', {
                         'class': 'quiqqer-invoice-backend-temporaryInvoice-missing-miss-message',
                         styles : {
+                            display: 'none',
                             opacity: 0
                         }
                     }).inject(ParentContainer);
@@ -764,8 +765,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             moofx(Info).animate({
                                 bottom : 60,
                                 opacity: 0
+                            }, {
+                                callback: function () {
+                                    Info.setStyle('display', 'none');
+                                }
                             });
                         } else {
+                            Info.setStyle('display', null);
+
                             moofx(Info).animate({
                                 bottom : 80,
                                 opacity: 1

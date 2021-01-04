@@ -1639,8 +1639,12 @@
             <en><![CDATA[]]></en>
         </locale>
         <locale name="additional.invoice.text.timeForPayment">
-            <de><![CDATA[Zahlungsziel]]></de>
-            <en><![CDATA[Time for payment]]></en>
+            <de><![CDATA[Zahlungsziel]]]></de>
+            <en><![CDATA[Time for payment]]]></en>
+        </locale>
+        <locale name="additional.invoice.text.timeForPayment.inclVar">
+            <de><![CDATA[Zahlungsziel: [timeForPayment]]]></de>
+            <en><![CDATA[Time for payment: [timeForPayment]]]></en>
         </locale>
         <locale name="additional.invoice.text.paymentMethod">
             <de><![CDATA[Zahlungsart]]></de>
