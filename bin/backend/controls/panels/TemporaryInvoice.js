@@ -431,8 +431,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 }
 
-                if (self.getAttribute('editor_id')) {
+                if (parseInt(self.getAttribute('editor_id'))) {
                     EditorId.addItem(self.getAttribute('editor_id'));
+                } else {
+                    EditorId.addItem(USER.id);
                 }
 
 
