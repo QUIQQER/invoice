@@ -149,7 +149,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          */
         setValue: function (data) {
             var self = this;
-
+            
             this.setAttribute('userId', data.userId);
             this.setAttribute('addressId', data.addressId);
 
@@ -167,6 +167,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 this.$setValues = true;
                 this.$CustomerSelect.addItem(this.getAttribute('userId'));
+                this.$AddressRow.setStyle('display', null);
             }
         },
 
