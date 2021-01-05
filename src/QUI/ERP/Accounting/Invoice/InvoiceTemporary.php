@@ -1509,7 +1509,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return array|mixed
      */
-    public function getCustomData(): ?array
+    public function getCustomData(): array
     {
         return $this->customData;
     }
@@ -1533,9 +1533,9 @@ class InvoiceTemporary extends QUI\QDOM
      * Return a data field
      *
      * @param string $key
-     * @return bool|mixed
+     * @return bool|array|mixed
      */
-    public function getData(string $key): ?bool
+    public function getData(string $key)
     {
         if (isset($this->data[$key])) {
             return $this->data[$key];
@@ -1597,9 +1597,9 @@ class InvoiceTemporary extends QUI\QDOM
      * Return a payment data field
      *
      * @param string $key
-     * @return bool|mixed
+     * @return bool|array|mixed
      */
-    public function getPaymentData(string $key): ?bool
+    public function getPaymentData(string $key)
     {
         if (isset($this->paymentData[$key])) {
             return $this->paymentData[$key];
