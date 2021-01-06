@@ -156,7 +156,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             return Invoices.getTemporaryInvoice(invoiceId).then(function (data) {
                 self.setAttributes(data);
 
-                if (data.articles.articles.length) {
+                if (data.articles.articles && data.articles.articles.length) {
                     self.$serializedList = {
                         articles: data.articles.articles
                     };

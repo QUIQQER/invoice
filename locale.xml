@@ -1056,6 +1056,10 @@
             <de><![CDATA[Zahlungsziel]]></de>
             <en><![CDATA[Term of Payment]]></en>
         </locale>
+        <locale name="erp.panel.invoice.data.contactPerson">
+            <de><![CDATA[Ansprechpartner]]></de>
+            <en><![CDATA[Contact person]]></en>
+        </locale>
 
         <locale name="erp.panel.invoice.data.invoiceText">
             <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
