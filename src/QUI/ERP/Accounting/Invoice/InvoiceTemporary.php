@@ -749,6 +749,13 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        // contact person
+        $contactPerson = '';
+
+        if ($this->getAttribute('contact_person') && $this->getAttribute('contact_person') !== '') {
+            $contactPerson = Orthos::clear($this->getAttribute('contact_person'));
+        }
+
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
@@ -767,6 +774,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'order_id'                => (int)$this->getAttribute('order_id'),
                 'ordered_by'              => $orderedBy,
                 'ordered_by_name'         => $orderedByName,
+                'contact_person'          => $contactPerson,
 
                 // payments
                 'payment_method'          => $paymentMethod,
@@ -1107,6 +1115,14 @@ class InvoiceTemporary extends QUI\QDOM
         } catch (\Exception $Exception) {
         }
 
+        // contact person
+        $contactPerson = '';
+
+        if ($this->getAttribute('contact_person') && $this->getAttribute('contact_person') !== '') {
+            $contactPerson = Orthos::clear($this->getAttribute('contact_person'));
+        }
+
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
@@ -1123,6 +1139,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'order_id'                 => $this->getAttribute('order_id'),
                 'ordered_by'               => $orderedBy,
                 'ordered_by_name'          => $orderedByName,
+                'contact_person'           => $contactPerson,
                 'customer_id'              => $this->getCustomer()->getId(),
                 'customer_data'            => \json_encode($customerData),
 

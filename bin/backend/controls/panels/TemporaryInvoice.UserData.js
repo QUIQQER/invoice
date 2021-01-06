@@ -149,7 +149,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          */
         setValue: function (data) {
             var self = this;
-            
+
             this.setAttribute('userId', data.userId);
             this.setAttribute('addressId', data.addressId);
 
@@ -407,51 +407,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             var self = this;
 
             return new Promise(function (resolve, reject) {
-                require(['qui/controls/windows/Confirm'], function (QUIWindow) {
-                    new QUIWindow({
-                        icon     : 'fa fa-address-book-o',
-                        title    : QUILocale.get(lg, 'window.customer.address.select.title'),
-                        maxHeight: 300,
-                        maxWidth : 500,
-                        autoclose: false,
-                        events   : {
-                            onOpen: function (Win) {
-                                Win.Loader.show();
-
-                                Win.getContent()
-                                   .set('html', QUILocale.get(lg, 'window.customer.address.select.information'));
-
-                                var Select = new Element('select', {
-                                    styles: {
-                                        display: 'block',
-                                        clear  : 'both',
-                                        margin : '1rem auto 0',
-                                        width  : 300
-                                    }
-                                }).inject(Win.getContent());
-
-                                self.$getUser().then(function (User) {
-                                    return self.getAddressList(User);
-                                }).then(function (addresses) {
-                                    for (var i = 0, len = addresses.length; i < len; i++) {
-                                        new Element('option', {
-                                            value: addresses[i].id,
-                                            html : addresses[i].text
-                                        }).inject(Select);
-                                    }
-
-                                    Win.Loader.hide();
-                                });
-                            },
-
-                            onSubmit: function (Win) {
-                                var Select    = Win.getContent().getElement('select');
-                                var addressId = parseInt(Select.value);
-
+                require([
+                    'package/quiqqer/customer/bin/backend/controls/customer/address/Window'
+                ], function (Win) {
+                    new Win({
+                        userId: self.getAttribute('userId'),
+                        events: {
+                            onSubmit: function (Win, addressId) {
                                 resolve(addressId);
                                 Win.close();
                             },
-
                             onCancel: reject
                         }
                     }).open();

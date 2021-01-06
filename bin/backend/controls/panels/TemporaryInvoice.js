@@ -19,6 +19,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'package/quiqqer/erp/bin/backend/controls/Comments',
     'package/quiqqer/erp/bin/backend/controls/articles/Text',
     'package/quiqqer/payments/bin/backend/Payments',
+    'package/quiqqer/customer/bin/backend/controls/customer/address/Window',
     'utils/Lock',
     'Locale',
     'Mustache',
@@ -33,7 +34,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
              AddressSelect, Invoices, Dialogs, Comments, TextArticle,
-             Payments, Locker, QUILocale, Mustache, Users, Editors,
+             Payments, AddressWindow, Locker, QUILocale, Mustache, Users, Editors,
              templateData, templatePost, templateMissing) {
     "use strict";
 
@@ -265,6 +266,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 date                   : this.getAttribute('date'),
                 editor_id              : this.getAttribute('editor_id'),
                 ordered_by             : this.getAttribute('ordered_by'),
+                contact_person         : this.getAttribute('contact_person'),
                 time_for_payment       : this.getAttribute('time_for_payment'),
                 payment_method         : this.getAttribute('payment_method'),
                 additional_invoice_text: this.getAttribute('additional_invoice_text'),
@@ -315,6 +317,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod'),
                         textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText'),
                         textStatus        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textStatus'),
+                        textContactPerson : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textContactPerson'),
 
                         textInvoiceDeliveryAddress     : QUILocale.get(lg, 'deliveryAddress'),
                         messageDifferentDeliveryAddress: QUILocale.get(lg, 'message.different,delivery.address'),
@@ -345,7 +348,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     time_for_payment : self.getAttribute('time_for_payment'),
                     project_name     : self.getAttribute('project_name'),
                     editor_id        : self.getAttribute('editor_id'),
-                    processing_status: self.getAttribute('processing_status')
+                    processing_status: self.getAttribute('processing_status'),
+                    contact_person   : self.getAttribute('contact_person')
                 }, Form);
 
                 Form.elements.date.set('disabled', true);
@@ -359,6 +363,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         }
                     });
                 });
+
+                Container.getElements('[name="select-contact-id-address"]').addEvent('click', function () {
+                    new AddressWindow({
+                        autoclose: false,
+                        userId   : self.getAttribute('customer_id'),
+                        events   : {
+                            onSubmit: function (Win, addressId, address) {
+                                Win.close();
+
+                                Container.getElement('[name="contact_person"]').set(
+                                    'value',
+                                    (address.salutation + ' ' + address.firstname + ' ' + address.lastname).trim()
+                                );
+                            }
+                        }
+                    }).open();
+                });
+
+                if (self.getAttribute('customer_id')) {
+                    Container.getElements('[name="select-contact-id-address"]').set('disabled', false);
+                }
 
                 return QUI.parse(Container);
             }).then(function () {
@@ -392,6 +417,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                     self.setAttribute('customer_id', userId);
                     self.setAttribute('invoice_address_id', Data.getValue().addressId);
+
+                    Content.getElements('[name="select-contact-id-address"]').set('disabled', false);
 
                     // reset deliver address
                     if (self.$AddressDelivery) {
@@ -1076,6 +1103,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             // timefields
             if ("date" in formData) {
                 this.setAttribute('date', formData.date + ' 00:00:00');
+            }
+
+            if (formData.contact_person) {
+                this.setAttribute('contact_person', formData.contact_person);
             }
 
             [

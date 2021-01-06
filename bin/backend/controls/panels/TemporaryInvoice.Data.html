@@ -68,6 +68,23 @@
         <tr>
             <td>
                 <label class="field-container">
+                    <span class="field-container-item" title="{{textEditor}}">
+                        {{textContactPerson}}
+                    </span>
+                    <input type="text" class="field-container-field" name="contact_person"/>
+                    <button name="select-contact-id-address"
+                            class="qui-button qui-utils-noselect"
+                            style="width: 50px"
+                            disabled
+                    >
+                        <span class="fa fa-address-book-o"></span>
+                    </button>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
                     <span class="field-container-item" title="{{textStatus}}">
                         {{textStatus}}
                     </span>
@@ -129,7 +146,8 @@
                     <input type="text" class="field-container-field" name="delivery-salutation" disabled/>
                 </label>
             </td>
-        </tr><tr class="closable" style="display: none">
+        </tr>
+        <tr class="closable" style="display: none">
             <td>
                 <label class="field-container">
                     <span class="field-container-item" title="{{textFirstname}}">

@@ -744,6 +744,10 @@
             <de><![CDATA[Status]]></de>
             <en><![CDATA[Status]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textContactPerson">
+            <de><![CDATA[Ansprechpartner]]></de>
+            <en><![CDATA[Contact person]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.comments">
             <de><![CDATA[Kommentare]]></de>
             <en><![CDATA[Comments]]></en>
@@ -1266,16 +1270,6 @@
             ]]></en>
         </locale>
 
-
-        <locale name="window.customer.address.select.title">
-            <de><![CDATA[Kundenadresse auswählen]]></de>
-            <en><![CDATA[Select customer address]]></en>
-        </locale>
-        <locale name="window.customer.address.select.information">
-            <de><![CDATA[Bitte wähle eine Kundenadresse aus:]]></de>
-            <en><![CDATA[Please select a customer address:]]></en>
-        </locale>
-
         <locale name="invoice.panel.comment.add">
             <de><![CDATA[Kommentar hinzufügen]]></de>
             <en><![CDATA[Add comment]]></en>
@@ -1642,9 +1636,15 @@
             <de><![CDATA[Zahlungsziel]]]></de>
             <en><![CDATA[Time for payment]]]></en>
         </locale>
-        <locale name="additional.invoice.text.timeForPayment.inclVar">
-            <de><![CDATA[Zahlungsziel: [timeForPayment]]]></de>
-            <en><![CDATA[Time for payment: [timeForPayment]]]></en>
+        <locale name="additional.invoice.text.timeForPayment.inclVar" html="true">
+            <de><![CDATA[
+            <span class="additional-invoice-title">Zahlungsziel:</span>
+            <span class="additional-invoice-value">[timeForPayment]</span>
+            ]]></de>
+            <en><![CDATA[
+            <span class="additional-invoice-title">Time for payment:</span>
+            <span class="additional-invoice-value">[timeForPayment]</span>
+            ]]></en>
         </locale>
         <locale name="additional.invoice.text.paymentMethod">
             <de><![CDATA[Zahlungsart]]></de>

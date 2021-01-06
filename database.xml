@@ -14,6 +14,7 @@
             <field type="INT NULL">order_id</field>
             <field type="INT NULL">ordered_by</field>
             <field type="VARCHAR(200) NOT NULL">ordered_by_name</field>
+            <field type="VARCHAR(250) NULL">contact_person</field>
             <!--<field type="int(11) NOT NULL">contract_id</field>--> <!-- wird normal nicht gebraucht, muss in data -->
 
             <field type="VARCHAR(250) NULL">project_name</field>
@@ -94,6 +95,7 @@
             <field type="INT NULL">order_id</field>
             <field type="INT NULL">ordered_by</field>
             <field type="VARCHAR(200) NULL">ordered_by_name</field>
+            <field type="VARCHAR(250) NULL">contact_person</field>
 
             <field type="VARCHAR(250) NULL">project_name</field>
 
