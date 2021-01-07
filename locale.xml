@@ -421,7 +421,7 @@
         </locale>
 
         <locale name="message.different,delivery.address">
-            <de><![CDATA[Der Lieferadresse weicht von der Rechnungsadresse ab]]></de>
+            <de><![CDATA[Die Lieferadresse weicht von der Rechnungsadresse ab]]></de>
             <en><![CDATA[The delivery address differs from the billing address.]]></en>
         </locale>
 

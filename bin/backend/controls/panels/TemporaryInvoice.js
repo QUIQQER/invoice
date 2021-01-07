@@ -371,11 +371,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         events   : {
                             onSubmit: function (Win, addressId, address) {
                                 Win.close();
-
-                                Container.getElement('[name="contact_person"]').set(
-                                    'value',
-                                    (address.salutation + ' ' + address.firstname + ' ' + address.lastname).trim()
-                                );
+                                self.$setContactPersonByAddress(address);
                             }
                         }
                     }).open();
@@ -415,10 +411,33 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                     var userId = Data.getValue().userId;
 
-                    self.setAttribute('customer_id', userId);
+                    self.setAttribute('customer_id', parseInt(userId));
                     self.setAttribute('invoice_address_id', Data.getValue().addressId);
 
-                    Content.getElements('[name="select-contact-id-address"]').set('disabled', false);
+                    if (!userId) {
+                        Content.getElements('[name="select-contact-id-address"]').set('disabled', true);
+                        Content.getElements('[name="contact_person"]').set('value', '');
+                    } else {
+                        Content.getElements('[name="select-contact-id-address"]').set('disabled', false);
+
+                        Users.get(userId).loadIfNotLoaded().then(function (User) {
+                            var addressId = User.getAttribute('quiqqer.erp.customer.contact.person');
+
+                            if (!addressId) {
+                                return;
+                            }
+
+                            addressId = parseInt(addressId);
+
+                            User.getAddressList().then(function (addressList) {
+                                for (var i = 0, len = addressList.length; i < len; i++) {
+                                    if (addressList[i].id === addressId) {
+                                        self.$setContactPersonByAddress(addressList[i]);
+                                    }
+                                }
+                            });
+                        });
+                    }
 
                     // reset deliver address
                     if (self.$AddressDelivery) {
@@ -441,8 +460,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         self.refresh();
                     });
                 });
-
-                //Data.setAddress();
 
                 // editor
                 EditorId.addEvent('onChange', function () {
@@ -1640,8 +1657,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          */
         addComment: function (message) {
             return Invoices.addComment(this.getAttribute('invoiceId'), message);
-        }
+        },
 
         //endregion
+
+        /**
+         * set the contact person by an address data object to the contact person input field
+         *
+         * @param address
+         */
+        $setContactPersonByAddress: function (address) {
+            var Content     = this.getContent(),
+                PersonInput = Content.getElement('[name="contact_person"]');
+
+            if (!PersonInput) {
+                return;
+            }
+
+            var value = (address.salutation + ' ' + address.firstname + ' ' + address.lastname).trim();
+            PersonInput.set('value', value);
+        }
     });
 });
