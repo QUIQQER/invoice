@@ -66,7 +66,7 @@ class Invoice
      * @throws Exception
      * @throws QUI\Exception
      */
-    public static function getTemporaryInvoiceByString($str)
+    public static function getTemporaryInvoiceByString($str): InvoiceTemporary
     {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
@@ -91,7 +91,7 @@ class Invoice
      * @param InvoiceTemporary $Invoice
      * @return array
      */
-    public static function getMissingAttributes(InvoiceTemporary $Invoice)
+    public static function getMissingAttributes(InvoiceTemporary $Invoice): array
     {
         $Articles = $Invoice->getArticles();
         $Articles->calc();
@@ -131,7 +131,7 @@ class Invoice
      *
      * @todo better address check
      */
-    protected static function getMissingAddressFields(InvoiceTemporary $Invoice)
+    protected static function getMissingAddressFields(InvoiceTemporary $Invoice): array
     {
         $address  = $Invoice->getAttribute('invoice_address');
         $missing  = [];
@@ -141,13 +141,16 @@ class Invoice
         $addressNeedles = [
             'lastname',
             'street_no',
-//            'zip',
             'city',
             'country'
         ];
 
         if (!empty($address)) {
             $address = \json_decode($address, true);
+
+            if (empty($address['lastname']) && !empty($address['company'])) {
+                $address['lastname'] = $address['company'];
+            }
 
             foreach ($addressNeedles as $addressNeedle) {
                 if (!isset($address[$addressNeedle])) {
@@ -228,7 +231,7 @@ class Invoice
      * @return string
      * @throws Exception
      */
-    public static function getMissingAttributeMessage($missingAttribute)
+    public static function getMissingAttributeMessage(string $missingAttribute): string
     {
         $Locale = QUI::getLocale();
         $lg     = 'quiqqer/invoice';
@@ -339,7 +342,7 @@ class Invoice
      *
      * @return string
      */
-    public static function getInvoiceFilename($Invoice, $Locale = null)
+    public static function getInvoiceFilename($Invoice, $Locale = null): string
     {
         if (!($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary)) {
@@ -415,7 +418,7 @@ class Invoice
      * @param Invoice|InvoiceTemporary $Invoice
      * @return int - Unix Timestamp
      */
-    public static function getInvoiceTimeForPaymentDate($Invoice)
+    public static function getInvoiceTimeForPaymentDate($Invoice): int
     {
         $timeForPayment = $Invoice->getAttribute('time_for_payment');
 
@@ -437,7 +440,7 @@ class Invoice
      * @param QUI\ERP\Currency\Currency $Currency
      * @return array
      */
-    public static function getVatTextArrayFromVatArray($vatArray, QUI\ERP\Currency\Currency $Currency)
+    public static function getVatTextArrayFromVatArray($vatArray, QUI\ERP\Currency\Currency $Currency): array
     {
         if (\is_string($vatArray)) {
             $vatArray = \json_decode($vatArray, true);
@@ -456,7 +459,7 @@ class Invoice
      * @param string|array $vatArray
      * @return array
      */
-    public static function getVatSumArrayFromVatArray($vatArray)
+    public static function getVatSumArrayFromVatArray($vatArray): array
     {
         if (\is_string($vatArray)) {
             $vatArray = \json_decode($vatArray, true);
@@ -491,7 +494,7 @@ class Invoice
      * @param QUI\ERP\Accounting\Invoice\Invoice|integer $Invoice - Invoice or Invoice ID
      * @return array
      */
-    public static function getTransactionsByInvoice($Invoice)
+    public static function getTransactionsByInvoice($Invoice): array
     {
         if (!($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice)) {
             try {

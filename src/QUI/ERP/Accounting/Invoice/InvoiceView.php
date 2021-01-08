@@ -52,7 +52,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->Invoice->getId();
     }
@@ -60,7 +60,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return string
      */
-    public function getHash()
+    public function getHash(): string
     {
         return $this->Invoice->getHash();
     }
@@ -68,7 +68,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return QUI\ERP\Currency\Currency
      */
-    public function getCurrency()
+    public function getCurrency(): QUI\ERP\Currency\Currency
     {
         try {
             return $this->Invoice->getCurrency();
@@ -106,9 +106,23 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
+     * @param $dateString
+     * @param null $Locale
+     * @return false|string
+     */
+    public function formatDate($dateString, $Locale = null)
+    {
+        if ($Locale === null) {
+            $Locale = QUI::getLocale();
+        }
+
+        return $Locale->getDateFormatter()->format(\strtotime($dateString));
+    }
+
+    /**
      * @return string
      */
-    public function getDownloadLink()
+    public function getDownloadLink(): string
     {
         return QUI\ERP\Output\Output::getDocumentPdfDownloadUrl($this->getHash(), $this->getOutputType());
     }
@@ -116,7 +130,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return array
      */
-    public function getPaidStatusInformation()
+    public function getPaidStatusInformation(): array
     {
         return $this->Invoice->getPaidStatusInformation();
     }
@@ -124,7 +138,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return Payment
      */
-    public function getPayment()
+    public function getPayment(): Payment
     {
         return $this->Invoice->getPayment();
     }
@@ -151,10 +165,10 @@ class InvoiceView extends QUI\QDOM
      *
      * @return string
      */
-    public function previewHTML()
+    public function previewHTML(): string
     {
         try {
-            $previewHtml = ERPOutput::getDocumentHtml($this->getId(), $this->getOutputType(), null, null, null, true);
+            $previewHtml = ERPOutput::getDocumentHtml($this->Invoice->getCleanId(), $this->getOutputType(), null, null, null, true);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             $previewHtml = '';
@@ -168,7 +182,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * return string
      */
-    public function previewOnlyArticles()
+    public function previewOnlyArticles(): string
     {
         try {
             $output = '';
@@ -193,10 +207,10 @@ class InvoiceView extends QUI\QDOM
      *
      * @return string
      */
-    public function toHTML()
+    public function toHTML(): string
     {
         try {
-            return QUI\ERP\Output\Output::getDocumentHtml($this->Invoice->getId(), $this->getOutputType());
+            return QUI\ERP\Output\Output::getDocumentHtml($this->Invoice->getCleanId(), $this->getOutputType());
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
         }
@@ -211,9 +225,9 @@ class InvoiceView extends QUI\QDOM
      *
      * @throws QUI\Exception
      */
-    public function toPDF()
+    public function toPDF(): QUI\HtmlToPdf\Document
     {
-        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getId(), $this->getOutputType());
+        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getCleanId(), $this->getOutputType());
     }
 
     /**
@@ -224,7 +238,7 @@ class InvoiceView extends QUI\QDOM
      *
      * @return string
      */
-    public function getTransactionText()
+    public function getTransactionText(): string
     {
         // Posted invoice
         if ($this->Invoice instanceof Invoice) {
@@ -278,7 +292,7 @@ class InvoiceView extends QUI\QDOM
 
             return $Locale->get(
                 'quiqqer/invoice',
-                'additional.invoice.text.timeForPayment',
+                'additional.invoice.text.timeForPayment.inclVar',
                 [
                     'timeForPayment' => $timeForPayment
                 ]
@@ -308,7 +322,7 @@ class InvoiceView extends QUI\QDOM
      *
      * @return string
      */
-    protected function getOutputType()
+    protected function getOutputType(): string
     {
         switch ($this->Invoice->getInvoiceType()) {
             case Handler::TYPE_INVOICE_CREDIT_NOTE:

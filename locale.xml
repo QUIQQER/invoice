@@ -230,6 +230,18 @@
             <de><![CDATA[Land]]></de>
             <en><![CDATA[Country]]></en>
         </locale>
+        <locale name="salutation">
+            <de><![CDATA[Anrede]]></de>
+            <en><![CDATA[Salutation]]></en>
+        </locale>
+        <locale name="firstname">
+            <de><![CDATA[Vorname]]></de>
+            <en><![CDATA[Firstname]]></en>
+        </locale>
+        <locale name="lastname">
+            <de><![CDATA[Nachname]]></de>
+            <en><![CDATA[Lastname]]></en>
+        </locale>
 
         <locale name="invoice.temporary.extend.view.open">
             <de><![CDATA[Erweiterte Ansicht öffnen]]></de>
@@ -409,7 +421,7 @@
         </locale>
 
         <locale name="message.different,delivery.address">
-            <de><![CDATA[Der Lieferadresse weicht von der Rechnungsadresse ab]]></de>
+            <de><![CDATA[Die Lieferadresse weicht von der Rechnungsadresse ab]]></de>
             <en><![CDATA[The delivery address differs from the billing address.]]></en>
         </locale>
 
@@ -732,6 +744,10 @@
             <de><![CDATA[Status]]></de>
             <en><![CDATA[Status]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textContactPerson">
+            <de><![CDATA[Ansprechpartner]]></de>
+            <en><![CDATA[Contact person]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.comments">
             <de><![CDATA[Kommentare]]></de>
             <en><![CDATA[Comments]]></en>
@@ -1040,6 +1056,10 @@
             <de><![CDATA[Zahlungsziel]]></de>
             <en><![CDATA[Term of Payment]]></en>
         </locale>
+        <locale name="erp.panel.invoice.data.contactPerson">
+            <de><![CDATA[Ansprechpartner]]></de>
+            <en><![CDATA[Contact person]]></en>
+        </locale>
 
         <locale name="erp.panel.invoice.data.invoiceText">
             <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
@@ -1252,16 +1272,6 @@
             <en><![CDATA[
             You do not have the necessary rights to set the invoice date. Therefore today's date is used.
             ]]></en>
-        </locale>
-
-
-        <locale name="window.customer.address.select.title">
-            <de><![CDATA[Kundenadresse auswählen]]></de>
-            <en><![CDATA[Select customer address]]></en>
-        </locale>
-        <locale name="window.customer.address.select.information">
-            <de><![CDATA[Bitte wähle eine Kundenadresse aus:]]></de>
-            <en><![CDATA[Please select a customer address:]]></en>
         </locale>
 
         <locale name="invoice.panel.comment.add">
@@ -1627,8 +1637,18 @@
             <en><![CDATA[]]></en>
         </locale>
         <locale name="additional.invoice.text.timeForPayment">
-            <de><![CDATA[Zahlungsziel]]></de>
-            <en><![CDATA[Time for payment]]></en>
+            <de><![CDATA[Zahlungsziel]]]></de>
+            <en><![CDATA[Time for payment]]]></en>
+        </locale>
+        <locale name="additional.invoice.text.timeForPayment.inclVar" html="true">
+            <de><![CDATA[
+            <span class="additional-invoice-title">Zahlungsziel:</span>
+            <span class="additional-invoice-value">[timeForPayment]</span>
+            ]]></de>
+            <en><![CDATA[
+            <span class="additional-invoice-title">Time for payment:</span>
+            <span class="additional-invoice-value">[timeForPayment]</span>
+            ]]></en>
         </locale>
         <locale name="additional.invoice.text.paymentMethod">
             <de><![CDATA[Zahlungsart]]></de>

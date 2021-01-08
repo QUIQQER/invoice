@@ -527,11 +527,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         data.textDeliveryCity    = QUILocale.get(lg, 'city');
                         data.textDeliveryCountry = QUILocale.get(lg, 'country');
 
-                        data.textInvoiceData = QUILocale.get(lg, 'erp.panel.invoice.data.title');
-                        data.textInvoiceDate = QUILocale.get(lg, 'erp.panel.invoice.data.date');
-                        data.textProjectName = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
-                        data.textOrderedBy   = QUILocale.get(lg, 'erp.panel.invoice.data.orderedBy');
-                        data.textEditor      = QUILocale.get(lg, 'erp.panel.invoice.data.editor');
+                        data.textInvoiceData   = QUILocale.get(lg, 'erp.panel.invoice.data.title');
+                        data.textInvoiceDate   = QUILocale.get(lg, 'erp.panel.invoice.data.date');
+                        data.textProjectName   = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
+                        data.textOrderedBy     = QUILocale.get(lg, 'erp.panel.invoice.data.orderedBy');
+                        data.textEditor        = QUILocale.get(lg, 'erp.panel.invoice.data.editor');
+                        data.textContactPerson = QUILocale.get(lg, 'erp.panel.invoice.data.contactPerson');
 
                         data.textInvoicePayment       = QUILocale.get(lg, 'erp.panel.invoice.data.payment');
                         data.textInvoicePaymentMethod = QUILocale.get(lg, 'erp.panel.invoice.data.paymentMethod');
