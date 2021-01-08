@@ -154,7 +154,7 @@ class InvoiceView extends QUI\QDOM
     public function previewHTML(): string
     {
         try {
-            $previewHtml = ERPOutput::getDocumentHtml($this->getId(), $this->getOutputType(), null, null, null, true);
+            $previewHtml = ERPOutput::getDocumentHtml($this->Invoice->getCleanId(), $this->getOutputType(), null, null, null, true);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             $previewHtml = '';
@@ -196,7 +196,7 @@ class InvoiceView extends QUI\QDOM
     public function toHTML(): string
     {
         try {
-            return QUI\ERP\Output\Output::getDocumentHtml($this->Invoice->getId(), $this->getOutputType());
+            return QUI\ERP\Output\Output::getDocumentHtml($this->Invoice->getCleanId(), $this->getOutputType());
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
         }
@@ -213,7 +213,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function toPDF(): QUI\HtmlToPdf\Document
     {
-        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getId(), $this->getOutputType());
+        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getCleanId(), $this->getOutputType());
     }
 
     /**
