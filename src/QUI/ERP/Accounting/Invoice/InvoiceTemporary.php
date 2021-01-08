@@ -756,6 +756,15 @@ class InvoiceTemporary extends QUI\QDOM
             $contactPerson = Orthos::clear($this->getAttribute('contact_person'));
         }
 
+        // order date
+        $orderDate = null;
+
+        if ($this->getAttribute('order_date')
+            && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('order_date'))
+        ) {
+            $orderDate = $this->getAttribute('order_date');
+        }
+
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
@@ -773,6 +782,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'editor_name'             => $editorName,
                 'order_id'                => (int)$this->getAttribute('order_id'),
                 'ordered_by'              => $orderedBy,
+                'order_date'              => $orderDate,
                 'ordered_by_name'         => $orderedByName,
                 'contact_person'          => $contactPerson,
 
@@ -1122,6 +1132,14 @@ class InvoiceTemporary extends QUI\QDOM
             $contactPerson = Orthos::clear($this->getAttribute('contact_person'));
         }
 
+        // order date
+        $orderDate = null;
+
+        if ($this->getAttribute('order_date')
+            && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('order_date'))
+        ) {
+            $orderDate = $this->getAttribute('order_date');
+        }
 
         // create invoice
         QUI::getDataBase()->insert(
@@ -1137,6 +1155,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'editor_id'                => $editorId,
                 'editor_name'              => $editorName,
                 'order_id'                 => $this->getAttribute('order_id'),
+                'order_date'               => $orderDate,
                 'ordered_by'               => $orderedBy,
                 'ordered_by_name'          => $orderedByName,
                 'contact_person'           => $contactPerson,
@@ -1570,15 +1589,8 @@ class InvoiceTemporary extends QUI\QDOM
     protected function parsePaymentForPaymentData(QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment): array
     {
         $data      = $Payment->toArray();
-        $languages = [];
         $Locale    = new QUI\Locale();
-
-        try {
-            $languages = QUI\Translator::getAvailableLanguages();
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::addCritical($Exception->getMessage());
-            QUI\System\Log::writeException($Exception);
-        }
+        $languages = QUI\Translator::getAvailableLanguages();
 
         $data['title']        = [];
         $data['workingTitle'] = [];
