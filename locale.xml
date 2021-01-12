@@ -488,6 +488,45 @@
             <en><![CDATA[This text is displayed in every invoice as additional text.]]></en>
         </locale>
 
+        <locale name="invoice.send.mail.message.description" html="true">
+            <de><![CDATA[
+            <p>Inhalt der Rechnungsmail. Verfügbare Variablen:</p>
+            <ul>
+                <li>invoiceId</li>
+                <li>user</li>
+                <li>customerName</li>
+                <li>contactPerson</li>
+                <li>address</li>
+                <li>company</li>
+            </ul>
+            ]]></de>
+            <en><![CDATA[
+            <p>Content of the Invoice e-mail. Available variables:</p>
+            <ul>
+                <li>invoiceId</li>
+                <li>user</li>
+                <li>customerName</li>
+                <li>contactPerson</li>
+                <li>address</li>
+                <li>company</li>
+            </ul>
+            ]]></en>
+        </locale>
+        <locale name="invoice.send.mail.subject.description" html="true">
+            <de><![CDATA[
+            <p>Betreff der Rechnungsmail. Verfügbare Variablen:</p>
+            <ul>
+            <li>invoiceId</li>
+            </ul>
+            ]]></de>
+            <en><![CDATA[
+            <p>Subject of the invoice mail. Available variables:</p>
+            <ul>
+            <li>invoiceId</li>
+            </ul>
+            ]]></en>
+        </locale>
+
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -1318,6 +1357,14 @@
             <de><![CDATA[Ihre Rechnung - [invoiceId]]]></de>
             <en><![CDATA[Your Invoice - [invoiceId]]]></en>
         </locale>
+        <locale name="invoice.send.mail.title">
+            <de><![CDATA[Rechnungsmail]]></de>
+            <en><![CDATA[Invoice e-mail]]></en>
+        </locale>
+        <locale name="invoice.send.mail.description">
+            <de><![CDATA[]]></de>
+            <en><![CDATA[]]></en>
+        </locale>
         <locale name="invoice.send.mail.message">
             <de><![CDATA[
             <h1>Hallo [user],</h1>
@@ -1357,6 +1404,7 @@
             </p>
             ]]></en>
         </locale>
+
         <locale name="invoice.cancelled.send.mail.subject">
             <de><![CDATA[Ihre Storno-Rechnung - [invoiceId]]]></de>
             <en><![CDATA[Your Cancelletion Invoice - [invoiceId]]]></en>

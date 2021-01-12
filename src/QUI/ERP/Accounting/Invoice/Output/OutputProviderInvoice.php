@@ -270,11 +270,20 @@ class OutputProviderInvoice implements OutputProviderInterface
             $user = $Customer->getAddress()->getName();
         }
 
+        // contact person
+        $contactPerson = $Invoice->getAttribute('contact_person');
+
+        if (empty($contactPerson)) {
+            $contactPerson = $user;
+        }
+
         return $Customer->getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
-            'invoiceId' => $Invoice->getId(),
-            'user'      => $user,
-            'address'   => $Customer->getAddress()->render(),
-            'company'   => self::getCompanyName()
+            'invoiceId'     => $Invoice->getId(),
+            'user'          => $user,
+            'customerName'  => $user,
+            'contactPerson' => $contactPerson,
+            'address'       => $Customer->getAddress()->render(),
+            'company'       => self::getCompanyName()
         ]);
     }
 
