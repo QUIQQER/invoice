@@ -501,7 +501,7 @@
             </ul>
             ]]></de>
             <en><![CDATA[
-            <p>Content of the Invoice e-mail. Available variables:</p>
+            <p>Content of the invoice e-mail. Available variables:</p>
             <ul>
                 <li>invoiceId</li>
                 <li>user</li>
