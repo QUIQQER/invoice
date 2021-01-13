@@ -154,6 +154,12 @@ class Payment
             return '';
         }
 
+        $invoiceInformationText = $Invoice->getCustomDataEntry('InvoiceInformationText');
+
+        if ($invoiceInformationText !== null) {
+            return $invoiceInformationText;
+        }
+
         try {
             return $this->getPayment()->getPaymentType()->getInvoiceInformationText($Invoice);
         } catch (QUI\Exception $Exception) {

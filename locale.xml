@@ -230,6 +230,18 @@
             <de><![CDATA[Land]]></de>
             <en><![CDATA[Country]]></en>
         </locale>
+        <locale name="salutation">
+            <de><![CDATA[Anrede]]></de>
+            <en><![CDATA[Salutation]]></en>
+        </locale>
+        <locale name="firstname">
+            <de><![CDATA[Vorname]]></de>
+            <en><![CDATA[Firstname]]></en>
+        </locale>
+        <locale name="lastname">
+            <de><![CDATA[Nachname]]></de>
+            <en><![CDATA[Lastname]]></en>
+        </locale>
 
         <locale name="invoice.temporary.extend.view.open">
             <de><![CDATA[Erweiterte Ansicht öffnen]]></de>
@@ -409,7 +421,7 @@
         </locale>
 
         <locale name="message.different,delivery.address">
-            <de><![CDATA[Der Lieferadresse weicht von der Rechnungsadresse ab]]></de>
+            <de><![CDATA[Die Lieferadresse weicht von der Rechnungsadresse ab]]></de>
             <en><![CDATA[The delivery address differs from the billing address.]]></en>
         </locale>
 
@@ -461,6 +473,58 @@
         <locale name="OutputProvider.entity.title.Canceled">
             <de><![CDATA[Storno-Rechnung]]></de>
             <en><![CDATA[Cancellation invoice]]></en>
+        </locale>
+
+        <locale name="global.invoice.text">
+            <de><![CDATA[]]></de>
+            <en><![CDATA[]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.globalInvoiceText">
+            <de><![CDATA[Globaler Rechnungstext]]></de>
+            <en><![CDATA[Global invoice text]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.globalInvoiceText.description">
+            <de><![CDATA[Dieser Text wird in jeder Rechnung als zusätzlicher Text angezeigt.]]></de>
+            <en><![CDATA[This text is displayed in every invoice as additional text.]]></en>
+        </locale>
+
+        <locale name="invoice.send.mail.message.description" html="true">
+            <de><![CDATA[
+            <p>Inhalt der Rechnungsmail. Verfügbare Variablen:</p>
+            <ul>
+                <li>invoiceId</li>
+                <li>user</li>
+                <li>customerName</li>
+                <li>contactPerson</li>
+                <li>address</li>
+                <li>company</li>
+            </ul>
+            ]]></de>
+            <en><![CDATA[
+            <p>Content of the invoice e-mail. Available variables:</p>
+            <ul>
+                <li>invoiceId</li>
+                <li>user</li>
+                <li>customerName</li>
+                <li>contactPerson</li>
+                <li>address</li>
+                <li>company</li>
+            </ul>
+            ]]></en>
+        </locale>
+        <locale name="invoice.send.mail.subject.description" html="true">
+            <de><![CDATA[
+            <p>Betreff der Rechnungsmail. Verfügbare Variablen:</p>
+            <ul>
+            <li>invoiceId</li>
+            </ul>
+            ]]></de>
+            <en><![CDATA[
+            <p>Subject of the invoice mail. Available variables:</p>
+            <ul>
+            <li>invoiceId</li>
+            </ul>
+            ]]></en>
         </locale>
 
     </groups>
@@ -718,6 +782,10 @@
         <locale name="erp.panel.temporary.invoice.category.data.textStatus">
             <de><![CDATA[Status]]></de>
             <en><![CDATA[Status]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textContactPerson">
+            <de><![CDATA[Ansprechpartner]]></de>
+            <en><![CDATA[Contact person]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.comments">
             <de><![CDATA[Kommentare]]></de>
@@ -1027,6 +1095,10 @@
             <de><![CDATA[Zahlungsziel]]></de>
             <en><![CDATA[Term of Payment]]></en>
         </locale>
+        <locale name="erp.panel.invoice.data.contactPerson">
+            <de><![CDATA[Ansprechpartner]]></de>
+            <en><![CDATA[Contact person]]></en>
+        </locale>
 
         <locale name="erp.panel.invoice.data.invoiceText">
             <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
@@ -1241,16 +1313,6 @@
             ]]></en>
         </locale>
 
-
-        <locale name="window.customer.address.select.title">
-            <de><![CDATA[Kundenadresse auswählen]]></de>
-            <en><![CDATA[Select customer address]]></en>
-        </locale>
-        <locale name="window.customer.address.select.information">
-            <de><![CDATA[Bitte wähle eine Kundenadresse aus:]]></de>
-            <en><![CDATA[Please select a customer address:]]></en>
-        </locale>
-
         <locale name="invoice.panel.comment.add">
             <de><![CDATA[Kommentar hinzufügen]]></de>
             <en><![CDATA[Add comment]]></en>
@@ -1279,6 +1341,10 @@
             <de><![CDATA[Gutschrift zu Rechnung #[id] vom [date]]]></de>
             <en><![CDATA[Credit Note to invoice #[id] from [date]]]></en>
         </locale>
+        <locale name="message.invoice.cancellationInvoice.additionalInvoiceText" html="true">
+            <de><![CDATA[Storno-Rechnung zu Rechnung #[id] vom [date]]]></de>
+            <en><![CDATA[Cancelletion invoice to invoice #[id] from [date]]]></en>
+        </locale>
         <locale name="message.add.history.sent.to">
             <de><![CDATA[Rechnung wurde versendet an [recipient]]]></de>
             <en><![CDATA[Invoice was sent to [recipient]]]></en>
@@ -1290,6 +1356,14 @@
         <locale name="invoice.send.mail.subject">
             <de><![CDATA[Ihre Rechnung - [invoiceId]]]></de>
             <en><![CDATA[Your Invoice - [invoiceId]]]></en>
+        </locale>
+        <locale name="invoice.send.mail.title">
+            <de><![CDATA[Rechnungsmail]]></de>
+            <en><![CDATA[Invoice e-mail]]></en>
+        </locale>
+        <locale name="invoice.send.mail.description">
+            <de><![CDATA[]]></de>
+            <en><![CDATA[]]></en>
         </locale>
         <locale name="invoice.send.mail.message">
             <de><![CDATA[
@@ -1306,7 +1380,8 @@
 
             <p>Falls Sie Fragen oder Anmerkungen haben, antworten Sie einfach auf diese E-Mail.
             Unser Supportteam wird sich bald mit Ihnen in Verbindung setzen.</p>
-            <p>Viele Grüße,<br /></p>
+            <p>Viele Grüße,<br />
+            [company]</p>
             ]]></de>
             <en><![CDATA[
             <h1>Hello [user],</h1>
@@ -1325,6 +1400,90 @@
             Our support team will contact you shortly.</p>
 
             <p>All best wishes,<br />
+            [company]
+            </p>
+            ]]></en>
+        </locale>
+
+        <locale name="invoice.cancelled.send.mail.subject">
+            <de><![CDATA[Ihre Storno-Rechnung - [invoiceId]]]></de>
+            <en><![CDATA[Your Cancelletion Invoice - [invoiceId]]]></en>
+        </locale>
+        <locale name="invoice.cancelled.send.mail.message">
+            <de><![CDATA[
+            <h1>Hallo [user],</h1>
+            <p>mit dieser E-Mail erhalten Sie Ihre Storno-Rechnung mit Rechnungsnummer [invoiceId].
+            Klicken Sie auf die angehängte PDF-Datei, um die Rechnung zu öffnen.</p>
+
+            <p>Für die Anzeige der Rechnung wird ein PDF-Reader benötigt, beispielsweise der Acrobat Reader von Adobe.
+            Falls Sie keinen PDF-Reader installiert haben sollten, so können Sie dies einfach nachholen:
+            Auf der Downloadseite von Adobe können Sie den Acrobat Reader kostenfrei herunterladen.</p>
+
+            <p>Ihre Rechnungen sind auch online in Ihrem Profil unter dem Punkt
+            "Meine Rechnungen" oder "Meine Bestellungen" jederzeit für Sie einsehbar.</p>
+
+            <p>Falls Sie Fragen oder Anmerkungen haben, antworten Sie einfach auf diese E-Mail.
+            Unser Supportteam wird sich bald mit Ihnen in Verbindung setzen.</p>
+            <p>Viele Grüße,<br />
+            [company]</p>
+            ]]></de>
+            <en><![CDATA[
+            <h1>Hello [user],</h1>
+            <p>Your cancellation invoice (reference ID [invoiceId]) is attached to this e-mail as a PDF;
+            just click on the attachment to access it.</p>
+
+            <p>You will need a PDF reader such as Adobe Acrobat Reader to view this invoice.
+            If you do not yet have a reader installed, you can download one quickly, easily,
+            and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
+            the following URL to your browser's address bar:<br />
+            http://get.adobe.com/reader/</p>
+
+            <p>Your invoice is also available online in your account. Just click on "My invoices" or "My orders" to access them.</p>
+
+            <p>If you have any questions or remarks, please contact us by answering this e-mail.
+            Our support team will contact you shortly.</p>
+
+            <p>All best wishes,<br />
+            [company]
+            </p>
+            ]]></en>
+        </locale>
+        <locale name="invoice.credit_note.send.mail.subject">
+            <de><![CDATA[Ihre Gutschrift - [invoiceId]]]></de>
+            <en><![CDATA[Your Credit Note - [invoiceId]]]></en>
+        </locale>
+        <locale name="invoice.credit_note.send.mail.message">
+            <de><![CDATA[
+            <h1>Hallo [user],</h1>
+            <p>mit dieser E-Mail erhalten Sie Ihre Gutschrift mit Nummer [invoiceId].
+            Klicken Sie auf die angehängte PDF-Datei, um die Gutschrift zu öffnen.</p>
+
+            <p>Für die Anzeige der Rechnung wird ein PDF-Reader benötigt, beispielsweise der Acrobat Reader von Adobe.
+            Falls Sie keinen PDF-Reader installiert haben sollten, so können Sie dies einfach nachholen:
+            Auf der Downloadseite von Adobe können Sie den Acrobat Reader kostenfrei herunterladen.</p>
+
+            <p>Falls Sie Fragen oder Anmerkungen haben, antworten Sie einfach auf diese E-Mail.
+            Unser Supportteam wird sich bald mit Ihnen in Verbindung setzen.</p>
+            <p>Viele Grüße,<br />
+            [company]</p>
+            ]]></de>
+            <en><![CDATA[
+            <h1>Hello [user],</h1>
+            <p>Your credit note (reference ID [invoiceId]) is attached to this e-mail as a PDF;
+            just click on the attachment to access it.</p>
+
+            <p>You will need a PDF reader such as Adobe Acrobat Reader to view this credit note.
+            If you do not yet have a reader installed, you can download one quickly, easily,
+            and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
+            the following URL to your browser's address bar:<br />
+            http://get.adobe.com/reader/</p>
+
+            <p>If you have any questions or remarks, please contact us by answering this e-mail.
+            Our support team will contact you shortly.</p>
+
+            <p>All best wishes,<br />
+            [company]
+            </p>
             ]]></en>
         </locale>
 
@@ -1528,6 +1687,16 @@
         <locale name="additional.invoice.text.timeForPayment">
             <de><![CDATA[Zahlungsziel]]></de>
             <en><![CDATA[Time for payment]]></en>
+        </locale>
+        <locale name="additional.invoice.text.timeForPayment.inclVar" html="true">
+            <de><![CDATA[
+            <span class="additional-invoice-title">Zahlungsziel:</span>
+            <span class="additional-invoice-value">[timeForPayment]</span>
+            ]]></de>
+            <en><![CDATA[
+            <span class="additional-invoice-title">Time for payment:</span>
+            <span class="additional-invoice-value">[timeForPayment]</span>
+            ]]></en>
         </locale>
         <locale name="additional.invoice.text.paymentMethod">
             <de><![CDATA[Zahlungsart]]></de>

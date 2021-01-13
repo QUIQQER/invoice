@@ -527,11 +527,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         data.textDeliveryCity    = QUILocale.get(lg, 'city');
                         data.textDeliveryCountry = QUILocale.get(lg, 'country');
 
-                        data.textInvoiceData = QUILocale.get(lg, 'erp.panel.invoice.data.title');
-                        data.textInvoiceDate = QUILocale.get(lg, 'erp.panel.invoice.data.date');
-                        data.textProjectName = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
-                        data.textOrderedBy   = QUILocale.get(lg, 'erp.panel.invoice.data.orderedBy');
-                        data.textEditor      = QUILocale.get(lg, 'erp.panel.invoice.data.editor');
+                        data.textInvoiceData   = QUILocale.get(lg, 'erp.panel.invoice.data.title');
+                        data.textInvoiceDate   = QUILocale.get(lg, 'erp.panel.invoice.data.date');
+                        data.textProjectName   = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
+                        data.textOrderedBy     = QUILocale.get(lg, 'erp.panel.invoice.data.orderedBy');
+                        data.textEditor        = QUILocale.get(lg, 'erp.panel.invoice.data.editor');
+                        data.textContactPerson = QUILocale.get(lg, 'erp.panel.invoice.data.contactPerson');
 
                         data.textInvoicePayment       = QUILocale.get(lg, 'erp.panel.invoice.data.payment');
                         data.textInvoicePaymentMethod = QUILocale.get(lg, 'erp.panel.invoice.data.paymentMethod');
@@ -793,9 +794,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     new Sandbox({
                         content: html,
                         styles : {
-                            height : 1240,
-                            padding: 20,
-                            width  : 874
+                            'min-height': 1240,
+                            height      : '100%',
+                            padding     : 20,
+                            width       : 874
                         },
                         events : {
                             onLoad: function (Box) {

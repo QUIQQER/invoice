@@ -19,6 +19,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'package/quiqqer/erp/bin/backend/controls/Comments',
     'package/quiqqer/erp/bin/backend/controls/articles/Text',
     'package/quiqqer/payments/bin/backend/Payments',
+    'package/quiqqer/customer/bin/backend/controls/customer/address/Window',
     'utils/Lock',
     'Locale',
     'Mustache',
@@ -33,7 +34,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
              AddressSelect, Invoices, Dialogs, Comments, TextArticle,
-             Payments, Locker, QUILocale, Mustache, Users, Editors,
+             Payments, AddressWindow, Locker, QUILocale, Mustache, Users, Editors,
              templateData, templatePost, templateMissing) {
     "use strict";
 
@@ -155,7 +156,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             return Invoices.getTemporaryInvoice(invoiceId).then(function (data) {
                 self.setAttributes(data);
 
-                if (data.articles.articles.length) {
+                if (data.articles.articles && data.articles.articles.length) {
                     self.$serializedList = {
                         articles: data.articles.articles
                     };
@@ -265,6 +266,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 date                   : this.getAttribute('date'),
                 editor_id              : this.getAttribute('editor_id'),
                 ordered_by             : this.getAttribute('ordered_by'),
+                contact_person         : this.getAttribute('contact_person'),
                 time_for_payment       : this.getAttribute('time_for_payment'),
                 payment_method         : this.getAttribute('payment_method'),
                 additional_invoice_text: this.getAttribute('additional_invoice_text'),
@@ -315,6 +317,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod'),
                         textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText'),
                         textStatus        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textStatus'),
+                        textContactPerson : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textContactPerson'),
 
                         textInvoiceDeliveryAddress     : QUILocale.get(lg, 'deliveryAddress'),
                         messageDifferentDeliveryAddress: QUILocale.get(lg, 'message.different,delivery.address'),
@@ -323,7 +326,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textStreet                     : QUILocale.get(lg, 'street'),
                         textZip                        : QUILocale.get(lg, 'zip'),
                         textCity                       : QUILocale.get(lg, 'city'),
-                        textCountry                    : QUILocale.get(lg, 'country')
+                        textCountry                    : QUILocale.get(lg, 'country'),
+                        textSalutation                 : QUILocale.get(lg, 'salutation'),
+                        textFirstname                  : QUILocale.get(lg, 'firstname'),
+                        textLastname                   : QUILocale.get(lg, 'lastname')
                     })
                 });
 
@@ -342,7 +348,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     time_for_payment : self.getAttribute('time_for_payment'),
                     project_name     : self.getAttribute('project_name'),
                     editor_id        : self.getAttribute('editor_id'),
-                    processing_status: self.getAttribute('processing_status')
+                    processing_status: self.getAttribute('processing_status'),
+                    contact_person   : self.getAttribute('contact_person')
                 }, Form);
 
                 Form.elements.date.set('disabled', true);
@@ -356,6 +363,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         }
                     });
                 });
+
+                Container.getElements('[name="select-contact-id-address"]').addEvent('click', function () {
+                    new AddressWindow({
+                        autoclose: false,
+                        userId   : self.getAttribute('customer_id'),
+                        events   : {
+                            onSubmit: function (Win, addressId, address) {
+                                Win.close();
+                                self.$setContactPersonByAddress(address);
+                            }
+                        }
+                    }).open();
+                });
+
+                if (self.getAttribute('customer_id')) {
+                    Container.getElements('[name="select-contact-id-address"]').set('disabled', false);
+                }
 
                 return QUI.parse(Container);
             }).then(function () {
@@ -387,8 +411,40 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                     var userId = Data.getValue().userId;
 
-                    self.setAttribute('customer_id', userId);
+                    self.setAttribute('customer_id', parseInt(userId));
                     self.setAttribute('invoice_address_id', Data.getValue().addressId);
+
+                    if (!userId) {
+                        Content.getElements('[name="select-contact-id-address"]').set('disabled', true);
+                        Content.getElements('[name="contact_person"]').set('value', '');
+                    } else {
+                        Content.getElements('[name="select-contact-id-address"]').set('disabled', false);
+
+                        Users.get(userId).loadIfNotLoaded().then(function (User) {
+                            var addressId = User.getAttribute('quiqqer.erp.customer.contact.person');
+
+                            if (!addressId) {
+                                return;
+                            }
+
+                            addressId = parseInt(addressId);
+
+                            User.getAddressList().then(function (addressList) {
+                                for (var i = 0, len = addressList.length; i < len; i++) {
+                                    if (addressList[i].id === addressId) {
+                                        self.$setContactPersonByAddress(addressList[i]);
+                                    }
+                                }
+                            });
+                        });
+                    }
+
+                    // reset deliver address
+                    if (self.$AddressDelivery) {
+                        self.$AddressDelivery.setAttribute('userId', userId);
+                        self.$AddressDelivery.refresh().catch(function () {
+                        });
+                    }
 
                     Promise.all([
                         Invoices.getPaymentTime(userId),
@@ -405,8 +461,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 });
 
-                //Data.setAddress();
-
                 // editor
                 EditorId.addEvent('onChange', function () {
                     self.setAttribute('editor_id', EditorId.getValue());
@@ -421,8 +475,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 }
 
-                if (self.getAttribute('editor_id')) {
+                if (parseInt(self.getAttribute('editor_id'))) {
                     EditorId.addItem(self.getAttribute('editor_id'));
+                } else {
+                    EditorId.addItem(USER.id);
                 }
 
 
@@ -463,7 +519,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     ).get('data-quiid')
                 );
 
-                if (self.getAttribute('delivery_address')) {
+                if (self.getAttribute('delivery_address_id')) {
                     var deliveryAddress = self.getAttribute('delivery_address');
 
                     try {
@@ -707,9 +763,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             new Sandbox({
                                 content: html,
                                 styles : {
-                                    height : 1240,
+                                    height : '100%',
                                     padding: 20,
-                                    width  : 874
+                                    width  : '95%'
                                 },
                                 events : {
                                     onLoad: function (Box) {
@@ -741,6 +797,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     var Info = new Element('info', {
                         'class': 'quiqqer-invoice-backend-temporaryInvoice-missing-miss-message',
                         styles : {
+                            display: 'none',
                             opacity: 0
                         }
                     }).inject(ParentContainer);
@@ -754,8 +811,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             moofx(Info).animate({
                                 bottom : 60,
                                 opacity: 0
+                            }, {
+                                callback: function () {
+                                    Info.setStyle('display', 'none');
+                                }
                             });
                         } else {
+                            Info.setStyle('display', null);
+
                             moofx(Info).animate({
                                 bottom : 80,
                                 opacity: 1
@@ -1057,6 +1120,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             // timefields
             if ("date" in formData) {
                 this.setAttribute('date', formData.date + ' 00:00:00');
+            }
+
+            if (formData.contact_person) {
+                this.setAttribute('contact_person', formData.contact_person);
             }
 
             [
@@ -1590,8 +1657,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          */
         addComment: function (message) {
             return Invoices.addComment(this.getAttribute('invoiceId'), message);
-        }
+        },
 
         //endregion
+
+        /**
+         * set the contact person by an address data object to the contact person input field
+         *
+         * @param address
+         */
+        $setContactPersonByAddress: function (address) {
+            var Content     = this.getContent(),
+                PersonInput = Content.getElement('[name="contact_person"]');
+
+            if (!PersonInput) {
+                return;
+            }
+
+            var value = (address.salutation + ' ' + address.firstname + ' ' + address.lastname).trim();
+            PersonInput.set('value', value);
+        }
     });
 });

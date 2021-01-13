@@ -97,7 +97,6 @@ class InvoiceTemporary extends QUI\QDOM
      * @param Handler $Handler
      *
      * @throws Exception
-     * @throws QUI\ERP\Exception
      * @throws QUI\Exception
      */
     public function __construct($id, Handler $Handler)
@@ -115,6 +114,15 @@ class InvoiceTemporary extends QUI\QDOM
 
         if (!empty($data['delivery_address_id'])) {
             $this->addressDelivery['id'] = (int)$data['delivery_address_id'];
+        } elseif (empty($this->addressDelivery['company'])
+                  && empty($this->addressDelivery['firstname'])
+                  && empty($this->addressDelivery['lastname'])
+                  && empty($this->addressDelivery['street_no'])
+                  && empty($this->addressDelivery['zip'])
+                  && empty($this->addressDelivery['city'])
+                  && empty($this->addressDelivery['county'])
+        ) {
+            $this->addressDelivery = false;
         }
 
         if (isset($data['articles'])) {
@@ -202,7 +210,7 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->prefix.$this->id;
     }
@@ -212,7 +220,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return int
      */
-    public function getCleanId()
+    public function getCleanId(): int
     {
         return (int)\str_replace($this->prefix, '', $this->getId());
     }
@@ -232,7 +240,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return string
      */
-    public function getGlobalProcessId()
+    public function getGlobalProcessId(): string
     {
         return $this->globalProcessId;
     }
@@ -246,7 +254,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return int
      */
-    public function getInvoiceType()
+    public function getInvoiceType(): int
     {
         return $this->type;
     }
@@ -331,7 +339,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @throws QUI\Exception
      */
-    public function getCurrency()
+    public function getCurrency(): QUI\ERP\Currency\Currency
     {
         $currency = $this->getAttribute('currency_data');
 
@@ -355,7 +363,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return null|QUI\Interfaces\Users\User
      */
-    public function getEditor()
+    public function getEditor(): ?QUI\Interfaces\Users\User
     {
         $Employees = QUI\ERP\Employee\Employees::getInstance();
 
@@ -384,7 +392,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return null|QUI\Interfaces\Users\User
      */
-    public function getOrderedByUser()
+    public function getOrderedByUser(): ?QUI\Interfaces\Users\User
     {
         if ($this->getAttribute('ordered_by')) {
             try {
@@ -401,7 +409,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return array
      */
-    public function getMissingAttributes()
+    public function getMissingAttributes(): array
     {
         return Utils\Invoice::getMissingAttributes($this);
     }
@@ -413,7 +421,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @throws Exception
      */
-    public function getView()
+    public function getView(): InvoiceView
     {
         return new InvoiceView($this);
     }
@@ -421,7 +429,7 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * @return Payment
      */
-    public function getPayment()
+    public function getPayment(): Payment
     {
         $paymentMethod = $this->getAttribute('payment_method');
 
@@ -444,7 +452,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @return array
      * @throws QUI\ERP\Exception
      */
-    public function getPaidStatusInformation()
+    public function getPaidStatusInformation(): array
     {
         QUI\ERP\Accounting\Calc::calculatePayments($this);
 
@@ -461,7 +469,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return bool
      */
-    public function isPaid()
+    public function isPaid(): bool
     {
         try {
             if ($this->getAttribute('toPay') === false) {
@@ -479,7 +487,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return bool
      */
-    public function hasRefund()
+    public function hasRefund(): bool
     {
         return false;
     }
@@ -741,6 +749,22 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        // contact person
+        $contactPerson = '';
+
+        if ($this->getAttribute('contact_person') && $this->getAttribute('contact_person') !== '') {
+            $contactPerson = Orthos::clear($this->getAttribute('contact_person'));
+        }
+
+        // order date
+        $orderDate = null;
+
+        if ($this->getAttribute('order_date')
+            && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('order_date'))
+        ) {
+            $orderDate = $this->getAttribute('order_date');
+        }
+
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
@@ -758,7 +782,9 @@ class InvoiceTemporary extends QUI\QDOM
                 'editor_name'             => $editorName,
                 'order_id'                => (int)$this->getAttribute('order_id'),
                 'ordered_by'              => $orderedBy,
+                'order_date'              => $orderDate,
                 'ordered_by_name'         => $orderedByName,
+                'contact_person'          => $contactPerson,
 
                 // payments
                 'payment_method'          => $paymentMethod,
@@ -855,7 +881,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @throws QUI\Exception
      * @throws Exception
      */
-    public function copy($PermissionUser = null)
+    public function copy($PermissionUser = null): InvoiceTemporary
     {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
@@ -916,7 +942,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @throws QUI\Permissions\Exception
      * @throws QUI\Exception
      */
-    public function post($PermissionUser = null)
+    public function post($PermissionUser = null): Invoice
     {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
@@ -1092,6 +1118,29 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        // payment custom data
+        try {
+            $InvoicePayment                             = new Payment($paymentMethodData);
+            $this->customData['InvoiceInformationText'] = $InvoicePayment->getInvoiceInformationText($this);
+        } catch (\Exception $Exception) {
+        }
+
+        // contact person
+        $contactPerson = '';
+
+        if ($this->getAttribute('contact_person') && $this->getAttribute('contact_person') !== '') {
+            $contactPerson = Orthos::clear($this->getAttribute('contact_person'));
+        }
+
+        // order date
+        $orderDate = null;
+
+        if ($this->getAttribute('order_date')
+            && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('order_date'))
+        ) {
+            $orderDate = $this->getAttribute('order_date');
+        }
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
@@ -1106,8 +1155,10 @@ class InvoiceTemporary extends QUI\QDOM
                 'editor_id'                => $editorId,
                 'editor_name'              => $editorName,
                 'order_id'                 => $this->getAttribute('order_id'),
+                'order_date'               => $orderDate,
                 'ordered_by'               => $orderedBy,
                 'ordered_by_name'          => $orderedByName,
+                'contact_person'           => $contactPerson,
                 'customer_id'              => $this->getCustomer()->getId(),
                 'customer_data'            => \json_encode($customerData),
 
@@ -1231,7 +1282,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @throws QUI\Permissions\Exception
      * @throws QUI\Exception
      */
-    public function createInvoice($PermissionUser = null)
+    public function createInvoice($PermissionUser = null): Invoice
     {
         return $this->post($PermissionUser);
     }
@@ -1256,7 +1307,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         $attributes = $this->getAttributes();
 
@@ -1284,7 +1335,7 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * @param int $index
      */
-    public function removeArticle($index)
+    public function removeArticle(int $index)
     {
         $this->Articles->removeArticle($index);
     }
@@ -1294,7 +1345,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return ArticleList
      */
-    public function getArticles()
+    public function getArticles(): ArticleList
     {
         return $this->Articles;
     }
@@ -1369,7 +1420,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return QUI\ERP\Comments
      */
-    public function getComments()
+    public function getComments(): QUI\ERP\Comments
     {
         return $this->Comments;
     }
@@ -1383,7 +1434,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function addComment($message)
+    public function addComment(string $message)
     {
         $message = \strip_tags(
             $message,
@@ -1423,7 +1474,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return QUI\ERP\Comments
      */
-    public function getHistory()
+    public function getHistory(): QUI\ERP\Comments
     {
         return $this->History;
     }
@@ -1434,7 +1485,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @param string $message
      * @throws QUI\Exception
      */
-    public function addHistory($message)
+    public function addHistory(string $message)
     {
         $this->History->addComment($message);
 
@@ -1458,7 +1509,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @throws QUI\Exception
      * @throws QUI\ExceptionStack
      */
-    public function addCustomDataEntry($key, $value)
+    public function addCustomDataEntry(string $key, $value)
     {
         $this->customData[$key] = $value;
 
@@ -1494,7 +1545,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return array|mixed
      */
-    public function getCustomData()
+    public function getCustomData(): array
     {
         return $this->customData;
     }
@@ -1509,7 +1560,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @param string $key
      * @param mixed $value
      */
-    public function setData($key, $value)
+    public function setData(string $key, $value)
     {
         $this->data[$key] = $value;
     }
@@ -1518,9 +1569,9 @@ class InvoiceTemporary extends QUI\QDOM
      * Return a data field
      *
      * @param string $key
-     * @return bool|mixed
+     * @return bool|array|mixed
      */
-    public function getData($key)
+    public function getData(string $key)
     {
         if (isset($this->data[$key])) {
             return $this->data[$key];
@@ -1535,18 +1586,11 @@ class InvoiceTemporary extends QUI\QDOM
      * @param QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment
      * @return array
      */
-    protected function parsePaymentForPaymentData(QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment)
+    protected function parsePaymentForPaymentData(QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment): array
     {
         $data      = $Payment->toArray();
-        $languages = [];
         $Locale    = new QUI\Locale();
-
-        try {
-            $languages = QUI\Translator::getAvailableLanguages();
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::addCritical($Exception->getMessage());
-            QUI\System\Log::writeException($Exception);
-        }
+        $languages = QUI\Translator::getAvailableLanguages();
 
         $data['title']        = [];
         $data['workingTitle'] = [];
@@ -1573,7 +1617,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @param string $key
      * @param mixed $value
      */
-    public function setPaymentData($key, $value)
+    public function setPaymentData(string $key, $value)
     {
         $this->paymentData[$key] = $value;
     }
@@ -1582,9 +1626,9 @@ class InvoiceTemporary extends QUI\QDOM
      * Return a payment data field
      *
      * @param string $key
-     * @return bool|mixed
+     * @return bool|array|mixed
      */
-    public function getPaymentData($key)
+    public function getPaymentData(string $key)
     {
         if (isset($this->paymentData[$key])) {
             return $this->paymentData[$key];
@@ -1634,7 +1678,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @throws QUI\Exception
      */
-    public function isLocked()
+    public function isLocked(): bool
     {
         $Package = QUI::getPackage('quiqqer/invoice');
         $key     = 'temporary-invoice-'.$this->getId();
@@ -1738,7 +1782,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return QUI\ERP\Address|null
      */
-    public function getDeliveryAddress()
+    public function getDeliveryAddress(): ?QUI\ERP\Address
     {
         $delivery = $this->addressDelivery;
 
@@ -1794,7 +1838,7 @@ class InvoiceTemporary extends QUI\QDOM
      * @param array $address
      * @return array
      */
-    protected function parseAddressData(array $address)
+    protected function parseAddressData(array $address): array
     {
         $fields = \array_flip([
             'id',

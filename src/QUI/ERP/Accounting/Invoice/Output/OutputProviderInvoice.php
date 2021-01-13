@@ -160,17 +160,25 @@ class OutputProviderInvoice implements OutputProviderInterface
 
         $InvoiceView->setAttributes($Invoice->getAttributes());
 
+        // global invoice text
+        $globalInvoiceText = '';
+
+        if (QUI::getLocale()->get('quiqqer/invoice', 'global.invoice.text') !== '') {
+            $globalInvoiceText = QUI::getLocale()->get('quiqqer/invoice', 'global.invoice.text');
+        }
+
         return [
-            'this'            => $InvoiceView,
-            'ArticleList'     => $Articles,
-            'Customer'        => $Customer,
-            'Editor'          => $Editor,
-            'Address'         => $Address,
-            'DeliveryAddress' => $DeliveryAddress,
-            'Payment'         => $Invoice->getPayment(),
-            'transaction'     => $InvoiceView->getTransactionText(),
-            'projectName'     => $Invoice->getAttribute('project_name'),
-            'useShipping'     => QUI::getPackageManager()->isInstalled('quiqqer/shipping')
+            'this'              => $InvoiceView,
+            'ArticleList'       => $Articles,
+            'Customer'          => $Customer,
+            'Editor'            => $Editor,
+            'Address'           => $Address,
+            'DeliveryAddress'   => $DeliveryAddress,
+            'Payment'           => $Invoice->getPayment(),
+            'transaction'       => $InvoiceView->getTransactionText(),
+            'projectName'       => $Invoice->getAttribute('project_name'),
+            'useShipping'       => QUI::getPackageManager()->isInstalled('quiqqer/shipping'),
+            'globalInvoiceText' => $globalInvoiceText
         ];
     }
 
@@ -198,6 +206,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             return $User->getId() === $Customer->getId();
         } catch (\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
+
             return false;
         }
     }
@@ -236,7 +245,7 @@ class OutputProviderInvoice implements OutputProviderInterface
     {
         $Invoice = self::getEntity($entityId);
 
-        return QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
+        return $Invoice->getCustomer()->getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
             'invoiceId' => $Invoice->getId()
         ]);
     }
@@ -261,10 +270,41 @@ class OutputProviderInvoice implements OutputProviderInterface
             $user = $Customer->getAddress()->getName();
         }
 
-        return QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
-            'invoiceId' => $Invoice->getId(),
-            'user'      => $user,
-            'address'   => $Customer->getAddress()->render()
+        // contact person
+        $contactPerson = $Invoice->getAttribute('contact_person');
+
+        if (empty($contactPerson)) {
+            $contactPerson = $user;
+        }
+
+        return $Customer->getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
+            'invoiceId'     => $Invoice->getId(),
+            'user'          => $user,
+            'customerName'  => $user,
+            'contactPerson' => $contactPerson,
+            'address'       => $Customer->getAddress()->render(),
+            'company'       => self::getCompanyName()
         ]);
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getCompanyName()
+    {
+        try {
+            $Conf    = QUI::getPackage('quiqqer/erp')->getConfig();
+            $company = $Conf->get('company', 'name');
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+
+            return '';
+        }
+
+        if (empty($company)) {
+            return '';
+        }
+
+        return $company;
     }
 }

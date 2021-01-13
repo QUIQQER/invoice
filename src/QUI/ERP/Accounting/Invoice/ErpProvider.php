@@ -6,9 +6,9 @@
 
 namespace QUI\ERP\Accounting\Invoice;
 
+use QUI;
 use QUI\Controls\Sitemap\Map;
 use QUI\Controls\Sitemap\Item;
-
 use QUI\ERP\Api\AbstractErpProvider;
 
 /**
@@ -83,6 +83,24 @@ class ErpProvider extends AbstractErpProvider
         return [
             new NumberRanges\Invoice(),
             new NumberRanges\TemporaryInvoice()
+        ];
+    }
+
+    /**
+     * @return array[]
+     */
+    public static function getMailLocale(): array
+    {
+        return [
+            [
+                'title'       => QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.title'),
+                'description' => QUI::getLocale()->get('quiqqer/invoice', 'invoice.send.mail.description'),
+                'subject'     => ['quiqqer/invoice', 'invoice.send.mail.subject'],
+                'content'     => ['quiqqer/invoice', 'invoice.send.mail.message'],
+
+                'subject.description' => ['quiqqer/invoice', 'invoice.send.mail.subject.description'],
+                'content.description' => ['quiqqer/invoice', 'invoice.send.mail.message.description']
+            ]
         ];
     }
 }
