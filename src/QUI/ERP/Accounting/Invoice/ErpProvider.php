@@ -100,6 +100,26 @@ class ErpProvider extends AbstractErpProvider
 
                 'subject.description' => ['quiqqer/invoice', 'invoice.send.mail.subject.description'],
                 'content.description' => ['quiqqer/invoice', 'invoice.send.mail.message.description']
+            ],
+
+            [
+                'title'       => QUI::getLocale()->get('quiqqer/invoice', 'invoice.cancelled.title'),
+                'description' => QUI::getLocale()->get('quiqqer/invoice', 'invoice.cancelled.description'),
+                'subject'     => ['quiqqer/invoice', 'invoice.cancelled.send.mail.subject'],
+                'content'     => ['quiqqer/invoice', 'invoice.cancelled.send.mail.message'],
+
+                'subject.description' => ['quiqqer/invoice', 'invoice.cancelled.subject.description'],
+                'content.description' => ['quiqqer/invoice', 'invoice.cancelled.message.description']
+            ],
+
+            [
+                'title'       => QUI::getLocale()->get('quiqqer/invoice', 'invoice.credit_note.title'),
+                'description' => QUI::getLocale()->get('quiqqer/invoice', 'invoice.credit_note.description'),
+                'subject'     => ['quiqqer/invoice', 'invoice.credit_note.send.mail.subject'],
+                'content'     => ['quiqqer/invoice', 'invoice.credit_note.send.mail.message'],
+
+                'subject.description' => ['quiqqer/invoice', 'invoice.credit_note.subject.description'],
+                'content.description' => ['quiqqer/invoice', 'invoice.credit_note.message.description']
             ]
         ];
     }
