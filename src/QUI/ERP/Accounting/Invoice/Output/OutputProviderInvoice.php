@@ -289,11 +289,15 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         // contact person
-        $contactPerson       = $Invoice->getAttribute('contact_person');
-        $contactPersonOrName = '';
+        $contactPerson = $Invoice->getAttribute('contact_person');
 
         if (empty($contactPerson)) {
-            $contactPerson       = $user;
+            $contactPerson = $user;
+        }
+
+        $contactPersonOrName = $contactPerson;
+
+        if (empty($contactPersonOrName)) {
             $contactPersonOrName = $user;
         }
 
@@ -337,8 +341,10 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     protected static function getCompanyOrName(QUI\ERP\User $Customer): string
     {
-        if (!empty($Customer->getAttribute('company'))) {
-            return $Customer->getAttribute('company');
+        $Address = $Customer->getStandardAddress();
+
+        if (!empty($Address->getAttribute('company'))) {
+            return $Address->getAttribute('company');
         }
 
         return $Customer->getName();
@@ -350,23 +356,38 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getCustomerVariables(QUI\ERP\User $Customer): array
     {
+        $Address = $Customer->getAddress();
+
+        // customer name
         $user = $Customer->getName();
         $user = \trim($user);
 
         if (empty($user)) {
-            $user = $Customer->getAddress()->getName();
+            $user = $Address->getName();
         }
+
+        // email
+        $email = $Customer->getAttribute('email');
+
+        if (empty($email)) {
+            $mailList = $Address->getMailList();
+
+            if ($mailList[0]) {
+                $email = $mailList[0];
+            }
+        }
+
 
         return [
             'user'          => $user,
             'name'          => $user,
-            'company'       => $Customer->getAttribute('company'),
+            'company'       => $Customer->getStandardAddress()->getAttribute('company'),
             'companyOrName' => self::getCompanyOrName($Customer),
-            'address'       => $Customer->getAddress()->render(),
-            'email'         => $Customer->getAttribute('email'),
-            'salutation'    => $Customer->getAttribute('salutation'),
-            'firstname'     => $Customer->getAttribute('firstname'),
-            'lastname'      => $Customer->getAttribute('lastname')
+            'address'       => $Address->render(),
+            'email'         => $email,
+            'salutation'    => $Address->getAttribute('salutation'),
+            'firstname'     => $Address->getAttribute('firstname'),
+            'lastname'      => $Address->getAttribute('lastname')
         ];
     }
 
