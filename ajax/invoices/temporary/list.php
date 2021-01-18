@@ -150,7 +150,12 @@ QUI::$Ajax->registerFunction(
                         }
 
                         if ($Customer->isCompany() && $Address && !empty($Address->getAttribute('company'))) {
-                            $customer = $Address->getAttribute('company').' ('.$customer.')';
+                            $oCustomer = $customer;
+                            $customer  = $Address->getAttribute('company');
+
+                            if (!empty($oCustomer)) {
+                                $customer .= ' ('.$oCustomer.')';
+                            }
                         }
                     }
 
