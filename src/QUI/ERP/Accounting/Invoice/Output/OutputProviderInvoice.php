@@ -3,6 +3,7 @@
 namespace QUI\ERP\Accounting\Invoice\Output;
 
 use QUI;
+use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Output\OutputProviderInterface;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\Interfaces\Users\User;
@@ -49,7 +50,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * Get the entity the output is created for
      *
      * @param string|int $entityId
-     * @return mixed
+     * @return QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary
      *
      * @throws QUI\Exception
      */
@@ -243,11 +244,14 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getMailSubject($entityId)
     {
-        $Invoice = self::getEntity($entityId);
+        $Invoice  = self::getEntity($entityId);
+        $Customer = $Invoice->getCustomer();
 
-        return $Invoice->getCustomer()->getLocale()->get('quiqqer/invoice', 'invoice.send.mail.subject', [
-            'invoiceId' => $Invoice->getId()
-        ]);
+        return $Invoice->getCustomer()->getLocale()->get(
+            'quiqqer/invoice',
+            'invoice.send.mail.subject',
+            self::getInvoiceLocaleVar($Invoice, $Customer)
+        );
     }
 
     /**
@@ -263,6 +267,20 @@ class OutputProviderInvoice implements OutputProviderInterface
         $Invoice  = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
+        return $Customer->getLocale()->get(
+            'quiqqer/invoice',
+            'invoice.send.mail.message',
+            self::getInvoiceLocaleVar($Invoice, $Customer)
+        );
+    }
+
+    /**
+     * @param $Invoice
+     * @param $Customer
+     * @return array
+     */
+    protected static function getInvoiceLocaleVar($Invoice, $Customer): array
+    {
         $user = $Customer->getName();
         $user = \trim($user);
 
@@ -277,20 +295,29 @@ class OutputProviderInvoice implements OutputProviderInterface
             $contactPerson = $user;
         }
 
-        return $Customer->getLocale()->get('quiqqer/invoice', 'invoice.send.mail.message', [
+        $contactPersonOrName = $contactPerson;
+
+        if (empty($contactPersonOrName)) {
+            $contactPersonOrName = $user;
+        }
+
+        return \array_merge([
             'invoiceId'     => $Invoice->getId(),
-            'user'          => $user,
-            'customerName'  => $user,
-            'contactPerson' => $contactPerson,
-            'address'       => $Customer->getAddress()->render(),
-            'company'       => self::getCompanyName()
-        ]);
+            'hash'          => $Invoice->getAttribute('hash'),
+            'date'          => self::dateFormat($Invoice->getAttribute('date')),
+            'systemCompany' => self::getCompanyName(),
+
+            'contactPerson'       => $contactPerson,
+            'contactPersonOrName' => $contactPersonOrName
+        ], self::getCustomerVariables($Customer));
     }
 
     /**
+     * Return the company name of the quiqqer system
+     *
      * @return string
      */
-    protected static function getCompanyName()
+    protected static function getCompanyName(): string
     {
         try {
             $Conf    = QUI::getPackage('quiqqer/erp')->getConfig();
@@ -306,5 +333,87 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         return $company;
+    }
+
+    /**
+     * @param QUI\ERP\User $Customer
+     * @return string
+     */
+    protected static function getCompanyOrName(QUI\ERP\User $Customer): string
+    {
+        $Address = $Customer->getStandardAddress();
+
+        if (!empty($Address->getAttribute('company'))) {
+            return $Address->getAttribute('company');
+        }
+
+        return $Customer->getName();
+    }
+
+    /**
+     * @param QUI\ERP\User $Customer
+     * @return array
+     */
+    public static function getCustomerVariables(QUI\ERP\User $Customer): array
+    {
+        $Address = $Customer->getAddress();
+
+        // customer name
+        $user = $Customer->getName();
+        $user = \trim($user);
+
+        if (empty($user)) {
+            $user = $Address->getName();
+        }
+
+        // email
+        $email = $Customer->getAttribute('email');
+
+        if (empty($email)) {
+            $mailList = $Address->getMailList();
+
+            if ($mailList[0]) {
+                $email = $mailList[0];
+            }
+        }
+
+
+        return [
+            'user'          => $user,
+            'name'          => $user,
+            'company'       => $Customer->getStandardAddress()->getAttribute('company'),
+            'companyOrName' => self::getCompanyOrName($Customer),
+            'address'       => $Address->render(),
+            'email'         => $email,
+            'salutation'    => $Address->getAttribute('salutation'),
+            'firstname'     => $Address->getAttribute('firstname'),
+            'lastname'      => $Address->getAttribute('lastname')
+        ];
+    }
+
+    /**
+     * @param $date
+     * @return false|string
+     */
+    public static function dateFormat($date)
+    {
+        // date
+        $localeCode = QUI::getLocale()->getLocalesByLang(
+            QUI::getLocale()->getCurrent()
+        );
+
+        $Formatter = new \IntlDateFormatter(
+            $localeCode[0],
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::NONE
+        );
+
+        if (!$date) {
+            $date = \time();
+        } else {
+            $date = \strtotime($date);
+        }
+
+        return $Formatter->format($date);
     }
 }

@@ -52,11 +52,14 @@ class OutputProviderCreditNote extends OutputProviderInvoice
      */
     public static function getMailSubject($entityId)
     {
-        $Invoice = self::getEntity($entityId);
+        $Invoice  = self::getEntity($entityId);
+        $Customer = $Invoice->getCustomer();
 
-        return $Invoice->getCustomer()->getLocale()->get('quiqqer/invoice', 'invoice.credit_note.send.mail.subject', [
-            'invoiceId' => $Invoice->getId()
-        ]);
+        return $Invoice->getCustomer()->getLocale()->get(
+            'quiqqer/invoice',
+            'invoice.credit_note.send.mail.subject',
+            OutputProviderInvoice::getInvoiceLocaleVar($Invoice, $Customer)
+        );
     }
 
     /**
@@ -72,18 +75,10 @@ class OutputProviderCreditNote extends OutputProviderInvoice
         $Invoice  = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
-        $user = $Customer->getName();
-        $user = \trim($user);
-
-        if (empty($user)) {
-            $user = $Customer->getAddress()->getName();
-        }
-
-        return $Customer->getLocale()->get('quiqqer/invoice', 'invoice.credit_note.send.mail.message', [
-            'invoiceId' => $Invoice->getId(),
-            'user'      => $user,
-            'address'   => $Customer->getAddress()->render(),
-            'company'   => self::getCompanyName()
-        ]);
+        return $Customer->getLocale()->get(
+            'quiqqer/invoice',
+            'invoice.credit_note.send.mail.message',
+            OutputProviderInvoice::getInvoiceLocaleVar($Invoice, $Customer)
+        );
     }
 }

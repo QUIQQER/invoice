@@ -490,43 +490,235 @@
 
         <locale name="invoice.send.mail.message.description" html="true">
             <de><![CDATA[
-            <p>Inhalt der Rechnungsmail. Verfügbare Variablen:</p>
+            <p>Inhalt der Rechnungsmail. Verfügbare Platzhalter:</p>
             <ul>
-                <li>invoiceId</li>
-                <li>user</li>
-                <li>customerName</li>
-                <li>contactPerson</li>
-                <li>address</li>
-                <li>company</li>
+                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[hash]:</b> Rechnungs-Hash</li>
+                <li><b>[date]:</b> Rechnungsdatum</li>
+                <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
+                <li><b>[user]:</b> - Name des Kunden</li>
+                <li><b>[company]:</b> - Firma des Kunden</li>
+                <li><b>[companyOrName]:</b> - Firma des Kunden, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[contactPerson]:</b> - Ansprechpartner</li>
+                <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutation]:</b> - Anrede des Kunden</li>
+                <li><b>[firstname]:</b> - Vorname des Kunden</li>
+                <li><b>[lastname]:</b> - Nachname des Kunden</li>
             </ul>
             ]]></de>
             <en><![CDATA[
-            <p>Content of the invoice e-mail. Available variables:</p>
+            <p>Content of the invoice e-mail. Available placeholders:</p>
             <ul>
-                <li>invoiceId</li>
-                <li>user</li>
-                <li>customerName</li>
-                <li>contactPerson</li>
-                <li>address</li>
-                <li>company</li>
+                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[hash]:</b> Invoice hash</li>
+                <li><b>[date]:</b> Invoice date</li>
+                <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
+                <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[company]:</b> - Company of the customer</li>
+                <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
+                <li><b>[contactPerson]:</b> - Contact person</li>
+                <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
+                <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutation]:</b> - Salutation of the customer</li>
+                <li><b>[firstname]:</b> - Firstname of the customer/li>
+                <li><b>[lastname]:</b> - Lastname of the customer</li>
             </ul>
             ]]></en>
         </locale>
         <locale name="invoice.send.mail.subject.description" html="true">
             <de><![CDATA[
-            <p>Betreff der Rechnungsmail. Verfügbare Variablen:</p>
+            <p>Betreff der Rechnungsmail. Verfügbare Platzhalter:</p>
             <ul>
-            <li>invoiceId</li>
+                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[hash]:</b> Rechnungs-Hash</li>
+                <li><b>[date]:</b> Rechnungsdatum</li>
+                <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
+                <li><b>[user]:</b> - Name des Kunden</li>
+                <li><b>[company]:</b> - Firma des Kunden</li>
+                <li><b>[companyOrName]:</b> - Firma des Kunden, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[contactPerson]:</b> - Ansprechpartner</li>
+                <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutation]:</b> - Anrede des Kunden</li>
+                <li><b>[firstname]:</b> - Vorname des Kunden</li>
+                <li><b>[lastname]:</b> - Nachname des Kunden</li>
             </ul>
             ]]></de>
             <en><![CDATA[
-            <p>Subject of the invoice mail. Available variables:</p>
+            <p>Subject of the invoice mail. Available placeholders:</p>
             <ul>
-            <li>invoiceId</li>
+                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[hash]:</b> Invoice hash</li>
+                <li><b>[date]:</b> Invoice date</li>
+                <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
+                <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[company]:</b> - Company of the customer</li>
+                <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
+                <li><b>[contactPerson]:</b> - Contact person</li>
+                <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
+                <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutation]:</b> - Salutation of the customer</li>
+                <li><b>[firstname]:</b> - Firstname of the customer/li>
+                <li><b>[lastname]:</b> - Lastname of the customer</li>
             </ul>
             ]]></en>
         </locale>
 
+        <locale name="invoice.cancelled.subject.description" html="true">
+            <de><![CDATA[
+            <p>Betreff der Storno-Rechnungsmail. Verfügbare Platzhalter:</p>
+            <ul>
+                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[hash]:</b> Rechnungs-Hash</li>
+                <li><b>[date]:</b> Rechnungsdatum</li>
+                <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
+                <li><b>[user]:</b> - Name des Kunden</li>
+                <li><b>[company]:</b> - Firma des Kunden</li>
+                <li><b>[companyOrName]:</b> - Firma des Kunden, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[contactPerson]:</b> - Ansprechpartner</li>
+                <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutation]:</b> - Anrede des Kunden</li>
+                <li><b>[firstname]:</b> - Vorname des Kunden</li>
+                <li><b>[lastname]:</b> - Nachname des Kunden</li>
+            </ul>
+            ]]></de>
+            <en><![CDATA[
+            <p>Subject of the cancelletion Invoice mail. Available placeholders:</p>
+            <ul>
+                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[hash]:</b> Invoice hash</li>
+                <li><b>[date]:</b> Invoice date</li>
+                <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
+                <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[company]:</b> - Company of the customer</li>
+                <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
+                <li><b>[contactPerson]:</b> - Contact person</li>
+                <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
+                <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutation]:</b> - Salutation of the customer</li>
+                <li><b>[firstname]:</b> - Firstname of the customer/li>
+                <li><b>[lastname]:</b> - Lastname of the customer</li>
+            </ul>
+            ]]></en>
+        </locale>
+        <locale name="invoice.cancelled.message.description" html="true">
+            <de><![CDATA[
+            <p>Inhalt der Storno-Rechnungsmail. Verfügbare Platzhalter:</p>
+            <ul>
+                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[hash]:</b> Rechnungs-Hash</li>
+                <li><b>[date]:</b> Rechnungsdatum</li>
+                <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
+                <li><b>[user]:</b> - Name des Kunden</li>
+                <li><b>[company]:</b> - Firma des Kunden</li>
+                <li><b>[companyOrName]:</b> - Firma des Kunden, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[contactPerson]:</b> - Ansprechpartner</li>
+                <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutation]:</b> - Anrede des Kunden</li>
+                <li><b>[firstname]:</b> - Vorname des Kunden</li>
+                <li><b>[lastname]:</b> - Nachname des Kunden</li>
+            </ul>
+            ]]></de>
+            <en><![CDATA[
+            <p>Content of the cancellation Invoice mail. Available placeholders:</p>
+            <ul>
+                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[hash]:</b> Invoice hash</li>
+                <li><b>[date]:</b> Invoice date</li>
+                <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
+                <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[company]:</b> - Company of the customer</li>
+                <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
+                <li><b>[contactPerson]:</b> - Contact person</li>
+                <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
+                <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutation]:</b> - Salutation of the customer</li>
+                <li><b>[firstname]:</b> - Firstname of the customer/li>
+                <li><b>[lastname]:</b> - Lastname of the customer</li>
+            </ul>
+            ]]></en>
+        </locale>
+
+
+        <locale name="invoice.credit_note.subject.description" html="true">
+            <de><![CDATA[
+            <p>Betreff der Gutschrift-Mail Verfügbare Platzhalter:</p>
+            <ul>
+                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[hash]:</b> Rechnungs-Hash</li>
+                <li><b>[date]:</b> Rechnungsdatum</li>
+                <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
+                <li><b>[user]:</b> - Name des Kunden</li>
+                <li><b>[company]:</b> - Firma des Kunden</li>
+                <li><b>[companyOrName]:</b> - Firma des Kunden, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[contactPerson]:</b> - Ansprechpartner</li>
+                <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutation]:</b> - Anrede des Kunden</li>
+                <li><b>[firstname]:</b> - Vorname des Kunden</li>
+                <li><b>[lastname]:</b> - Nachname des Kunden</li>
+            </ul>
+            ]]></de>
+            <en><![CDATA[
+            <p>Subject of the Credit Note mail. Available placeholders:</p>
+            <ul>
+                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[hash]:</b> Invoice hash</li>
+                <li><b>[date]:</b> Invoice date</li>
+                <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
+                <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[company]:</b> - Company of the customer</li>
+                <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
+                <li><b>[contactPerson]:</b> - Contact person</li>
+                <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
+                <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutation]:</b> - Salutation of the customer</li>
+                <li><b>[firstname]:</b> - Firstname of the customer/li>
+                <li><b>[lastname]:</b> - Lastname of the customer</li>
+            </ul>
+            ]]></en>
+        </locale>
+        <locale name="invoice.credit_note.message.description" html="true">
+            <de><![CDATA[
+            <p>Inhalt der Gutschrift-Mail. Verfügbare Platzhalter:</p>
+            <ul>
+                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[hash]:</b> Rechnungs-Hash</li>
+                <li><b>[date]:</b> Rechnungsdatum</li>
+                <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
+                <li><b>[user]:</b> - Name des Kunden</li>
+                <li><b>[company]:</b> - Firma des Kunden</li>
+                <li><b>[companyOrName]:</b> - Firma des Kunden, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[contactPerson]:</b> - Ansprechpartner</li>
+                <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
+                <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutation]:</b> - Anrede des Kunden</li>
+                <li><b>[firstname]:</b> - Vorname des Kunden</li>
+                <li><b>[lastname]:</b> - Nachname des Kunden</li>
+            </ul>
+            ]]></de>
+            <en><![CDATA[
+            <p>Content of the Credit Note mail. Available placeholders:</p>
+            <ul>
+                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[hash]:</b> Invoice hash</li>
+                <li><b>[date]:</b> Invoice date</li>
+                <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
+                <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[company]:</b> - Company of the customer</li>
+                <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
+                <li><b>[contactPerson]:</b> - Contact person</li>
+                <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
+                <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutation]:</b> - Salutation of the customer</li>
+                <li><b>[firstname]:</b> - Firstname of the customer/li>
+                <li><b>[lastname]:</b> - Lastname of the customer</li>
+            </ul>
+            ]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
@@ -1365,6 +1557,22 @@
             <de><![CDATA[]]></de>
             <en><![CDATA[]]></en>
         </locale>
+        <locale name="invoice.cancelled.title">
+            <de><![CDATA[Storno-Rechnungsmail]]></de>
+            <en><![CDATA[Cancelletion Invoice mail]]></en>
+        </locale>
+        <locale name="invoice.cancelled.description">
+            <de><![CDATA[]]></de>
+            <en><![CDATA[]]></en>
+        </locale>
+        <locale name="invoice.credit_note.title">
+            <de><![CDATA[Gutschrift-Mail]]></de>
+            <en><![CDATA[Credit note mail]]></en>
+        </locale>
+        <locale name="invoice.credit_note.description">
+            <de><![CDATA[]]></de>
+            <en><![CDATA[]]></en>
+        </locale>
         <locale name="invoice.send.mail.message">
             <de><![CDATA[
             <h1>Hallo [user],</h1>
@@ -1381,7 +1589,7 @@
             <p>Falls Sie Fragen oder Anmerkungen haben, antworten Sie einfach auf diese E-Mail.
             Unser Supportteam wird sich bald mit Ihnen in Verbindung setzen.</p>
             <p>Viele Grüße,<br />
-            [company]</p>
+            [systemCompany]</p>
             ]]></de>
             <en><![CDATA[
             <h1>Hello [user],</h1>
@@ -1400,7 +1608,7 @@
             Our support team will contact you shortly.</p>
 
             <p>All best wishes,<br />
-            [company]
+            [systemCompany]
             </p>
             ]]></en>
         </locale>
@@ -1425,7 +1633,7 @@
             <p>Falls Sie Fragen oder Anmerkungen haben, antworten Sie einfach auf diese E-Mail.
             Unser Supportteam wird sich bald mit Ihnen in Verbindung setzen.</p>
             <p>Viele Grüße,<br />
-            [company]</p>
+            [systemCompany]</p>
             ]]></de>
             <en><![CDATA[
             <h1>Hello [user],</h1>
@@ -1444,7 +1652,7 @@
             Our support team will contact you shortly.</p>
 
             <p>All best wishes,<br />
-            [company]
+            [systemCompany]
             </p>
             ]]></en>
         </locale>
@@ -1465,7 +1673,7 @@
             <p>Falls Sie Fragen oder Anmerkungen haben, antworten Sie einfach auf diese E-Mail.
             Unser Supportteam wird sich bald mit Ihnen in Verbindung setzen.</p>
             <p>Viele Grüße,<br />
-            [company]</p>
+            [systemCompany]</p>
             ]]></de>
             <en><![CDATA[
             <h1>Hello [user],</h1>
@@ -1482,7 +1690,7 @@
             Our support team will contact you shortly.</p>
 
             <p>All best wishes,<br />
-            [company]
+            [systemCompany]
             </p>
             ]]></en>
         </locale>
