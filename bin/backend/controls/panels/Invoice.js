@@ -686,10 +686,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         'package/quiqqer/payment-transactions/bin/backend/controls/IncomingPayments/TransactionList'
                     ], function (TransactionList) {
                         new TransactionList({
-                            Panel   : self,
-                            hash    : self.getAttribute('data').hash,
-                            disabled: self.$locked || self.getAttribute('data').paid_status === 1,
-                            events  : {
+                            Panel     : self,
+                            hash      : self.getAttribute('data').hash,
+                            entityType: 'Invoice',
+                            disabled  : self.$locked || self.getAttribute('data').paid_status === 1,
+                            events    : {
                                 onLoad          : resolve,
                                 onAddTransaction: function (data, Control) {
                                     Invoices.addPaymentToInvoice(
