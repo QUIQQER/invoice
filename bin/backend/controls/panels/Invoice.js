@@ -683,14 +683,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             return this.$closeCategory().then(function (Container) {
                 return new Promise(function (resolve) {
                     require([
-                        'package/quiqqer/invoice/bin/backend/controls/panels/Journal.Payments'
-                    ], function (Payments) {
-                        new Payments({
+                        'package/quiqqer/payment-transactions/bin/backend/controls/IncomingPayments/TransactionList'
+                    ], function (TransactionList) {
+                        new TransactionList({
                             Panel   : self,
                             hash    : self.getAttribute('data').hash,
-                            disabled: self.$locked,
+                            disabled: self.$locked || self.getAttribute('data').paid_status === 1,
                             events  : {
-                                onLoad: resolve
+                                onLoad          : resolve,
+                                onAddTransaction: function (data, Control) {
+                                    Invoices.addPaymentToInvoice(
+                                        self.getAttribute('data').hash,
+                                        data.amount,
+                                        data.payment_method,
+                                        data.date
+                                    ).then(function () {
+                                        Control.refresh();
+                                    });
+                                }
                             }
                         }).inject(Container);
                     });
