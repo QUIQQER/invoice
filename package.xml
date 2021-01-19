@@ -32,9 +32,12 @@
 
         <provider>
             <erp src="\QUI\ERP\Accounting\Invoice\ErpProvider"/>
+
             <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice"/>
             <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote"/>
             <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled"/>
+
+            <paymentReceiver src="\QUI\ERP\Accounting\Invoice\PaymentReceiver"/>
         </provider>
 
     </package>
