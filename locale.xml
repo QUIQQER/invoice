@@ -1517,6 +1517,11 @@
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
+        <locale name="PaymentReceiver.Invoice.title">
+            <de><![CDATA[Rechnung]]></de>
+            <en><![CDATA[Invoice]]></en>
+        </locale>
+
         <locale name="message.create.credit.from">
             <de><![CDATA[Gutschrift erstellt aus Rechnung #[invoiceId]]]></de>
             <en><![CDATA[Create Credit Note from Invoice #[invoiceId]]]></en>

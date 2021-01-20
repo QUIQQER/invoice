@@ -793,16 +793,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            var hash          = selectedData[0].hash;
-            var paymentMethod = selectedData[0].payment_method;
+            var hash = selectedData[0].hash;
 
             require([
-                'package/quiqqer/invoice/bin/backend/controls/panels/payments/AddPaymentWindow'
+                'package/quiqqer/payment-transactions/bin/backend/controls/IncomingPayments/AddPaymentWindow'
             ], function (AddPaymentWindow) {
                 new AddPaymentWindow({
-                    hash         : hash,
-                    paymentMethod: paymentMethod,
-                    events       : {
+                    entityId  : hash,
+                    entityType: 'Invoice',
+                    events    : {
                         onSubmit: function (Win, data) {
                             self.addPayment(
                                 hash,
