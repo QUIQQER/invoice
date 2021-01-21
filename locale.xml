@@ -857,6 +857,10 @@
             <de><![CDATA[Rechnungsstatus]]></de>
             <en><![CDATA[Processing status]]></en>
         </locale>
+        <locale name="journal.grid.processing">
+            <de><![CDATA[Rechnungsstatus]]></de>
+            <en><![CDATA[Processing status]]></en>
+        </locale>
         <locale name="journal.grid.comments">
             <de><![CDATA[Bemerkungen]]></de>
             <en><![CDATA[Comments]]></en>
@@ -1405,8 +1409,8 @@
         </locale>
 
         <locale name="exception.post.invoices.missing.attributes">
-            <de><![CDATA[Die Rechnungen können leider nicht gebucht werden, einige besitzen Fehler.]]></de>
-            <en><![CDATA[Unfortunately, the invoices cannot be posted, some have errors.]]></en>
+            <de><![CDATA[Die Rechnungen können leider nicht gebucht werden, einige Eigenschaften besitzen Fehler.]]></de>
+            <en><![CDATA[Unfortunately, the invoices cannot be posted, some fields have errors.]]></en>
         </locale>
 
         <locale name="window.unlock.invoice.title">
@@ -1483,7 +1487,7 @@
         </locale>
         <locale name="message.invoice.ok" html="true">
             <de><![CDATA[
-                Alle nötigenden Eigenschaften für die Rechnung sind vorhanden.<br/>
+                Alle nötigen Eigenschaften für die Rechnung sind vorhanden.<br/>
                 Sie können die Rechnung nun buchen.
             ]]></de>
             <en><![CDATA[

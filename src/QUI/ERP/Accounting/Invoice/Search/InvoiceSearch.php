@@ -702,7 +702,12 @@ class InvoiceSearch extends Singleton
 
             if (!empty($invoiceAddress['company'])) {
                 $invoiceData['customer_name'] = trim($invoiceData['customer_name']);
-                $invoiceData['customer_name'] = $invoiceAddress['company'].' ('.$invoiceData['customer_name'].')';
+
+                if (!empty($invoiceData['customer_name'])) {
+                    $invoiceData['customer_name'] = $invoiceAddress['company'].' ('.$invoiceData['customer_name'].')';
+                } else {
+                    $invoiceData['customer_name'] = $invoiceAddress['company'];
+                }
             }
 
             // processing status

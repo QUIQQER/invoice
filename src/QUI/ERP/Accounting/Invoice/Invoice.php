@@ -312,11 +312,11 @@ class Invoice extends QUI\QDOM
     public function getEditor(): QUI\ERP\User
     {
         return new QUI\ERP\User([
-            'id'        => '',
+            'id'        => $this->getAttribute('editor_id'),
             'country'   => '',
             'username'  => '',
             'firstname' => '',
-            'lastname'  => '',
+            'lastname'  => $this->getAttribute('editor_name'),
             'lang'      => '',
             'isCompany' => '',
             'isNetto'   => ''
@@ -1316,6 +1316,25 @@ class Invoice extends QUI\QDOM
         }
 
         return $Status;
+    }
+
+    //endregion
+
+    //region Data
+
+    /**
+     * Return a data field
+     *
+     * @param string $key
+     * @return bool|array|mixed
+     */
+    public function getData(string $key)
+    {
+        if (isset($this->data[$key])) {
+            return $this->data[$key];
+        }
+
+        return false;
     }
 
     //endregion
