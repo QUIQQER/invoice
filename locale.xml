@@ -1405,8 +1405,8 @@
         </locale>
 
         <locale name="exception.post.invoices.missing.attributes">
-            <de><![CDATA[Die Rechnungen können leider nicht gebucht werden, einige besitzen Fehler.]]></de>
-            <en><![CDATA[Unfortunately, the invoices cannot be posted, some have errors.]]></en>
+            <de><![CDATA[Die Rechnungen können leider nicht gebucht werden, einige Eigenschaften besitzen Fehler.]]></de>
+            <en><![CDATA[Unfortunately, the invoices cannot be posted, some fields have errors.]]></en>
         </locale>
 
         <locale name="window.unlock.invoice.title">
