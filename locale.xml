@@ -1483,7 +1483,7 @@
         </locale>
         <locale name="message.invoice.ok" html="true">
             <de><![CDATA[
-                Alle nötigenden Eigenschaften für die Rechnung sind vorhanden.<br/>
+                Alle nötigen Eigenschaften für die Rechnung sind vorhanden.<br/>
                 Sie können die Rechnung nun buchen.
             ]]></de>
             <en><![CDATA[

@@ -277,6 +277,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 return self.doRefresh();
             }).then(function () {
                 self.openInfo();
+            }).catch(function (e) {
+                console.error(e);
+
+                QUI.getMessageHandler().then(function (MH) {
+                    MH.addError(e.getMessage());
+                });
+
+                self.destroy();
             });
         },
 
@@ -805,10 +813,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     new Sandbox({
                         content: html,
                         styles : {
-                            'min-height': 1240,
-                            height      : '100%',
-                            padding     : 20,
-                            width       : 874
+                            height : '100%',
+                            padding: 20,
+                            width  : '100%'
                         },
                         events : {
                             onLoad: function (Box) {
