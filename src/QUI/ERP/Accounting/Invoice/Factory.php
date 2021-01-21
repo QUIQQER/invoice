@@ -24,7 +24,7 @@ class Factory extends QUI\Utils\Singleton
      * @return InvoiceTemporary
      * @throws
      */
-    public function createInvoice($User = null, $hash = false)
+    public function createInvoice($User = null, $hash = false): InvoiceTemporary
     {
         if ($User === null) {
             $User = QUI::getUserBySession();

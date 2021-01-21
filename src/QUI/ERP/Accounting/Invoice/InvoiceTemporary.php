@@ -1141,6 +1141,23 @@ class InvoiceTemporary extends QUI\QDOM
             $orderDate = $this->getAttribute('order_date');
         }
 
+        // check if hash already exists
+        try {
+            $oldHash = $this->getAttribute('hash');
+
+            Handler::getInstance()->getInvoiceByHash($oldHash);
+
+            // if invoice hash exist, we need a new hash
+            $this->setAttribute('hash', QUI\Utils\Uuid::get());
+            $this->getComments()->addComment(
+                'A new hash has been created. The hash already existed.'.
+                'Old Hash: '.$oldHash.
+                'New Hash: '.$this->getAttribute('hash')
+            );
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
         // create invoice
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
