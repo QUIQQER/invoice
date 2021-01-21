@@ -857,6 +857,10 @@
             <de><![CDATA[Rechnungsstatus]]></de>
             <en><![CDATA[Processing status]]></en>
         </locale>
+        <locale name="journal.grid.processing">
+            <de><![CDATA[Rechnungsstatus]]></de>
+            <en><![CDATA[Processing status]]></en>
+        </locale>
         <locale name="journal.grid.comments">
             <de><![CDATA[Bemerkungen]]></de>
             <en><![CDATA[Comments]]></en>
