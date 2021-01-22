@@ -708,13 +708,31 @@ class Invoice extends QUI\QDOM
             $globalProcessId = $this->getHash();
         }
 
+
+        // Invoice Address
+        $invoiceAddressId = '';
+        $invoiceAddress   = '';
+
+        if ($this->getAttribute('invoice_address')) {
+            try {
+                $address = \json_decode($this->getAttribute('invoice_address'), true);
+                $Address = new QUI\ERP\Address($address);
+
+                $invoiceAddressId = $Address->getId();
+                $invoiceAddress   = $Address->toJSON();
+            } catch (\Exception $Exception) {
+                QUI\System\Log::addDebug($Exception->getMessage());
+            }
+        }
+
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
             [
                 'global_process_id'       => $globalProcessId,
                 'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
                 'customer_id'             => $currentData['customer_id'],
-                'invoice_address'         => $currentData['invoice_address'],
+                'invoice_address_id'      => $invoiceAddressId,
+                'invoice_address'         => $invoiceAddress,
                 'delivery_address'        => $currentData['delivery_address'],
                 'order_id'                => $currentData['order_id'],
                 'project_name'            => $currentData['project_name'],
