@@ -863,6 +863,22 @@ class Invoice extends QUI\QDOM
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
         $Copy->setInvoiceType(Handler::TYPE_INVOICE_CREDIT_NOTE);
+
+        if ($this->getAttribute('invoice_address')) {
+            try {
+                $address = \json_decode($this->getAttribute('invoice_address'), true);
+                $Address = new QUI\ERP\Address($address);
+
+                $invoiceAddressId = $Address->getId();
+                $invoiceAddress   = $Address->toJSON();
+
+                $Copy->setAttribute('invoice_address_id', $invoiceAddressId);
+                $Copy->setAttribute('invoice_address', $invoiceAddress);
+            } catch (\Exception $Exception) {
+                QUI\System\Log::addDebug($Exception->getMessage());
+            }
+        }
+
         $Copy->save(QUI::getUsers()->getSystemUser());
 
         $this->addHistory(
