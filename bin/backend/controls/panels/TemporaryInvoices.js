@@ -271,7 +271,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             Actions.appendChild({
                 name    : 'copy',
                 disabled: true,
-                text    : QUILocale.get(lg, 'journal.btn.copyInvoice'),
+                text    : QUILocale.get(lg, 'temporary.btn.copyInvoice'),
                 icon    : 'fa fa-copy',
                 events  : {
                     onClick: this.$clickCopyInvoice

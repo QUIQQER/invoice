@@ -45,10 +45,10 @@ class Invoice extends QUI\QDOM
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -708,13 +708,31 @@ class Invoice extends QUI\QDOM
             $globalProcessId = $this->getHash();
         }
 
+
+        // Invoice Address
+        $invoiceAddressId = '';
+        $invoiceAddress   = '';
+
+        if ($this->getAttribute('invoice_address')) {
+            try {
+                $address = \json_decode($this->getAttribute('invoice_address'), true);
+                $Address = new QUI\ERP\Address($address);
+
+                $invoiceAddressId = $Address->getId();
+                $invoiceAddress   = $Address->toJSON();
+            } catch (\Exception $Exception) {
+                QUI\System\Log::addDebug($Exception->getMessage());
+            }
+        }
+
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
             [
                 'global_process_id'       => $globalProcessId,
                 'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
                 'customer_id'             => $currentData['customer_id'],
-                'invoice_address'         => $currentData['invoice_address'],
+                'invoice_address_id'      => $invoiceAddressId,
+                'invoice_address'         => $invoiceAddress,
                 'delivery_address'        => $currentData['delivery_address'],
                 'order_id'                => $currentData['order_id'],
                 'project_name'            => $currentData['project_name'],
@@ -863,6 +881,22 @@ class Invoice extends QUI\QDOM
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
         $Copy->setInvoiceType(Handler::TYPE_INVOICE_CREDIT_NOTE);
+
+        if ($this->getAttribute('invoice_address')) {
+            try {
+                $address = \json_decode($this->getAttribute('invoice_address'), true);
+                $Address = new QUI\ERP\Address($address);
+
+                $invoiceAddressId = $Address->getId();
+                $invoiceAddress   = $Address->toJSON();
+
+                $Copy->setAttribute('invoice_address_id', $invoiceAddressId);
+                $Copy->setAttribute('invoice_address', $invoiceAddress);
+            } catch (\Exception $Exception) {
+                QUI\System\Log::addDebug($Exception->getMessage());
+            }
+        }
+
         $Copy->save(QUI::getUsers()->getSystemUser());
 
         $this->addHistory(
@@ -1000,6 +1034,16 @@ class Invoice extends QUI\QDOM
         // old status
         $oldPaidStatus = $this->getAttribute('paid_status');
 
+        switch ($oldPaidStatus) {
+            /**
+             * Do not change paid_status if invoice is paid via direct debit.
+             *
+             * In this case the paid_status has be explicitly set via $this->setPaymentStatus()
+             */
+            case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
+                return;
+        }
+
         QUI\ERP\Accounting\Calc::calculatePayments($this);
 
         switch ($this->getAttribute('paid_status')) {
@@ -1007,7 +1051,6 @@ class Invoice extends QUI\QDOM
             case QUI\ERP\Constants::PAYMENT_STATUS_PAID:
             case QUI\ERP\Constants::PAYMENT_STATUS_PART:
             case QUI\ERP\Constants::PAYMENT_STATUS_ERROR:
-            case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
             case QUI\ERP\Constants::PAYMENT_STATUS_CANCELED:
                 break;
 
@@ -1043,6 +1086,70 @@ class Invoice extends QUI\QDOM
                 [$this, $this->getAttribute('paid_status'), $oldPaidStatus]
             );
         }
+    }
+
+    /**
+     * Set the payment status of this invoice (attribute: paid_status)
+     *
+     * @param int $paymentStatus
+     * @return void
+     */
+    public function setPaymentStatus(int $paymentStatus): void
+    {
+        $User = QUI::getUserBySession();
+
+        // old status
+        $oldPaymentStatus = (int)$this->getAttribute('paid_status');
+
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
+
+        switch ($paymentStatus) {
+            case QUI\ERP\Constants::PAYMENT_STATUS_OPEN:
+            case QUI\ERP\Constants::PAYMENT_STATUS_PAID:
+            case QUI\ERP\Constants::PAYMENT_STATUS_PART:
+            case QUI\ERP\Constants::PAYMENT_STATUS_ERROR:
+            case QUI\ERP\Constants::PAYMENT_STATUS_CANCELED:
+            case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
+                break;
+
+            default:
+                $paymentStatus = QUI\ERP\Constants::PAYMENT_STATUS_ERROR;
+        }
+
+        if ($oldPaymentStatus === $paymentStatus) {
+            return;
+        }
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->invoiceTable(),
+            [
+                'paid_data'   => $this->getAttribute('paid_data'),
+                'paid_date'   => $this->getAttribute('paid_date'),
+                'paid_status' => $paymentStatus
+            ],
+            ['id' => $this->getCleanId()]
+        );
+
+        $this->setAttribute('paid_status', $paymentStatus);
+
+        // Payment Status has changed
+        $this->addHistory(
+            QUI::getLocale()->get(
+                'quiqqer/invoice',
+                'history.message.set_payment_status',
+                [
+                    'username'  => $User->getName(),
+                    'uid'       => $User->getId(),
+                    'oldStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.'.$oldPaymentStatus),
+                    'newStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.'.$paymentStatus)
+                ]
+            )
+        );
+
+        QUI::getEvents()->fireEvent(
+            'onQuiqqerInvoiceSetPaymentStatus',
+            [$this, $paymentStatus, $oldPaymentStatus]
+        );
     }
 
     /**

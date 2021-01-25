@@ -768,12 +768,16 @@
         </locale>
 
         <locale name="temporary.btn.deleteInvoice">
-            <de><![CDATA[Rechnung löschen]]></de>
-            <en><![CDATA[Delete invoice]]></en>
+            <de><![CDATA[Entwurf löschen]]></de>
+            <en><![CDATA[Delete draft]]></en>
         </locale>
         <locale name="temporary.btn.createInvoice">
             <de><![CDATA[Neue Rechnung]]></de>
             <en><![CDATA[Create invoice]]></en>
+        </locale>
+        <locale name="temporary.btn.copyInvoice">
+            <de><![CDATA[Entwurf kopieren]]></de>
+            <en><![CDATA[Copy draft]]></en>
         </locale>
 
         <locale name="journal.grid.type">
@@ -854,6 +858,10 @@
             <en><![CDATA[Dunning level]]></en>
         </locale>
         <locale name="journal.grid.processingStatus">
+            <de><![CDATA[Rechnungsstatus]]></de>
+            <en><![CDATA[Processing status]]></en>
+        </locale>
+        <locale name="journal.grid.processing">
             <de><![CDATA[Rechnungsstatus]]></de>
             <en><![CDATA[Processing status]]></en>
         </locale>
@@ -1405,8 +1413,9 @@
         </locale>
 
         <locale name="exception.post.invoices.missing.attributes">
-            <de><![CDATA[Die Rechnungen können leider nicht gebucht werden, einige besitzen Fehler.]]></de>
-            <en><![CDATA[Unfortunately, the invoices cannot be posted, some have errors.]]></en>
+            <de>
+                <![CDATA[Die Rechnungen können leider nicht gebucht werden, einige Eigenschaften besitzen Fehler.]]></de>
+            <en><![CDATA[Unfortunately, the invoices cannot be posted, some fields have errors.]]></en>
         </locale>
 
         <locale name="window.unlock.invoice.title">
@@ -1802,6 +1811,10 @@
         <locale name="history.message.temporaryInvoice.type.changed">
             <de><![CDATA[Rechnungstyp geändert in [type] [typeTitle]]]></de>
             <en><![CDATA[Invoice type changed to [type] [typeTitle]]]></en>
+        </locale>
+        <locale name="history.message.set_payment_status">
+            <de><![CDATA[Zahlungsstatus geändert von "[oldStatus]" zu "[newStatus]" von [username] #[uid].]]></de>
+            <en><![CDATA[Payment status changed from "[oldStatus]" to "[newStatus]" by [username] #[uid].]]></en>
         </locale>
 
         <locale name="pdf.download.name">
