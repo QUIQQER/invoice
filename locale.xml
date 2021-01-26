@@ -1812,6 +1812,10 @@
             <de><![CDATA[Rechnungstyp geändert in [type] [typeTitle]]]></de>
             <en><![CDATA[Invoice type changed to [type] [typeTitle]]]></en>
         </locale>
+        <locale name="history.message.set_payment_status">
+            <de><![CDATA[Zahlungsstatus geändert von "[oldStatus]" zu "[newStatus]" von [username] #[uid].]]></de>
+            <en><![CDATA[Payment status changed from "[oldStatus]" to "[newStatus]" by [username] #[uid].]]></en>
+        </locale>
 
         <locale name="pdf.download.name">
             <de><![CDATA[Rechnung]]></de>

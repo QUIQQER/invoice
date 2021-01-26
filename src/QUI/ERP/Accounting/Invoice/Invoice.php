@@ -45,10 +45,10 @@ class Invoice extends QUI\QDOM
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -1034,6 +1034,16 @@ class Invoice extends QUI\QDOM
         // old status
         $oldPaidStatus = $this->getAttribute('paid_status');
 
+        switch ($oldPaidStatus) {
+            /**
+             * Do not change paid_status if invoice is paid via direct debit.
+             *
+             * In this case the paid_status has be explicitly set via $this->setPaymentStatus()
+             */
+            case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
+                return;
+        }
+
         QUI\ERP\Accounting\Calc::calculatePayments($this);
 
         switch ($this->getAttribute('paid_status')) {
@@ -1041,7 +1051,6 @@ class Invoice extends QUI\QDOM
             case QUI\ERP\Constants::PAYMENT_STATUS_PAID:
             case QUI\ERP\Constants::PAYMENT_STATUS_PART:
             case QUI\ERP\Constants::PAYMENT_STATUS_ERROR:
-            case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
             case QUI\ERP\Constants::PAYMENT_STATUS_CANCELED:
                 break;
 
@@ -1077,6 +1086,70 @@ class Invoice extends QUI\QDOM
                 [$this, $this->getAttribute('paid_status'), $oldPaidStatus]
             );
         }
+    }
+
+    /**
+     * Set the payment status of this invoice (attribute: paid_status)
+     *
+     * @param int $paymentStatus
+     * @return void
+     */
+    public function setPaymentStatus(int $paymentStatus): void
+    {
+        $User = QUI::getUserBySession();
+
+        // old status
+        $oldPaymentStatus = (int)$this->getAttribute('paid_status');
+
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
+
+        switch ($paymentStatus) {
+            case QUI\ERP\Constants::PAYMENT_STATUS_OPEN:
+            case QUI\ERP\Constants::PAYMENT_STATUS_PAID:
+            case QUI\ERP\Constants::PAYMENT_STATUS_PART:
+            case QUI\ERP\Constants::PAYMENT_STATUS_ERROR:
+            case QUI\ERP\Constants::PAYMENT_STATUS_CANCELED:
+            case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
+                break;
+
+            default:
+                $paymentStatus = QUI\ERP\Constants::PAYMENT_STATUS_ERROR;
+        }
+
+        if ($oldPaymentStatus === $paymentStatus) {
+            return;
+        }
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->invoiceTable(),
+            [
+                'paid_data'   => $this->getAttribute('paid_data'),
+                'paid_date'   => $this->getAttribute('paid_date'),
+                'paid_status' => $paymentStatus
+            ],
+            ['id' => $this->getCleanId()]
+        );
+
+        $this->setAttribute('paid_status', $paymentStatus);
+
+        // Payment Status has changed
+        $this->addHistory(
+            QUI::getLocale()->get(
+                'quiqqer/invoice',
+                'history.message.set_payment_status',
+                [
+                    'username'  => $User->getName(),
+                    'uid'       => $User->getId(),
+                    'oldStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.'.$oldPaymentStatus),
+                    'newStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.'.$paymentStatus)
+                ]
+            )
+        );
+
+        QUI::getEvents()->fireEvent(
+            'onQuiqqerInvoiceSetPaymentStatus',
+            [$this, $paymentStatus, $oldPaymentStatus]
+        );
     }
 
     /**
