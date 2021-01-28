@@ -60,7 +60,7 @@ QUI::$Ajax->registerFunction(
                 return 0;
             }
 
-            return ($a['time'] < $b['time']) ? -1 : 1;
+            return ($a['time'] > $b['time']) ? -1 : 1;
         });
 
         return $history;
