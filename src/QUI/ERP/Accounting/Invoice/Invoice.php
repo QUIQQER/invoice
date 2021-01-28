@@ -45,10 +45,10 @@ class Invoice extends QUI\QDOM
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -906,7 +906,14 @@ class Invoice extends QUI\QDOM
             ])
         );
 
-        return Handler::getInstance()->getTemporaryInvoice($Copy->getId());
+        $CreditNote = Handler::getInstance()->getTemporaryInvoice($Copy->getId());
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceCreateCreditNoteEnd',
+            [$this, $CreditNote]
+        );
+
+        return $CreditNote;
     }
 
     /**
@@ -1082,7 +1089,7 @@ class Invoice extends QUI\QDOM
             );
 
             QUI::getEvents()->fireEvent(
-                'onQuiqqerInvoiceAddComment',
+                'quiqqerInvoicePaymentStatusChanged',
                 [$this, $this->getAttribute('paid_status'), $oldPaidStatus]
             );
         }
@@ -1147,7 +1154,7 @@ class Invoice extends QUI\QDOM
         );
 
         QUI::getEvents()->fireEvent(
-            'onQuiqqerInvoiceSetPaymentStatus',
+            'quiqqerInvoicePaymentStatusChanged',
             [$this, $paymentStatus, $oldPaymentStatus]
         );
     }

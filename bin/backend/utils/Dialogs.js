@@ -28,16 +28,19 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
         openPrintDialog: function (invoiceId, entityType) {
             entityType = entityType || 'Invoice';
 
-            return new Promise(function (resolve) {
-                require([
-                    'package/quiqqer/erp/bin/backend/controls/OutputDialog'
-                ], function (OutputDialog) {
-                    new OutputDialog({
-                        entityId  : invoiceId,
-                        entityType: entityType
-                    }).open();
+            return Invoices.getInvoiceHistory(invoiceId).then(function (comments) {
+                return new Promise(function (resolve) {
+                    require([
+                        'package/quiqqer/erp/bin/backend/controls/OutputDialog'
+                    ], function (OutputDialog) {
+                        new OutputDialog({
+                            entityId  : invoiceId,
+                            entityType: entityType,
+                            comments  : comments.length ? comments : false
+                        }).open();
 
-                    resolve();
+                        resolve();
+                    });
                 });
             });
         },

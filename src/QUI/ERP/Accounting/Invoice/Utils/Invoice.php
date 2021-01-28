@@ -117,6 +117,9 @@ class Invoice
             $missing[] = 'payment';
         }
 
+        // api
+        QUI::getEvents()->fireEvent('onQuiqqerInvoiceMissingAttributes', [$Invoice, &$missing]);
+
         $missing = \array_unique($missing);
 
         return $missing;
@@ -266,6 +269,17 @@ class Invoice
 
             case 'invoice_address_country':
                 return $Locale->get($lg, 'exception.invoice.verification.country');
+        }
+
+        $message = false;
+
+        QUI::getEvents()->fireEvent(
+            'onQuiqqerInvoiceGetMissingAttributeMessage',
+            [$missingAttribute, &$message]
+        );
+
+        if (!empty($message)) {
+            return $message;
         }
 
         throw new Exception('Missing Field not found: '.$missingAttribute);
