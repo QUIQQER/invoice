@@ -11,23 +11,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'qui/controls/buttons/Button',
     'qui/controls/buttons/Separator',
     'qui/controls/buttons/Select',
-    'qui/controls/windows/Confirm',
     'qui/controls/contextmenu/Item',
     'controls/grid/Grid',
     'package/quiqqer/invoice/bin/Invoices',
+    'package/quiqqer/invoice/bin/backend/utils/Dialogs',
     'package/quiqqer/erp/bin/backend/controls/elements/TimeFilter',
     'Locale',
     'Ajax',
     'Mustache',
 
-    'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.InvoiceDetails.html',
     'text!package/quiqqer/invoice/bin/backend/controls/panels/Journal.Total.html',
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css',
     'css!package/quiqqer/erp/bin/backend/payment-status.css'
 
-], function (QUI, QUIPanel, QUIButton, QUISeparator, QUISelect, QUIConfirm, QUIContextMenuItem, Grid, Invoices, TimeFilter,
-             QUILocale, QUIAjax, Mustache, templateInvoiceDetails, templateTotal) {
+], function (QUI, QUIPanel, QUIButton, QUISeparator, QUISelect, QUIContextMenuItem, Grid, Invoices, Dialogs,
+             TimeFilter, QUILocale, QUIAjax, Mustache, templateTotal) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -769,11 +768,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 require([
                     'package/quiqqer/erp/bin/backend/controls/OutputDialog'
                 ], function (OutputDialog) {
-                    new OutputDialog({
-                        entityId  : Entry.hash,
-                        entityType: entityType
-                    }).open();
-
+                    Dialogs.openPrintDialog(Entry.hash, entityType);
                     Button.setAttribute('textimage', 'fa fa-print');
                     resolve();
                 });
@@ -1001,11 +996,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'package/quiqqer/erp/bin/backend/controls/OutputDialog'
                 ], function (Dialogs, OutputDialog) {
                     Dialogs.openReversalDialog(invoiceId).then(function (result) {
-                        new OutputDialog({
-                            entityId  : result.reversalId,
-                            entityType: 'Canceled'
-                        }).open();
-
+                        Dialogs.openPrintDialog(result.reversalId, 'Canceled');
                         return self.refresh();
                     }).then(resolve).catch(function (Exception) {
                         QUI.getMessageHandler().then(function (MH) {

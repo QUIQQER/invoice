@@ -1089,7 +1089,7 @@ class Invoice extends QUI\QDOM
             );
 
             QUI::getEvents()->fireEvent(
-                'onQuiqqerInvoiceAddComment',
+                'quiqqerInvoicePaymentStatusChanged',
                 [$this, $this->getAttribute('paid_status'), $oldPaidStatus]
             );
         }
@@ -1154,7 +1154,7 @@ class Invoice extends QUI\QDOM
         );
 
         QUI::getEvents()->fireEvent(
-            'onQuiqqerInvoiceSetPaymentStatus',
+            'quiqqerInvoicePaymentStatusChanged',
             [$this, $paymentStatus, $oldPaymentStatus]
         );
     }
