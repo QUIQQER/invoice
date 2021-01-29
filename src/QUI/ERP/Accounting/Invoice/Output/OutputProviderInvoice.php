@@ -126,7 +126,7 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         if (!empty($address)) {
-            $Address = new QUI\ERP\Address($address);
+            $Address = new QUI\ERP\Address($address, $Customer);
             $Address->clearMail();
             $Address->clearPhone();
         } else {
@@ -152,7 +152,11 @@ class OutputProviderInvoice implements OutputProviderInterface
         $deliveryAddress = $Invoice->getAttribute('delivery_address');
 
         if (!empty($deliveryAddress)) {
-            $DeliveryAddress = new QUI\ERP\Address(\json_decode($deliveryAddress, true));
+            $DeliveryAddress = new QUI\ERP\Address(
+                \json_decode($deliveryAddress, true),
+                $Customer
+            );
+
             $DeliveryAddress->clearMail();
             $DeliveryAddress->clearPhone();
         }
