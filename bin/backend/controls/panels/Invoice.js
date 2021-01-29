@@ -571,6 +571,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             console.error(e);
                         }
 
+                        // payment
+                        try {
+                            var paymentData = JSON.decode(data.payment_method_data);
+
+                            if (typeof paymentData.paymentType !== 'undefined' &&
+                                typeof paymentData.paymentType.title !== 'undefined') {
+                                Form.elements.payment_method.value = paymentData.paymentType.title;
+                            }
+                        } catch (e) {
+                        }
+
                         if (data.delivery_address !== '') {
                             Container.getElement('.invoice-delivery-data').setStyle('display', null);
 

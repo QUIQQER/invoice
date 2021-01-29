@@ -1866,7 +1866,8 @@ class InvoiceTemporary extends QUI\QDOM
             'zip',
             'city',
             'country',
-            'company'
+            'company',
+            'isCompany'
         ]);
 
         $result = [];
