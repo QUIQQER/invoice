@@ -199,6 +199,17 @@ class InvoiceTemporary extends QUI\QDOM
             $this->setAttribute('customer_id', false);
         }
 
+        // consider contact person in address
+        if (!empty($this->getAttribute('invoice_address')) &&
+            !empty($this->getAttribute('contact_person'))
+        ) {
+            $invoiceAddress = $this->getAttribute('invoice_address');
+            $invoiceAddress = \json_decode($invoiceAddress, true);
+
+            $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
+            $this->setAttribute('invoice_address', \json_encode($invoiceAddress));
+        }
+
         // shipping
         if (\is_numeric($data['shipping_id'])) {
             $this->shippingId = (int)$data['shipping_id'];

@@ -158,6 +158,18 @@ class Invoice extends QUI\QDOM
                 $this->Shipping = new QUI\ERP\Shipping\Types\ShippingUnique($shippingData);
             }
         }
+
+
+        // consider contact person in address
+        if (!empty($this->getAttribute('invoice_address')) &&
+            !empty($this->getAttribute('contact_person'))
+        ) {
+            $invoiceAddress = $this->getAttribute('invoice_address');
+            $invoiceAddress = \json_decode($invoiceAddress, true);
+
+            $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
+            $this->setAttribute('invoice_address', \json_encode($invoiceAddress));
+        }
     }
 
     /**
