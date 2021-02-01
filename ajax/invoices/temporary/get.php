@@ -14,7 +14,7 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_get',
     function ($invoiceId) {
-        $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
+        $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
         $invoice = $Invoice->toArray();
 
         if (isset($invoice['invoice_address']) && \is_string($invoice['invoice_address'])) {
