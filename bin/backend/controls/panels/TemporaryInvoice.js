@@ -423,6 +423,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         Users.get(userId).loadIfNotLoaded().then(function (User) {
                             var addressId = User.getAttribute('quiqqer.erp.customer.contact.person');
 
+                            if (User.getAttribute('quiqqer.erp.standard.payment')) {
+                                self.getContent()
+                                    .getElement('[name="payment_method"]')
+                                    .value = User.getAttribute('quiqqer.erp.standard.payment');
+                            }
+
                             if (!addressId) {
                                 return;
                             }
