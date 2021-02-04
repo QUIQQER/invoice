@@ -78,7 +78,8 @@ QUI::$Ajax->registerFunction(
             'processing_status',
             'comments',
             'payment_data',
-            'hash'
+            'hash',
+            'project_name'
         ];
 
         $fillFields = function (&$data) use ($needleFields) {

@@ -586,7 +586,8 @@ class InvoiceSearch extends Singleton
             'processing_status',
             'processing_status_display',
             'sum',
-            'taxId'
+            'taxId',
+            'project_name'
         ];
 
         $fillFields = function (&$data) use ($needleFields) {
