@@ -15,7 +15,7 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_setStatus',
     function ($invoiceId, $status) {
-        $Invoice = QUI\ERP\Accounting\Invoice\Handler::getInstance()->get($invoiceId);
+        $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
         $Invoice->setProcessingStatus($status);
     },
     ['invoiceId', 'status'],
