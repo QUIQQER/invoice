@@ -366,23 +366,28 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     width    : 100,
                     className: 'clickable'
                 }, {
-                    header   : QUILocale.get('quiqqer/system', 'name'),
+                    header   : QUILocale.get('quiqqer/quiqqer', 'name'),
                     dataIndex: 'customer_name',
                     dataType : 'string',
                     width    : 130,
                     className: 'clickable'
                 }, {
-                    header   : QUILocale.get('quiqqer/system', 'date'),
+                    header   : QUILocale.get('quiqqer/quiqqer', 'date'),
                     dataIndex: 'date',
                     dataType : 'date',
                     width    : 100
                 }, {
-                    header   : QUILocale.get('quiqqer/system', 'c_date'),
+                    header   : QUILocale.get('quiqqer/quiqqer', 'project'),
+                    dataIndex: 'project_name',
+                    dataType : 'string',
+                    width    : 140
+                }, {
+                    header   : QUILocale.get('quiqqer/quiqqer', 'c_date'),
                     dataIndex: 'c_date',
                     dataType : 'date',
                     width    : 140
                 }, {
-                    header   : QUILocale.get('quiqqer/system', 'c_user'),
+                    header   : QUILocale.get('quiqqer/quiqqer', 'c_user'),
                     dataIndex: 'c_username',
                     dataType : 'integer',
                     width    : 180
@@ -850,7 +855,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 maxWidth   : 600,
                 autoclose  : false,
                 ok_button  : {
-                    text     : QUILocale.get('quiqqer/system', 'delete'),
+                    text     : QUILocale.get('quiqqer/quiqqer', 'delete'),
                     textimage: 'fa fa-trash'
                 },
                 events     : {
@@ -907,7 +912,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 maxWidth   : 600,
                 autoclose  : false,
                 ok_button  : {
-                    text     : QUILocale.get('quiqqer/system', 'copy'),
+                    text     : QUILocale.get('quiqqer/quiqqer', 'copy'),
                     textimage: 'fa fa-copy'
                 },
                 events     : {

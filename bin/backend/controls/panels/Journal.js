@@ -520,6 +520,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataType : 'date',
                     width    : 140
                 }, {
+                    header   : QUILocale.get('quiqqer/quiqqer', 'project'),
+                    dataIndex: 'project_name',
+                    dataType : 'string',
+                    width    : 140
+                }, {
                     header   : QUILocale.get('quiqqer/system', 'c_date'),
                     dataIndex: 'c_date',
                     dataType : 'date',

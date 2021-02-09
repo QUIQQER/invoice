@@ -541,22 +541,8 @@ class InvoiceSearch extends Singleton
         $Locale   = QUI::getLocale();
         $Payments = Payments::getInstance();
 
-        $localeCode = QUI::getLocale()->getLocalesByLang(
-            QUI::getLocale()->getCurrent()
-        );
-
-        $DateFormatter = new \IntlDateFormatter(
-            $localeCode[0],
-            \IntlDateFormatter::SHORT,
-            \IntlDateFormatter::NONE
-        );
-
-        $DateFormatterLong = new \IntlDateFormatter(
-            $localeCode[0],
-            \IntlDateFormatter::SHORT,
-            \IntlDateFormatter::SHORT
-        );
-
+        $defaultDateFormat = QUI\ERP\Defaults::getDateFormat();
+        $defaultTimeFormat = QUI\ERP\Defaults::getTimestampFormat();
 
         $needleFields = [
             'customer_id',
@@ -586,7 +572,8 @@ class InvoiceSearch extends Singleton
             'processing_status',
             'processing_status_display',
             'sum',
-            'taxId'
+            'taxId',
+            'project_name'
         ];
 
         $fillFields = function (&$data) use ($needleFields) {
@@ -640,7 +627,10 @@ class InvoiceSearch extends Singleton
                 );
 
                 $invoiceData['order_date'] = $Order->getCreateDate();
-                $invoiceData['order_date'] = $DateFormatterLong->format(\strtotime($invoiceData['order_date']));
+                $invoiceData['order_date'] = $Locale->formatDate(
+                    \strtotime($invoiceData['order_date']),
+                    $defaultTimeFormat
+                );
             } catch (QUI\Exception $Exception) {
             }
 
@@ -655,13 +645,25 @@ class InvoiceSearch extends Singleton
 
             $timeForPayment = \strtotime($Invoice->getAttribute('time_for_payment'));
 
-            $invoiceData['globalProcessId']  = $Invoice->getGlobalProcessId();
-            $invoiceData['date']             = $DateFormatter->format(\strtotime($Invoice->getAttribute('date')));
-            $invoiceData['time_for_payment'] = $DateFormatter->format($timeForPayment);
-            $invoiceData['c_date']           = $DateFormatterLong->format(\strtotime($Invoice->getAttribute('c_date')));
+            $invoiceData['globalProcessId'] = $Invoice->getGlobalProcessId();
+
+            $invoiceData['date'] = $Locale->formatDate(
+                \strtotime($Invoice->getAttribute('date')),
+                $defaultDateFormat
+            );
+
+            $invoiceData['time_for_payment'] = $Locale->formatDate($timeForPayment, $defaultDateFormat);
+
+            $invoiceData['c_date'] = $Locale->formatDate(
+                \strtotime($Invoice->getAttribute('c_date')),
+                $defaultTimeFormat
+            );
 
             if ($Invoice->getAttribute('paid_date')) {
-                $invoiceData['paid_date'] = $DateFormatter->format($Invoice->getAttribute('paid_date'));
+                $invoiceData['paid_date'] = $Locale->formatDate(
+                    $Invoice->getAttribute('paid_date'),
+                    $defaultDateFormat
+                );
             } else {
                 $invoiceData['paid_date'] = Handler::EMPTY_VALUE;
             }

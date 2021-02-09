@@ -1128,7 +1128,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 this.setAttribute('date', formData.date + ' 00:00:00');
             }
 
-            if (formData.contact_person) {
+            if (typeof formData.contact_person !== 'undefined') {
                 this.setAttribute('contact_person', formData.contact_person);
             }
 

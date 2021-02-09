@@ -22,6 +22,9 @@ QUI::$Ajax->registerFunction(
         $Grid     = new QUI\Utils\Grid();
         $Locale   = QUI::getLocale();
 
+        $defaultDateFormat = QUI\ERP\Defaults::getDateFormat();
+        $defaultTimeFormat = QUI\ERP\Defaults::getTimestampFormat();
+
         $ProcessingStatus = ProcessingStatusHandler::getInstance();
         $list             = $ProcessingStatus->getProcessingStatusList();
         $processing       = [];
@@ -38,22 +41,6 @@ QUI::$Ajax->registerFunction(
         }
 
         $data = $Invoices->searchTemporaryInvoices($query);
-
-        $localeCode = QUI::getLocale()->getLocalesByLang(
-            QUI::getLocale()->getCurrent()
-        );
-
-        $DateFormatter = new \IntlDateFormatter(
-            $localeCode[0],
-            \IntlDateFormatter::SHORT,
-            \IntlDateFormatter::NONE
-        );
-
-        $DateFormatterLong = new \IntlDateFormatter(
-            $localeCode[0],
-            \IntlDateFormatter::SHORT,
-            \IntlDateFormatter::SHORT
-        );
 
         $needleFields = [
             'id',
@@ -78,7 +65,8 @@ QUI::$Ajax->registerFunction(
             'processing_status',
             'comments',
             'payment_data',
-            'hash'
+            'hash',
+            'project_name'
         ];
 
         $fillFields = function (&$data) use ($needleFields) {
@@ -178,12 +166,14 @@ QUI::$Ajax->registerFunction(
             }
 
             // format
-            $data[$key]['date'] = $DateFormatter->format(
-                \strtotime($TemporaryInvoice->getAttribute('date'))
+            $data[$key]['date'] = $Locale->formatDate(
+                \strtotime($TemporaryInvoice->getAttribute('date')),
+                $defaultDateFormat
             );
 
-            $data[$key]['c_date'] = $DateFormatterLong->format(
-                \strtotime($TemporaryInvoice->getAttribute('date'))
+            $data[$key]['c_date'] = $Locale->formatDate(
+                \strtotime($TemporaryInvoice->getAttribute('date')),
+                $defaultTimeFormat
             );
 
             //$vatTextArray = InvoiceUtils::getVatTextArrayFromVatArray($invoiceData['vat_array'], $Currency);
