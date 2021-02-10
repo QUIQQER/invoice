@@ -502,8 +502,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 }
 
-                if (self.getAttribute('ordered_by')) {
-                    OrderedBy.addItem(self.getAttribute('ordered_by'));
+                if (parseInt(self.getAttribute('ordered_by'))) {
+                    OrderedBy.addItem(parseInt(self.getAttribute('ordered_by')));
                 }
 
                 // invoice address
