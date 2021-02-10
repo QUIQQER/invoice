@@ -404,6 +404,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 var EditorId  = QUI.Controls.getById(editorIdQUIId);
                 var OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
 
+                OrderedBy.setAttribute('showAddressName', false);
+
                 Data.addEvent('onChange', function () {
                     if (self.renderDataDone === false) {
                         return;
