@@ -69,6 +69,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$Status     = null;
             this.$TimeFilter = null;
             this.$Total      = null;
+            this.$totalsOpen = false;
             this.$Search     = null;
             this.$Currency   = null;
 
@@ -666,9 +667,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return;
             }
 
-            var size = Body.getSize();
+            var size = Body.getSize(),
+                yOffset = 20;
 
-            this.$Grid.setHeight(size.y - 20);
+            if (this.$totalsOpen) {
+                yOffset = 130;
+            }
+
+            this.$Grid.setHeight(size.y - yOffset);
             this.$Grid.setWidth(size.x - 20);
         },
 
@@ -1140,6 +1146,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.getButtons('total').setActive();
             this.getContent().setStyle('overflow', 'hidden');
 
+            this.$totalsOpen = true;
+
             return new Promise(function (resolve) {
                 this.$Total.setStyles({
                     display: 'inline-block',
@@ -1163,6 +1171,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          */
         hideTotal: function () {
             var self = this;
+
+            this.$totalsOpen = false;
 
             this.getButtons('total').setNormal();
 

@@ -759,7 +759,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 var invoices = '';
 
                 for (var i = 0, len = selected.length; i < len; i++) {
-                    invoices = invoices + '<li>' + selected[i].id + '</li>';
+                    var Row = selected[i];
+
+                    invoices += '<li>' + Row.id;
+
+                    if (Row.customer_name) {
+                        invoices += ' - ' + Row.customer_name;
+                    }
+
+                    if (Row.project_name) {
+                        invoices += ' (' + Row.project_name + ')';
+                    }
+
+                    invoices += '</li>';
                 }
 
                 new QUIConfirm({
