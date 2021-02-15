@@ -260,6 +260,7 @@ class InvoiceSearch extends Singleton
         // result
         $result = $this->parseListForGrid($invoices);
         $Grid   = new QUI\Utils\Grid();
+        $Grid->setAttribute('page', ($this->limit[0] / $this->limit[1]) + 1);
 
         return [
             'grid'  => $Grid->parseResult($result, $count),
