@@ -316,6 +316,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 Invoices.PAYMENT_STATUS_CANCELED
             );
 
+            this.$Status.appendChild(
+                QUILocale.get(lg, 'journal.paidstatus.debit'),
+                Invoices.PAYMENT_STATUS_DEBIT
+            );
+
             this.addButton(this.$Status);
 
             var self      = this,
