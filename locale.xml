@@ -797,8 +797,8 @@
             <en><![CDATA[Custome no]]></en>
         </locale>
         <locale name="journal.grid.date">
-            <de><![CDATA[Rechnungsdatum]]></de>
-            <en><![CDATA[Invoice date]]></en>
+            <de><![CDATA[Datum]]></de>
+            <en><![CDATA[Date]]></en>
         </locale>
         <locale name="journal.grid.status">
             <de><![CDATA[Zahlungsstatus]]></de>
@@ -842,8 +842,8 @@
             <en><![CDATA[Gross]]></en>
         </locale>
         <locale name="journal.grid.netto">
-            <de><![CDATA[Netto]]></de>
-            <en><![CDATA[Net]]></en>
+            <de><![CDATA[Netto-Summe]]></de>
+            <en><![CDATA[Net total]]></en>
         </locale>
         <locale name="journal.grid.taxId">
             <de><![CDATA[Umsatzsteuer ID]]></de>
