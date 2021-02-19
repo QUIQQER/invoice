@@ -300,6 +300,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
 
             this.$Grid = new Grid(Container, {
+                storageKey       : 'quiqqer-invoice-grid-temporaryInvoices',
                 pagination       : true,
                 multipleSelection: true,
                 serverSort       : true,
