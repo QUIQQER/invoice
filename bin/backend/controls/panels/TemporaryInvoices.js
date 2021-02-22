@@ -970,28 +970,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             selected = selected[0];
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            require([
-                'package/quiqqer/erp/bin/backend/controls/OutputDialog'
-            ], function (OutputDialog) {
-                var entityType;
 
-                switch (parseInt(selected.type)) {
-                    case 3:
-                        entityType = 'CreditNote';
-                        break;
+            var entityType;
 
-                    case 4:
-                        entityType = 'Canceled';
-                        break;
+            switch (parseInt(selected.type)) {
+                case 3:
+                    entityType = 'CreditNote';
+                    break;
 
-                    default:
-                        entityType = 'Invoice';
-                }
+                case 4:
+                    entityType = 'Canceled';
+                    break;
 
-                Dialogs.openPrintDialog(selected.id, entityType);
+                default:
+                    entityType = 'Invoice';
+            }
 
-                Button.setAttribute('textimage', 'fa fa-file-pdf-o');
-            });
+            Dialogs.openPrintDialog(selected.id, entityType);
+
+            Button.setAttribute('textimage', 'fa fa-file-pdf-o');
         },
 
         /**
