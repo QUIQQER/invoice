@@ -346,21 +346,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'node',
                     width    : 30
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.status'),
-                    dataIndex: 'paid_status_display',
-                    dataType : 'html',
-                    width    : 120,
-                    className: 'grid-align-center'
-                }, {
                     header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
                     dataIndex: 'id',
                     dataType : 'integer',
                     width    : 100
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.orderNo'),
-                    dataIndex: 'order_id',
-                    dataType : 'integer',
-                    width    : 80
+                    header   : QUILocale.get('quiqqer/quiqqer', 'name'),
+                    dataIndex: 'customer_name',
+                    dataType : 'string',
+                    width    : 130,
+                    className: 'clickable'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.customerNo'),
                     dataIndex: 'customer_id',
@@ -368,11 +363,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     width    : 100,
                     className: 'clickable'
                 }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'name'),
-                    dataIndex: 'customer_name',
-                    dataType : 'string',
-                    width    : 130,
-                    className: 'clickable'
+                    header   : QUILocale.get(lg, 'journal.grid.status'),
+                    dataIndex: 'paid_status_display',
+                    dataType : 'html',
+                    width    : 120,
+                    className: 'grid-align-center'
                 }, {
                     header   : QUILocale.get('quiqqer/quiqqer', 'date'),
                     dataIndex: 'date',
@@ -384,15 +379,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'string',
                     width    : 140
                 }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'c_date'),
-                    dataIndex: 'c_date',
-                    dataType : 'date',
-                    width    : 140
-                }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'c_user'),
-                    dataIndex: 'c_username',
-                    dataType : 'integer',
-                    width    : 180
+                    header   : QUILocale.get(lg, 'journal.grid.sum'),
+                    dataIndex: 'display_sum',
+                    dataType : 'string',
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.netto'),
                     dataIndex: 'display_nettosum',
@@ -402,12 +393,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.vat'),
                     dataIndex: 'display_vatsum',
-                    dataType : 'string',
-                    width    : 100,
-                    className: 'payment-status-amountCell'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.sum'),
-                    dataIndex: 'display_sum',
                     dataType : 'string',
                     width    : 100,
                     className: 'payment-status-amountCell'
@@ -448,6 +433,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataIndex: 'taxId',
                     dataType : 'string',
                     width    : 120
+                }, {
+                    header   : QUILocale.get('quiqqer/quiqqer', 'c_date'),
+                    dataIndex: 'c_date',
+                    dataType : 'date',
+                    width    : 140
+                }, {
+                    header   : QUILocale.get('quiqqer/quiqqer', 'c_user'),
+                    dataIndex: 'c_username',
+                    dataType : 'integer',
+                    width    : 180
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.orderNo'),
+                    dataIndex: 'order_id',
+                    dataType : 'integer',
+                    width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.comments'),
                     dataIndex: 'comments',
