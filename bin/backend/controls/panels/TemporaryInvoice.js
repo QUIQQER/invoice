@@ -1,26 +1,41 @@
 /**
- * @module package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices
+ * @module package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice
  * @author www.pcsg.de (Henning Leutz)
  *
- * Zeigt alle Rechnungsentwürfe an
+ * Edit a Temporary Invoice and created a posted invoice
  */
-define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', [
+define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
     'qui/QUI',
     'qui/controls/desktop/Panel',
-    'qui/controls/windows/Confirm',
     'qui/controls/buttons/Button',
-    'qui/controls/contextmenu/Item',
-    'controls/grid/Grid',
+    'qui/controls/buttons/ButtonMultiple',
+    'qui/controls/buttons/Separator',
+    'qui/controls/windows/Confirm',
+    'qui/utils/Form',
+    'controls/users/address/Select',
     'package/quiqqer/invoice/bin/Invoices',
     'package/quiqqer/invoice/bin/backend/utils/Dialogs',
+    'package/quiqqer/erp/bin/backend/controls/Comments',
+    'package/quiqqer/erp/bin/backend/controls/articles/Text',
+    'package/quiqqer/payments/bin/backend/Payments',
+    'package/quiqqer/customer/bin/backend/controls/customer/address/Window',
+    'utils/Lock',
     'Locale',
-    'Ajax',
+    'Mustache',
+    'Users',
+    'Editors',
 
-    'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css',
-    'css!package/quiqqer/erp/bin/backend/payment-status.css'
+    'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Data.html',
+    'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Post.html',
+    'text!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Missing.html',
 
-], function (QUI, QUIPanel, QUIConfirm, QUIButton, QUIContextMenuItem, Grid, Invoices, Dialogs, QUILocale, QUIAjax) {
+    'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
+
+], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
+             AddressSelect, Invoices, Dialogs, Comments, TextArticle,
+             Payments, AddressWindow, Locker, QUILocale, Mustache, Users, Editors,
+             templateData, templatePost, templateMissing) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -28,958 +43,194 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
     return new Class({
 
         Extends: QUIPanel,
-        Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices',
+        Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
 
         Binds: [
-            'refresh',
+            'save',
+            'post',
+            'openData',
+            'openArticles',
+            'openComments',
+            'openAddCommentDialog',
+            'openVerification',
+            '$openCategory',
+            '$closeCategory',
             '$onCreate',
-            '$onResize',
             '$onInject',
+            '$onKeyUp',
             '$onDestroy',
-            '$onShow',
-            '$clickPostInvoice',
-            '$clickCreateInvoice',
-            '$clickDeleteInvoice',
-            '$clickCopyInvoice',
-            '$clickPDF',
-            '$onInvoicesChange',
-            '$onClickInvoiceDetails'
+            '$onDeleteInvoice',
+            '$onArticleReplaceClick',
+            '$clickDelete',
+            'toggleSort',
+            '$showLockMessage'
         ],
+
+        options: {
+            invoiceId         : false,
+            customer_id       : false,
+            invoice_address   : false,
+            invoice_address_id: false,
+            project_name      : '',
+            date              : '',
+            time_for_payment  : '',
+            data              : {},
+            articles          : []
+        },
 
         initialize: function (options) {
             this.setAttributes({
-                icon : 'fa fa-money',
-                title: QUILocale.get(lg, 'erp.panel.temporary.invoice.title')
+                icon: 'fa fa-money'
             });
 
             this.parent(options);
 
-            this.$Grid     = null;
-            this.$Currency = null;
+            this.$AdditionalText     = null;
+            this.$ArticleList        = null;
+            this.$ArticleListSummary = null;
+            this.$AddProduct         = null;
+            this.$ArticleSort        = null;
+            this.$AddressDelivery    = null;
+
+            this.$AddSeparator  = null;
+            this.$SortSeparator = null;
+            this.$locked        = false;
+
+            this.$serializedList = {};
 
             this.addEvents({
                 onCreate : this.$onCreate,
-                onResize : this.$onResize,
                 onInject : this.$onInject,
-                onDestroy: this.$onDestroy,
-                onShow   : this.$onShow
+                onDestroy: this.$onDestroy
             });
 
             Invoices.addEvents({
-                onDeleteInvoice : this.$onInvoicesChange,
-                onSaveInvoice   : this.$onInvoicesChange,
-                onCreateInvoice : this.$onInvoicesChange,
-                onCopyInvoice   : this.$onInvoicesChange,
-                onPostInvoice   : this.$onInvoicesChange,
-                createCreditNote: this.$onInvoicesChange
+                onDeleteInvoice: this.$onDeleteInvoice
             });
         },
 
         /**
-         * Refresh the grid
+         * Return the lock key
+         *
+         * @return {string}
+         */
+        $getLockKey: function () {
+            return 'lock-invoice-temporary-' + this.getAttribute('invoiceId');
+        },
+
+        /**
+         * Return the lock group
+         * @return {string}
+         */
+        $getLockGroups: function () {
+            return 'quiqqer/invoice';
+        },
+
+        /**
+         * Panel refresh
          */
         refresh: function () {
-            if (!this.$Grid) {
-                return;
+            var title = this.getAttribute('invoiceId');
+
+            title = title + ' (';
+
+            if (this.getAttribute('isbrutto')) {
+                title = title + QUILocale.get(lg, 'brutto');
+            } else {
+                title = title + QUILocale.get(lg, 'netto');
+            }
+
+            title = title + ')';
+
+            this.setAttribute('title', title);
+            this.parent();
+        },
+
+        /**
+         * Refresh the invoice data
+         */
+        doRefresh: function () {
+            var self      = this,
+                invoiceId = this.getAttribute('invoiceId');
+
+            return Invoices.getTemporaryInvoice(invoiceId).then(function (data) {
+                self.setAttributes(data);
+
+                if (data.articles.articles && data.articles.articles.length) {
+                    self.$serializedList = {
+                        articles: data.articles.articles
+                    };
+
+                    self.setAttribute('articles', data.articles.articles);
+                }
+
+                if (data.invoice_address) {
+                    self.setAttribute('invoice_address', data.invoice_address);
+                }
+
+                self.refresh();
+            });
+        },
+
+        /**
+         * Saves the current data
+         *
+         * @return {Promise}
+         */
+        save: function () {
+            if (this.$locked) {
+                return Promise.resolve();
             }
 
             this.Loader.show();
+            this.$unloadCategory(false);
 
-            return Invoices.getTemporaryInvoicesList({
-                perPage: this.$Grid.options.perPage,
-                page   : this.$Grid.options.page,
-                sortBy : this.$Grid.options.sortBy,
-                sortOn : this.$Grid.options.sortOn
-            }, {
-                currency: this.$Currency.getAttribute('value')
-            }).then(function (result) {
-                result.data = result.data.map(function (entry) {
-                    var Icon = new Element('span');
-
-                    switch (parseInt(entry.type)) {
-                        // gutschrift
-                        case 3:
-                            Icon.addClass('fa fa-clipboard');
-                            break;
-
-                        // storno
-                        case 4:
-                            Icon.addClass('fa fa-ban');
-                            break;
-
-                        default:
-                            Icon.addClass('fa fa-file-text-o');
-                    }
-
-                    entry.display_type = Icon;
-                    entry.opener       = '&nbsp;';
-
-                    return entry;
-                });
-
-                this.$Grid.setData(result);
-
-                var Actions  = this.$Grid.getButtons().filter(function (Btn) {
-                        return Btn.getAttribute('name') === 'actions';
-                    })[0],
-
-                    children = Actions.getChildren();
-
-
-                var Copy = children.filter(function (Btn) {
-                    return Btn.getAttribute('name') === 'copy';
-                })[0];
-
-                var Delete = children.filter(function (Btn) {
-                    return Btn.getAttribute('name') === 'delete';
-                })[0];
-
-                var PDF = children.filter(function (Btn) {
-                    return Btn.getAttribute('name') === 'pdf';
-                })[0];
-
-                var Post = children.filter(function (Btn) {
-                    return Btn.getAttribute('name') === 'post';
-                })[0];
-
-                Copy.disable();
-                Delete.disable();
-                PDF.disable();
-                Post.disable();
-
+            return Invoices.saveInvoice(
+                this.getAttribute('invoiceId'),
+                this.getCurrentData()
+            ).then(function () {
+                this.Loader.hide();
+                this.showSavedIconAnimation();
+            }.bind(this)).catch(function (err) {
+                console.error(err);
+                console.error(err.getMessage());
                 this.Loader.hide();
             }.bind(this));
         },
 
         /**
-         * Opens a TemporaryInvoice Panel
-         *
-         * @param {String} invoiceId
-         * @return {Promise}
-         */
-        openInvoice: function (invoiceId) {
-            return new Promise(function (resolve) {
-                require([
-                    'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
-                    'utils/Panels'
-                ], function (TemporaryInvoice, PanelUtils) {
-                    var Panel = new TemporaryInvoice({
-                        invoiceId: invoiceId,
-                        '#id'    : invoiceId
-                    });
-
-                    PanelUtils.openPanelInTasks(Panel);
-                    resolve(Panel);
-                });
-            });
-        },
-
-        /**
-         * Download an invoice
-         *
-         * @param {Number|String} invoiceId
-         */
-        downloadPdf: function (invoiceId) {
-            return new Promise(function (resolve) {
-                var id = 'download-invoice-' + invoiceId;
-
-                new Element('iframe', {
-                    src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/downloadInvoice.php?' + Object.toQueryString({
-                        invoiceId: invoiceId
-                    }),
-                    id    : id,
-                    styles: {
-                        position: 'absolute',
-                        top     : -200,
-                        left    : -200,
-                        width   : 50,
-                        height  : 50
-                    }
-                }).inject(document.body);
-
-                (function () {
-                    // document.getElements('#' + id).destroy();
-                    resolve();
-                }).delay(1000, this);
-            });
-        },
-
-        /**
-         * Event Handling
-         */
-
-        /**
-         * event : on panel create
-         */
-        $onCreate: function () {
-            var self = this;
-
-            // Buttons
-
-            // currency
-            this.$Currency = new QUIButton({
-                name      : 'currency',
-                disabled  : true,
-                showIcons : false,
-                menuCorner: 'topRight',
-                styles    : {
-                    'float': 'right'
-                },
-                events    : {
-                    onChange: function (Menu, Item) {
-                        var value = Item.getAttribute('value'),
-                            text  = value;
-
-                        if (value === '') {
-                            text = QUILocale.get(lg, 'currency.select.all');
-                        }
-
-                        self.$Currency.setAttribute('value', value);
-                        self.$Currency.setAttribute('text', text);
-                        self.refresh();
-                    }
-                }
-            });
-
-            // Grid
-            this.getContent().setStyles({
-                padding: 10
-            });
-
-            var Container = new Element('div').inject(
-                this.getContent()
-            );
-
-
-            var Actions = new QUIButton({
-                name      : 'actions',
-                text      : QUILocale.get(lg, 'journal.btn.actions'),
-                menuCorner: 'topRight',
-                styles    : {
-                    'float': 'right'
-                }
-            });
-
-            Actions.appendChild({
-                name    : 'post',
-                disabled: true,
-                text    : QUILocale.get(lg, 'journal.btn.post'),
-                icon    : 'fa fa-file-text-o',
-                events  : {
-                    onClick: this.$clickPostInvoice
-                }
-            });
-
-            Actions.appendChild({
-                name    : 'copy',
-                disabled: true,
-                text    : QUILocale.get(lg, 'temporary.btn.copyInvoice'),
-                icon    : 'fa fa-copy',
-                events  : {
-                    onClick: this.$clickCopyInvoice
-                }
-            });
-
-            Actions.appendChild({
-                name    : 'delete',
-                disabled: true,
-                text    : QUILocale.get(lg, 'temporary.btn.deleteInvoice'),
-                icon    : 'fa fa-trash',
-                events  : {
-                    onClick: this.$clickDeleteInvoice
-                }
-            });
-
-            Actions.appendChild({
-                name    : 'pdf',
-                disabled: true,
-                text    : QUILocale.get(lg, 'journal.btn.pdf'),
-                icon    : 'fa fa-file-pdf-o',
-                events  : {
-                    onClick: this.$clickPDF
-                }
-            });
-
-
-            this.$Grid = new Grid(Container, {
-                pagination       : true,
-                multipleSelection: true,
-                serverSort       : true,
-                sortOn           : 'date',
-                sortBy           : 'DESC',
-
-                accordion            : true,
-                autoSectionToggle    : false,
-                openAccordionOnClick : false,
-                toggleiconTitle      : '',
-                accordionLiveRenderer: this.$onClickInvoiceDetails,
-
-                exportData : true,
-                exportTypes: {
-                    csv : true,
-                    json: true,
-                    xls : true
-                },
-
-                buttons    : [Actions, this.$Currency, {
-                    name     : 'create',
-                    text     : QUILocale.get(lg, 'temporary.btn.createInvoice'),
-                    textimage: 'fa fa-plus',
-                    events   : {
-                        onClick: function (Btn) {
-                            Btn.setAttribute('textimage', 'fa fa-spinner fa-spin');
-
-                            self.$clickCreateInvoice(Btn).then(function () {
-                                Btn.setAttribute('textimage', 'fa fa-plus');
-                            });
-                        }
-                    }
-                }],
-                columnModel: [{
-                    header   : '&nbsp;',
-                    dataIndex: 'opener',
-                    dataType : 'int',
-                    width    : 30
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.type'),
-                    dataIndex: 'display_type',
-                    dataType : 'node',
-                    width    : 30
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
-                    dataIndex: 'id',
-                    dataType : 'integer',
-                    width    : 100
-                }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'name'),
-                    dataIndex: 'customer_name',
-                    dataType : 'string',
-                    width    : 200,
-                    className: 'clickable'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.customerNo'),
-                    dataIndex: 'customer_id',
-                    dataType : 'integer',
-                    width    : 90,
-                    className: 'clickable'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.status'),
-                    dataIndex: 'paid_status_display',
-                    dataType : 'html',
-                    width    : 120,
-                    className: 'grid-align-center'
-                }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'date'),
-                    dataIndex: 'date',
-                    dataType : 'date',
-                    width    : 90
-                }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'project'),
-                    dataIndex: 'project_name',
-                    dataType : 'string',
-                    width    : 160
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.sum'),
-                    dataIndex: 'display_sum',
-                    dataType : 'string',
-                    width    : 120,
-                    className: 'payment-status-amountCell'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.netto'),
-                    dataIndex: 'display_nettosum',
-                    dataType : 'string',
-                    width    : 100,
-                    className: 'payment-status-amountCell'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.vat'),
-                    dataIndex: 'display_vatsum',
-                    dataType : 'string',
-                    width    : 100,
-                    className: 'payment-status-amountCell'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
-                    dataIndex: 'payment_title',
-                    dataType : 'string',
-                    width    : 120
-                }, {
-                    header   : QUILocale.get(lg, 'temporary.grid.timeForPayment'),
-                    dataIndex: 'time_for_payment',
-                    dataType : 'string',
-                    width    : 120
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentDate'),
-                    dataIndex: 'paid_date',
-                    dataType : 'date',
-                    width    : 120
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paid'),
-                    dataIndex: 'display_paid',
-                    dataType : 'string',
-                    width    : 100,
-                    className: 'payment-status-amountCell'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.open'),
-                    dataIndex: 'display_missing',
-                    dataType : 'string',
-                    width    : 100,
-                    className: 'payment-status-amountCell'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.brutto'),
-                    dataIndex: 'isbrutto',
-                    dataType : 'integer',
-                    width    : 50
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.taxId'),
-                    dataIndex: 'taxId',
-                    dataType : 'string',
-                    width    : 120
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.comments'),
-                    dataIndex: 'comments',
-                    dataType : 'string',
-                    width    : 100
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentData'),
-                    dataIndex: 'payment_data',
-                    dataType : 'string',
-                    width    : 100
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.processing'),
-                    dataIndex: 'processing_status_display',
-                    dataType : 'html',
-                    width    : 150
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.orderNo'),
-                    dataIndex: 'order_id',
-                    dataType : 'integer',
-                    width    : 80
-                }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'c_date'),
-                    dataIndex: 'c_date',
-                    dataType : 'date',
-                    width    : 140
-                }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'c_user'),
-                    dataIndex: 'c_username',
-                    dataType : 'integer',
-                    width    : 180
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.hash'),
-                    dataIndex: 'hash',
-                    dataType : 'string',
-                    width    : 280,
-                    className: 'monospace'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.globalProcessId'),
-                    dataIndex: 'global_process_id',
-                    dataType : 'string',
-                    width    : 280,
-                    className: 'monospace'
-                }, {
-                    dataIndex: 'paidstatus',
-                    dataType : 'string',
-                    hidden   : true
-                }, {
-                    dataIndex: 'c_user',
-                    dataType : 'integer',
-                    hidden   : true
-                }]
-            });
-
-            this.$Grid.addEvents({
-                onRefresh: this.refresh,
-
-                onClick: function () {
-                    var selected = this.getSelectedIndices();
-
-                    var Actions  = this.getButtons().filter(function (Btn) {
-                            return Btn.getAttribute('name') === 'actions';
-                        })[0],
-
-                        children = Actions.getChildren();
-
-                    var Copy = children.filter(function (Btn) {
-                        return Btn.getAttribute('name') === 'copy';
-                    })[0];
-
-                    var Delete = children.filter(function (Btn) {
-                        return Btn.getAttribute('name') === 'delete';
-                    })[0];
-
-                    var PDF = children.filter(function (Btn) {
-                        return Btn.getAttribute('name') === 'pdf';
-                    })[0];
-
-                    var Post = children.filter(function (Btn) {
-                        return Btn.getAttribute('name') === 'post';
-                    })[0];
-
-                    if (!selected.length) {
-                        Copy.disable();
-                        Delete.disable();
-                        PDF.disable();
-                        Post.disable();
-                        return;
-                    }
-
-                    if (selected.length === 1) {
-                        Copy.enable();
-                        Delete.enable();
-                        PDF.enable();
-                        Post.enable();
-                        return;
-                    }
-
-                    Copy.disable();
-                    Delete.enable();
-                    PDF.disable();
-                    Post.enable();
-                },
-
-                onDblClick: function (data) {
-                    if (typeof data !== 'undefined' &&
-                        (data.cell.get('data-index') === 'customer_id' ||
-                            data.cell.get('data-index') === 'customer_name')) {
-
-                        var Cell     = data.cell,
-                            position = Cell.getPosition(),
-                            rowData  = self.$Grid.getDataByRow(data.row);
-
-                        return new Promise(function (resolve) {
-                            require([
-                                'qui/controls/contextmenu/Menu',
-                                'qui/controls/contextmenu/Item'
-                            ], function (QUIMenu, QUIMenuItem) {
-                                var Menu = new QUIMenu({
-                                    events: {
-                                        onBlur: function () {
-                                            Menu.hide();
-                                            Menu.destroy();
-                                        }
-                                    }
-                                });
-
-                                Menu.appendChild(
-                                    new QUIMenuItem({
-                                        icon  : rowData.display_type.className,
-                                        text  : QUILocale.get(lg, 'journal.contextMenu.open.invoice'),
-                                        events: {
-                                            onClick: function () {
-                                                self.openInvoice(rowData.hash);
-                                            }
-                                        }
-                                    })
-                                );
-
-                                Menu.appendChild(
-                                    new QUIMenuItem({
-                                        icon  : 'fa fa-user-o',
-                                        text  : QUILocale.get(lg, 'journal.contextMenu.open.user'),
-                                        events: {
-                                            onClick: function () {
-                                                require(['package/quiqqer/customer/bin/backend/Handler'], function (CustomerHandler) {
-                                                    CustomerHandler.openCustomer(rowData.customer_id);
-                                                });
-                                            }
-                                        }
-                                    })
-                                );
-
-                                Menu.inject(document.body);
-                                Menu.setPosition(position.x, position.y + 30);
-                                Menu.setTitle(rowData.id);
-                                Menu.show();
-                                Menu.focus();
-
-                                resolve();
-                            });
-                        });
-                    }
-
-                    if (!self.$Grid.getSelectedData().length) {
-                        return;
-                    }
-
-                    self.openInvoice(
-                        self.$Grid.getSelectedData()[0].hash
-                    );
-                }
-            });
-        },
-
-        /**
-         * event : on panel resize
-         */
-        $onResize: function () {
-            if (!this.$Grid) {
-                return;
-            }
-
-            var Body = this.getContent();
-
-            if (!Body) {
-                return;
-            }
-
-            var size = Body.getSize();
-
-            this.$Grid.setHeight(size.y - 20);
-            this.$Grid.setWidth(size.x - 20);
-            this.$Grid.resize();
-        },
-
-        /**
-         * event: on panel inject
-         */
-        $onInject: function () {
-            var self = this;
-
-            QUIAjax.get([
-                'package_quiqqer_currency_ajax_getAllowedCurrencies',
-                'package_quiqqer_currency_ajax_getDefault'
-            ], function (currencies, currency) {
-                var i, len, entry, text;
-
-                if (!currencies.length || currencies.length === 1) {
-                    self.$Currency.hide();
-                    return;
-                }
-
-                for (i = 0, len = currencies.length; i < len; i++) {
-                    entry = currencies[i];
-
-                    text = entry.code + ' ' + entry.sign;
-                    text = text.trim();
-
-                    self.$Currency.appendChild(
-                        new QUIContextMenuItem({
-                            name : entry.code,
-                            value: entry.code,
-                            text : text
-                        })
-                    );
-                }
-
-                self.$Currency.appendChild(
-                    new QUIContextMenuItem({
-                        name : 'all',
-                        value: '',
-                        text : QUILocale.get(lg, 'currency.select.all')
-                    })
-                );
-
-                self.$Currency.enable();
-                self.$Currency.setAttribute('value', currency.code);
-                self.$Currency.setAttribute('text', currency.code);
-            }, {
-                'package': 'quiqqer/currency'
-            });
-
-            this.$Currency.getContextMenu(function (ContextMenu) {
-                ContextMenu.setAttribute('showIcons', false);
-            });
-
-            this.refresh();
-        },
-
-        /**
-         * event: on panel destroy
-         */
-        $onDestroy: function () {
-            Invoices.removeEvents({
-                onDeleteInvoice : this.$onInvoicesChange,
-                onCreateInvoice : this.$onInvoicesChange,
-                onSaveInvoice   : this.$onInvoicesChange,
-                onCopyInvoice   : this.$onInvoicesChange,
-                onPostInvoice   : this.$onInvoicesChange,
-                createCreditNote: this.$onInvoicesChange
-            });
-        },
-
-        $onShow: function () {
-            this.refresh();
-        },
-
-        /**
-         * Creates a new invoice
+         * Post the temporary invoice
          *
          * @return {Promise}
          */
-        $clickCreateInvoice: function () {
-            return Invoices.createInvoice().then(function (invoiceId) {
-                return this.openInvoice(invoiceId);
-            }.bind(this)).catch(function (Exception) {
-                QUI.getMessageHandler().then(function (MH) {
-                    if (typeof Exception.getMessage !== 'undefined') {
-                        MH.addError(Exception.getMessage());
-                        return;
-                    }
+        post: function () {
+            var self = this;
 
-                    console.error(Exception);
-                });
-            });
-        },
+            this.Loader.show();
+            this.$unloadCategory(false);
 
-        /**
-         * Post the selected invoice
-         *
-         * @param Button
-         */
-        $clickPostInvoice: function (Button) {
-            var selected = this.$Grid.getSelectedData(),
-                oldImage = Button.getAttribute('textimage');
+            return Invoices.saveInvoice(
+                this.getAttribute('invoiceId'),
+                this.getCurrentData()
+            ).then(function (Data) {
+                return Promise.all([
+                    Invoices.postInvoice(self.getAttribute('invoiceId')),
+                    Invoices.getSetting('temporaryInvoice', 'openPrintDialogAfterPost'),
+                    Data
+                ]);
+            }).then(function (result) {
+                var newInvoiceHash           = result[0],
+                    openPrintDialogAfterPost = result[1],
+                    Data                     = result[2];
 
-            if (!selected.length) {
-                return;
-            }
-
-            Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
-
-            var proms = [];
-
-            for (var i = 0, len = selected.length; i < len; i++) {
-                proms.push(Invoices.getMissingAttributes(selected[i].id));
-            }
-
-            Promise.all(proms).then(function (result) {
-                Button.setAttribute('textimage', oldImage);
-
-                for (var i = 0, len = result.length; i < len; i++) {
-                    if (Object.getLength(result[i])) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }).then(function (go) {
-                if (go === false) {
-                    QUI.getMessageHandler().then(function (MH) {
-                        MH.addError(
-                            QUILocale.get(lg, 'exception.post.invoices.missing.attributes')
-                        );
-                    });
-
+                if (!openPrintDialogAfterPost) {
+                    self.destroy();
                     return;
                 }
 
-                var invoices = '';
-
-                for (var i = 0, len = selected.length; i < len; i++) {
-                    var Row = selected[i];
-
-                    invoices += '<li>' + Row.id;
-
-                    if (Row.customer_name) {
-                        invoices += ' - ' + Row.customer_name;
-                    }
-
-                    if (Row.project_name) {
-                        invoices += ' (' + Row.project_name + ')';
-                    }
-
-                    invoices += '</li>';
-                }
-
-                new QUIConfirm({
-                    title      : QUILocale.get(lg, 'dialog.ti.post.title'),
-                    text       : QUILocale.get(lg, 'dialog.ti.post.text'),
-                    information: QUILocale.get(lg, 'dialog.ti.post.information', {
-                        invoices: '<ul>' + invoices + '</ul>'
-                    }),
-                    icon       : 'fa fa-check',
-                    texticon   : 'fa fa-check',
-                    maxHeight  : 400,
-                    maxWidth   : 600,
-                    autoclose  : false,
-                    ok_button  : {
-                        text     : QUILocale.get(lg, 'dialog.ti.post.button'),
-                        textimage: 'fa fa-check'
-                    },
-                    events     : {
-                        onSubmit: function (Win) {
-                            Win.Loader.show();
-
-                            var posts = [];
-
-                            for (var i = 0, len = selected.length; i < len; i++) {
-                                posts.push(Invoices.postInvoice(selected[i].hash));
-                            }
-
-                            Promise.all(posts).then(function () {
-                                return Invoices.getSetting('temporaryInvoice', 'openPrintDialogAfterPost');
-                            }).then(function (openPrintDialogAfterPost) {
-                                if (!openPrintDialogAfterPost || selected.length > 1) {
-                                    Win.close();
-                                    return;
-                                }
-
-                                var entityType;
-
-                                switch (parseInt(selected[0].type)) {
-                                    case 3:
-                                        entityType = 'CreditNote';
-                                        break;
-
-                                    case 4:
-                                        entityType = 'Canceled';
-                                        break;
-
-                                    default:
-                                        entityType = 'Invoice';
-                                }
-
-                                // open print dialog
-                                Dialogs.openPrintDialog(selected[0].hash, entityType).then(function () {
-                                    Win.close();
-                                });
-                            }).catch(function (Err) {
-                                QUI.getMessageHandler().then(function (MH) {
-                                    MH.addError(Err.getMessage());
-                                });
-
-                                Win.Loader.hide();
-                            });
-                        }
-                    }
-                }).open();
-            });
-        },
-
-        /**
-         * opens the delete dialog
-         */
-        $clickDeleteInvoice: function () {
-            var selected = this.$Grid.getSelectedData();
-
-            if (!selected.length) {
-                return;
-            }
-
-            var invoices = '';
-
-            for (var i = 0, len = selected.length; i < len; i++) {
-                invoices = invoices + '<li>' + selected[i].id + '</li>';
-            }
-
-            new QUIConfirm({
-                title      : QUILocale.get(lg, 'dialog.ti.delete.title'),
-                text       : QUILocale.get(lg, 'dialog.ti.delete.text'),
-                information: QUILocale.get(lg, 'dialog.ti.delete.information', {
-                    invoices: '<ul>' + invoices + '</ul>'
-                }),
-                icon       : 'fa fa-trash',
-                texticon   : 'fa fa-trash',
-                maxHeight  : 400,
-                maxWidth   : 600,
-                autoclose  : false,
-                ok_button  : {
-                    text     : QUILocale.get('quiqqer/quiqqer', 'delete'),
-                    textimage: 'fa fa-trash'
-                },
-                events     : {
-                    onSubmit: function (Win) {
-                        Win.Loader.show();
-
-                        var posts = [];
-
-                        for (var i = 0, len = selected.length; i < len; i++) {
-                            posts.push(Invoices.deleteInvoice(selected[i].hash));
-                        }
-
-                        Promise.all(posts).then(function () {
-                            Win.close();
-                        }).then(function () {
-                            Win.Loader.show();
-                        }).catch(function (Exception) {
-                            QUI.getMessageHandler().then(function (MH) {
-                                if (typeof Exception.getMessage !== 'undefined') {
-                                    MH.addError(Exception.getMessage());
-                                    return;
-                                }
-
-                                console.error(Exception);
-                            });
-
-                            Win.Loader.hide();
-                        });
-                    }
-                }
-            }).open();
-        },
-
-        /**
-         * Copy the temporary invoice and opens the invoice
-         */
-        $clickCopyInvoice: function () {
-            var self     = this,
-                selected = this.$Grid.getSelectedData();
-
-            if (!selected.length) {
-                return;
-            }
-
-            new QUIConfirm({
-                title      : QUILocale.get(lg, 'dialog.ti.copy.title'),
-                text       : QUILocale.get(lg, 'dialog.ti.copy.text'),
-                information: QUILocale.get(lg, 'dialog.ti.copy.information', {
-                    id: selected[0].id
-                }),
-                icon       : 'fa fa-copy',
-                texticon   : 'fa fa-copy',
-                maxHeight  : 400,
-                maxWidth   : 600,
-                autoclose  : false,
-                ok_button  : {
-                    text     : QUILocale.get('quiqqer/quiqqer', 'copy'),
-                    textimage: 'fa fa-copy'
-                },
-                events     : {
-                    onSubmit: function (Win) {
-                        Win.Loader.show();
-
-                        Invoices.copyTemporaryInvoice(selected[0].hash).then(function (newId) {
-                            Win.close();
-                            return self.openInvoice(newId);
-                        }).then(function () {
-                            Win.Loader.show();
-                        }).catch(function (Exception) {
-                            QUI.getMessageHandler().then(function (MH) {
-                                if (typeof Exception.getMessage !== 'undefined') {
-                                    MH.addError(Exception.getMessage());
-                                    return;
-                                }
-
-                                console.error(Exception);
-                            });
-
-                            Win.Loader.hide();
-                        });
-                    }
-                }
-            }).open();
-        },
-
-        /**
-         * Export PDF of a temporary invoice
-         *
-         * @param Button
-         */
-        $clickPDF: function (Button) {
-            var selected = this.$Grid.getSelectedData();
-
-            if (!selected.length) {
-                return;
-            }
-
-            selected = selected[0];
-            Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
-
-            require([
-                'package/quiqqer/erp/bin/backend/controls/OutputDialog'
-            ], function (OutputDialog) {
                 var entityType;
 
-                switch (parseInt(selected.type)) {
+                switch (parseInt(Data.type)) {
                     case 3:
                         entityType = 'CreditNote';
                         break;
@@ -992,45 +243,1447 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         entityType = 'Invoice';
                 }
 
-                Dialogs.openPrintDialog(selected.id, entityType);
+                // open print dialog
+                Dialogs.openPrintDialog(newInvoiceHash, entityType).then(function () {
+                    self.destroy();
+                });
+            }).catch(function (err) {
+                console.error(err);
+                console.error(err.getMessage());
+                this.Loader.hide();
+            }.bind(this));
+        },
 
-                Button.setAttribute('textimage', 'fa fa-file-pdf-o');
+        /**
+         * @returns {{customer_id, invoice_address_id, project_name, articles, date, time_for_payment}}
+         */
+        getCurrentData: function () {
+            return {
+                customer_id            : this.getAttribute('customer_id'),
+                invoice_address_id     : this.getAttribute('invoice_address_id'),
+                project_name           : this.getAttribute('project_name'),
+                articles               : this.getAttribute('articles'),
+                date                   : this.getAttribute('date'),
+                editor_id              : this.getAttribute('editor_id'),
+                ordered_by             : this.getAttribute('ordered_by'),
+                contact_person         : this.getAttribute('contact_person'),
+                time_for_payment       : this.getAttribute('time_for_payment'),
+                payment_method         : this.getAttribute('payment_method'),
+                additional_invoice_text: this.getAttribute('additional_invoice_text'),
+                addressDelivery        : this.getAttribute('addressDelivery'),
+                processing_status      : this.getAttribute('processing_status')
+            };
+        },
+
+        /**
+         * Return the current user data
+         */
+        getUserData: function () {
+            return {
+                uid: this.getAttribute('customer_id'),
+                aid: this.getAttribute('invoice_address_id')
+            };
+        },
+
+        /**
+         * Categories
+         */
+
+        /**
+         * Open the data category
+         *
+         * @returns {Promise}
+         */
+        openData: function () {
+            var self = this;
+
+            this.renderDataDone = false;
+            this.Loader.show();
+
+            return this.$closeCategory().then(function () {
+                var Container = self.getContent().getElement('.container');
+
+                Container.setStyle('height', null);
+
+                Container.set({
+                    html: Mustache.render(templateData, {
+                        textInvoiceData   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceData'),
+                        textInvoiceDate   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceDate'),
+                        textTermOfPayment : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textTermOfPayment'),
+                        textProjectName   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textProjectName'),
+                        textOrderedBy     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textOrderedBy'),
+                        textEditor        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textEditor'),
+                        textInvoicePayment: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoicePayment'),
+                        textPaymentMethod : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textPaymentMethod'),
+                        textInvoiceText   : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceText'),
+                        textStatus        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textStatus'),
+                        textContactPerson : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textContactPerson'),
+
+                        textInvoiceDeliveryAddress     : QUILocale.get(lg, 'deliveryAddress'),
+                        messageDifferentDeliveryAddress: QUILocale.get(lg, 'message.different,delivery.address'),
+                        textAddresses                  : QUILocale.get(lg, 'address'),
+                        textCompany                    : QUILocale.get(lg, 'company'),
+                        textStreet                     : QUILocale.get(lg, 'street'),
+                        textZip                        : QUILocale.get(lg, 'zip'),
+                        textCity                       : QUILocale.get(lg, 'city'),
+                        textCountry                    : QUILocale.get(lg, 'country'),
+                        textSalutation                 : QUILocale.get(lg, 'salutation'),
+                        textFirstname                  : QUILocale.get(lg, 'firstname'),
+                        textLastname                   : QUILocale.get(lg, 'lastname')
+                    })
+                });
+
+                var Form = Container.getElement('form');
+
+                QUIFormUtils.setDataToForm(self.getAttribute('data'), Form);
+
+                // set invoice date to today
+                // quiqqer/invoice#46
+                var local = new Date();
+                local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
+                var dateDate = local.toJSON().slice(0, 10);
+
+                QUIFormUtils.setDataToForm({
+                    date             : dateDate,
+                    time_for_payment : self.getAttribute('time_for_payment'),
+                    project_name     : self.getAttribute('project_name'),
+                    editor_id        : self.getAttribute('editor_id'),
+                    processing_status: self.getAttribute('processing_status'),
+                    contact_person   : self.getAttribute('contact_person')
+                }, Form);
+
+                Form.elements.date.set('disabled', true);
+                Form.elements.date.set('title', QUILocale.get(lg, 'permissions.set.invoice.date'));
+
+                require(['Permissions'], function (Permissions) {
+                    Permissions.hasPermission('quiqqer.invoice.changeDate').then(function (has) {
+                        if (has) {
+                            Form.elements.date.set('disabled', false);
+                            Form.elements.date.set('title', '');
+                        }
+                    });
+                });
+
+                Container.getElements('[name="select-contact-id-address"]').addEvent('click', function () {
+                    new AddressWindow({
+                        autoclose: false,
+                        userId   : self.getAttribute('customer_id'),
+                        events   : {
+                            onSubmit: function (Win, addressId, address) {
+                                Win.close();
+                                self.$setContactPersonByAddress(address);
+                            }
+                        }
+                    }).open();
+                });
+
+                if (self.getAttribute('customer_id')) {
+                    Container.getElements('[name="select-contact-id-address"]').set('disabled', false);
+                }
+
+                return QUI.parse(Container);
+            }).then(function () {
+                return new Promise(function (resolve, reject) {
+                    var Form = self.getContent().getElement('form');
+
+                    require(['utils/Controls'], function (ControlUtils) {
+                        ControlUtils.parse(Form).then(resolve);
+                    }, reject);
+                });
+            }).then(function () {
+                var Content = self.getContent();
+
+                var quiId = Content.getElement(
+                    '[data-qui="package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData"]'
+                ).get('data-quiid');
+
+                var editorIdQUIId    = Content.getElement('[name="editorId"]').get('data-quiid');
+                var orderedByIdQUIId = Content.getElement('[name="orderedBy"]').get('data-quiid');
+
+                var Data      = QUI.Controls.getById(quiId);
+                var EditorId  = QUI.Controls.getById(editorIdQUIId);
+                var OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
+
+                OrderedBy.setAttribute('showAddressName', false);
+
+                Data.addEvent('onChange', function () {
+                    if (self.renderDataDone === false) {
+                        return;
+                    }
+
+                    var userId = Data.getValue().userId;
+
+                    self.setAttribute('customer_id', parseInt(userId));
+                    self.setAttribute('invoice_address_id', Data.getValue().addressId);
+
+                    if (!userId) {
+                        Content.getElements('[name="select-contact-id-address"]').set('disabled', true);
+                        Content.getElements('[name="contact_person"]').set('value', '');
+                    } else {
+                        Content.getElements('[name="select-contact-id-address"]').set('disabled', false);
+
+                        Users.get(userId).loadIfNotLoaded().then(function (User) {
+                            var addressId = User.getAttribute('quiqqer.erp.customer.contact.person');
+
+                            if (User.getAttribute('quiqqer.erp.standard.payment')) {
+                                self.getContent()
+                                    .getElement('[name="payment_method"]')
+                                    .value = User.getAttribute('quiqqer.erp.standard.payment');
+                            }
+
+                            if (!addressId) {
+                                return;
+                            }
+
+                            addressId = parseInt(addressId);
+
+                            User.getAddressList().then(function (addressList) {
+                                for (var i = 0, len = addressList.length; i < len; i++) {
+                                    if (addressList[i].id === addressId) {
+                                        self.$setContactPersonByAddress(addressList[i]);
+                                    }
+                                }
+                            });
+                        });
+                    }
+
+                    // reset deliver address
+                    if (self.$AddressDelivery) {
+                        self.$AddressDelivery.setAttribute('userId', userId);
+                        self.$AddressDelivery.refresh().catch(function () {
+                        });
+                    }
+
+                    Promise.all([
+                        Invoices.getPaymentTime(userId),
+                        Invoices.isNetto(userId)
+                    ]).then(function (result) {
+                        var paymentTime = result[0];
+                        var isNetto     = result[1];
+
+                        Content.getElement('[name="time_for_payment"]').value = paymentTime;
+
+                        self.setAttribute('isbrutto', !isNetto);
+                        self.setAttribute('time_for_payment', paymentTime);
+                        self.refresh();
+                    });
+                });
+
+                // editor
+                EditorId.addEvent('onChange', function () {
+                    self.setAttribute('editor_id', EditorId.getValue());
+                });
+
+                if (typeof window.QUIQQER_EMPLOYEE_GROUP !== 'undefined') {
+                    EditorId.setAttribute('search', true);
+                    EditorId.setAttribute('searchSettings', {
+                        filter: {
+                            filter_group: window.QUIQQER_EMPLOYEE_GROUP
+                        }
+                    });
+                }
+
+                if (parseInt(self.getAttribute('editor_id'))) {
+                    EditorId.addItem(self.getAttribute('editor_id'));
+                } else {
+                    EditorId.addItem(USER.id);
+                }
+
+
+                // ordered by
+                OrderedBy.addEvent('onChange', function () {
+                    self.setAttribute('ordered_by', OrderedBy.getValue());
+                });
+
+                if (typeof window.QUIQQER_CUSTOMER_GROUP !== 'undefined') {
+                    OrderedBy.setAttribute('search', true);
+                    OrderedBy.setAttribute('searchSettings', {
+                        filter: {
+                            filter_group: window.QUIQQER_CUSTOMER_GROUP
+                        }
+                    });
+                }
+
+                if (parseInt(self.getAttribute('ordered_by'))) {
+                    OrderedBy.addItem(parseInt(self.getAttribute('ordered_by')));
+                }
+
+                // invoice address
+                var address = self.getAttribute('invoice_address');
+
+                if (!address) {
+                    address = {};
+                }
+
+                address.userId    = self.getAttribute('customer_id');
+                address.addressId = self.getAttribute('invoice_address_id');
+
+                return Data.setValue(address);
+            }).then(function () {
+                // delivery address
+                self.$AddressDelivery = QUI.Controls.getById(
+                    self.getContent().getElement(
+                        '[data-qui="package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress"]'
+                    ).get('data-quiid')
+                );
+
+                if (self.getAttribute('delivery_address_id')) {
+                    var deliveryAddress = self.getAttribute('delivery_address');
+
+                    try {
+                        deliveryAddress = JSON.decode(deliveryAddress);
+
+                        if (deliveryAddress) {
+                            self.getContent().getElement('[name="differentDeliveryAddress"]').checked = true;
+
+                            self.$AddressDelivery.setAttribute('userId', self.getAttribute('customer_id'));
+                            self.$AddressDelivery.setValue(deliveryAddress);
+                        }
+                    } catch (e) {
+                    }
+                }
+            }).then(function () {
+                var Container = self.getContent().getElement('.container');
+
+                new QUIButton({
+                    textimage: 'fa fa-list',
+                    text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.button.nextToArticles'),
+                    styles   : {
+                        display: 'block',
+                        'float': 'right',
+                        margin : '0 0 20px'
+                    },
+                    events   : {
+                        onClick: function () {
+                            self.openArticles().catch(function (e) {
+                                console.error(e);
+                            });
+                        }
+                    }
+                }).inject(Container);
+
+            }).then(function () {
+                return Payments.getPayments();
+            }).then(function (payments) {
+                // load payments
+                var Payments = self.getContent().getElement('[name="payment_method"]');
+
+                new Element('option', {
+                    html : '',
+                    value: ''
+                }).inject(Payments);
+
+                var i, len, title;
+                var current = QUILocale.getCurrent();
+
+                for (i = 0, len = payments.length; i < len; i++) {
+                    title = payments[i].title;
+
+                    if (typeOf(title) === 'object' && typeof title[current] !== 'undefined') {
+                        title = title[current];
+                    }
+
+                    new Element('option', {
+                        html : title,
+                        value: payments[i].id
+                    }).inject(Payments);
+                }
+
+                Payments.value = self.getAttribute('payment_method');
+            }).then(function () {
+                // additional-invoice-text -> wysiwyg
+                return self.$loadAdditionalInvoiceText();
+            }).then(function () {
+                self.getCategory('data').setActive();
+
+                return self.Loader.hide();
+            }).then(function () {
+                return self.$openCategory();
+            }).then(function () {
+                self.renderDataDone = true;
             });
         },
 
         /**
-         * event: invoices changed something
-         * create, delete, save, copy
+         * Open the product category
+         *
+         * @returns {Promise}
          */
-        $onInvoicesChange: function () {
-            this.refresh();
+        openArticles: function () {
+            var self = this;
+
+            this.Loader.show();
+
+            return self.$closeCategory().then(function (Container) {
+                return new Promise(function (resolve) {
+                    require([
+                        'package/quiqqer/erp/bin/backend/controls/articles/ArticleList',
+                        'package/quiqqer/erp/bin/backend/controls/articles/ArticleSummary'
+                    ], function (List, Summary) {
+                        self.$ArticleList = new List({
+                            currency: self.getAttribute('currency'),
+                            events  : {
+                                onArticleReplaceClick: self.$onArticleReplaceClick
+                            },
+                            styles  : {
+                                height: 'calc(100% - 120px)'
+                            }
+                        }).inject(Container);
+
+                        Container.setStyle('height', '100%');
+
+                        self.$ArticleListSummary = new Summary({
+                            currency: self.getAttribute('currency'),
+                            List    : self.$ArticleList,
+                            styles  : {
+                                bottom  : -20,
+                                left    : 0,
+                                opacity : 0,
+                                position: 'absolute'
+                            }
+                        }).inject(Container.getParent());
+
+                        moofx(self.$ArticleListSummary.getElm()).animate({
+                            bottom : 0,
+                            opacity: 1
+                        });
+
+                        self.$ArticleList.setUser(self.getUserData());
+
+                        if (self.$serializedList) {
+                            self.$ArticleList.unserialize(self.$serializedList);
+                        }
+
+                        self.$AddProduct.show();
+                        self.$AddSeparator.show();
+                        self.$SortSeparator.show();
+                        self.$ArticleSort.show();
+
+                        self.getCategory('articles').setActive();
+
+                        new QUIButton({
+                            textimage: 'fa fa-info',
+                            text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.button.data'),
+                            styles   : {
+                                'float': 'left',
+                                margin : '20px 0 0'
+                            },
+                            events   : {
+                                onClick: self.openData
+                            }
+                        }).inject(Container);
+
+                        new QUIButton({
+                            textimage: 'fa fa-check',
+                            text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review.btnGoto'),
+                            styles   : {
+                                'float': 'right',
+                                margin : '20px 0 0'
+                            },
+                            events   : {
+                                onClick: self.openVerification
+                            }
+                        }).inject(Container);
+
+                        self.Loader.hide().then(resolve);
+                    });
+                });
+            }).then(function () {
+                return self.$openCategory();
+            });
         },
 
         /**
-         * Open the accordion details of the invoice
+         * open the comments
          *
-         * @param {Object} data
+         * @return {Promise<Promise>}
          */
-        $onClickInvoiceDetails: function (data) {
-            var row        = data.row,
-                ParentNode = data.parent;
+        openComments: function () {
+            var self = this;
 
-            ParentNode.setStyle('padding', 10);
-            ParentNode.set('html', '<div class="fa fa-spinner fa-spin"></div>');
+            this.Loader.show();
+            this.getCategory('comments').setActive();
 
-            Invoices.getArticleHtmlFromTemporary(this.$Grid.getDataByRow(row).hash).then(function (result) {
-                ParentNode.set('html', '');
+            return this.$closeCategory().then(function () {
+                self.refreshComments();
+            }).then(function () {
+                return self.$openCategory();
+            }).then(function () {
+                self.Loader.hide();
+            });
+        },
 
-                if (result.indexOf('<table') === -1) {
-                    ParentNode.set('html', QUILocale.get(lg, 'erp.panel.temporary.invoices.no.article'));
+        /**
+         * Refresh the comment display
+         */
+        refreshComments: function () {
+            var Container = this.getContent().getElement('.container');
+
+            Container.set('html', '');
+
+            new QUIButton({
+                textimage: 'fa fa-comments',
+                text     : QUILocale.get(lg, 'invoice.panel.comment.add'),
+                styles   : {
+                    'float'     : 'right',
+                    marginBottom: 10
+                },
+                events   : {
+                    onClick: this.openAddCommentDialog
+                }
+            }).inject(Container);
+
+            new Comments({
+                comments: this.getAttribute('comments')
+            }).inject(Container);
+        },
+
+        /**
+         * Open the verification category
+         *
+         * @returns {Promise}
+         */
+        openVerification: function () {
+            var self            = this,
+                ParentContainer = null,
+                FrameContainer  = null;
+
+            this.Loader.show();
+
+            return this.$closeCategory().then(function (Container) {
+                FrameContainer = new Element('div', {
+                    'class': 'quiqqer-invoice-backend-temporaryInvoice-previewContainer'
+                }).inject(Container);
+
+                Container.setStyle('overflow', 'hidden');
+                Container.setStyle('padding', 0);
+                Container.setStyle('height', '100%');
+
+                ParentContainer = Container;
+
+                return Invoices.getTemporaryInvoicePreview(
+                    self.getAttribute('invoiceId'),
+                    self.getCurrentData()
+                ).then(function (html) {
+
+                    return new Promise(function (resolve) {
+                        require(['qui/controls/elements/Sandbox'], function (Sandbox) {
+                            new Sandbox({
+                                content: html,
+                                styles : {
+                                    height : '100%',
+                                    padding: 20,
+                                    width  : '95%'
+                                },
+                                events : {
+                                    onLoad: function (Box) {
+                                        Box.getElm().addClass('quiqqer-invoice-backend-temporaryInvoice-preview');
+                                    }
+                                }
+                            }).inject(FrameContainer);
+
+                            resolve();
+                        });
+                    });
+                });
+            }).then(function () {
+                return Invoices.getMissingAttributes(self.getAttribute('invoiceId'));
+            }).then(function (missing) {
+                var Missing = new Element('div', {
+                    'class': 'quiqqer-invoice-backend-temporaryInvoice-missing',
+                    styles : {
+                        opacity: 0,
+                        bottom : -20
+                    }
+                }).inject(ParentContainer);
+
+                if (Object.getLength(missing)) {
+                    Missing.set('html', Mustache.render(templateMissing, {
+                        message: QUILocale.get(lg, 'message.invoice.missing')
+                    }));
+
+                    var Info = new Element('info', {
+                        'class': 'quiqqer-invoice-backend-temporaryInvoice-missing-miss-message',
+                        styles : {
+                            display: 'none',
+                            opacity: 0
+                        }
+                    }).inject(ParentContainer);
+
+                    Missing.getElement(
+                        '.quiqqer-invoice-backend-temporaryInvoice-missing-miss-button'
+                    ).addEvent('click', function () {
+                        var isShow = parseInt(Info.getStyle('opacity'));
+
+                        if (isShow) {
+                            moofx(Info).animate({
+                                bottom : 60,
+                                opacity: 0
+                            }, {
+                                callback: function () {
+                                    Info.setStyle('display', 'none');
+                                }
+                            });
+                        } else {
+                            Info.setStyle('display', null);
+
+                            moofx(Info).animate({
+                                bottom : 80,
+                                opacity: 1
+                            });
+                        }
+                    });
+
+                    for (var missed in missing) {
+                        if (!missing.hasOwnProperty(missed)) {
+                            continue;
+                        }
+
+                        new Element('div', {
+                            'class': 'messages-message message-error',
+                            html   : missing[missed]
+                        }).inject(Info);
+                    }
+                } else {
+                    // post available
+                    Missing.set('html', Mustache.render(templatePost, {
+                        message: QUILocale.get(lg, 'message.invoice.ok')
+                    }));
+
+                    new QUIButton({
+                        text    : QUILocale.get(lg, 'journal.btn.post'),
+                        'class' : 'btn-green',
+                        events  : {
+                            onClick: self.post
+                        },
+                        disabled: self.$locked
+                    }).inject(
+                        Missing.getElement('.quiqqer-invoice-backend-temporaryInvoice-missing-button')
+                    );
+                }
+
+                self.getCategory('verification').setActive();
+
+                self.Loader.hide().then(function () {
+                    return new Promise(function (resolve) {
+                        moofx(Missing).animate({
+                            opacity: 1,
+                            bottom : 0
+                        }, {
+                            callback: function () {
+                                self.Loader.hide().then(resolve);
+                            }
+                        });
+                    });
+                });
+            }).then(function () {
+                return self.$openCategory();
+            }).catch(function (err) {
+                console.error('ERROR');
+                console.error(err);
+
+                return self.$openCategory();
+            });
+        },
+
+        /**
+         * Opens the product search
+         *
+         * @todo only if products are installed
+         */
+        openProductSearch: function () {
+            var self = this;
+
+            this.$AddProduct.setAttribute('textimage', 'fa fa-spinner fa-spin');
+
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/erp/bin/backend/controls/articles/product/AddProductWindow',
+                    'package/quiqqer/invoice/bin/backend/controls/articles/Article'
+                ], function (Win, Article) {
+                    new Win({
+                        user  : self.getUserData(),
+                        events: {
+                            onSubmit: function (Win, article) {
+                                var Instance = new Article(article);
+
+                                if ("calculated_vatArray" in article) {
+                                    Instance.setVat(article.calculated_vatArray.vat);
+                                }
+
+                                self.$ArticleList.addArticle(Instance);
+                                resolve(Instance);
+                            }
+                        }
+                    }).open();
+
+                    self.$AddProduct.setAttribute('textimage', 'fa fa-plus');
+                });
+            });
+        },
+
+        /**
+         *
+         * @return {Promise}
+         */
+        $loadAdditionalInvoiceText: function () {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                var EditorParent = new Element('div').inject(
+                    self.getContent().getElement('.additional-invoice-text')
+                );
+
+                Editors.getEditor(null).then(function (Editor) {
+                    self.$AdditionalText = Editor;
+
+                    // minimal toolbar
+                    self.$AdditionalText.setAttribute('buttons', {
+                        lines: [
+                            [[
+                                {
+                                    type  : "button",
+                                    button: "Bold"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "Italic"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "Underline"
+                                },
+                                {
+                                    type: "separator"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "RemoveFormat"
+                                },
+                                {
+                                    type: "separator"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "NumberedList"
+                                },
+                                {
+                                    type  : "button",
+                                    button: "BulletedList"
+                                }
+                            ]]
+                        ]
+                    });
+
+                    self.$AdditionalText.addEvent('onLoaded', function () {
+                        self.$AdditionalText.switchToWYSIWYG();
+                        self.$AdditionalText.showToolbar();
+                        self.$AdditionalText.setContent(self.getAttribute('additional_invoice_text'));
+
+                        resolve();
+                    });
+
+                    self.$AdditionalText.inject(EditorParent);
+                    self.$AdditionalText.setHeight(200);
+                });
+            });
+        },
+
+        /**
+         * Close the current category and save it
+         *
+         * @returns {Promise}
+         */
+        $closeCategory: function () {
+            var self = this;
+
+            if (self.$AddProduct) {
+                self.$AddProduct.hide();
+                self.$AddSeparator.hide();
+                self.$SortSeparator.hide();
+                self.$ArticleSort.hide();
+            }
+
+            if (self.$ArticleListSummary) {
+                moofx(self.$ArticleListSummary.getElm()).animate({
+                    bottom : -20,
+                    opacity: 0
+                }, {
+                    duration: 250,
+                    callback: function () {
+                        self.$ArticleListSummary.destroy();
+                        self.$ArticleListSummary = null;
+                    }
+                });
+            }
+
+            self.getContent().setStyle('padding', 0);
+
+            return new Promise(function (resolve) {
+                var Container = self.getContent().getElement('.container');
+
+                if (!Container) {
+                    Container = new Element('div', {
+                        'class': 'container',
+                        styles : {
+                            opacity : 0,
+                            position: 'relative',
+                            top     : -50
+                        }
+                    }).inject(self.getContent());
+                }
+
+                moofx(Container).animate({
+                    opacity: 0,
+                    top    : -50
+                }, {
+                    duration: 200,
+                    callback: function () {
+                        self.$unloadCategory();
+
+                        if (self.$AddressDelivery) {
+                            self.$AddressDelivery.destroy();
+                            self.$AddressDelivery = null;
+                        }
+
+                        Container.set('html', '');
+                        Container.setStyle('padding', 20);
+
+                        self.save().then(function () {
+                            resolve(Container);
+                        }).catch(function () {
+                            resolve(Container);
+                        });
+                    }
+                });
+            });
+        },
+
+        /**
+         * Open the current category
+         *
+         * @returns {Promise}
+         */
+        $openCategory: function () {
+            var self = this;
+
+            return new Promise(function (resolve) {
+                var Container = self.getContent().getElement('.container');
+
+                if (!Container) {
+                    resolve();
                     return;
                 }
 
-                new Element('div', {
-                    'class': 'invoices-invoice-details',
-                    html   : result
-                }).inject(ParentNode);
+                moofx(Container).animate({
+                    opacity: 1,
+                    top    : 0
+                }, {
+                    duration: 200,
+                    callback: resolve
+                });
             });
+        },
+
+        /**
+         * Unload the category and reserve the data
+         *
+         * @param {Boolean} [destroyList] - destroy the article list, default = true
+         */
+        $unloadCategory: function (destroyList) {
+            var Container = this.getContent().getElement('.container');
+
+            destroyList = typeof destroyList === 'undefined' ? true : destroyList;
+
+            if (this.$ArticleList) {
+                this.setAttribute('articles', this.$ArticleList.save());
+                this.$serializedList = this.$ArticleList.serialize();
+
+                if (destroyList) {
+                    this.$ArticleList.destroy();
+                    this.$ArticleList = null;
+                }
+            }
+
+            if (this.$AddressDelivery) {
+                this.setAttribute('addressDelivery', this.$AddressDelivery.getValue());
+            }
+
+            if (this.$AdditionalText) {
+                this.setAttribute(
+                    'additional_invoice_text',
+                    this.$AdditionalText.getContent()
+                );
+            }
+
+            var Form = Container.getElement('form');
+
+            if (!Form) {
+                return;
+            }
+
+            var formData = QUIFormUtils.getFormData(Form);
+            var data     = this.getAttribute('data') || {};
+
+            // timefields
+            if ("date" in formData) {
+                this.setAttribute('date', formData.date + ' 00:00:00');
+            }
+
+            if (typeof formData.contact_person !== 'undefined') {
+                this.setAttribute('contact_person', formData.contact_person);
+            }
+
+            [
+                'processing_status',
+                'time_for_payment',
+                'project_name',
+                'payment_method',
+                'editor_id',
+                'ordered_by'
+            ].each(function (entry) {
+                if (!formData.hasOwnProperty(entry)) {
+                    return;
+                }
+
+                if (entry === 'time_for_payment') {
+                    formData[entry] = parseInt(formData[entry]);
+                }
+
+                this.setAttribute(entry, formData[entry]);
+                delete formData[entry];
+            }.bind(this));
+
+            this.setAttribute('data', Object.merge(data, formData));
+        },
+
+        /**
+         * Event Handling
+         */
+
+        /**
+         * event: on create
+         */
+        $onCreate: function () {
+            var self = this;
+
+            this.$AddProduct = new QUIButtonMultiple({
+                textimage: 'fa fa-plus',
+                text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd'),
+                events   : {
+                    onClick: function () {
+                        if (self.$ArticleList) {
+                            self.openProductSearch();
+                        }
+                    }
+                }
+            });
+
+            this.$AddProduct.hide();
+
+            this.$AddProduct.appendChild({
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd.custom'),
+                events: {
+                    onClick: function () {
+                        if (self.$ArticleList) {
+                            self.$ArticleList.insertNewProduct();
+                        }
+                    }
+                }
+            });
+
+            this.$AddProduct.appendChild({
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd.text'),
+                events: {
+                    onClick: function () {
+                        if (self.$ArticleList) {
+                            self.$ArticleList.addArticle(new TextArticle());
+                        }
+                    }
+                }
+            });
+
+            this.$AddSeparator  = new QUISeparator();
+            this.$SortSeparator = new QUISeparator();
+
+            // buttons
+            this.addButton({
+                name     : 'save',
+                text     : QUILocale.get('quiqqer/system', 'save'),
+                textimage: 'fa fa-save',
+                events   : {
+                    onClick: function () {
+                        //quiqqer/invoice', 'message.invoice.save.successfully'
+                        self.save().then(function () {
+                            QUI.getMessageHandler().then(function (MH) {
+                                MH.addSuccess(
+                                    QUILocale.get('quiqqer/invoice', 'message.invoice.save.successfully')
+                                );
+                            });
+                        });
+                    }
+                }
+            });
+
+            this.$ArticleSort = new QUIButton({
+                name     : 'sort',
+                textimage: 'fa fa-sort',
+                text     : QUILocale.get(lg, 'erp.panel.temporary.invoice.button.article.sort.text'),
+                events   : {
+                    onClick: this.toggleSort
+                }
+            });
+
+            this.$ArticleSort.hide();
+
+
+            this.addButton(this.$AddSeparator);
+            this.addButton(this.$AddProduct);
+            this.addButton(this.$SortSeparator);
+            this.addButton(this.$ArticleSort);
+
+            this.addButton({
+                name  : 'lock',
+                icon  : 'fa fa-warning',
+                styles: {
+                    background: '#fcf3cf',
+                    color     : '#7d6608',
+                    'float'   : 'right'
+                },
+                events: {
+                    onClick: this.$showLockMessage
+                }
+            });
+
+            this.getButtons('lock').hide();
+
+
+            this.addButton({
+                name  : 'delete',
+                icon  : 'fa fa-trash',
+                title : QUILocale.get(lg, 'erp.panel.temporary.invoice.deleteButton.title'),
+                styles: {
+                    'float': 'right'
+                },
+                events: {
+                    onClick: this.$clickDelete
+                }
+            });
+
+            // categories
+            this.addCategory({
+                name  : 'data',
+                icon  : 'fa fa-info',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data'),
+                events: {
+                    onClick: this.openData
+                }
+            });
+
+            this.addCategory({
+                name  : 'articles',
+                icon  : 'fa fa-list',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.pos'),
+                events: {
+                    onClick: this.openArticles
+                }
+            });
+
+            this.addCategory({
+                name  : 'comments',
+                icon  : 'fa fa-comments',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.comments'),
+                events: {
+                    onClick: this.openComments
+                }
+            });
+
+            this.addCategory({
+                name  : 'verification',
+                icon  : 'fa fa-check',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review'),
+                events: {
+                    onClick: this.openVerification
+                }
+            });
+        },
+
+        /**
+         * event: on inject
+         */
+        $onInject: function () {
+            this.Loader.show();
+
+            if (!this.getAttribute('invoiceId')) {
+                this.destroy();
+                return;
+            }
+
+            document.addEvent('keyup', this.$onKeyUp);
+
+            var self      = this,
+                invoiceId = this.getAttribute('invoiceId');
+
+            Locker.isLocked(
+                this.$getLockKey(),
+                this.$getLockGroups()
+            ).then(function (isLocked) {
+                if (isLocked) {
+                    self.$locked = isLocked;
+                    self.lockPanel();
+                    return;
+                }
+
+                return Locker.lock(
+                    self.$getLockKey(),
+                    self.$getLockGroups()
+                );
+            }).then(function () {
+                return self.doRefresh();
+            }).then(function () {
+                return Invoices.getMissingAttributes(invoiceId);
+            }).then(function (missing) {
+                if (Object.getLength(missing)) {
+                    self.getCategoryBar().firstChild().click();
+                    return;
+                }
+
+                self.getCategoryBar().getChildren('verification').click();
+            }).catch(function (Exception) {
+                QUI.getMessageHandler().then(function (MH) {
+                    console.error(Exception);
+
+                    if (typeof Exception.getMessage === 'function') {
+                        MH.addError(Exception.getMessage());
+                    }
+                });
+
+                self.destroy();
+            });
+        },
+
+        /**
+         * event: on panel destroy
+         */
+        $onDestroy: function () {
+            Invoices.removeEvents({
+                onDeleteInvoice: this.$onDeleteInvoice
+            });
+
+            document.removeEvent('keyup', this.$onKeyUp);
+
+            Locker.unlock(
+                this.$getLockKey(),
+                this.$getLockGroups()
+            );
+        },
+
+        /**
+         * lock the complete panel
+         */
+        lockPanel: function () {
+            this.getButtons('save').disable();
+            this.getButtons('delete').disable();
+            this.getButtons('lock').show();
+        },
+
+        /**
+         * unlock the lock
+         *
+         * @return {Promise<T>}
+         */
+        unlockPanel: function () {
+            var self = this;
+
+            this.Loader.show();
+
+            return Locker.unlock(
+                this.$getLockKey(),
+                this.$getLockGroups()
+            ).then(function () {
+                return Locker.isLocked(
+                    self.$getLockKey(),
+                    self.$getLockGroups()
+                );
+            }).then(function (isLocked) {
+                if (isLocked) {
+                    return;
+                }
+
+                self.$locked = isLocked;
+                self.getButtons('lock').hide();
+
+                return self.refresh();
+            }).then(function () {
+                return self.openData();
+            });
+        },
+
+        /**
+         * show the lock message window
+         */
+        $showLockMessage: function () {
+            var self    = this,
+                btnText = QUILocale.get('quiqqer/quiqqer', 'submit');
+
+            if (window.USER.isSU) {
+                btnText = QUILocale.get(lg, 'button.unlock.invoice.is.locked');
+            }
+
+            new QUIConfirm({
+                title      : QUILocale.get(lg, 'window.unlock.invoice.title'),
+                icon       : 'fa fa-warning',
+                texticon   : 'fa fa-warning',
+                text       : QUILocale.get(lg, 'window.unlock.invoice.text', this.$locked),
+                information: QUILocale.get(lg, 'message.invoice.is.locked', this.$locked),
+                autoclose  : false,
+                maxHeight  : 400,
+                maxWidth   : 600,
+                ok_button  : {
+                    text: btnText
+                },
+
+                events: {
+                    onSubmit: function (Win) {
+                        if (!window.USER.isSU) {
+                            Win.close();
+                            return;
+                        }
+
+                        Win.Loader.show();
+
+                        self.unlockPanel().then(function () {
+                            Win.close();
+                        });
+                    }
+                }
+            }).open();
+        },
+
+        /**
+         * event: on key up
+         *
+         * @param event
+         */
+        $onKeyUp: function (event) {
+            if (this.$ArticleList && (event.event.code === 'NumpadAdd' || event.code === 107)) {
+                this.$AddProduct.click();
+            }
+        },
+
+        /**
+         * opens the delete dialog
+         */
+        $clickDelete: function () {
+            var self = this;
+
+            new QUIConfirm({
+                title      : QUILocale.get(lg, 'dialog.ti.delete.title'),
+                text       : QUILocale.get(lg, 'dialog.ti.delete.text'),
+                information: QUILocale.get(lg, 'dialog.ti.delete.information', {
+                    id: this.getAttribute('invoiceId')
+                }),
+                icon       : 'fa fa-trash',
+                texticon   : 'fa fa-trash',
+                maxHeight  : 400,
+                maxWidth   : 600,
+                autoclose  : false,
+                ok_button  : {
+                    text     : QUILocale.get('quiqqer/system', 'delete'),
+                    textimage: 'fa fa-trash'
+                },
+                events     : {
+                    onSubmit: function (Win) {
+                        Win.Loader.show();
+
+                        Invoices.deleteInvoice(self.getAttribute('invoiceId')).then(function () {
+                            Win.close();
+                        }).then(function () {
+                            Win.Loader.show();
+                        });
+                    }
+                }
+            }).open();
+        },
+
+        /**
+         * event : on invoice deletion
+         */
+        $onDeleteInvoice: function () {
+            this.destroy();
+        },
+
+        /**
+         *
+         * @param List
+         * @param Article
+         */
+        $onArticleReplaceClick: function (List, Article) {
+            var self = this;
+
+            var replaceArticle = function (NewArticle) {
+                List.replaceArticle(
+                    NewArticle,
+                    Article.getAttribute('position')
+                );
+
+                NewArticle.select();
+            };
+
+            new QUIConfirm({
+                title    : QUILocale.get(lg, 'erp.panel.temporary.invoice.replace.article.title'),
+                maxHeight: 400,
+                maxWidth : 600,
+                icon     : 'fa fa-retweet',
+                events   : {
+                    onOpen: function (Win) {
+                        Win.getContent().setStyles({
+                            textAlign: 'center'
+                        });
+
+                        Win.getContent().set(
+                            'html',
+                            QUILocale.get(lg, 'erp.panel.temporary.invoice.replace.article.text')
+                        );
+
+                        var Select = new Element('select', {
+                            styles: {
+                                margin: '20px auto 0'
+                            }
+                        }).inject(Win.getContent());
+
+                        new Element('option', {
+                            html : QUILocale.get(lg, 'erp.panel.temporary.invoice.replace.article.withProduct'),
+                            value: 'product'
+                        }).inject(Select);
+
+                        new Element('option', {
+                            html : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd.custom'),
+                            value: 'custom'
+                        }).inject(Select);
+
+                        new Element('option', {
+                            html : QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd.text'),
+                            value: 'text'
+                        }).inject(Select);
+                    },
+
+                    onSubmit: function (Win) {
+                        var Select = Win.getContent().getElement('select');
+
+                        if (Select.value === 'product') {
+                            self.openProductSearch().then(replaceArticle);
+                            return;
+                        }
+
+                        if (Select.value === 'text') {
+                            replaceArticle(new TextArticle());
+                            return;
+                        }
+
+                        require([
+                            'package/quiqqer/invoice/bin/backend/controls/articles/Article'
+                        ], function (Article) {
+                            replaceArticle(new Article());
+                        });
+                    }
+                }
+            }).open();
+        },
+
+        /**
+         * Toggle the article sorting
+         */
+        toggleSort: function () {
+            this.$ArticleList.toggleSorting();
+
+            if (this.$ArticleList.isSortingEnabled()) {
+                this.$ArticleSort.setActive();
+                return;
+            }
+
+            this.$ArticleSort.setNormal();
+        },
+
+        //region comments
+
+        /**
+         * Open the add dialog window
+         */
+        openAddCommentDialog: function () {
+            var self = this;
+
+            new QUIConfirm({
+                title    : QUILocale.get(lg, 'dialog.add.comment.title'),
+                icon     : 'fa fa-edit',
+                maxHeight: 600,
+                maxWidth : 800,
+                events   : {
+                    onOpen: function (Win) {
+                        Win.getContent().set('html', '');
+                        Win.Loader.show();
+
+                        require([
+                            'Editors'
+                        ], function (Editors) {
+                            Editors.getEditor(null).then(function (Editor) {
+                                Win.$Editor = Editor;
+
+                                Win.$Editor.addEvent('onLoaded', function () {
+                                    Win.$Editor.switchToWYSIWYG();
+                                    Win.$Editor.showToolbar();
+                                    Win.$Editor.setContent(self.getAttribute('content'));
+                                    Win.Loader.hide();
+                                });
+
+                                Win.$Editor.inject(Win.getContent());
+                                Win.$Editor.setHeight(200);
+                            });
+                        });
+                    },
+
+                    onSubmit: function (Win) {
+                        Win.Loader.show();
+
+                        self.addComment(Win.$Editor.getContent()).then(function () {
+                            return self.doRefresh();
+                        }).then(function () {
+                            Win.$Editor.destroy();
+                            Win.close();
+
+                            self.refreshComments();
+                        });
+                    }
+                }
+            }).open();
+        },
+
+        /**
+         * add a comment to the order
+         *
+         * @param {String} message
+         */
+        addComment: function (message) {
+            return Invoices.addComment(this.getAttribute('invoiceId'), message);
+        },
+
+        //endregion
+
+        /**
+         * set the contact person by an address data object to the contact person input field
+         *
+         * @param address
+         */
+        $setContactPersonByAddress: function (address) {
+            var Content     = this.getContent(),
+                PersonInput = Content.getElement('[name="contact_person"]');
+
+            if (!PersonInput) {
+                return;
+            }
+
+            var value = (address.salutation + ' ' + address.firstname + ' ' + address.lastname).trim();
+            PersonInput.set('value', value);
         }
     });
 });
