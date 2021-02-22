@@ -354,13 +354,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get('quiqqer/quiqqer', 'name'),
                     dataIndex: 'customer_name',
                     dataType : 'string',
-                    width    : 130,
+                    width    : 200,
                     className: 'clickable'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.customerNo'),
                     dataIndex: 'customer_id',
                     dataType : 'integer',
-                    width    : 100,
+                    width    : 90,
                     className: 'clickable'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
@@ -372,12 +372,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get('quiqqer/quiqqer', 'date'),
                     dataIndex: 'date',
                     dataType : 'date',
-                    width    : 100
+                    width    : 90
                 }, {
                     header   : QUILocale.get('quiqqer/quiqqer', 'project'),
                     dataIndex: 'project_name',
                     dataType : 'string',
-                    width    : 140
+                    width    : 160
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.sum'),
                     dataIndex: 'display_sum',
@@ -400,7 +400,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
                     dataIndex: 'payment_title',
                     dataType : 'string',
-                    width    : 120
+                    width    : 180
                 }, {
                     header   : QUILocale.get(lg, 'temporary.grid.timeForPayment'),
                     dataIndex: 'time_for_payment',
@@ -432,7 +432,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get(lg, 'journal.grid.taxId'),
                     dataIndex: 'taxId',
                     dataType : 'string',
-                    width    : 120
+                    width    : 105
                 }, {
                     header   : QUILocale.get('quiqqer/quiqqer', 'c_date'),
                     dataIndex: 'c_date',
