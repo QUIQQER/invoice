@@ -449,6 +449,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.$Grid = new Grid(Container, {
                 storageKey           : 'quiqqer-invoice-grid-journal',
+                titleSort            : true,
                 pagination           : true,
                 serverSort           : true,
                 accordion            : true,
