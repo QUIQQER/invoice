@@ -36,6 +36,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             '$onResize',
             '$onInject',
             '$onDestroy',
+            '$onShow',
             '$clickPostInvoice',
             '$clickCreateInvoice',
             '$clickDeleteInvoice',
@@ -60,7 +61,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onCreate : this.$onCreate,
                 onResize : this.$onResize,
                 onInject : this.$onInject,
-                onDestroy: this.$onDestroy
+                onDestroy: this.$onDestroy,
+                onShow   : this.$onShow
             });
 
             Invoices.addEvents({
@@ -346,53 +348,44 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     dataType : 'node',
                     width    : 30
                 }, {
+                    header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
+                    dataIndex: 'id',
+                    dataType : 'integer',
+                    width    : 100
+                }, {
+                    header   : QUILocale.get('quiqqer/quiqqer', 'name'),
+                    dataIndex: 'customer_name',
+                    dataType : 'string',
+                    width    : 200,
+                    className: 'clickable'
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.customerNo'),
+                    dataIndex: 'customer_id',
+                    dataType : 'integer',
+                    width    : 90,
+                    className: 'clickable'
+                }, {
                     header   : QUILocale.get(lg, 'journal.grid.status'),
                     dataIndex: 'paid_status_display',
                     dataType : 'html',
                     width    : 120,
                     className: 'grid-align-center'
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
-                    dataIndex: 'id',
-                    dataType : 'integer',
-                    width    : 100
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.orderNo'),
-                    dataIndex: 'order_id',
-                    dataType : 'integer',
-                    width    : 80
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.customerNo'),
-                    dataIndex: 'customer_id',
-                    dataType : 'integer',
-                    width    : 100,
-                    className: 'clickable'
-                }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'name'),
-                    dataIndex: 'customer_name',
-                    dataType : 'string',
-                    width    : 130,
-                    className: 'clickable'
-                }, {
                     header   : QUILocale.get('quiqqer/quiqqer', 'date'),
                     dataIndex: 'date',
                     dataType : 'date',
-                    width    : 100
+                    width    : 90
                 }, {
                     header   : QUILocale.get('quiqqer/quiqqer', 'project'),
                     dataIndex: 'project_name',
                     dataType : 'string',
-                    width    : 140
+                    width    : 160
                 }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'c_date'),
-                    dataIndex: 'c_date',
-                    dataType : 'date',
-                    width    : 140
-                }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'c_user'),
-                    dataIndex: 'c_username',
-                    dataType : 'integer',
-                    width    : 180
+                    header   : QUILocale.get(lg, 'journal.grid.sum'),
+                    dataIndex: 'display_sum',
+                    dataType : 'string',
+                    width    : 100,
+                    className: 'payment-status-amountCell'
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.netto'),
                     dataIndex: 'display_nettosum',
@@ -406,16 +399,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     width    : 100,
                     className: 'payment-status-amountCell'
                 }, {
-                    header   : QUILocale.get(lg, 'journal.grid.sum'),
-                    dataIndex: 'display_sum',
-                    dataType : 'string',
-                    width    : 100,
-                    className: 'payment-status-amountCell'
-                }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
                     dataIndex: 'payment_title',
                     dataType : 'string',
-                    width    : 120
+                    width    : 180
                 }, {
                     header   : QUILocale.get(lg, 'temporary.grid.timeForPayment'),
                     dataIndex: 'time_for_payment',
@@ -447,7 +434,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     header   : QUILocale.get(lg, 'journal.grid.taxId'),
                     dataIndex: 'taxId',
                     dataType : 'string',
-                    width    : 120
+                    width    : 105
+                }, {
+                    header   : QUILocale.get('quiqqer/quiqqer', 'c_date'),
+                    dataIndex: 'c_date',
+                    dataType : 'date',
+                    width    : 140
+                }, {
+                    header   : QUILocale.get('quiqqer/quiqqer', 'c_user'),
+                    dataIndex: 'c_username',
+                    dataType : 'integer',
+                    width    : 180
+                }, {
+                    header   : QUILocale.get(lg, 'journal.grid.orderNo'),
+                    dataIndex: 'order_id',
+                    dataType : 'integer',
+                    width    : 80
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.comments'),
                     dataIndex: 'comments',
@@ -694,6 +696,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onPostInvoice   : this.$onInvoicesChange,
                 createCreditNote: this.$onInvoicesChange
             });
+        },
+
+        /**
+         * event: on panel show
+         */
+        $onShow: function () {
+            this.refresh();
         },
 
         /**
@@ -970,28 +979,25 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             selected = selected[0];
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            require([
-                'package/quiqqer/erp/bin/backend/controls/OutputDialog'
-            ], function (OutputDialog) {
-                var entityType;
 
-                switch (parseInt(selected.type)) {
-                    case 3:
-                        entityType = 'CreditNote';
-                        break;
+            var entityType;
 
-                    case 4:
-                        entityType = 'Canceled';
-                        break;
+            switch (parseInt(selected.type)) {
+                case 3:
+                    entityType = 'CreditNote';
+                    break;
 
-                    default:
-                        entityType = 'Invoice';
-                }
+                case 4:
+                    entityType = 'Canceled';
+                    break;
 
-                Dialogs.openPrintDialog(selected.id, entityType);
+                default:
+                    entityType = 'Invoice';
+            }
 
-                Button.setAttribute('textimage', 'fa fa-file-pdf-o');
-            });
+            Dialogs.openPrintDialog(selected.id, entityType);
+
+            Button.setAttribute('textimage', 'fa fa-file-pdf-o');
         },
 
         /**
