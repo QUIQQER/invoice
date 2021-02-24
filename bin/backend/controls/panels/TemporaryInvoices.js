@@ -36,6 +36,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             '$onResize',
             '$onInject',
             '$onDestroy',
+            '$onShow',
             '$clickPostInvoice',
             '$clickCreateInvoice',
             '$clickDeleteInvoice',
@@ -60,7 +61,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onCreate : this.$onCreate,
                 onResize : this.$onResize,
                 onInject : this.$onInject,
-                onDestroy: this.$onDestroy
+                onDestroy: this.$onDestroy,
+                onShow   : this.$onShow
             });
 
             Invoices.addEvents({
@@ -694,6 +696,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onPostInvoice   : this.$onInvoicesChange,
                 createCreditNote: this.$onInvoicesChange
             });
+        },
+
+        /**
+         * event: on panel show
+         */
+        $onShow: function () {
+            this.refresh();
         },
 
         /**
