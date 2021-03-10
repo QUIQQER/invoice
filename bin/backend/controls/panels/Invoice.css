@@ -29,3 +29,16 @@
     display: block;
     margin: 0 auto;
 }
+
+.quiqqer-invoice-backend-invoice-statusContainer {
+    background: rgba(0, 0, 0, 0.015);
+    display: flex;
+    height: 40px;
+    padding: 5px;
+    width: 100%;
+}
+
+.quiqqer-invoice-backend-invoice-statusContainer .invoice-status-select {
+    border: 1px solid #dedede;
+    height: 32px;
+}
