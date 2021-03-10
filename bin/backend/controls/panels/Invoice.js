@@ -276,7 +276,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             }).then(function () {
                 return self.doRefresh();
             }).then(function () {
-                self.openInfo();
+                self.openPreview();
             }).catch(function (e) {
                 console.error(e);
 
@@ -812,8 +812,53 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.getCategory('preview').setActive();
 
             return this.$closeCategory().then(function (Container) {
+                var StatusContainer = new Element('div', {
+                    'class': 'quiqqer-invoice-backend-invoice-statusContainer'
+                }).inject(Container);
+
+                var data = self.getAttribute('data');
+
+                if (typeOf(data) !== 'object') {
+                    data = {};
+                }
+
+                new Element('span', {
+                    html  : QUILocale.get(lg, 'invoice.settings.processingStatus.preview.change'),
+                    styles: {
+                        color     : '#666',
+                        lineHeight: 30,
+                        padding   : '0 15px',
+                        whiteSpace: 'nowrap'
+                    }
+                }).inject(StatusContainer);
+
+                new Element('input', {
+                    type      : 'hidden',
+                    name      : 'processing_status',
+                    "data-qui": 'package/quiqqer/invoice/bin/backend/controls/settings/ProcessingSelect',
+                    value     : data.processing_status
+                }).inject(StatusContainer);
+
+                return QUI.parse(StatusContainer).then(function () {
+                    var Processing = QUI.Controls.getById(
+                        Container.getElement('[name="processing_status"]').get('data-quiid')
+                    );
+
+                    Processing.addEvent('onChange', function () {
+                        self.Loader.show();
+                        self.setProcessingStatus(Processing.getValue()).then(function () {
+                            self.Loader.hide();
+                        });
+                    });
+
+                    return Container;
+                });
+            }).then(function (Container) {
                 var FrameContainer = new Element('div', {
-                    'class': 'quiqqer-invoice-backend-invoice-previewContainer'
+                    'class': 'quiqqer-invoice-backend-invoice-previewContainer',
+                    styles : {
+                        height: 'calc(100% - 30px)'
+                    }
                 }).inject(Container);
 
                 Container.setStyle('overflow', 'hidden');
@@ -985,7 +1030,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             return new Promise(function (resolve) {
                 require(['Ajax'], function (QUIAjax) {
-                    QUIAjax.post('package_quiqqer_invoice_ajax_invoices_setStatus', resolve, {
+                    QUIAjax.post('package_quiqqer_invoice_ajax_invoices_setStatus', function () {
+                        var data = self.getAttribute('data');
+
+                        if (typeOf(data) !== 'object') {
+                            data = {};
+                        }
+
+                        data.processing_status = processingStatus;
+
+                        self.setAttribute('data', data);
+
+                        resolve();
+                    }, {
                         'package': 'quiqqer/invoice',
                         invoiceId: self.getAttribute('invoiceId'),
                         status   : processingStatus

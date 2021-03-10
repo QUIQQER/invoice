@@ -392,6 +392,10 @@
             <de><![CDATA[Rechnungsstatus]]></de>
             <en><![CDATA[Invoice status]]></en>
         </locale>
+        <locale name="invoice.settings.processingStatus.preview.change">
+            <de><![CDATA[Rechnungsstatus ändern:]]></de>
+            <en><![CDATA[Edit Invoice status:]]></en>
+        </locale>
 
         <locale name="invoice.type.creditNote">
             <de><![CDATA[Gutschrift]]></de>
