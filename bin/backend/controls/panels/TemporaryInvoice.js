@@ -844,6 +844,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             html   : missing[missed]
                         }).inject(Info);
                     }
+
+                    Missing.getElement(
+                        '.quiqqer-invoice-backend-temporaryInvoice-missing-miss-button'
+                    ).click();
                 } else {
                     // post available
                     Missing.set('html', Mustache.render(templatePost, {
