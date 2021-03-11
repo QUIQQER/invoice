@@ -498,7 +498,7 @@
         </locale>
         <locale name="invoice.settings.invoice.productDescriptionSource.description">
             <de><![CDATA[
-            Dieses Einstellung legt fest, welches Feld für die Produktbeschreibung, bei hinzufügen einer Rechnung, verwendet wird.
+            Dieses Einstellung legt fest, welches Feld für die Produktbeschreibung, bei hinzufügen zu einer Rechnung, verwendet wird.
             ]]></de>
             <en><![CDATA[
             This setting determines which field is used for the product description when adding an invoice.
