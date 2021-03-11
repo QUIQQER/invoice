@@ -498,10 +498,12 @@
         </locale>
         <locale name="invoice.settings.invoice.productDescriptionSource.description">
             <de><![CDATA[
-            Dieses Einstellung legt fest, welches Feld für die Produktbeschreibung, bei hinzufügen zu einer Rechnung, verwendet wird.
+            Legt das Produktfeld fest, dessen Inhalt standardmäßig als Artikel-Beschreibung verwendet wird, wenn ein Artikel zu einer Rechnung hinzugefügt wird.<br/><br/>
+            Sie können ein entsprechendes Produktfeld unter <b>Verwaltung -> Shop -> Produktfelder</b> anlegen. Wählen Sie dabei einen Text Feld-Typ (normal oder mehrsprachig).
             ]]></de>
             <en><![CDATA[
-            This setting determines which field is used for the product description when adding an invoice.
+            Sets the product field whose content is used by default as the article description when an article is added to an invoice.<br/><br/>
+            You can create a product field at <b>Administration -> Shop -> Product fields</b> with type text (normal or multilangual).
             ]]></en>
         </locale>
 

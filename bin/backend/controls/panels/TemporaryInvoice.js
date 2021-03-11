@@ -941,6 +941,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                                     if (typeof field[current] !== 'undefined') {
                                         Instance.setAttribute('description', field[current]);
+                                    } else {
+                                        Instance.setAttribute('description', field);
                                     }
                                 }
 
