@@ -27,6 +27,9 @@
                 <conf name="globalInvoiceText">
                     <type><![CDATA[string]]></type>
                 </conf>
+                <conf name="productDescriptionSource">
+                    <type>integer</type>
+                </conf>
             </section>
 
             <section name="temporaryInvoice">
@@ -140,6 +143,21 @@
                             <description>
                                 <locale group="quiqqer/invoice"
                                         var="invoice.settings.invoice.globalInvoiceText.description"/>
+                            </description>
+                        </input>
+
+                        <input conf="invoice.productDescriptionSource"
+                               data-qui="package/quiqqer/products/bin/controls/fields/Select"
+                               data-qui-options-max="1"
+                               data-qui-options-multiple="0"
+                        >
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.productDescriptionSource"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.productDescriptionSource.description"/>
                             </description>
                         </input>
                     </settings>

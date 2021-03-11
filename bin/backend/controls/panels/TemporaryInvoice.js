@@ -905,14 +905,43 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     'package/quiqqer/erp/bin/backend/controls/articles/product/AddProductWindow',
                     'package/quiqqer/invoice/bin/backend/controls/articles/Article'
                 ], function (Win, Article) {
+                    var productDescriptionSource = false;
+
                     new Win({
                         user  : self.getUserData(),
+                        fields: false,
                         events: {
+                            onLoad: function (Instance, ProductSearch) {
+                                ProductSearch.Loader.show();
+
+                                require(['package/quiqqer/invoice/bin/Invoices'], function (Invoices) {
+                                    Invoices.getSetting('invoice', 'productDescriptionSource').then(function (src) {
+                                        if (parseInt(src)) {
+                                            productDescriptionSource = parseInt(src);
+                                            Instance.setAttribute('fields', [productDescriptionSource]);
+                                        }
+
+                                        ProductSearch.Loader.hide();
+                                    });
+                                });
+                            },
+
                             onSubmit: function (Win, article) {
                                 var Instance = new Article(article);
 
                                 if ("calculated_vatArray" in article) {
                                     Instance.setVat(article.calculated_vatArray.vat);
+                                }
+
+                                if (productDescriptionSource &&
+                                    typeof article.fields !== 'undefined' &&
+                                    typeof article.fields[productDescriptionSource] !== 'undefined') {
+                                    var field   = article.fields[productDescriptionSource];
+                                    var current = QUILocale.getCurrent();
+
+                                    if (typeof field[current] !== 'undefined') {
+                                        Instance.setAttribute('description', field[current]);
+                                    }
                                 }
 
                                 self.$ArticleList.addArticle(Instance);
