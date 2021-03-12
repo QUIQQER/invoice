@@ -621,11 +621,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         'package/quiqqer/erp/bin/backend/controls/articles/ArticleSummary'
                     ], function (List, Summary) {
                         self.$ArticleList = new List({
-                            currency: self.getAttribute('currency'),
-                            events  : {
+                            nettoinput: !self.getAttribute('isbrutto'),
+                            currency  : self.getAttribute('currency'),
+                            events    : {
                                 onArticleReplaceClick: self.$onArticleReplaceClick
                             },
-                            styles  : {
+                            styles    : {
                                 height: 'calc(100% - 120px)'
                             }
                         }).inject(Container);
