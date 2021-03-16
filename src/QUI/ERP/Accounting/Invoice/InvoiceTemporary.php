@@ -197,6 +197,14 @@ class InvoiceTemporary extends QUI\QDOM
         if (!$this->getCustomer()) {
             $this->setAttribute('invoice_address', false);
             $this->setAttribute('customer_id', false);
+        } else {
+            $isBrutto = QUI\ERP\Utils\User::getBruttoNettoUserStatus($this->getCustomer());
+
+            if (QUI\ERP\Utils\User::IS_NETTO_USER === $isBrutto) {
+                $this->setAttribute('isbrutto', 0);
+            } else {
+                $this->setAttribute('isbrutto', 1);
+            }
         }
 
         // consider contact person in address
@@ -1224,7 +1232,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'custom_data'              => \json_encode($this->customData),
 
                 // calculation data
-                'isbrutto'                 => $isBrutto,
+                'isbrutto'                 => $isBrutto === QUI\ERP\Utils\User::IS_BRUTTO_USER ? 1 : 0,
                 'currency_data'            => \json_encode($this->getCurrency()->toArray()),
                 'currency'                 => $this->getCurrency()->getCode(),
                 'nettosum'                 => $listCalculations['nettoSum'],
