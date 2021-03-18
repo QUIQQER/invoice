@@ -135,9 +135,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             title = title + ' (';
 
             if (this.getAttribute('isbrutto')) {
-                title = title + QUILocale.get(lg, 'brutto');
+                title = title + QUILocale.get(lg, 'brutto.panel.title');
             } else {
-                title = title + QUILocale.get(lg, 'netto');
+                title = title + QUILocale.get(lg, 'netto.panel.title');
             }
 
             title = title + ')';

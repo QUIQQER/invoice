@@ -265,6 +265,15 @@
             <en><![CDATA[Gross]]></en>
         </locale>
 
+        <locale name="netto.panel.title">
+            <de><![CDATA[Netto-Kunde]]></de>
+            <en><![CDATA[Net customer]]></en>
+        </locale>
+        <locale name="brutto.panel.title">
+            <de><![CDATA[Brutto-Kunde]]></de>
+            <en><![CDATA[Gross customer]]></en>
+        </locale>
+
         <locale name="payment.status.0">
             <de><![CDATA[offen]]></de>
             <en><![CDATA[open]]></en>
