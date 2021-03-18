@@ -940,9 +940,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                                     var field   = article.fields[productDescriptionSource];
                                     var current = QUILocale.getCurrent();
 
-                                    if (typeof field[current] !== 'undefined') {
+                                    if (field && typeof field[current] !== 'undefined') {
                                         Instance.setAttribute('description', field[current]);
-                                    } else {
+                                    } else if (field) {
                                         Instance.setAttribute('description', field);
                                     }
                                 }
