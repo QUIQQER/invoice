@@ -135,9 +135,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             title = title + ' (';
 
             if (this.getAttribute('isbrutto')) {
-                title = title + QUILocale.get(lg, 'brutto');
+                title = title + QUILocale.get(lg, 'brutto.panel.title');
             } else {
-                title = title + QUILocale.get(lg, 'netto');
+                title = title + QUILocale.get(lg, 'netto.panel.title');
             }
 
             title = title + ')';
@@ -621,11 +621,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         'package/quiqqer/erp/bin/backend/controls/articles/ArticleSummary'
                     ], function (List, Summary) {
                         self.$ArticleList = new List({
-                            currency: self.getAttribute('currency'),
-                            events  : {
+                            nettoinput: !self.getAttribute('isbrutto'),
+                            currency  : self.getAttribute('currency'),
+                            events    : {
                                 onArticleReplaceClick: self.$onArticleReplaceClick
                             },
-                            styles  : {
+                            styles    : {
                                 height: 'calc(100% - 120px)'
                             }
                         }).inject(Container);
@@ -905,14 +906,45 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     'package/quiqqer/erp/bin/backend/controls/articles/product/AddProductWindow',
                     'package/quiqqer/invoice/bin/backend/controls/articles/Article'
                 ], function (Win, Article) {
+                    var productDescriptionSource = false;
+
                     new Win({
                         user  : self.getUserData(),
+                        fields: false,
                         events: {
+                            onLoad: function (Instance, ProductSearch) {
+                                ProductSearch.Loader.show();
+
+                                require(['package/quiqqer/invoice/bin/Invoices'], function (Invoices) {
+                                    Invoices.getSetting('invoice', 'productDescriptionSource').then(function (src) {
+                                        if (parseInt(src)) {
+                                            productDescriptionSource = parseInt(src);
+                                            Instance.setAttribute('fields', [productDescriptionSource]);
+                                        }
+
+                                        ProductSearch.Loader.hide();
+                                    });
+                                });
+                            },
+
                             onSubmit: function (Win, article) {
                                 var Instance = new Article(article);
 
                                 if ("calculated_vatArray" in article) {
                                     Instance.setVat(article.calculated_vatArray.vat);
+                                }
+
+                                if (productDescriptionSource &&
+                                    typeof article.fields !== 'undefined' &&
+                                    typeof article.fields[productDescriptionSource] !== 'undefined') {
+                                    var field   = article.fields[productDescriptionSource];
+                                    var current = QUILocale.getCurrent();
+
+                                    if (field && typeof field[current] !== 'undefined') {
+                                        Instance.setAttribute('description', field[current]);
+                                    } else if (field) {
+                                        Instance.setAttribute('description', field);
+                                    }
                                 }
 
                                 self.$ArticleList.addArticle(Instance);

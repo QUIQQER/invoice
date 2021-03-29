@@ -699,10 +699,16 @@ class InvoiceSearch extends Singleton
             $invoiceData['id'] = $invoiceData['id_prefix'].$invoiceData['id'];
             $invoiceAddress    = \json_decode($invoiceData['invoice_address'], true);
 
-            $invoiceData['customer_name'] = $invoiceAddress['salutation'].' '.
-                                            $invoiceAddress['firstname'].' '.
-                                            $invoiceAddress['lastname'];
+            if (!isset($invoiceAddress['salutation'])) {
+                $invoiceAddress['salutation'] = '';
+            }
 
+            $invoiceData['customer_name'] = trim(
+                $invoiceAddress['salutation'].' '.
+                $invoiceAddress['firstname'].' '.
+                $invoiceAddress['lastname']
+            );
+            
             if (!empty($invoiceAddress['company'])) {
                 $invoiceData['customer_name'] = trim($invoiceData['customer_name']);
 

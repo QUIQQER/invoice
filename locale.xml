@@ -265,6 +265,15 @@
             <en><![CDATA[Gross]]></en>
         </locale>
 
+        <locale name="netto.panel.title">
+            <de><![CDATA[Netto-Kunde]]></de>
+            <en><![CDATA[Net customer]]></en>
+        </locale>
+        <locale name="brutto.panel.title">
+            <de><![CDATA[Brutto-Kunde]]></de>
+            <en><![CDATA[Gross customer]]></en>
+        </locale>
+
         <locale name="payment.status.0">
             <de><![CDATA[offen]]></de>
             <en><![CDATA[open]]></en>
@@ -490,6 +499,21 @@
         <locale name="invoice.settings.invoice.globalInvoiceText.description">
             <de><![CDATA[Dieser Text wird in jeder Rechnung als zusätzlicher Text angezeigt.]]></de>
             <en><![CDATA[This text is displayed in every invoice as additional text.]]></en>
+        </locale>
+
+        <locale name="invoice.settings.invoice.productDescriptionSource">
+            <de><![CDATA[Quelle der Produktbeschreibung]]></de>
+            <en><![CDATA[Product description source]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.productDescriptionSource.description">
+            <de><![CDATA[
+            Legt das Produktfeld fest, dessen Inhalt standardmäßig als Artikel-Beschreibung verwendet wird, wenn ein Artikel zu einer Rechnung hinzugefügt wird.<br/><br/>
+            Sie können ein entsprechendes Produktfeld unter <b>Verwaltung -> Shop -> Produktfelder</b> anlegen. Wählen Sie dabei einen Text Feld-Typ (normal oder mehrsprachig).
+            ]]></de>
+            <en><![CDATA[
+            Sets the product field whose content is used by default as the article description when an article is added to an invoice.<br/><br/>
+            You can create a product field at <b>Administration -> Shop -> Product fields</b> with type text (normal or multilangual).
+            ]]></en>
         </locale>
 
         <locale name="invoice.send.mail.message.description" html="true">

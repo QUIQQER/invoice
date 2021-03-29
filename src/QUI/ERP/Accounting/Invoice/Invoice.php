@@ -246,7 +246,7 @@ class Invoice extends QUI\QDOM
             QUI\System\Log::writeDebugException($Exception);
         }
 
-        $List = new ArticleListUnique($articles);
+        $List = new ArticleListUnique($articles, $this->getCustomer());
         $List->setLocale($this->getCustomer()->getLocale());
 
         return $List;
