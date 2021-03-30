@@ -1,6 +1,9 @@
 /**
  * @module package/quiqqer/invoice/bin/backend/utils/Dialogs
  * @author www.pcsg.de (Henning Leutz)
+ *
+ * @event (global) onQuiqqerInvoiceCreateCreditNoteDialogOpen [invoiceId, Win]
+ * @event (global) onQuiqqerInvoiceCreateCreditNoteDialogSubmit [creditNoteId, Win]
  */
 define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
 
@@ -232,6 +235,8 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                 Invoices.hasRefund(id).then(function (hasRefund) {
                                     paymentHasRefund = hasRefund;
 
+                                    QUI.fireEvent('quiqqerInvoiceCreateCreditNoteDialogOpen', [id, Win]);
+
                                     if (!paymentHasRefund) {
                                         Win.Loader.hide();
                                         return;
@@ -264,6 +269,11 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                     values = values || {};
 
                                     Invoices.createCreditNote(result.hash, values).then(function (newId) {
+                                        QUI.fireEvent(
+                                            'quiqqerInvoiceCreateCreditNoteDialogSubmit',
+                                            [newId, Win]
+                                        );
+
                                         resolve(newId);
                                         Win.close();
                                     }).catch(function (Err) {
