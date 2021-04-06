@@ -22,50 +22,13 @@ use QUI\ERP\Money\Price;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class Text extends QUI\ERP\Accounting\Article
+class Text extends QUI\ERP\Accounting\Articles\Text
 {
-    protected $displayPrice = false;
-
-    /**
-     * @inheritdoc
-     * @return QUI\ERP\Money\Price
-     */
-    public function getUnitPrice()
-    {
-        return new Price(0, QUI\ERP\Defaults::getCurrency());
-    }
-
-    /**
-     * @inheritdoc
-     * @return QUI\ERP\Money\Price
-     */
-    public function getSum()
-    {
-        return new Price(0, QUI\ERP\Defaults::getCurrency());
-    }
-
-    /**
-     * @inheritdoc
-     * @return bool
-     */
-    public function getQuantity()
-    {
-        return 1;
-    }
-
-    /**
-     * @return bool
-     */
-    public function displayPrice()
-    {
-        return false;
-    }
-
     /**
      * @inheritdoc
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return \array_merge(parent::toArray(), [
             'class'        => \get_class($this),

@@ -22,7 +22,7 @@ class Article extends QUI\ERP\Accounting\Article
      * @inheritdoc
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return \array_merge(parent::toArray(), [
             'class'   => \get_class($this),
