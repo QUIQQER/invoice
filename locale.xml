@@ -1846,8 +1846,8 @@
         </locale>
 
         <locale name="pdf.download.name">
-            <de><![CDATA[Rechnung]]></de>
-            <en><![CDATA[Invoice]]></en>
+            <de><![CDATA[Rechnung-%INO%-%DATE%]]></de>
+            <en><![CDATA[Invoice-%INO%-%DATE%]]></en>
         </locale>
         <locale name="pdf.export.footer.1">
             <de><![CDATA[&nbsp;]]></de>
