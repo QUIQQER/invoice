@@ -367,6 +367,15 @@
             <de><![CDATA[Rechnung bei Erstellung per E-Mail versenden]]></de>
             <en><![CDATA[Sending Invoices during generation]]></en>
         </locale>
+        <locale name="invoice.settings.sendMailAtCreation.description">
+            <de><![CDATA[
+            Das automatische Versenden per E-Mail wird nicht im Backend ausgelöst. Diese Einstellung gilt nur für das Frontend.
+            ]]></de>
+            <en><![CDATA[
+            Automatic sending by email is not triggered in the backend. This setting applies only to the frontend.
+            ]]></en>
+        </locale>
+
         <locale name="invoice.settings.invoice.prefix.description">
             <de><![CDATA[
             Präfixe können auch mit Datumsformatierungen umgehen. Mögliche Datumsformate finden Sie unter:

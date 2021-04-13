@@ -88,6 +88,9 @@
                             <text>
                                 <locale group="quiqqer/invoice" var="invoice.settings.sendMailAtCreation"/>
                             </text>
+                            <description>
+                                <locale group="quiqqer/invoice" var="invoice.settings.sendMailAtCreation.description"/>
+                            </description>
                         </input>
 
                         <input type="number" conf="invoice.time_for_payment">

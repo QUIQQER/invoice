@@ -14,8 +14,14 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_post',
     function ($invoiceId) {
+        $Settings       = QUI\ERP\Accounting\Invoice\Settings::getInstance();
+        $currentSetting = $Settings->sendMailAtInvoiceCreation();
+        $Settings->set('invoice', 'sendMailAtCreation', false);
+
         $Temporary = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
         $Invoice   = $Temporary->post();
+
+        $Settings->set('invoice', 'sendMailAtCreation', $currentSetting);
 
         return $Invoice->getHash();
     },
