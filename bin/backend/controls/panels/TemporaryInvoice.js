@@ -258,6 +258,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {{customer_id, invoice_address_id, project_name, articles, date, time_for_payment}}
          */
         getCurrentData: function () {
+            var deliveryAddress = this.getAttribute('addressDelivery');
+
+            if (!deliveryAddress) {
+                deliveryAddress = this.getAttribute('delivery_address');
+            }
+
             return {
                 customer_id            : this.getAttribute('customer_id'),
                 invoice_address_id     : this.getAttribute('invoice_address_id'),
@@ -270,7 +276,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 time_for_payment       : this.getAttribute('time_for_payment'),
                 payment_method         : this.getAttribute('payment_method'),
                 additional_invoice_text: this.getAttribute('additional_invoice_text'),
-                addressDelivery        : this.getAttribute('addressDelivery'),
+                addressDelivery        : deliveryAddress,
                 processing_status      : this.getAttribute('processing_status')
             };
         },
