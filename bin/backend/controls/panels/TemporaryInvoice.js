@@ -319,17 +319,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textStatus        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textStatus'),
                         textContactPerson : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textContactPerson'),
 
-                        textInvoiceDeliveryAddress     : QUILocale.get(lg, 'deliveryAddress'),
-                        messageDifferentDeliveryAddress: QUILocale.get(lg, 'message.different,delivery.address'),
-                        textAddresses                  : QUILocale.get(lg, 'address'),
-                        textCompany                    : QUILocale.get(lg, 'company'),
-                        textStreet                     : QUILocale.get(lg, 'street'),
-                        textZip                        : QUILocale.get(lg, 'zip'),
-                        textCity                       : QUILocale.get(lg, 'city'),
-                        textCountry                    : QUILocale.get(lg, 'country'),
-                        textSalutation                 : QUILocale.get(lg, 'salutation'),
-                        textFirstname                  : QUILocale.get(lg, 'firstname'),
-                        textLastname                   : QUILocale.get(lg, 'lastname')
+                        textInvoiceDeliveryAddress: QUILocale.get(lg, 'deliveryAddress'),
                     })
                 });
 
@@ -449,9 +439,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                     // reset deliver address
                     if (self.$AddressDelivery) {
+                        self.$AddressDelivery.reset();
                         self.$AddressDelivery.setAttribute('userId', userId);
-                        self.$AddressDelivery.refresh().catch(function () {
-                        });
                     }
 
                     Promise.all([
@@ -523,24 +512,23 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 // delivery address
                 self.$AddressDelivery = QUI.Controls.getById(
                     self.getContent().getElement(
-                        '[data-qui="package/quiqqer/invoice/bin/backend/controls/panels/DeliveryAddress"]'
+                        '[data-qui="package/quiqqer/erp/bin/backend/controls/DeliveryAddress"]'
                     ).get('data-quiid')
                 );
 
-                if (self.getAttribute('delivery_address_id')) {
-                    var deliveryAddress = self.getAttribute('delivery_address');
+                var deliveryAddress = self.getAttribute('addressDelivery');
 
-                    try {
+                if (!deliveryAddress) {
+                    deliveryAddress = self.getAttribute('delivery_address');
+
+                    if (deliveryAddress) {
                         deliveryAddress = JSON.decode(deliveryAddress);
-
-                        if (deliveryAddress) {
-                            self.getContent().getElement('[name="differentDeliveryAddress"]').checked = true;
-
-                            self.$AddressDelivery.setAttribute('userId', self.getAttribute('customer_id'));
-                            self.$AddressDelivery.setValue(deliveryAddress);
-                        }
-                    } catch (e) {
                     }
+                }
+
+                if (deliveryAddress) {
+                    self.$AddressDelivery.setAttribute('userId', self.getAttribute('customer_id'));
+                    self.$AddressDelivery.setValue(deliveryAddress);
                 }
             }).then(function () {
                 var Container = self.getContent().getElement('.container');
@@ -1143,6 +1131,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             if (this.$AddressDelivery) {
                 this.setAttribute('addressDelivery', this.$AddressDelivery.getValue());
+                this.setAttribute('delivery_address', this.$AddressDelivery.getValue());
             }
 
             if (this.$AdditionalText) {
