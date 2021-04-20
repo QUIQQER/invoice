@@ -941,6 +941,8 @@ class Invoice extends QUI\QDOM
             return;
         }
 
+        $currentPaidStatus = $this->getAttribute('paid_status');
+
         QUI\ERP\Accounting\Calc::calculatePayments($this);
 
         if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
@@ -950,8 +952,9 @@ class Invoice extends QUI\QDOM
             return;
         }
 
-        if ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID ||
-            $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
+        if ($currentPaidStatus === $this->getAttribute('paid_status')
+            && ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID ||
+                $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED)
         ) {
             return;
         }
