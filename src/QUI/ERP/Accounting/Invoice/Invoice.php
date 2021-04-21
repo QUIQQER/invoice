@@ -943,7 +943,7 @@ class Invoice extends QUI\QDOM
 
         $currentPaidStatus = $this->getAttribute('paid_status');
 
-        QUI\ERP\Accounting\Calc::calculatePayments($this);
+        $this->calculatePayments();
 
         if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
             || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
