@@ -110,18 +110,26 @@ class InvoiceTemporary extends QUI\QDOM
         $this->History  = new QUI\ERP\Comments();
         $this->Comments = new QUI\ERP\Comments();
 
-        $this->addressDelivery = \json_decode($data['delivery_address'], true);
+        if (!empty($data['delivery_address'])) {
+            $deliveryAddressData = \json_decode($data['delivery_address'], true);
 
-        if (!empty($data['delivery_address_id'])) {
-            $this->addressDelivery['id'] = (int)$data['delivery_address_id'];
-        } elseif (empty($this->addressDelivery['company'])
-                  && empty($this->addressDelivery['firstname'])
-                  && empty($this->addressDelivery['lastname'])
-                  && empty($this->addressDelivery['street_no'])
-                  && empty($this->addressDelivery['zip'])
-                  && empty($this->addressDelivery['city'])
-                  && empty($this->addressDelivery['county'])
-        ) {
+            if (\json_last_error() === \JSON_ERROR_NONE) {
+                $this->addressDelivery = $deliveryAddressData;
+            } else {
+                $this->addressDelivery = false;
+            }
+
+            if (empty($this->addressDelivery['company'])
+                && empty($this->addressDelivery['firstname'])
+                && empty($this->addressDelivery['lastname'])
+                && empty($this->addressDelivery['street_no'])
+                && empty($this->addressDelivery['zip'])
+                && empty($this->addressDelivery['city'])
+                && empty($this->addressDelivery['county'])
+            ) {
+                $this->addressDelivery = false;
+            }
+        } else {
             $this->addressDelivery = false;
         }
 
@@ -637,6 +645,8 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         // address
+        $invoiceAddressId = false;
+
         try {
             $Customer = QUI::getUsers()->get((int)$this->getAttribute('customer_id'));
 
@@ -653,6 +663,8 @@ class InvoiceTemporary extends QUI\QDOM
 
             $invoiceAddress = $Address->toJSON();
             $this->Articles->setUser($Customer);
+
+            $invoiceAddressId = $Address->getId();
         } catch (QUI\Exception $Exception) {
             $invoiceAddress      = $this->getAttribute('invoice_address');
             $invoiceAddressCheck = false;
@@ -663,6 +675,8 @@ class InvoiceTemporary extends QUI\QDOM
 
             if (!$invoiceAddressCheck) {
                 QUI\System\Log::addNotice($Exception->getMessage());
+            } else {
+                $invoiceAddressId = $invoiceAddressCheck['id'];
             }
         }
 
@@ -747,10 +761,12 @@ class InvoiceTemporary extends QUI\QDOM
         // delivery address
         $deliveryAddress   = '';
         $deliveryAddressId = null;
+        $DeliveryAddress   = $this->getDeliveryAddress();
 
-        if ($this->getDeliveryAddress()) {
-            $deliveryAddress   = $this->getDeliveryAddress()->toJSON();
-            $deliveryAddressId = $this->getDeliveryAddress()->getId();
+        // Save delivery address separately only if it differs from invoice address
+        if ($DeliveryAddress && ($invoiceAddressId && $DeliveryAddress->getId() !== $invoiceAddressId)) {
+            $deliveryAddress   = $DeliveryAddress->toJSON();
+            $deliveryAddressId = $DeliveryAddress->getId();
 
             if (empty($deliveryAddressId)) {
                 $deliveryAddressId = null;
@@ -1837,10 +1853,10 @@ class InvoiceTemporary extends QUI\QDOM
                 );
 
                 if ($Address) {
-                    return new QUI\ERP\Address(
-                        $Address->getAttributes(),
-                        $this->getCustomer()
-                    );
+                    $addressData       = $Address->getAttributes();
+                    $addressData['id'] = $Address->getId();
+
+                    return new QUI\ERP\Address($addressData, $this->getCustomer());
                 }
             } catch (QUI\Exception $Exception) {
                 QUI\System\Log::addDebug($Exception->getMessage());
@@ -1900,6 +1916,16 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         return $result;
+    }
+
+    /**
+     * Removes any delivery address that is saved in this invoice
+     *
+     * @return void
+     */
+    public function removeDeliveryAddress()
+    {
+        $this->addressDelivery = false;
     }
 
     // endregion

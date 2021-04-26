@@ -24,18 +24,17 @@ QUI::$Ajax->registerFunction(
             $data['invoice_address']    = '';
         }
 
-        if (isset($data['addressDelivery']) && !empty($data['addressDelivery'])) {
+        if (!empty($data['addressDelivery'])) {
             $delivery = $data['addressDelivery'];
+            unset($data['addressDelivery']);
 
-            if ($delivery) {
-                unset($data['addressDelivery']);
-
-                try {
-                    $Invoice->setDeliveryAddress($delivery);
-                } catch (QUI\Exception $Exception) {
-                    QUI\System\Log::writeDebugException($Exception);
-                }
+            try {
+                $Invoice->setDeliveryAddress($delivery);
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
             }
+        } else {
+            $Invoice->removeDeliveryAddress();
         }
 
         $Invoice->clearArticles();
