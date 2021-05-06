@@ -508,8 +508,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     sortable : false
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.customerNo'),
-                    dataIndex: 'customer_id',
-                    dataType : 'integer',
+                    dataIndex: 'customer_id_display',
+                    dataType : 'string',
                     width    : 90,
                     className: 'clickable'
                 }, {
