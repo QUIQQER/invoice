@@ -755,7 +755,7 @@ class Invoice extends QUI\QDOM
                 'paid_status'             => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
                 'paid_date'               => null,
                 'paid_data'               => null,
-                'date'                    => $currentData['date'],
+                'date'                    => date('Y-m-d H:i:s'),
                 'data'                    => $currentData['data'],
                 'additional_invoice_text' => $currentData['additional_invoice_text'],
                 'articles'                => $currentData['articles'],
