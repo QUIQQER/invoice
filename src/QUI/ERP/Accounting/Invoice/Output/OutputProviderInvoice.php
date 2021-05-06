@@ -159,6 +159,10 @@ class OutputProviderInvoice implements OutputProviderInterface
 
             $DeliveryAddress->clearMail();
             $DeliveryAddress->clearPhone();
+
+            if ($DeliveryAddress->equals($Address)) {
+                $DeliveryAddress = false;
+            }
         }
 
         QUI::getLocale()->setTemporaryCurrent($Customer->getLang());

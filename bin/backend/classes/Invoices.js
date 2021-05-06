@@ -449,6 +449,7 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_addPayment', function (id) {
                     self.fireEvent('addPaymentToInvoice', [self, invoiceId, id]);
+                    QUI.fireEvent('quiqqerInvoiceAddPaymentToInvoice', [self, invoiceId, id]);
                     resolve(id);
                 }, {
                     'package'    : 'quiqqer/invoice',
