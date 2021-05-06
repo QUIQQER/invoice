@@ -609,7 +609,9 @@ class InvoiceSearch extends Singleton
 
             $Invoice->getPaidStatusInformation();
 
+            $Customer    = $Invoice->getCustomer();
             $invoiceData = $Invoice->getAttributes();
+
             $fillFields($invoiceData);
 
             try {
@@ -699,6 +701,12 @@ class InvoiceSearch extends Singleton
 
             if (!isset($invoiceAddress['salutation'])) {
                 $invoiceAddress['salutation'] = '';
+            }
+
+            if ($Customer->getAttribute('customerId')) {
+                $invoiceData['customer_id_display'] = $Customer->getAttribute('customerId');
+            } else {
+                $invoiceData['customer_id_display'] = '';
             }
 
             $invoiceData['customer_name'] = trim(
