@@ -168,13 +168,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     switch (parseInt(entry.isbrutto)) {
                         case 1:
                             entry.display_isbrutto = new Element('span', {
-                                'class': 'fa fa-minus'
+                                'class': 'fa fa-check'
                             });
                             break;
 
-                        case 2:
+                        default:
                             entry.display_isbrutto = new Element('span', {
-                                'class': 'fa fa-check'
+                                'class': 'fa fa-minus'
                             });
                             break;
                     }
