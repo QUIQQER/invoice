@@ -122,12 +122,18 @@ QUI::$Ajax->registerFunction(
             // customer data
             if (!empty($entry['customer_id'])) {
                 try {
-                    $Customer = $TemporaryInvoice->getCustomer();
-                    $customer = '---';
+                    $Customer   = $TemporaryInvoice->getCustomer();
+                    $customer   = '---';
+                    $customerId = '---';
 
                     if ($Customer) {
-                        $customer = $Customer->getName();
-                        $Address  = $Customer->getAddress();
+                        $customer   = $Customer->getName();
+                        $Address    = $Customer->getAddress();
+                        $customerId = $Customer->getAttribute('customerId');
+
+                        if (!$customerId) {
+                            $customerId = Handler::EMPTY_VALUE;
+                        }
 
                         if (empty($customer) && $Address) {
                             $customer = $Address->getAttribute('firstname');
@@ -147,10 +153,12 @@ QUI::$Ajax->registerFunction(
                         }
                     }
 
-                    $data[$key]['customer_name'] = $customer;
+                    $data[$key]['customer_name']       = $customer;
+                    $data[$key]['customer_id_display'] = $customerId;
                 } catch (QUI\Exception $Exception) {
-                    $data[$key]['customer_id']   = Handler::EMPTY_VALUE;
-                    $data[$key]['customer_name'] = Handler::EMPTY_VALUE;
+                    $data[$key]['customer_id']         = Handler::EMPTY_VALUE;
+                    $data[$key]['customer_name']       = Handler::EMPTY_VALUE;
+                    $data[$key]['customer_id_display'] = Handler::EMPTY_VALUE;
                 }
             }
 
