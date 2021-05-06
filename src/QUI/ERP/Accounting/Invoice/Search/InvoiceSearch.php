@@ -212,7 +212,7 @@ class InvoiceSearch extends Singleton
      *
      * @throws QUI\Exception
      */
-    public function search()
+    public function search(): array
     {
         return $this->executeQueryParams($this->getQuery());
     }
@@ -223,7 +223,7 @@ class InvoiceSearch extends Singleton
      * @return array
      * @throws QUI\Exception
      */
-    public function searchForGrid()
+    public function searchForGrid(): array
     {
         $this->cache = [];
 
@@ -271,7 +271,7 @@ class InvoiceSearch extends Singleton
     /**
      * @return array
      */
-    protected function getQueryCount()
+    protected function getQueryCount(): array
     {
         return $this->getQuery(true);
     }
@@ -280,7 +280,7 @@ class InvoiceSearch extends Singleton
      * @param bool $count - Use count select, or not
      * @return array
      */
-    protected function getQuery($count = false)
+    protected function getQuery($count = false): array
     {
         $Invoices = Handler::getInstance();
 
@@ -506,7 +506,7 @@ class InvoiceSearch extends Singleton
      * @return array
      * @throws QUI\Exception
      */
-    protected function executeQueryParams($queryData = [])
+    protected function executeQueryParams(array $queryData = []): array
     {
         $PDO   = QUI::getDataBase()->getPDO();
         $binds = $queryData['binds'];
@@ -533,10 +533,8 @@ class InvoiceSearch extends Singleton
     /**
      * @param array $data
      * @return array
-     *
-     * @throws QUI\Exception
      */
-    protected function parseListForGrid($data)
+    protected function parseListForGrid(array $data): array
     {
         $Invoices = Handler::getInstance();
         $Locale   = QUI::getLocale();
@@ -708,7 +706,7 @@ class InvoiceSearch extends Singleton
                 $invoiceAddress['firstname'].' '.
                 $invoiceAddress['lastname']
             );
-            
+
             if (!empty($invoiceAddress['company'])) {
                 $invoiceData['customer_name'] = trim($invoiceData['customer_name']);
 
@@ -785,7 +783,7 @@ class InvoiceSearch extends Singleton
     /**
      * @return array
      */
-    protected function getAllowedFields()
+    protected function getAllowedFields(): array
     {
         return [
             'id',
