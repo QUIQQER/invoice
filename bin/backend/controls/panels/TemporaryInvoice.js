@@ -782,6 +782,48 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 });
             }).then(function () {
+                // check invoice date
+                var Now = new Date();
+                Now.setHours(0, 0, 0, 0);
+
+                var InvoiceDate = new Date(self.getAttribute('date'));
+
+                if (InvoiceDate < Now) {
+                    new QUIConfirm({
+                        title        : QUILocale.get(lg, 'window.invoice.date.past.title'),
+                        text         : QUILocale.get(lg, 'window.invoice.date.past.title'),
+                        information  : QUILocale.get(lg, 'window.invoice.date.past.content'),
+                        icon         : 'fa fa-clock-o',
+                        texticon     : 'fa fa-clock-o',
+                        maxHeight    : 400,
+                        maxWidth     : 600,
+                        autoclose    : false,
+                        cancel_button: {
+                            text     : QUILocale.get(lg, 'window.invoice.date.past.cancel.text'),
+                            textimage: 'fa fa-close'
+                        },
+                        ok_button    : {
+                            text     : QUILocale.get(lg, 'window.invoice.date.past.ok.text'),
+                            textimage: 'fa fa-check'
+                        },
+                        events       : {
+                            onSubmit: function (Win) {
+                                Win.Loader.show();
+
+                                var Today = new Date()
+                                var today = Today.toISOString().split('T')[0];
+
+                                self.setAttribute('date', today + ' 00:00:00');
+
+                                self.save().then(function () {
+                                    self.openVerification();
+                                    Win.close();
+                                });
+                            }
+                        }
+                    }).open();
+                }
+            }).then(function () {
                 return Invoices.getMissingAttributes(self.getAttribute('invoiceId'));
             }).then(function (missing) {
                 var Missing = new Element('div', {
