@@ -1560,6 +1560,29 @@
             <de><![CDATA[Bitte wählen Sie einen Kunden aus.]]></de>
             <en><![CDATA[Please select a customer.]]></en>
         </locale>
+
+        <locale name="window.invoice.date.past.title">
+            <de><![CDATA[Rechnungsdatum liegt in der Vergangenheit]]></de>
+            <en><![CDATA[Invoice date is in the past]]></en>
+        </locale>
+        <locale name="window.invoice.date.past.content" html="true">
+            <de><![CDATA[
+            Achtung das Rechnungsdatum liegt in der Vergangenheit.<br />
+            Soll das heutige Datum verwendet werden?
+            ]]></de>
+            <en><![CDATA[
+            Attention the invoice date is in the past.<br />
+            Should today's date be used?
+            ]]></en>
+        </locale>
+        <locale name="window.invoice.date.past.cancel.text">
+            <de><![CDATA[Datum belassen]]></de>
+            <en><![CDATA[Leave date]]></en>
+        </locale>
+        <locale name="window.invoice.date.past.ok.text">
+            <de><![CDATA[Heutiges Datum verwenden]]></de>
+            <en><![CDATA[Use today's date]]></en>
+        </locale>
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
