@@ -54,11 +54,31 @@ class OutputProviderCancelled extends OutputProviderInvoice
     {
         $Invoice  = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
+        $mailVars = OutputProviderInvoice::getInvoiceLocaleVar($Invoice, $Customer);
+
+        // Additional mail placeholders for cancelled invoice
+        $cancelledInvoiceId = $Invoice->getData('originalIdPrefixed');
+
+        if (empty($cancelledInvoiceId)) {
+            $cancelledInvoiceId = $Invoice->getData('originalId');
+
+            try {
+                $CancelledInvoice = QUI\ERP\Accounting\Invoice\Handler::getInstance()->get(
+                    $cancelledInvoiceId
+                );
+
+                $cancelledInvoiceId = $CancelledInvoice->getId();
+            } catch (\Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
+            }
+        }
+
+        $mailVars['cancelledInvoiceId'] = $cancelledInvoiceId;
 
         return $Invoice->getCustomer()->getLocale()->get(
             'quiqqer/invoice',
             'invoice.cancelled.send.mail.subject',
-            OutputProviderInvoice::getInvoiceLocaleVar($Invoice, $Customer)
+            $mailVars
         );
     }
 
@@ -75,10 +95,30 @@ class OutputProviderCancelled extends OutputProviderInvoice
         $Invoice  = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
+        // Additional mail placeholders for cancelled invoice
+        $mailVars           = OutputProviderInvoice::getInvoiceLocaleVar($Invoice, $Customer);
+        $cancelledInvoiceId = $Invoice->getData('originalIdPrefixed');
+
+        if (empty($cancelledInvoiceId)) {
+            $cancelledInvoiceId = $Invoice->getData('originalId');
+
+            try {
+                $CancelledInvoice = QUI\ERP\Accounting\Invoice\Handler::getInstance()->get(
+                    $cancelledInvoiceId
+                );
+
+                $cancelledInvoiceId = $CancelledInvoice->getId();
+            } catch (\Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
+            }
+        }
+
+        $mailVars['cancelledInvoiceId'] = $cancelledInvoiceId;
+
         return $Customer->getLocale()->get(
             'quiqqer/invoice',
             'invoice.cancelled.send.mail.message',
-            OutputProviderInvoice::getInvoiceLocaleVar($Invoice, $Customer)
+            $mailVars
         );
     }
 }

@@ -606,7 +606,8 @@
             <de><![CDATA[
             <p>Betreff der Storno-Rechnungsmail. Verfügbare Platzhalter:</p>
             <ul>
-                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[invoiceId]:</b> Rechnungs-Nr.</li>
+                <li><b>[cancelledInvoiceId]:</b> Rechnungs-Nr. der <b>stonierten</b> Rechnung</li>
                 <li><b>[hash]:</b> Rechnungs-Hash</li>
                 <li><b>[date]:</b> Rechnungsdatum</li>
                 <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
@@ -624,7 +625,8 @@
             <en><![CDATA[
             <p>Subject of the cancelletion Invoice mail. Available placeholders:</p>
             <ul>
-                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[invoiceId]:</b> Invoice no.</li>
+                <li><b>[cancelledInvoiceId]:</b> Invoice no. of the <b>cancelled</b> invoice</li>
                 <li><b>[hash]:</b> Invoice hash</li>
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
@@ -644,7 +646,8 @@
             <de><![CDATA[
             <p>Inhalt der Storno-Rechnungsmail. Verfügbare Platzhalter:</p>
             <ul>
-                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[invoiceId]:</b> Rechnungs-Nr.</li>
+                <li><b>[cancelledInvoiceId]:</b> Rechnungs-Nr. der <b>stonierten</b> Rechnung</li>
                 <li><b>[hash]:</b> Rechnungs-Hash</li>
                 <li><b>[date]:</b> Rechnungsdatum</li>
                 <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
@@ -662,7 +665,8 @@
             <en><![CDATA[
             <p>Content of the cancellation Invoice mail. Available placeholders:</p>
             <ul>
-                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[invoiceId]:</b> Invoice no.</li>
+                <li><b>[cancelledInvoiceId]:</b> Invoice no. of the <b>cancelled</b> invoice</li>
                 <li><b>[hash]:</b> Invoice hash</li>
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
@@ -684,7 +688,8 @@
             <de><![CDATA[
             <p>Betreff der Gutschrift-Mail Verfügbare Platzhalter:</p>
             <ul>
-                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[invoiceId]:</b> Rechnungs-Nr.</li>
+                <li><b>[creditedInvoiceId]:</b> Rechnungs-Nr. der Rechnung, zu der die Gutschrift erstellt wurde</li>
                 <li><b>[hash]:</b> Rechnungs-Hash</li>
                 <li><b>[date]:</b> Rechnungsdatum</li>
                 <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
@@ -702,7 +707,8 @@
             <en><![CDATA[
             <p>Subject of the Credit Note mail. Available placeholders:</p>
             <ul>
-                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[invoiceId]:</b> Invoice no.</li>
+                <li><b>[creditedInvoiceId]:</b> Invoice no. of invoice that was credited</li>
                 <li><b>[hash]:</b> Invoice hash</li>
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
@@ -722,7 +728,8 @@
             <de><![CDATA[
             <p>Inhalt der Gutschrift-Mail. Verfügbare Platzhalter:</p>
             <ul>
-                <li><b>[invoiceId]:</b> Rechnungs-ID</li>
+                <li><b>[invoiceId]:</b> Rechnungs-Nr.</li>
+                <li><b>[creditedInvoiceId]:</b> Rechnungs-Nr. der Rechnung, zu der die Gutschrift erstellt wurde</li>
                 <li><b>[hash]:</b> Rechnungs-Hash</li>
                 <li><b>[date]:</b> Rechnungsdatum</li>
                 <li><b>[systemCompany]:</b> Company Name des QUIQQER Systems</li>
@@ -740,7 +747,8 @@
             <en><![CDATA[
             <p>Content of the Credit Note mail. Available placeholders:</p>
             <ul>
-                <li><b>[invoiceId]:</b> Invoice Id</li>
+                <li><b>[invoiceId]:</b> Invoice no.</li>
+                <li><b>[creditedInvoiceId]:</b> Invoice no. of invoice that was credited</li>
                 <li><b>[hash]:</b> Invoice hash</li>
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
