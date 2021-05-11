@@ -237,9 +237,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             return false;
         }
 
-        $email = $Customer->getAttribute('email');
-
-        return $email ?: false;
+        return QUI\ERP\Customer\Utils::getInstance()->getEmailByCustomer($Customer);
     }
 
     /**
