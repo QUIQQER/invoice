@@ -383,6 +383,16 @@ class Invoice extends QUI\QDOM
     }
 
     /**
+     * ALIAS for $this->getPaymentDataEntry to be consistent with InvoiceTemporary.
+     *
+     * @param string $key
+     * @return mixed|null
+     */
+    public function getPaymentData(string $key) {
+        return $this->getPaymentDataEntry($key);
+    }
+
+    /**
      * can a refund be made?
      *
      * @return bool
