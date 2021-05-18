@@ -388,7 +388,8 @@ class Invoice extends QUI\QDOM
      * @param string $key
      * @return mixed|null
      */
-    public function getPaymentData(string $key) {
+    public function getPaymentData(string $key)
+    {
         return $this->getPaymentDataEntry($key);
     }
 
