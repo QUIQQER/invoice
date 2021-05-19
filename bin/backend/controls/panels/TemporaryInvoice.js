@@ -63,7 +63,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             '$onArticleReplaceClick',
             '$clickDelete',
             'toggleSort',
-            '$showLockMessage'
+            '$showLockMessage',
+            'print'
         ],
 
         options: {
@@ -1330,7 +1331,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             this.getButtons('lock').hide();
 
-
             this.addButton({
                 name  : 'delete',
                 icon  : 'fa fa-trash',
@@ -1340,6 +1340,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 },
                 events: {
                     onClick: this.$clickDelete
+                }
+            });
+
+            this.addButton({
+                name     : 'output',
+                textimage: 'fa fa-print',
+                text     : QUILocale.get(lg, 'journal.btn.pdf'),
+                styles   : {
+                    'float': 'right'
+                },
+                events   : {
+                    onClick: this.print
                 }
             });
 
@@ -1757,6 +1769,38 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             var value = (address.salutation + ' ' + address.firstname + ' ' + address.lastname).trim();
             PersonInput.set('value', value);
-        }
+        },
+
+        /**
+         * Opens the print dialog
+         *
+         * @return {Promise}
+         */
+        print: function () {
+            var self = this,
+                type = self.getAttribute('type'),
+                entityType;
+
+            switch (parseInt(type)) {
+                case 3:
+                    entityType = 'CreditNote';
+                    break;
+
+                case 4:
+                    entityType = 'Canceled';
+                    break;
+
+                default:
+                    entityType = 'Invoice';
+            }
+
+            return new Promise(function (resolve) {
+                require([
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
+                    Dialogs.openPrintDialog(self.getAttribute('id'), entityType).then(resolve);
+                });
+            });
+        },
     });
 });
