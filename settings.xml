@@ -46,7 +46,7 @@
 
         <window name="ERP">
             <title>
-                <locale group="quiqqer/invoice" var="window.erp.title"/>
+                <locale group="quiqqer/erp" var="window.erp.title"/>
             </title>
             <params>
                 <icon>fa fa-sun-o</icon>
