@@ -168,7 +168,8 @@ class InvoiceView extends QUI\QDOM
     public function previewHTML(): string
     {
         try {
-            $previewHtml = ERPOutput::getDocumentHtml($this->Invoice->getCleanId(), $this->getOutputType(), null, null, null, true);
+            $previewHtml = ERPOutput::getDocumentHtml($this->Invoice->getCleanId(), $this->getOutputType(), null, null,
+                null, true);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             $previewHtml = '';
@@ -335,5 +336,13 @@ class InvoiceView extends QUI\QDOM
             default:
                 return 'Invoice';
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDraft(): bool
+    {
+        return $this->Invoice instanceof InvoiceTemporary;
     }
 }

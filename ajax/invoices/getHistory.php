@@ -19,7 +19,11 @@ QUI::$Ajax->registerFunction(
         try {
             $Invoice = $Invoices->get($invoiceId);
         } catch (QUI\Exception $Exception) {
-            $Invoice = $Invoices->getInvoiceByHash($invoiceId);
+            try {
+                $Invoice = $Invoices->getInvoiceByHash($invoiceId);
+            } catch (QUI\Exception $Exception) {
+                $Invoice = $Invoices->getTemporaryInvoiceByHash($invoiceId);
+            }
         }
 
         /* @var $Invoice \QUI\ERP\Accounting\Invoice\Invoice */
