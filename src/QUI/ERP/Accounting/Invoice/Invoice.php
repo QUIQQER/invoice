@@ -754,6 +754,7 @@ class Invoice extends QUI\QDOM
                 'global_process_id'       => $globalProcessId,
                 'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
                 'customer_id'             => $currentData['customer_id'],
+                'contact_person'          => $currentData['contact_person'],
                 'invoice_address_id'      => $invoiceAddressId,
                 'invoice_address'         => $invoiceAddress,
                 'delivery_address'        => $currentData['delivery_address'],
