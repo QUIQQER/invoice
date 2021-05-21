@@ -23,6 +23,10 @@
            fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerErpGetCommentsByUser"
     />
 
+    <event on="onQuiqqerErpGetHistoryByUser"
+           fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerErpGetHistoryByUser"
+    />
+
     <event on="onQuiqqerErpOutputSendMail"
            fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerErpOutputSendMail"
     />
