@@ -239,13 +239,31 @@ class EventHandler
 
         foreach ($invoices as $Invoice) {
             $Comments->import($Invoice->getComments());
+        }
+    }
 
+    /**
+     * quiqqer/customer: onQuiqqerErpGetHistoryByUser
+     *
+     * @param QUI\Users\User $User
+     * @param QUI\ERP\Comments $Comments
+     */
+    public static function onQuiqqerErpGetHistoryByUser(
+        QUI\Users\User $User,
+        QUI\ERP\Comments $Comments
+    ) {
+        $Handler  = Handler::getInstance();
+        $invoices = $Handler->getInvoicesByUser($User);
+
+        foreach ($invoices as $Invoice) {
             // created invoice
             $Comments->addComment(
                 QUI::getLocale()->get('quiqqer/invoice', 'erp.comment.invoice.created', [
                     'invoiceId' => $Invoice->getId()
                 ]),
-                \strtotime($Invoice->getAttribute('c_date'))
+                \strtotime($Invoice->getAttribute('c_date')),
+                'quiqqer/invoice',
+                'fa fa-history'
             );
         }
     }
