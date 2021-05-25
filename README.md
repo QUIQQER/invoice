@@ -1,4 +1,4 @@
-![QUIQQER Invoice](bin/images/Readme.jpg)
+![QUIQQER Invoice](bin/images/Readme_EN.png)
 
 QUIQQER Invoice (ERP module)
 ========
