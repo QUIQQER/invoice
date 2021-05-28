@@ -1307,6 +1307,19 @@ class InvoiceTemporary extends QUI\QDOM
             );
         }
 
+        // set accounting currency, if it needed
+        if (QUI\ERP\Currency\Conf::accountingCurrencyEnabled()) {
+            $AccountingCurrency = QUI\ERP\Currency\Conf::getAccountingCurrency();
+
+            $acData = [
+                'accountingCurrency' => $AccountingCurrency->toArray(),
+                'baseCurrency'       => $this->getCurrency()->toArray(),
+                'rate'               => $AccountingCurrency->getExchangeRate($this->getCurrency())
+            ];
+
+            $Invoice->addCustomDataEntry('accountingCurrencyData', $acData);
+        }
+
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoicePostEnd',
             [$this, $Invoice]
