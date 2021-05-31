@@ -220,6 +220,9 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        $this->Articles->setCurrency($this->getCurrency());
+
+
         // consider contact person in address
         if (!empty($this->getAttribute('invoice_address')) &&
             !empty($this->getAttribute('contact_person'))
