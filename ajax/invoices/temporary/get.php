@@ -21,6 +21,8 @@ QUI::$Ajax->registerFunction(
             $invoice['invoice_address'] = \json_decode($invoice['invoice_address'], true);
         }
 
+        $invoice['currencyRate'] = $Invoice->getCurrency()->getExchangeRate();
+
         return $invoice;
     },
     ['invoiceId'],

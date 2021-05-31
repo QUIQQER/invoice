@@ -278,6 +278,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 payment_method         : this.getAttribute('payment_method'),
                 additional_invoice_text: this.getAttribute('additional_invoice_text'),
                 currency               : this.getAttribute('currency'),
+                currencyRate           : this.getAttribute('currencyRate'),
                 addressDelivery        : deliveryAddress,
                 processing_status      : this.getAttribute('processing_status')
             };
@@ -330,7 +331,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textCurrency    : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textCurrency'),
                         textCurrencyRate: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textCurrencyRate'),
 
-                        textInvoiceDeliveryAddress: QUILocale.get(lg, 'deliveryAddress'),
+                        textInvoiceDeliveryAddress: QUILocale.get(lg, 'deliveryAddress')
                     })
                 });
 
@@ -351,7 +352,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     editor_id        : self.getAttribute('editor_id'),
                     processing_status: self.getAttribute('processing_status'),
                     contact_person   : self.getAttribute('contact_person'),
-                    currency         : self.getAttribute('currency')
+                    currency         : self.getAttribute('currency'),
+                    currencyRate     : self.getAttribute('currencyRate')
                 }, Form);
 
                 Form.elements.date.set('disabled', true);
@@ -388,11 +390,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return new Promise(function (resolve, reject) {
                     var Form = self.getContent().getElement('form');
 
-                    require(['utils/Controls'], function (ControlUtils) {
-                        ControlUtils.parse(Form).then(resolve);
+                    require([
+                        'Packages',
+                        'utils/Controls'
+                    ], function (Packages, ControlUtils) {
+                        ControlUtils.parse(Form).then(function () {
+                            return Packages.getConfig('quiqqer/currency');
+                        }).then(resolve);
                     }, reject);
                 });
-            }).then(function () {
+            }).then(function (config) {
                 var Content = self.getContent();
 
                 var quiId = Content.getElement(
@@ -402,11 +409,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 var editorIdQUIId    = Content.getElement('[name="editorId"]').get('data-quiid');
                 var orderedByIdQUIId = Content.getElement('[name="orderedBy"]').get('data-quiid');
                 var currencyIdQUIId  = Content.getElement('[name="currency"]').get('data-quiid');
+                var CurrencyRate     = Content.getElement('[name="currencyRate"]');
 
                 var Data      = QUI.Controls.getById(quiId);
                 var EditorId  = QUI.Controls.getById(editorIdQUIId);
                 var OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
                 var Currency  = QUI.Controls.getById(currencyIdQUIId);
+
+                if (parseInt(config.currency.differentAccountingCurrencies) === 0) {
+                    Content.getElements('table.invoice-currency').setStyle('display', 'none');
+                }
 
                 OrderedBy.setAttribute('showAddressName', false);
 
@@ -474,7 +486,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 // currency
                 Currency.addEvent('change', function (Instance, value) {
+                    if (self.renderDataDone === false) {
+                        return;
+                    }
+
+                    self.Loader.show();
                     self.setAttribute('currency', value);
+
+                    require(['package/quiqqer/currency/bin/Currency'], function (Currencies) {
+                        Currencies.getCurrency(value).then(function (data) {
+                            if ("rate" in data) {
+                                self.setAttribute('currencyRate', data.rate);
+                                CurrencyRate.value = data.rate;
+                            }
+
+                            self.Loader.hide();
+                        }).catch(function (err) {
+                            console.error(err);
+                            self.Loader.hide();
+                        });
+                    });
                 });
 
                 // editor
@@ -823,7 +854,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             onSubmit: function (Win) {
                                 Win.Loader.show();
 
-                                var Today = new Date()
+                                var Today = new Date();
                                 var today = Today.toISOString().split('T')[0];
 
                                 self.setAttribute('date', today + ' 00:00:00');
@@ -1226,7 +1257,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 'project_name',
                 'payment_method',
                 'editor_id',
-                'ordered_by'
+                'ordered_by',
+                'currencyRate',
+                'currency'
             ].each(function (entry) {
                 if (!formData.hasOwnProperty(entry)) {
                     return;
@@ -1813,6 +1846,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     Dialogs.openPrintDialog(self.getAttribute('id'), entityType).then(resolve);
                 });
             });
-        },
+        }
     });
 });

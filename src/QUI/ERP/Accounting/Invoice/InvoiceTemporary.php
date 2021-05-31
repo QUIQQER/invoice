@@ -91,6 +91,11 @@ class InvoiceTemporary extends QUI\QDOM
     protected $addressDelivery = [];
 
     /**
+     * @var null
+     */
+    protected $Currency = null;
+
+    /**
      * Invoice constructor.
      *
      * @param $id
@@ -379,6 +384,7 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->setAttribute('currency_data', $currency->toArray());
+        $this->Currency = null;
     }
 
     /**
@@ -390,6 +396,10 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function getCurrency(): QUI\ERP\Currency\Currency
     {
+        if ($this->Currency !== null) {
+            return $this->Currency;
+        }
+
         $currency = $this->getAttribute('currency_data');
 
         if (!$currency) {
@@ -404,7 +414,15 @@ class InvoiceTemporary extends QUI\QDOM
             return QUI\ERP\Defaults::getCurrency();
         }
 
-        return QUI\ERP\Currency\Handler::getCurrency($currency['code']);
+        $Currency = QUI\ERP\Currency\Handler::getCurrency($currency['code']);
+
+        if (isset($currency['rate'])) {
+            $Currency->setExchangeRate($currency['rate']);
+        }
+
+        $this->Currency = $Currency;
+
+        return $Currency;
     }
 
     /**
