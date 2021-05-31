@@ -360,6 +360,28 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     /**
+     * @param string|QUI\ERP\Currency\Currency $currency
+     */
+    public function setCurrency($currency)
+    {
+        if (\is_string($currency)) {
+            try {
+                $currency = QUI\ERP\Currency\Handler::getCurrency($currency);
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::addError($Exception->getMessage());
+
+                return;
+            }
+        }
+
+        if (!($currency instanceof QUI\ERP\Currency\Currency)) {
+            return;
+        }
+
+        $this->setAttribute('currency_data', $currency->toArray());
+    }
+
+    /**
      * Return the invoice currency
      *
      * @return QUI\ERP\Currency\Currency
@@ -1313,8 +1335,8 @@ class InvoiceTemporary extends QUI\QDOM
 
             $acData = [
                 'accountingCurrency' => $AccountingCurrency->toArray(),
-                'baseCurrency'       => $this->getCurrency()->toArray(),
-                'rate'               => $AccountingCurrency->getExchangeRate($this->getCurrency())
+                'currency'           => $this->getCurrency()->toArray(),
+                'rate'               => $this->getCurrency()->getExchangeRate($AccountingCurrency)
             ];
 
             $Invoice->addCustomDataEntry('accountingCurrencyData', $acData);

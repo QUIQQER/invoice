@@ -277,6 +277,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 time_for_payment       : this.getAttribute('time_for_payment'),
                 payment_method         : this.getAttribute('payment_method'),
                 additional_invoice_text: this.getAttribute('additional_invoice_text'),
+                currency               : this.getAttribute('currency'),
                 addressDelivery        : deliveryAddress,
                 processing_status      : this.getAttribute('processing_status')
             };
@@ -326,6 +327,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textStatus        : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textStatus'),
                         textContactPerson : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textContactPerson'),
 
+                        textCurrency    : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textCurrency'),
+                        textCurrencyRate: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textCurrencyRate'),
+
                         textInvoiceDeliveryAddress: QUILocale.get(lg, 'deliveryAddress'),
                     })
                 });
@@ -346,7 +350,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     project_name     : self.getAttribute('project_name'),
                     editor_id        : self.getAttribute('editor_id'),
                     processing_status: self.getAttribute('processing_status'),
-                    contact_person   : self.getAttribute('contact_person')
+                    contact_person   : self.getAttribute('contact_person'),
+                    currency         : self.getAttribute('currency')
                 }, Form);
 
                 Form.elements.date.set('disabled', true);
@@ -396,10 +401,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 var editorIdQUIId    = Content.getElement('[name="editorId"]').get('data-quiid');
                 var orderedByIdQUIId = Content.getElement('[name="orderedBy"]').get('data-quiid');
+                var currencyIdQUIId  = Content.getElement('[name="currency"]').get('data-quiid');
 
                 var Data      = QUI.Controls.getById(quiId);
                 var EditorId  = QUI.Controls.getById(editorIdQUIId);
                 var OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
+                var Currency  = QUI.Controls.getById(currencyIdQUIId);
 
                 OrderedBy.setAttribute('showAddressName', false);
 
@@ -463,6 +470,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         self.setAttribute('time_for_payment', paymentTime);
                         self.refresh();
                     });
+                });
+
+                // currency
+                Currency.addEvent('change', function (Instance, value) {
+                    self.setAttribute('currency', value);
                 });
 
                 // editor

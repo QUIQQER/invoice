@@ -44,6 +44,10 @@ QUI::$Ajax->registerFunction(
             unset($data['articles']);
         }
 
+        if (isset($data['currency'])) {
+            $Invoice->setCurrency($data['currency']);
+        }
+
         $Invoice->setAttribute('invoice_address', false); // needed because of address reset
         $Invoice->setAttributes($data);
         $Invoice->save();

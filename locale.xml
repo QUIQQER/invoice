@@ -1032,6 +1032,14 @@
             <de><![CDATA[Ansprechpartner]]></de>
             <en><![CDATA[Contact person]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textCurrency">
+            <de><![CDATA[Währung]]></de>
+            <en><![CDATA[Currency]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textCurrencyRate">
+            <de><![CDATA[Wechselkurs]]></de>
+            <en><![CDATA[Exchange rate]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.comments">
             <de><![CDATA[Kommentare]]></de>
             <en><![CDATA[Comments]]></en>
