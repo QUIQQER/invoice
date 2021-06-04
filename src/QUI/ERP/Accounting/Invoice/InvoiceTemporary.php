@@ -238,6 +238,26 @@ class InvoiceTemporary extends QUI\QDOM
         if (\is_numeric($data['shipping_id'])) {
             $this->shippingId = (int)$data['shipping_id'];
         }
+
+        // accounting currency, if exists
+        $accountingCurrencyData = $this->getCustomDataEntry('accountingCurrencyData');
+
+        try {
+            if ($accountingCurrencyData) {
+                $this->Articles->setExchangeCurrency(
+                    new QUI\ERP\Currency\Currency(
+                        $accountingCurrencyData['accountingCurrency']
+                    )
+                );
+
+                $this->Articles->setExchangeRate($accountingCurrencyData['rate']);
+            } elseif (QUI\ERP\Currency\Conf::accountingCurrencyEnabled()) {
+                $this->Articles->setExchangeCurrency(
+                    QUI\ERP\Currency\Conf::getAccountingCurrency()
+                );
+            }
+        } catch (QUI\Exception $Exception) {
+        }
     }
 
     //region Getter
