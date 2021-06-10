@@ -45,10 +45,10 @@ class Invoice extends QUI\QDOM
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -248,6 +248,23 @@ class Invoice extends QUI\QDOM
 
         $List = new ArticleListUnique($articles, $this->getCustomer());
         $List->setLocale($this->getCustomer()->getLocale());
+
+
+        // accounting currency, if exists
+        $accountingCurrencyData = $this->getCustomDataEntry('accountingCurrencyData');
+
+        try {
+            if ($accountingCurrencyData) {
+                $List->setExchangeCurrency(
+                    new QUI\ERP\Currency\Currency(
+                        $accountingCurrencyData['accountingCurrency']
+                    )
+                );
+
+                $List->setExchangeRate($accountingCurrencyData['rate']);
+            }
+        } catch (QUI\Exception $Exception) {
+        }
 
         return $List;
     }

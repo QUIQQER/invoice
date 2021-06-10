@@ -91,6 +91,11 @@ class InvoiceTemporary extends QUI\QDOM
     protected $addressDelivery = [];
 
     /**
+     * @var null
+     */
+    protected $Currency = null;
+
+    /**
      * Invoice constructor.
      *
      * @param $id
@@ -215,6 +220,9 @@ class InvoiceTemporary extends QUI\QDOM
             }
         }
 
+        $this->Articles->setCurrency($this->getCurrency());
+
+
         // consider contact person in address
         if (!empty($this->getAttribute('invoice_address')) &&
             !empty($this->getAttribute('contact_person'))
@@ -229,6 +237,26 @@ class InvoiceTemporary extends QUI\QDOM
         // shipping
         if (\is_numeric($data['shipping_id'])) {
             $this->shippingId = (int)$data['shipping_id'];
+        }
+
+        // accounting currency, if exists
+        $accountingCurrencyData = $this->getCustomDataEntry('accountingCurrencyData');
+
+        try {
+            if ($accountingCurrencyData) {
+                $this->Articles->setExchangeCurrency(
+                    new QUI\ERP\Currency\Currency(
+                        $accountingCurrencyData['accountingCurrency']
+                    )
+                );
+
+                $this->Articles->setExchangeRate($accountingCurrencyData['rate']);
+            } elseif (QUI\ERP\Currency\Conf::accountingCurrencyEnabled()) {
+                $this->Articles->setExchangeCurrency(
+                    QUI\ERP\Currency\Conf::getAccountingCurrency()
+                );
+            }
+        } catch (QUI\Exception $Exception) {
         }
     }
 
@@ -360,6 +388,29 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     /**
+     * @param string|QUI\ERP\Currency\Currency $currency
+     */
+    public function setCurrency($currency)
+    {
+        if (\is_string($currency)) {
+            try {
+                $currency = QUI\ERP\Currency\Handler::getCurrency($currency);
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::addError($Exception->getMessage());
+
+                return;
+            }
+        }
+
+        if (!($currency instanceof QUI\ERP\Currency\Currency)) {
+            return;
+        }
+
+        $this->setAttribute('currency_data', $currency->toArray());
+        $this->Currency = null;
+    }
+
+    /**
      * Return the invoice currency
      *
      * @return QUI\ERP\Currency\Currency
@@ -368,6 +419,10 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function getCurrency(): QUI\ERP\Currency\Currency
     {
+        if ($this->Currency !== null) {
+            return $this->Currency;
+        }
+
         $currency = $this->getAttribute('currency_data');
 
         if (!$currency) {
@@ -382,7 +437,15 @@ class InvoiceTemporary extends QUI\QDOM
             return QUI\ERP\Defaults::getCurrency();
         }
 
-        return QUI\ERP\Currency\Handler::getCurrency($currency['code']);
+        $Currency = QUI\ERP\Currency\Handler::getCurrency($currency['code']);
+
+        if (isset($currency['rate'])) {
+            $Currency->setExchangeRate($currency['rate']);
+        }
+
+        $this->Currency = $Currency;
+
+        return $Currency;
     }
 
     /**
@@ -1305,6 +1368,19 @@ class InvoiceTemporary extends QUI\QDOM
                 ],
                 ['id' => $newId]
             );
+        }
+
+        // set accounting currency, if it needed
+        if (QUI\ERP\Currency\Conf::accountingCurrencyEnabled()) {
+            $AccountingCurrency = QUI\ERP\Currency\Conf::getAccountingCurrency();
+
+            $acData = [
+                'accountingCurrency' => $AccountingCurrency->toArray(),
+                'currency'           => $this->getCurrency()->toArray(),
+                'rate'               => $this->getCurrency()->getExchangeRate($AccountingCurrency)
+            ];
+
+            $Invoice->addCustomDataEntry('accountingCurrencyData', $acData);
         }
 
         QUI::getEvents()->fireEvent(

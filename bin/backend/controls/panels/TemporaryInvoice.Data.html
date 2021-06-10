@@ -142,6 +142,39 @@
         </tbody>
     </table>
 
+    <table class="data-table data-table-flexbox invoice-data invoice-currency">
+        <thead>
+        <tr>
+            <th>{{textInvoiceCurrency}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textCurrency}}">
+                        {{textCurrency}}
+                    </span>
+                    <input type="hidden"
+                           name="currency"
+                           data-qui="package/quiqqer/currency/bin/settings/CurrencyList"
+                    />
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
+                    <span class="field-container-item" title="{{textCurrencyRate}}">
+                        {{textCurrencyRate}}
+                    </span>
+                    <input type="text" name="currencyRate" class="field-container-field"/>
+                </label>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
     <table class="data-table data-table-flexbox invoice-text">
         <thead>
         <tr>
