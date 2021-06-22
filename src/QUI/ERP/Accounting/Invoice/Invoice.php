@@ -292,7 +292,13 @@ class Invoice extends QUI\QDOM
             return QUI\ERP\Defaults::getCurrency();
         }
 
-        return QUI\ERP\Currency\Handler::getCurrency($currency['code']);
+        $Currency = QUI\ERP\Currency\Handler::getCurrency($currency['code']);
+
+        if (isset($currency['rate'])) {
+            $Currency->setExchangeRate($currency['rate']);
+        }
+
+        return $Currency;
     }
 
     /**
