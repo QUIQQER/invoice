@@ -1009,8 +1009,9 @@ class InvoiceTemporary extends QUI\QDOM
             'limit' => 1
         ]);
 
-        $currentData = $currentData[0];
-
+        $currentData         = $currentData[0];
+        $currentData['hash'] = QUI\Utils\Uuid::get();
+        
         unset($currentData['id']);
         unset($currentData['c_user']);
         unset($currentData['date']);
