@@ -133,6 +133,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         refresh: function () {
             var title = this.getAttribute('invoiceId');
 
+            if (this.getAttribute('id')) {
+                title = this.getAttribute('id');
+            }
+
             title = title + ' (';
 
             if (this.getAttribute('isbrutto')) {
