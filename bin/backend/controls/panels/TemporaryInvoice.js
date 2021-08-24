@@ -38,7 +38,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
              templateData, templatePost, templateMissing) {
     "use strict";
 
-    var lg = 'quiqqer/invoice';
+    const lg = 'quiqqer/invoice';
 
     return new Class({
 
@@ -131,7 +131,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * Panel refresh
          */
         refresh: function () {
-            var title = this.getAttribute('invoiceId');
+            let title = this.getAttribute('invoiceId');
 
             if (this.getAttribute('id')) {
                 title = this.getAttribute('id');
@@ -155,8 +155,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * Refresh the invoice data
          */
         doRefresh: function () {
-            var self      = this,
-                invoiceId = this.getAttribute('invoiceId');
+            const self    = this;
+            let invoiceId = this.getAttribute('invoiceId');
 
             return Invoices.getTemporaryInvoice(invoiceId).then(function (data) {
                 self.setAttributes(data);
@@ -209,7 +209,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @return {Promise}
          */
         post: function () {
-            var self = this;
+            const self = this;
 
             this.Loader.show();
             this.$unloadCategory(false);
@@ -224,7 +224,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     Data
                 ]);
             }).then(function (result) {
-                var newInvoiceHash           = result[0],
+                let newInvoiceHash           = result[0],
                     openPrintDialogAfterPost = result[1],
                     Data                     = result[2];
 
@@ -233,7 +233,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     return;
                 }
 
-                var entityType;
+                let entityType;
 
                 switch (parseInt(Data.type)) {
                     case 3:
@@ -263,7 +263,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {{customer_id, invoice_address_id, project_name, articles, date, time_for_payment}}
          */
         getCurrentData: function () {
-            var deliveryAddress = this.getAttribute('addressDelivery');
+            let deliveryAddress = this.getAttribute('addressDelivery');
 
             if (!deliveryAddress) {
                 deliveryAddress = this.getAttribute('delivery_address');
@@ -308,13 +308,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         openData: function () {
-            var self = this;
+            const self = this;
 
             this.renderDataDone = false;
             this.Loader.show();
 
             return this.$closeCategory().then(function () {
-                var Container = self.getContent().getElement('.container');
+                const Container = self.getContent().getElement('.container');
 
                 Container.setStyle('height', null);
 
@@ -339,15 +339,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     })
                 });
 
-                var Form = Container.getElement('form');
+                const Form = Container.getElement('form');
 
                 QUIFormUtils.setDataToForm(self.getAttribute('data'), Form);
 
                 // set invoice date to today
                 // quiqqer/invoice#46
-                var local = new Date();
+                let local = new Date();
                 local.setMinutes(local.getMinutes() - local.getTimezoneOffset());
-                var dateDate = local.toJSON().slice(0, 10);
+                let dateDate = local.toJSON().slice(0, 10);
 
                 QUIFormUtils.setDataToForm({
                     date             : dateDate,
@@ -392,7 +392,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return QUI.parse(Container);
             }).then(function () {
                 return new Promise(function (resolve, reject) {
-                    var Form = self.getContent().getElement('form');
+                    const Form = self.getContent().getElement('form');
 
                     require([
                         'Packages',
@@ -404,21 +404,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     }, reject);
                 });
             }).then(function (config) {
-                var Content = self.getContent();
+                const Content = self.getContent();
 
-                var quiId = Content.getElement(
+                const quiId = Content.getElement(
                     '[data-qui="package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserData"]'
                 ).get('data-quiid');
 
-                var editorIdQUIId    = Content.getElement('[name="editorId"]').get('data-quiid');
-                var orderedByIdQUIId = Content.getElement('[name="orderedBy"]').get('data-quiid');
-                var currencyIdQUIId  = Content.getElement('[name="currency"]').get('data-quiid');
-                var CurrencyRate     = Content.getElement('[name="currencyRate"]');
+                let editorIdQUIId    = Content.getElement('[name="editorId"]').get('data-quiid');
+                let orderedByIdQUIId = Content.getElement('[name="orderedBy"]').get('data-quiid');
+                let currencyIdQUIId  = Content.getElement('[name="currency"]').get('data-quiid');
+                let CurrencyRate     = Content.getElement('[name="currencyRate"]');
 
-                var Data      = QUI.Controls.getById(quiId);
-                var EditorId  = QUI.Controls.getById(editorIdQUIId);
-                var OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
-                var Currency  = QUI.Controls.getById(currencyIdQUIId);
+                let Data      = QUI.Controls.getById(quiId);
+                let EditorId  = QUI.Controls.getById(editorIdQUIId);
+                let OrderedBy = QUI.Controls.getById(orderedByIdQUIId);
+                let Currency  = QUI.Controls.getById(currencyIdQUIId);
 
                 if (parseInt(config.currency.differentAccountingCurrencies) === 0) {
                     Content.getElements('table.invoice-currency').setStyle('display', 'none');
@@ -431,7 +431,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         return;
                     }
 
-                    var userId = Data.getValue().userId;
+                    let userId = Data.getValue().userId;
 
                     self.setAttribute('customer_id', parseInt(userId));
                     self.setAttribute('invoice_address_id', Data.getValue().addressId);
@@ -443,7 +443,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         Content.getElements('[name="select-contact-id-address"]').set('disabled', false);
 
                         Users.get(userId).loadIfNotLoaded().then(function (User) {
-                            var addressId = User.getAttribute('quiqqer.erp.customer.contact.person');
+                            let addressId = User.getAttribute('quiqqer.erp.customer.contact.person');
 
                             if (User.getAttribute('quiqqer.erp.standard.payment')) {
                                 self.getContent()
@@ -458,7 +458,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             addressId = parseInt(addressId);
 
                             User.getAddressList().then(function (addressList) {
-                                for (var i = 0, len = addressList.length; i < len; i++) {
+                                for (let i = 0, len = addressList.length; i < len; i++) {
                                     if (addressList[i].id === addressId) {
                                         self.$setContactPersonByAddress(addressList[i]);
                                     }
@@ -477,8 +477,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         Invoices.getPaymentTime(userId),
                         Invoices.isNetto(userId)
                     ]).then(function (result) {
-                        var paymentTime = result[0];
-                        var isNetto     = result[1];
+                        let paymentTime = result[0];
+                        let isNetto     = result[1];
 
                         Content.getElement('[name="time_for_payment"]').value = paymentTime;
 
@@ -552,7 +552,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }
 
                 // invoice address
-                var address = self.getAttribute('invoice_address');
+                let address = self.getAttribute('invoice_address');
 
                 if (!address) {
                     address = {};
@@ -570,7 +570,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     ).get('data-quiid')
                 );
 
-                var deliveryAddress = self.getAttribute('addressDelivery');
+                let deliveryAddress = self.getAttribute('addressDelivery');
 
                 if (!deliveryAddress) {
                     deliveryAddress = self.getAttribute('delivery_address');
@@ -585,7 +585,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.$AddressDelivery.setValue(deliveryAddress);
                 }
             }).then(function () {
-                var Container = self.getContent().getElement('.container');
+                let Container = self.getContent().getElement('.container');
 
                 new QUIButton({
                     textimage: 'fa fa-list',
@@ -608,15 +608,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return Payments.getPayments();
             }).then(function (payments) {
                 // load payments
-                var Payments = self.getContent().getElement('[name="payment_method"]');
+                let Payments = self.getContent().getElement('[name="payment_method"]');
 
                 new Element('option', {
                     html : '',
                     value: ''
                 }).inject(Payments);
 
-                var i, len, title;
-                var current = QUILocale.getCurrent();
+                let i, len, title;
+                let current = QUILocale.getCurrent();
 
                 for (i = 0, len = payments.length; i < len; i++) {
                     title = payments[i].title;
@@ -652,7 +652,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         openArticles: function () {
-            var self = this;
+            const self = this;
 
             this.Loader.show();
 
@@ -742,7 +742,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @return {Promise<Promise>}
          */
         openComments: function () {
-            var self = this;
+            const self = this;
 
             this.Loader.show();
             this.getCategory('comments').setActive();
@@ -760,7 +760,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * Refresh the comment display
          */
         refreshComments: function () {
-            var Container = this.getContent().getElement('.container');
+            const Container = this.getContent().getElement('.container');
 
             Container.set('html', '');
 
@@ -787,13 +787,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         openVerification: function () {
-            var self            = this,
-                ParentContainer = null,
+            const self          = this;
+            let ParentContainer = null,
                 FrameContainer  = null;
 
             this.Loader.show();
 
-            return this.$closeCategory().then(function (Container) {
+            return this.$closeCategory().then((Container) => {
                 FrameContainer = new Element('div', {
                     'class': 'quiqqer-invoice-backend-temporaryInvoice-previewContainer'
                 }).inject(Container);
@@ -805,7 +805,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 ParentContainer = Container;
 
                 return Invoices.getTemporaryInvoicePreview(
-                    self.getAttribute('invoiceId'),
+                    self.getAttribute('hash'),
                     self.getCurrentData()
                 ).then(function (html) {
 
@@ -831,10 +831,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 });
             }).then(function () {
                 // check invoice date
-                var Now = new Date();
+                const Now = new Date();
                 Now.setHours(0, 0, 0, 0);
 
-                var InvoiceDate = new Date(self.getAttribute('date'));
+                let InvoiceDate = new Date(self.getAttribute('date'));
 
                 if (InvoiceDate < Now) {
                     new QUIConfirm({
@@ -858,8 +858,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             onSubmit: function (Win) {
                                 Win.Loader.show();
 
-                                var Today = new Date();
-                                var today = Today.toISOString().split('T')[0];
+                                let Today = new Date();
+                                let today = Today.toISOString().split('T')[0];
 
                                 self.setAttribute('date', today + ' 00:00:00');
 
@@ -874,7 +874,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }).then(function () {
                 return Invoices.getMissingAttributes(self.getAttribute('invoiceId'));
             }).then(function (missing) {
-                var Missing = new Element('div', {
+                const Missing = new Element('div', {
                     'class': 'quiqqer-invoice-backend-temporaryInvoice-missing',
                     styles : {
                         opacity: 0,
@@ -887,7 +887,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         message: QUILocale.get(lg, 'message.invoice.missing')
                     }));
 
-                    var Info = new Element('info', {
+                    const Info = new Element('info', {
                         'class': 'quiqqer-invoice-backend-temporaryInvoice-missing-miss-message',
                         styles : {
                             display: 'none',
@@ -898,7 +898,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     Missing.getElement(
                         '.quiqqer-invoice-backend-temporaryInvoice-missing-miss-button'
                     ).addEvent('click', function () {
-                        var isShow = parseInt(Info.getStyle('opacity'));
+                        let isShow = parseInt(Info.getStyle('opacity'));
 
                         if (isShow) {
                             moofx(Info).animate({
@@ -919,7 +919,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         }
                     });
 
-                    for (var missed in missing) {
+                    for (let missed in missing) {
                         if (!missing.hasOwnProperty(missed)) {
                             continue;
                         }
@@ -981,7 +981,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @todo only if products are installed
          */
         openProductSearch: function () {
-            var self = this;
+            const self = this;
 
             this.$AddProduct.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
@@ -990,7 +990,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     'package/quiqqer/erp/bin/backend/controls/articles/product/AddProductWindow',
                     'package/quiqqer/invoice/bin/backend/controls/articles/Article'
                 ], function (Win, Article) {
-                    var productDescriptionSource = false;
+                    let productDescriptionSource = false;
 
                     new Win({
                         user  : self.getUserData(),
@@ -1012,7 +1012,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             },
 
                             onSubmit: function (Win, article) {
-                                var Instance = new Article(article);
+                                const Instance = new Article(article);
 
                                 if ("calculated_vatArray" in article) {
                                     Instance.setVat(article.calculated_vatArray.vat);
@@ -1021,8 +1021,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                                 if (productDescriptionSource &&
                                     typeof article.fields !== 'undefined' &&
                                     typeof article.fields[productDescriptionSource] !== 'undefined') {
-                                    var field   = article.fields[productDescriptionSource];
-                                    var current = QUILocale.getCurrent();
+                                    let field   = article.fields[productDescriptionSource];
+                                    let current = QUILocale.getCurrent();
 
                                     if (field && typeof field[current] !== 'undefined') {
                                         Instance.setAttribute('description', field[current]);
@@ -1047,10 +1047,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @return {Promise}
          */
         $loadAdditionalInvoiceText: function () {
-            var self = this;
+            const self = this;
 
             return new Promise(function (resolve) {
-                var EditorParent = new Element('div').inject(
+                const EditorParent = new Element('div').inject(
                     self.getContent().getElement('.additional-invoice-text')
                 );
 
@@ -1115,7 +1115,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         $closeCategory: function () {
-            var self = this;
+            const self = this;
 
             if (self.$AddProduct) {
                 self.$AddProduct.hide();
@@ -1140,7 +1140,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             self.getContent().setStyle('padding', 0);
 
             return new Promise(function (resolve) {
-                var Container = self.getContent().getElement('.container');
+                let Container = self.getContent().getElement('.container');
 
                 if (!Container) {
                     Container = new Element('div', {
@@ -1185,10 +1185,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @returns {Promise}
          */
         $openCategory: function () {
-            var self = this;
+            const self = this;
 
             return new Promise(function (resolve) {
-                var Container = self.getContent().getElement('.container');
+                const Container = self.getContent().getElement('.container');
 
                 if (!Container) {
                     resolve();
@@ -1211,7 +1211,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @param {Boolean} [destroyList] - destroy the article list, default = true
          */
         $unloadCategory: function (destroyList) {
-            var Container = this.getContent().getElement('.container');
+            const Container = this.getContent().getElement('.container');
 
             destroyList = typeof destroyList === 'undefined' ? true : destroyList;
 
@@ -1237,14 +1237,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 );
             }
 
-            var Form = Container.getElement('form');
+            const Form = Container.getElement('form');
 
             if (!Form) {
                 return;
             }
 
-            var formData = QUIFormUtils.getFormData(Form);
-            var data     = this.getAttribute('data') || {};
+            let formData = QUIFormUtils.getFormData(Form);
+            let data     = this.getAttribute('data') || {};
 
             // timefields
             if ("date" in formData) {
@@ -1288,7 +1288,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * event: on create
          */
         $onCreate: function () {
-            var self = this;
+            const self = this;
 
             this.$AddProduct = new QUIButtonMultiple({
                 textimage: 'fa fa-plus',
@@ -1455,8 +1455,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             document.addEvent('keyup', this.$onKeyUp);
 
-            var self      = this,
-                invoiceId = this.getAttribute('invoiceId');
+            const self    = this;
+            let invoiceId = this.getAttribute('invoiceId');
 
             Locker.isLocked(
                 this.$getLockKey(),
@@ -1527,7 +1527,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @return {Promise<T>}
          */
         unlockPanel: function () {
-            var self = this;
+            const self = this;
 
             this.Loader.show();
 
@@ -1557,8 +1557,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * show the lock message window
          */
         $showLockMessage: function () {
-            var self    = this,
-                btnText = QUILocale.get('quiqqer/quiqqer', 'submit');
+            const self  = this;
+            let btnText = QUILocale.get('quiqqer/quiqqer', 'submit');
 
             if (window.USER.isSU) {
                 btnText = QUILocale.get(lg, 'button.unlock.invoice.is.locked');
@@ -1609,7 +1609,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * opens the delete dialog
          */
         $clickDelete: function () {
-            var self = this;
+            const self = this;
 
             new QUIConfirm({
                 title      : QUILocale.get(lg, 'dialog.ti.delete.title'),
@@ -1653,9 +1653,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @param Article
          */
         $onArticleReplaceClick: function (List, Article) {
-            var self = this;
+            const self = this;
 
-            var replaceArticle = function (NewArticle) {
+            const replaceArticle = function (NewArticle) {
                 List.replaceArticle(
                     NewArticle,
                     Article.getAttribute('position')
@@ -1680,7 +1680,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             QUILocale.get(lg, 'erp.panel.temporary.invoice.replace.article.text')
                         );
 
-                        var Select = new Element('select', {
+                        const Select = new Element('select', {
                             styles: {
                                 margin: '20px auto 0'
                             }
@@ -1703,7 +1703,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     },
 
                     onSubmit: function (Win) {
-                        var Select = Win.getContent().getElement('select');
+                        const Select = Win.getContent().getElement('select');
 
                         if (Select.value === 'product') {
                             self.openProductSearch().then(replaceArticle);
@@ -1745,7 +1745,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * Open the add dialog window
          */
         openAddCommentDialog: function () {
-            var self = this;
+            const self = this;
 
             new QUIConfirm({
                 title    : QUILocale.get(lg, 'dialog.add.comment.title'),
@@ -1809,14 +1809,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @param address
          */
         $setContactPersonByAddress: function (address) {
-            var Content     = this.getContent(),
-                PersonInput = Content.getElement('[name="contact_person"]');
+            const Content     = this.getContent(),
+                  PersonInput = Content.getElement('[name="contact_person"]');
 
             if (!PersonInput) {
                 return;
             }
 
-            var value = (address.salutation + ' ' + address.firstname + ' ' + address.lastname).trim();
+            let value = (address.salutation + ' ' + address.firstname + ' ' + address.lastname).trim();
             PersonInput.set('value', value);
         },
 
@@ -1826,8 +1826,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * @return {Promise}
          */
         print: function () {
-            var self = this,
-                type = self.getAttribute('type'),
+            const self = this;
+
+            let type = self.getAttribute('type'),
                 entityType;
 
             switch (parseInt(type)) {
