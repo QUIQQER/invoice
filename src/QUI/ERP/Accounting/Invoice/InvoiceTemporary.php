@@ -24,6 +24,17 @@ use QUI\ERP\Accounting\Invoice\ProcessingStatus;
 class InvoiceTemporary extends QUI\QDOM
 {
     /**
+     * Special attributes
+     */
+
+    /**
+     * If this attribute is set to this InvoiceTemporary the invoice is NOT
+     * automatically send to the customer when posted REGARDLESS of the setting
+     * in this module.
+     */
+    const SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL = 'do_not_send_creation_mail';
+
+    /**
      * @var string
      */
     protected $prefix;
@@ -1011,7 +1022,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         $currentData         = $currentData[0];
         $currentData['hash'] = QUI\Utils\Uuid::get();
-        
+
         unset($currentData['id']);
         unset($currentData['c_user']);
         unset($currentData['date']);
@@ -1843,6 +1854,10 @@ class InvoiceTemporary extends QUI\QDOM
      */
     protected function sendCreationMail(Invoice $Invoice)
     {
+        if (!empty($this->getAttribute(self::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL))) {
+            return;
+        }
+
         $User = null;
 
         try {
