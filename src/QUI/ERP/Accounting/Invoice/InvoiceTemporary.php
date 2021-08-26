@@ -1858,25 +1858,23 @@ class InvoiceTemporary extends QUI\QDOM
             return;
         }
 
-        $User = null;
-
         try {
             $Customer = $Invoice->getCustomer();
-
-            if ($Customer) {
-                $User = QUI::getUsers()->get($Customer->getId());
-            }
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
             return;
         }
 
-        if (!$User) {
+        if (!$Customer) {
             return;
         }
 
-        $Invoice->sendTo($User->getAttribute('email'));
+        $email = QUI\ERP\Customer\Utils::getInstance()->getEmailByCustomer($Customer);
+
+        if (!empty($email)) {
+            $Invoice->sendTo($email);
+        }
     }
 
     //endregion
