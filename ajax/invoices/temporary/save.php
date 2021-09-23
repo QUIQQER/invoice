@@ -56,6 +56,22 @@ QUI::$Ajax->registerFunction(
 
         $Invoice->setAttribute('invoice_address', false); // needed because of address reset
         $Invoice->setAttributes($data);
+
+        // Attached customer files
+        $Invoice->clearCustomerFiles();
+
+        if (!empty($data['attached_customer_files'])) {
+            if (\is_string($data['attached_customer_files'])) {
+                $customerFiles = \json_decode($data['attached_customer_files'], true);
+            } else {
+                $customerFiles = $data['attached_customer_files'];
+            }
+
+            foreach ($customerFiles as $entry) {
+                $Invoice->addCustomerFile($entry['hash'], $entry['options']);
+            }
+        }
+
         $Invoice->save();
 
         return $Invoice->toArray();

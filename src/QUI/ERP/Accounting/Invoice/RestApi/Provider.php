@@ -1,6 +1,6 @@
 <?php
 
-namespace QUI\ERP\Accounting\Invoice\ProcessingStatus;
+namespace QUI\ERP\Accounting\Invoice\RestApi;
 
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
@@ -59,9 +59,7 @@ class Provider implements QUI\REST\ProviderInterface
             );
         }
 
-        $invoiceData = \json_decode($invoiceData, true);
-
-        if (!\is_array($invoiceData) || \json_last_error() !== \JSON_ERROR_NONE) {
+        if (!\is_array($invoiceData)) {
             return $this->getClientErrorResponse(
                 'Field "invoiceData" is invalid JSON string.',
                 self::ERROR_CODE_PARAMETER_INVALID
@@ -72,13 +70,12 @@ class Provider implements QUI\REST\ProviderInterface
          * Maps invoice fields to required status.
          */
         $invoiceFields = [
-            'customer_id'    => false,
+            'customer_no'    => false,
             'customer_data'  => false,
 //            'ordered_by_name' => false,
             'contact_person' => false,
-            'currency'       => false,
 
-//            'invoice_address_id' => false,
+            'invoice_address_id' => false,
 //            'invoice_address'    => false,
 //            'delivery_address'   => false,
 
@@ -90,7 +87,14 @@ class Provider implements QUI\REST\ProviderInterface
             'project_name' => false,
             'comments'     => false,
 
-            'post' => true
+            'post' => false,
+
+            'source' => true,
+
+            'currency'       => false,
+            'payment_method' => false,
+
+            'additional_invoice_text' => false
         ];
 
         // Remove unknown fields
@@ -110,12 +114,14 @@ class Provider implements QUI\REST\ProviderInterface
         }
 
         $articlesFields = [
-            'title'       => true,
+            'title'       => false,
             'articleNo'   => false,
             'description' => false,
-            'unitPrice'   => true,
+            'unitPrice'   => false,
             'quantity'    => true,
-            'vat'         => false
+            'vat'         => false,
+
+            'quiqqerProductId' => false
         ];
 
         $articles = $invoiceData['articles'];
@@ -131,6 +137,10 @@ class Provider implements QUI\REST\ProviderInterface
             }
         }
 
+        if (!\defined('SYSTEM_INTERN')) {
+            \define('SYSTEM_INTERN', true);
+        }
+
         $Factory    = InvoiceFactory::getInstance();
         $Users      = QUI::getUsers();
         $SystemUser = $Users->getSystemUser();
@@ -138,12 +148,36 @@ class Provider implements QUI\REST\ProviderInterface
         $InvoiceDraft = $Factory->createInvoice($SystemUser);
 
         // Customer
-        if (!empty($invoiceData['customer_id'])) {
+        if (!empty($invoiceData['customer_no'])) {
+            $User = false;
+
             try {
-                $User = $Users->get((int)$invoiceData['customer_id']);
+                $User = QUI\ERP\Customer\Customers::getInstance()->getCustomerByCustomerNo($invoiceData['customer_no']);
                 $InvoiceDraft->setAttribute('customer_id', $User->getId());
             } catch (\Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
+            }
+
+            if ($User) {
+                $Address = false;
+
+                if (!empty($invoiceData['invoice_address_id'])) {
+                    try {
+                        $Address = $User->getAddress((int)$invoiceData['invoice_address_id']);
+                        $InvoiceDraft->setAttribute('invoice_address_id', $Address->getId());
+                    } catch (\Exception $Exception) {
+                        QUI\System\Log::writeException($Exception);
+                    }
+                }
+
+                // Set default address
+                if (!$Address) {
+                    try {
+                        $InvoiceDraft->setAttribute('invoice_address_id', $User->getStandardAddress()->getId());
+                    } catch (\Exception $Exception) {
+                        QUI\System\Log::writeException($Exception);
+                    }
+                }
             }
         }
 
@@ -157,12 +191,41 @@ class Provider implements QUI\REST\ProviderInterface
             $InvoiceDraft->setAttribute('project_name', $invoiceData['project_name']);
         }
 
+        // Payment method
+        $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
+        $payments = $Payments->getPayments([
+            'where' => [
+                'payment_type' => QUI\ERP\Accounting\Payments\Methods\Invoice\Payment::class
+            ]
+        ]);
+
+        // Set default payment method
+        if (!empty($payments)) {
+            $DefaultPayment = $payments[0];
+            $InvoiceDraft->setAttribute('payment_method', $DefaultPayment->getId());
+        }
+
+        if (!empty($invoiceData['payment_method'])) {
+            try {
+                $Payment = $Payments->getPayment((int)$invoiceData['payment_method']);
+                $InvoiceDraft->setAttribute('payment_method', $Payment->getId());
+            } catch (\Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
+            }
+        }
+
         // Currency
         if (!empty($invoiceData['currency']) && CurrencyHandler::existCurrency($invoiceData['currency'])) {
             $InvoiceDraft->setCurrency($invoiceData['currency']);
         }
 
-        // Commenty
+        // Comments
+        $InvoiceDraft->addComment(
+            QUI::getSystemLocale()->get('quiqqer/invoice', 'RestApi.Provider.invoice.comment.source', [
+                'source' => $invoiceData['source']
+            ])
+        );
+
         if (!empty($invoiceData['comments']) && \is_array($invoiceData['comments'])) {
             foreach ($invoiceData['comments'] as $comment) {
                 if (\is_string($comment)) {
@@ -173,6 +236,40 @@ class Provider implements QUI\REST\ProviderInterface
                     }
                 }
             }
+        }
+
+        // Additional invoice text
+        if (!empty($invoiceData['additional_invoice_text'])) {
+            $invoiceText = '<p>'.$invoiceData['additional_invoice_text'].'</p>';
+            $invoiceText .= QUI::getLocale()->get('quiqqer/invoice', 'additional.invoice.text');
+
+            $InvoiceDraft->setAttribute('additional_invoice_text', $invoiceText);
+        }
+
+        // Articles
+        foreach ($invoiceData['articles'] as $article) {
+            $Article = null;
+
+            if (!empty($article['quiqqerProductId'])) {
+                try {
+                    $Product       = QUI\ERP\Products\Handler\Products::getProduct((int)$article['quiqqerProductId']);
+                    $UniqueProduct = $Product->createUniqueProduct($InvoiceDraft->getCustomer());
+                    $UniqueProduct->setQuantity((float)$article['quantity']);
+
+                    $UniqueProduct->resetCalculation();
+
+                    $Article = $UniqueProduct->toArticle(null, false);
+                } catch (\Exception $Exception) {
+                    QUI\System\Log::writeException($Exception);
+                }
+            }
+
+            if (!$Article) {
+                $Article = new QUI\ERP\Accounting\Article($article);
+            }
+
+            $Article->calc();
+            $InvoiceDraft->addArticle($Article);
         }
 
         try {

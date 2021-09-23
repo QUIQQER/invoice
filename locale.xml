@@ -767,6 +767,12 @@
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
+        
+        <locale name="controls.panels.TemporaryInvoice.invoice_files_no_customer">
+            <de><![CDATA[Bitte wähle zuerst einen Kunden für diese Rechnung aus, um Kunden-Dateien mit dieser Rechnung verknüpfen zu können.]]></de>
+            <en><![CDATA[Please select a customer for this invoice first to be able to link customer files to this invoice.]]></en>
+        </locale>
+
         <locale name="journal.btn.paymentBook">
             <de><![CDATA[Zahlung buchen]]></de>
             <en><![CDATA[Payment book]]></en>
@@ -1043,6 +1049,10 @@
         <locale name="erp.panel.temporary.invoice.category.comments">
             <de><![CDATA[Kommentare]]></de>
             <en><![CDATA[Comments]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.invoiceFiles">
+            <de><![CDATA[Dateien]]></de>
+            <en><![CDATA[Files]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.deleteButton.title">
             <de><![CDATA[Rechnung löschen]]></de>
@@ -1602,6 +1612,17 @@
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
+
+        <locale name="exception.Invoice.addCustomerFile.no_customer">
+            <de><![CDATA[Die Rechnung hat noch keinen zugewiesenen Kunden. Bitte weise der Rechnung zuerst einen Kunden zu, bevor du der Rechnung Kunden-Dateien zuweist.]]></de>
+            <en><![CDATA[The invoice does not have an assigned customer yet. Please assign a customer to the invoice first before assigning customer files to the invoice.]]></en>
+        </locale>
+        
+        <locale name="RestApi.Provider.invoice.comment.source">
+            <de><![CDATA[Rechnung erstellt über REST API. Herkunft: [source]]]></de>
+            <en><![CDATA[Invoice created via REST API. Source: [source]]]></en>
+        </locale>
+
         <locale name="PaymentReceiver.Invoice.title">
             <de><![CDATA[Rechnung]]></de>
             <en><![CDATA[Invoice]]></en>

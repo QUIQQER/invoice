@@ -269,6 +269,45 @@ class EventHandler
     }
 
     /**
+     * quiqqer/erp: onQuiqqerErpOutputSendMailBefore
+     *
+     * Used to attach customer files that are attached to an invoice to the invoice mail
+     *
+     * @param $entityId
+     * @param string $entityType
+     * @param string $recipient
+     * @param QUI\Mail\Mailer $Mailer
+     * @return void
+     */
+    public static function onQuiqqerErpOutputSendMailBefore(
+        $entityId,
+        string $entityType,
+        string $recipient,
+        QUI\Mail\Mailer $Mailer
+    ) {
+        try {
+            $Invoice = OutputProviderInvoice::getEntity($entityId);
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            return;
+        }
+
+        $customerFiles = $Invoice->getCustomerFiles();
+
+        foreach ($customerFiles as $entry) {
+            $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Invoice->getCustomer()->getId(), $entry['hash']);
+
+            if ($file) {
+                $filePath = $file['dirname'].'/'.$file['basename'];
+
+                if (\file_exists($filePath)) {
+                    $Mailer->addAttachment($filePath);
+                }
+            }
+        }
+    }
+
+    /**
      * quiqqer/erp: onQuiqqerErpOutputSendMail
      *
      * Save to invoice that a dunning was sent
