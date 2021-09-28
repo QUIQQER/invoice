@@ -820,6 +820,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     }
                 }).inject(Container);
 
+                FileControl.getElm().addClass('quiqqer-invoice-files');
+
                 FileControl.importValue(this.getAttribute('attached_customer_files'));
             }).then(() => {
                 return this.$openCategory();

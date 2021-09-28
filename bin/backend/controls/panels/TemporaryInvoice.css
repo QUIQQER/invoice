@@ -160,3 +160,7 @@
 .invoices-invoice-details .articles-sum td {
     font-size: 14px !important;
 }
+
+.quiqqer-invoice-files {
+    height: 100% !important;
+}

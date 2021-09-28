@@ -12,6 +12,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     'qui/controls/windows/Confirm',
     'package/quiqqer/invoice/bin/Invoices',
     'package/quiqqer/erp/bin/backend/controls/Comments',
+    'package/quiqqer/customer/bin/backend/controls/customer/userFiles/Select',
     'qui/controls/elements/Sandbox',
     'utils/Lock',
     'Locale',
@@ -19,7 +20,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.css'
 
-], function (QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Comments, Sandbox, Locker, QUILocale, Mustache) {
+], function (QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Comments, CustomerFileSelect, Sandbox, Locker, QUILocale, Mustache) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -44,7 +45,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             '$onCreate',
             '$onInject',
             '$onDestroy',
-            '$showLockMessage'
+            '$showLockMessage',
+            'openInvoiceFiles'
         ],
 
         options: {
@@ -235,6 +237,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 text  : QUILocale.get(lg, 'erp.panel.invoice.comments'),
                 events: {
                     onClick: this.openComments
+                }
+            });
+
+            this.addCategory({
+                name  : 'invoiceFiles',
+                icon  : 'fa fa-file-text-o',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.invoiceFiles'),
+                events: {
+                    onClick: this.openInvoiceFiles
                 }
             });
 
@@ -774,6 +785,77 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 return self.$openCategory();
             }).then(function () {
                 self.Loader.hide();
+            });
+        },
+
+        /**
+         * Open invoice file management
+         *
+         * @returns {Promise}
+         */
+        openInvoiceFiles: function () {
+            this.Loader.show();
+
+            this.getCategory('invoiceFiles').setActive();
+
+            const InvoiceAttributes = this.getAttribute('data');
+            let InvoiceData         = InvoiceAttributes.data;
+
+            if (InvoiceData) {
+                InvoiceData = JSON.decode(InvoiceData);
+            }
+
+            return this.$closeCategory().then((Container) => {
+                Container.setStyle('overflow', 'hidden');
+                Container.setStyle('padding', 20);
+                Container.setStyle('height', '100%');
+
+                const customerId = InvoiceAttributes.customer_id;
+
+                if (!customerId) {
+                    new Element('p', {
+                        html: QUILocale.get(lg, 'controls.panels.TemporaryInvoice.invoice_files_no_customer')
+                    }).inject(Container);
+
+                    return;
+                }
+
+                const FileControl = new CustomerFileSelect({
+                    userId: customerId,
+                    events: {
+                        onChange: (FileSelectControl) => {
+                            const customerFiles = FileSelectControl.getValue();
+
+                            this.Loader.show();
+
+                            Invoices.setCustomerFiles(this.getAttribute('invoiceId'), customerFiles).then(() => {
+                                InvoiceData.customer_files = customerFiles;
+
+                                InvoiceAttributes.data = JSON.encode(InvoiceData);
+                                this.setAttribute('data', InvoiceAttributes);
+
+                                this.Loader.hide();
+                            }).catch(() => {
+                                this.Loader.hide();
+                            });
+                        }
+                    }
+                }).inject(Container);
+
+                FileControl.getElm().addClass('quiqqer-invoice-files');
+
+                if (InvoiceData && 'customer_files' in InvoiceData) {
+                    FileControl.importValue(InvoiceData.customer_files);
+                }
+            }).then(() => {
+                this.Loader.hide();
+
+                return this.$openCategory();
+            }).catch((err) => {
+                console.error('ERROR');
+                console.error(err);
+
+                return this.$openCategory();
             });
         },
 
