@@ -295,6 +295,10 @@ class EventHandler
         $customerFiles = $Invoice->getCustomerFiles();
 
         foreach ($customerFiles as $entry) {
+            if (empty($entry['options']['attachToEmail'])) {
+                continue;
+            }
+
             $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Invoice->getCustomer()->getId(), $entry['hash']);
 
             if ($file) {

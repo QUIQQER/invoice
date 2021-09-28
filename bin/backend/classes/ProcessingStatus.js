@@ -54,9 +54,12 @@ define('package/quiqqer/invoice/bin/backend/classes/ProcessingStatus', [
          * @param {String|Number} id - Processing Status ID
          * @param {String} color
          * @param {Object} title - {de: '', en: ''}
+         * @param {Object} [Options]
          * @return {Promise}
          */
-        createProcessingStatus: function (id, color, title) {
+        createProcessingStatus: function (id, color, title, Options) {
+            Options = Options || {};
+
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_processingStatus_create', function (result) {
                     require([
@@ -71,6 +74,7 @@ define('package/quiqqer/invoice/bin/backend/classes/ProcessingStatus', [
                     id       : id,
                     color    : color,
                     title    : JSON.encode(title),
+                    options  : JSON.encode(Options),
                     onError  : reject
                 });
             });
@@ -122,15 +126,19 @@ define('package/quiqqer/invoice/bin/backend/classes/ProcessingStatus', [
          * @param {String|Number} id - Processing Status ID
          * @param {String} color
          * @param {Object} title - {de: '', en: ''}
+         * @param {Object} [Options]
          * @return {Promise}
          */
-        updateProcessingStatus: function (id, color, title) {
+        updateProcessingStatus: function (id, color, title, Options) {
+            Options = Options || {};
+
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_processingStatus_update', resolve, {
                     'package': 'quiqqer/invoice',
                     id       : id,
                     color    : color,
                     title    : JSON.encode(title),
+                    options  : JSON.encode(Options),
                     onError  : reject
                 });
             });

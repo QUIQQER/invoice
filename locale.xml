@@ -1225,6 +1225,10 @@
             <de><![CDATA[Farbe]]></de>
             <en><![CDATA[Color]]></en>
         </locale>
+        <locale name="processingStatus.grid.preventInvoicePosting">
+            <de><![CDATA[verhindert Buchung]]></de>
+            <en><![CDATA[prevents posting]]></en>
+        </locale>
 
         <locale name="dialog.processingStatus.delete.title">
             <de><![CDATA[Rechnungsstatus entfernen]]></de>
@@ -1247,6 +1251,26 @@
             <br /><br />
             The invoice status is not recoverable.
             ]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.labelTitle">
+            <de><![CDATA[Titel]]></de>
+            <en><![CDATA[Title]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.labelId">
+            <de><![CDATA[Status-Nr.]]></de>
+            <en><![CDATA[Status no.]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.labelColor">
+            <de><![CDATA[Farbe]]></de>
+            <en><![CDATA[Color]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.labelPreventInvoicePosting">
+            <de><![CDATA[Buchen von Rechnungsentwürfen verhindern]]></de>
+            <en><![CDATA[Prevents posting of invoice drafts]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.descPreventInvoicePosting">
+            <de><![CDATA[Rechnungsentwürfe mit diesem Status können <b>nicht gebucht</b> werden, solange sie diesen Status innehaben. Sinnvoll für Status, die eine manuelle Überprüfung einer Rechnung erfordern.]]></de>
+            <en><![CDATA[Draft invoices with this status can <b>not be posted</b> as long as they have this status. Useful for statuses that require manual review of an invoice.]]></en>
         </locale>
 
         <locale name="dialog.processingStatus.create.title">
@@ -1846,6 +1870,11 @@
             <de><![CDATA[Die Rechnung besitzt keine Bezahlmethode.]]></de>
             <en><![CDATA[The invoice has no payment method.]]></en>
         </locale>
+        <locale name="exception.invoice.verification.status_prevents_posting">
+            <de><![CDATA[Der aktuelle Status der Rechnung verhindert eine Buchung. Bitte prüfe die Rechnung.]]></de>
+            <en><![CDATA[The current status of the invoice prevents posting. Please check the invoice.]]></en>
+        </locale>
+
         <locale name="exception.invoice.not.found" html="true">
             <de><![CDATA[Die gewünschte Rechnung wurde leider nicht gefunden.]]></de>
             <en><![CDATA[The desired invoice was unfortunately not found.]]></en>

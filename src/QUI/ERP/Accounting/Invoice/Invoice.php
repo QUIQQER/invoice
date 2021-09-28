@@ -7,6 +7,7 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
+use QUI\ERP\Customer\CustomerFiles;
 use QUI\Permissions\Permission;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Accounting\ArticleListUnique;
@@ -45,10 +46,10 @@ class Invoice extends QUI\QDOM
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -1504,4 +1505,110 @@ class Invoice extends QUI\QDOM
     }
 
     //endregion
+
+    // region Attached customer files
+
+    /**
+     * Add a customer file to this invoice
+     *
+     * @param string $fileHash - SHA256 hash of the file basename
+     * @param array $options (optional) - File options; see $defaultOptions in code for what's possible
+     *
+     * @throws Exception
+     * @throws QUI\Exception
+     */
+    public function addCustomerFile(string $fileHash, array $options = [])
+    {
+        $Customer = $this->getCustomer();
+
+        if (empty($Customer)) {
+            throw new Exception(
+                QUI::getLocale()->get('quiqqer/invoice', 'exception.Invoice.addCustomerFile.no_customer')
+            );
+        }
+
+        $file = CustomerFiles::getFileByHash($Customer->getId(), $fileHash);
+
+        if (empty($file)) {
+            throw new Exception(
+                QUI::getLocale()->get('quiqqer/invoice', 'exception.Invoice.addCustomerFile.file_not_found')
+            );
+        }
+
+        $defaultOptions = [
+            'attachToEmail' => false
+        ];
+
+        // set default options
+        foreach ($defaultOptions as $k => $v) {
+            if (!isset($options[$k])) {
+                $options[$k] = $v;
+            }
+        }
+
+        // cleanup
+        foreach ($options as $k => $v) {
+            if (!isset($defaultOptions[$k])) {
+                unset($options[$k]);
+            }
+        }
+
+        $fileEntry = [
+            'hash'    => $fileHash,
+            'options' => $options
+        ];
+
+        $customerFiles   = $this->getCustomerFiles();
+        $customerFiles[] = $fileEntry;
+
+        $this->data['customer_files'] = $customerFiles;
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->invoiceTable(),
+            [
+                'data' => \json_encode($this->data)
+            ],
+            [
+                'id' => $this->getCleanId()
+            ]
+        );
+    }
+
+    /**
+     * Clear customer files
+     *
+     * @return void
+     */
+    public function clearCustomerFiles(): void
+    {
+        $this->data['customer_files'] = [];
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->invoiceTable(),
+            [
+                'data' => \json_encode($this->data)
+            ],
+            [
+                'id' => $this->getCleanId()
+            ]
+        );
+    }
+
+    /**
+     * Get customer files that are attached to this invoice.
+     *
+     * @return array - Contains file hash and file options
+     */
+    public function getCustomerFiles(): array
+    {
+        $customerFiles = $this->getData('customer_files');
+
+        if (empty($customerFiles)) {
+            return [];
+        }
+
+        return $customerFiles;
+    }
+
+    // endregion
 }

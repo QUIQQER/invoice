@@ -19,6 +19,11 @@ use QUI;
 class Handler extends QUI\Utils\Singleton
 {
     /**
+     * Status options
+     */
+    const STATUS_OPTION_PREVENT_INVOICE_POSTING = 'preventInvoicePosting';
+
+    /**
      * @var array
      */
     protected $list = null;
@@ -64,9 +69,9 @@ class Handler extends QUI\Utils\Singleton
         $list   = $this->getList();
         $result = [];
 
-        foreach ($list as $entry => $color) {
+        foreach ($list as $statusId => $v) {
             try {
-                $result[] = $this->getProcessingStatus($entry);
+                $result[] = $this->getProcessingStatus($statusId);
             } catch (Exception $Exception) {
             }
         }
@@ -123,13 +128,14 @@ class Handler extends QUI\Utils\Singleton
      * @param int|string $id
      * @param int|string $color
      * @param array $title
+     * @param array $options (optional)
      *
      * @throws Exception
      * @throws QUI\Exception
      *
      * @todo permissions
      */
-    public function updateProcessingStatus($id, $color, array $title)
+    public function updateProcessingStatus($id, $color, array $title, array $options = [])
     {
         $Status = $this->getProcessingStatus($id);
 
@@ -158,12 +164,15 @@ class Handler extends QUI\Utils\Singleton
 
         QUI\Translator::publish('quiqqer/invoice');
 
-
         // update config
         $Package = QUI::getPackage('quiqqer/invoice');
         $Config  = $Package->getConfig();
 
-        $Config->setValue('processing_status', $Status->getId(), $color);
+        $Config->setValue('processing_status', $Status->getId(), \json_encode([
+            'color'   => $color,
+            'options' => $options
+        ]));
+
         $Config->save();
     }
 }

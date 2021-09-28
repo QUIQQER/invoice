@@ -56,12 +56,18 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
 
             ProcessingStatus.getList().then(function (result) {
                 for (var i = 0, len = result.data.length; i < len; i++) {
-                    result.data[i].colorNode = new Element('span', {
-                        html   : result.data[i].color,
+                    const Status = result.data[i];
+
+                    Status.colorNode = new Element('span', {
+                        html   : Status.color,
                         'class': 'quiqqer-invoice-processing-status-color',
                         styles : {
-                            backgroundColor: result.data[i].color
+                            backgroundColor: Status.color
                         }
+                    });
+
+                    Status.preventInvoicePosting = new Element('span', {
+                        'class': Status.options.preventInvoicePosting ? 'fa fa-check' : 'fa fa-close'
                     });
                 }
 
@@ -141,6 +147,11 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                     dataIndex: 'title',
                     dataType : 'integer',
                     width    : 200
+                }, {
+                    header   : QUILocale.get(lg, 'processingStatus.grid.preventInvoicePosting'),
+                    dataIndex: 'preventInvoicePosting',
+                    dataType : 'node',
+                    width    : 120
                 }]
             });
 
@@ -189,7 +200,7 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
             new QUIConfirm({
                 icon     : 'fa fa-plus',
                 title    : QUILocale.get(lg, 'dialog.processingStatus.create.title'),
-                maxHeight: 400,
+                maxHeight: 500,
                 maxWidth : 600,
                 autoclose: false,
                 events   : {
@@ -199,7 +210,14 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                         Win.Loader.show();
 
                         Content.addClass('quiqqer-invoice-processing-status-window');
-                        Content.set('html', Mustache.render(template));
+
+                        Content.set('html', Mustache.render(template, {
+                            labelTitle                : QUILocale.get(lg, 'processingStatus.tpl.labelTitle'),
+                            labelId                   : QUILocale.get(lg, 'processingStatus.tpl.labelId'),
+                            labelColor                : QUILocale.get(lg, 'processingStatus.tpl.labelColor'),
+                            labelPreventInvoicePosting: QUILocale.get(lg, 'processingStatus.tpl.labelPreventInvoicePosting'),
+                            descPreventInvoicePosting : QUILocale.get(lg, 'processingStatus.tpl.descPreventInvoicePosting')
+                        }));
 
                         var Form = Content.getElement('form');
 
@@ -229,10 +247,16 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                             } catch (e) {
                             }
 
+                            // Options
+                            const Options = {
+                                preventInvoicePosting: data.preventInvoicePosting
+                            };
+
                             ProcessingStatus.createProcessingStatus(
                                 data.id,
                                 data.color,
-                                title
+                                title,
+                                Options
                             ).then(function () {
                                 return Win.close();
                             }).then(function () {
@@ -264,7 +288,7 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
             new QUIConfirm({
                 icon     : 'fa fa-edit',
                 title    : QUILocale.get(lg, 'dialog.processingStatus.edit.title'),
-                maxHeight: 400,
+                maxHeight: 500,
                 maxWidth : 600,
                 autoclose: false,
                 ok_button: {
@@ -278,7 +302,13 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                         Win.Loader.show();
 
                         Content.addClass('quiqqer-invoice-processing-status-window');
-                        Content.set('html', Mustache.render(template));
+                        Content.set('html', Mustache.render(template, {
+                            labelTitle                : QUILocale.get(lg, 'processingStatus.tpl.labelTitle'),
+                            labelId                   : QUILocale.get(lg, 'processingStatus.tpl.labelId'),
+                            labelColor                : QUILocale.get(lg, 'processingStatus.tpl.labelColor'),
+                            labelPreventInvoicePosting: QUILocale.get(lg, 'processingStatus.tpl.labelPreventInvoicePosting'),
+                            descPreventInvoicePosting : QUILocale.get(lg, 'processingStatus.tpl.descPreventInvoicePosting')
+                        }));
 
                         var Form = Content.getElement('form');
 
@@ -286,6 +316,9 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                             Form.elements.id.value    = details.id;
                             Form.elements.color.value = details.color;
                             Form.elements.title.value = JSON.encode(details.title);
+
+                            // Options
+                            Form.elements.preventInvoicePosting.checked = details.options.preventInvoicePosting;
 
                             return QUI.parse(Content);
                         }).then(function () {
@@ -310,11 +343,16 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                             } catch (e) {
                             }
 
+                            // Options
+                            const Options = {
+                                preventInvoicePosting: data.preventInvoicePosting
+                            };
 
                             ProcessingStatus.updateProcessingStatus(
                                 data.id,
                                 data.color,
-                                title
+                                title,
+                                Options
                             ).then(function () {
                                 return Win.close();
                             }).then(function () {

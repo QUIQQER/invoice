@@ -10,6 +10,7 @@ use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 
 /**
  * Class Invoice
@@ -104,7 +105,7 @@ class Invoice
             self::getMissingAddressFields($Invoice)
         );
 
-        //articles
+        // articles
         if (!$Articles->count()) {
             $missing[] = 'article';
         }
@@ -115,6 +116,23 @@ class Invoice
             $Payments->getPayment($Invoice->getAttribute('payment_method'));
         } catch (QUI\ERP\Accounting\Payments\Exception $Exception) {
             $missing[] = 'payment';
+        }
+
+        // Status that prevents posting
+        $statusId = $Invoice->getAttribute('processing_status');
+
+        if (!empty($statusId)) {
+            try {
+                $Status = ProcessingStatuses::getInstance()->getProcessingStatus(
+                    $statusId
+                );
+
+                if ($Status->getOption(ProcessingStatuses::STATUS_OPTION_PREVENT_INVOICE_POSTING)) {
+                    $missing[] = 'status_prevents_posting';
+                }
+            } catch (\Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
+            }
         }
 
         // api
@@ -269,6 +287,9 @@ class Invoice
 
             case 'invoice_address_country':
                 return $Locale->get($lg, 'exception.invoice.verification.country');
+
+            case 'status_prevents_posting':
+                return $Locale->get($lg, 'exception.invoice.verification.status_prevents_posting');
         }
 
         $message = false;

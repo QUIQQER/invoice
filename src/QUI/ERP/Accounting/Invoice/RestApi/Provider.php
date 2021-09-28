@@ -11,6 +11,7 @@ use Slim\Routing\RouteCollectorProxy;
 use QUI\REST\Utils\RequestUtils;
 use QUI\ERP\Accounting\Invoice\Factory as InvoiceFactory;
 use QUI\ERP\Currency\Handler as CurrencyHandler;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 
 /**
  * Class Provider
@@ -94,7 +95,9 @@ class Provider implements QUI\REST\ProviderInterface
             'currency'       => false,
             'payment_method' => false,
 
-            'additional_invoice_text' => false
+            'additional_invoice_text' => false,
+            'files'                   => false,
+            'processing_status'       => false,
         ];
 
         // Remove unknown fields
@@ -148,9 +151,9 @@ class Provider implements QUI\REST\ProviderInterface
         $InvoiceDraft = $Factory->createInvoice($SystemUser);
 
         // Customer
-        if (!empty($invoiceData['customer_no'])) {
-            $User = false;
+        $User = false;
 
+        if (!empty($invoiceData['customer_no'])) {
             try {
                 $User = QUI\ERP\Customer\Customers::getInstance()->getCustomerByCustomerNo($invoiceData['customer_no']);
                 $InvoiceDraft->setAttribute('customer_id', $User->getId());
@@ -270,6 +273,61 @@ class Provider implements QUI\REST\ProviderInterface
 
             $Article->calc();
             $InvoiceDraft->addArticle($Article);
+        }
+
+        // Files
+        if ($User && !empty($invoiceData['files'])) {
+            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir().'/uploads/'.$InvoiceDraft->getId();
+            QUI\Utils\System\File::mkdir($fileDir);
+
+            $fileCounter = 0;
+
+            foreach ($invoiceData['files'] as $file) {
+                if (!\is_array($file) || !isset($file['name']) || !isset($file['content'])) {
+                    continue;
+                }
+
+                // Write file data to file
+                $localFile = $fileDir;
+
+                if (!empty($file['name'])) {
+                    $localFile .= $file['name'];
+                } else {
+                    $localFile .= 'file_'.++$fileCounter;
+                }
+
+                \file_put_contents($localFile, \hex2bin($file['content']));
+
+                $fileInfo = \pathinfo($localFile);
+                $fileHash = \hash('sha256', $fileInfo['basename']);
+
+                try {
+                    QUI\ERP\Customer\CustomerFiles::addFileToCustomer($User->getId(), $localFile);
+
+                    $fileOptions = [];
+
+                    if (!empty($file['options'])) {
+                        $fileOptions = $file['options'];
+                    }
+
+                    $InvoiceDraft->addCustomerFile($fileHash, $fileOptions);
+                } catch (\Exception $Exception) {
+                    QUI\System\Log::writeException($Exception);
+                }
+            }
+        }
+
+        // Processing status
+        if (!empty($invoiceData['processing_status'])) {
+            $statusId      = (int)$invoiceData['processing_status'];
+            $StatusHandler = ProcessingStatuses::getInstance();
+
+            try {
+                $StatusHandler->getProcessingStatus($statusId);
+                $InvoiceDraft->setAttribute('processing_status', $statusId);
+            } catch (\Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
+            }
         }
 
         try {
