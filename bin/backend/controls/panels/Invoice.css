@@ -42,3 +42,7 @@
     border: 1px solid #dedede;
     height: 32px;
 }
+
+.quiqqer-invoice-files {
+    height: 100% !important;
+}

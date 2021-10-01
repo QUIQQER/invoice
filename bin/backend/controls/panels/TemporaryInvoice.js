@@ -20,6 +20,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'package/quiqqer/erp/bin/backend/controls/articles/Text',
     'package/quiqqer/payments/bin/backend/Payments',
     'package/quiqqer/customer/bin/backend/controls/customer/address/Window',
+    'package/quiqqer/customer/bin/backend/controls/customer/userFiles/Select',
     'utils/Lock',
     'Locale',
     'Mustache',
@@ -34,7 +35,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
 ], function (QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
              AddressSelect, Invoices, Dialogs, Comments, TextArticle,
-             Payments, AddressWindow, Locker, QUILocale, Mustache, Users, Editors,
+             Payments, AddressWindow, CustomerFileSelect, Locker, QUILocale, Mustache, Users, Editors,
              templateData, templatePost, templateMissing) {
     "use strict";
 
@@ -64,7 +65,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             '$clickDelete',
             'toggleSort',
             '$showLockMessage',
-            'print'
+            'print',
+            'openInvoiceFiles'
         ],
 
         options: {
@@ -284,7 +286,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 currency               : this.getAttribute('currency'),
                 currencyRate           : this.getAttribute('currencyRate'),
                 addressDelivery        : deliveryAddress,
-                processing_status      : this.getAttribute('processing_status')
+                processing_status      : this.getAttribute('processing_status'),
+                attached_customer_files: this.getAttribute('attached_customer_files')
             };
         },
 
@@ -439,6 +442,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     if (!userId) {
                         Content.getElements('[name="select-contact-id-address"]').set('disabled', true);
                         Content.getElements('[name="contact_person"]').set('value', '');
+
+                        self.setAttribute('attached_customer_files', false);
                     } else {
                         Content.getElements('[name="select-contact-id-address"]').set('disabled', false);
 
@@ -779,6 +784,53 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             new Comments({
                 comments: this.getAttribute('comments')
             }).inject(Container);
+        },
+
+        /**
+         * Open invoice file management
+         *
+         * @returns {Promise}
+         */
+        openInvoiceFiles: function () {
+            this.Loader.show();
+
+            this.getCategory('invoiceFiles').setActive();
+
+            return this.$closeCategory().then((Container) => {
+                Container.setStyle('overflow', 'hidden');
+                Container.setStyle('padding', 20);
+                Container.setStyle('height', '100%');
+
+                const customerId = this.getAttribute('customer_id');
+
+                if (!customerId) {
+                    new Element('p', {
+                        html: QUILocale.get(lg, 'controls.panels.TemporaryInvoice.invoice_files_no_customer')
+                    }).inject(Container);
+
+                    return;
+                }
+
+                const FileControl = new CustomerFileSelect({
+                    userId: this.getAttribute('customer_id'),
+                    events: {
+                        onChange: (FileSelectControl) => {
+                            this.setAttribute('attached_customer_files', FileSelectControl.getValue());
+                        }
+                    }
+                }).inject(Container);
+
+                FileControl.getElm().addClass('quiqqer-invoice-files');
+
+                FileControl.importValue(this.getAttribute('attached_customer_files'));
+            }).then(() => {
+                return this.$openCategory();
+            }).catch((err) => {
+                console.error('ERROR');
+                console.error(err);
+
+                return this.$openCategory();
+            });
         },
 
         /**
@@ -1429,6 +1481,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.comments'),
                 events: {
                     onClick: this.openComments
+                }
+            });
+
+            this.addCategory({
+                name  : 'invoiceFiles',
+                icon  : 'fa fa-file-text-o',
+                text  : QUILocale.get(lg, 'erp.panel.temporary.invoice.category.invoiceFiles'),
+                events: {
+                    onClick: this.openInvoiceFiles
                 }
             });
 

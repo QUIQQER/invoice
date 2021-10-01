@@ -38,6 +38,8 @@
             <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled"/>
 
             <paymentReceiver src="\QUI\ERP\Accounting\Invoice\PaymentReceiver"/>
+
+            <rest src="\QUI\ERP\Accounting\Invoice\RestApi\Provider"/>
         </provider>
 
     </package>

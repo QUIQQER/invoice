@@ -600,6 +600,25 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
                     showError: false
                 });
             });
+        },
+
+        /**
+         * Set invoice customer files
+         *
+         * @param {Number} invoiceId
+         * @param {String} customerFiles (JSON)
+         * @return {Promise}
+         */
+        setCustomerFiles: function (invoiceId, customerFiles) {
+            return new Promise(function (resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_setCustomerFiles', resolve, {
+                    'package'    : 'quiqqer/invoice',
+                    invoiceId    : invoiceId,
+                    customerFiles: customerFiles,
+                    onError      : reject,
+                    showError    : false
+                });
+            });
         }
     });
 });

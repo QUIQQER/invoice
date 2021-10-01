@@ -22,10 +22,11 @@ class Factory extends QUI\Utils\Singleton
      * @param string|integer $id - processing ID
      * @param string $color - color of the status
      * @param array $title - title
+     * @param array $options (optional) - Status options
      * @throws Exception|QUI\Exception
      * @todo permissions
      */
-    public function createProcessingStatus($id, $color, array $title)
+    public function createProcessingStatus($id, $color, array $title, array $options = [])
     {
         $list = Handler::getInstance()->getList();
         $id   = (int)$id;
@@ -42,7 +43,11 @@ class Factory extends QUI\Utils\Singleton
         $Package = QUI::getPackage('quiqqer/invoice');
         $Config  = $Package->getConfig();
 
-        $Config->setValue('processing_status', $id, $color);
+        $Config->setValue('processing_status', $id, \json_encode([
+            'color'   => $color,
+            'options' => $options
+        ]));
+
         $Config->save();
 
         // translations

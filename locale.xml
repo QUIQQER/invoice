@@ -767,6 +767,12 @@
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
+        
+        <locale name="controls.panels.TemporaryInvoice.invoice_files_no_customer">
+            <de><![CDATA[Bitte wähle zuerst einen Kunden für diese Rechnung aus, um Kunden-Dateien mit dieser Rechnung verknüpfen zu können.]]></de>
+            <en><![CDATA[Please select a customer for this invoice first to be able to link customer files to this invoice.]]></en>
+        </locale>
+
         <locale name="journal.btn.paymentBook">
             <de><![CDATA[Zahlung buchen]]></de>
             <en><![CDATA[Payment book]]></en>
@@ -1044,6 +1050,10 @@
             <de><![CDATA[Kommentare]]></de>
             <en><![CDATA[Comments]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.invoiceFiles">
+            <de><![CDATA[Dateien]]></de>
+            <en><![CDATA[Files]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.deleteButton.title">
             <de><![CDATA[Rechnung löschen]]></de>
             <en><![CDATA[Delete Invoice]]></en>
@@ -1215,6 +1225,10 @@
             <de><![CDATA[Farbe]]></de>
             <en><![CDATA[Color]]></en>
         </locale>
+        <locale name="processingStatus.grid.preventInvoicePosting">
+            <de><![CDATA[verhindert Buchung]]></de>
+            <en><![CDATA[prevents posting]]></en>
+        </locale>
 
         <locale name="dialog.processingStatus.delete.title">
             <de><![CDATA[Rechnungsstatus entfernen]]></de>
@@ -1237,6 +1251,26 @@
             <br /><br />
             The invoice status is not recoverable.
             ]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.labelTitle">
+            <de><![CDATA[Titel]]></de>
+            <en><![CDATA[Title]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.labelId">
+            <de><![CDATA[Status-Nr.]]></de>
+            <en><![CDATA[Status no.]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.labelColor">
+            <de><![CDATA[Farbe]]></de>
+            <en><![CDATA[Color]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.labelPreventInvoicePosting">
+            <de><![CDATA[Buchen von Rechnungsentwürfen verhindern]]></de>
+            <en><![CDATA[Prevents posting of invoice drafts]]></en>
+        </locale>
+        <locale name="processingStatus.tpl.descPreventInvoicePosting">
+            <de><![CDATA[Rechnungsentwürfe mit diesem Status können <b>nicht gebucht</b> werden, solange sie diesen Status innehaben. Sinnvoll für Status, die eine manuelle Überprüfung einer Rechnung erfordern.]]></de>
+            <en><![CDATA[Draft invoices with this status can <b>not be posted</b> as long as they have this status. Useful for statuses that require manual review of an invoice.]]></en>
         </locale>
 
         <locale name="dialog.processingStatus.create.title">
@@ -1602,6 +1636,17 @@
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
+
+        <locale name="exception.Invoice.addCustomerFile.no_customer">
+            <de><![CDATA[Die Rechnung hat noch keinen zugewiesenen Kunden. Bitte weise der Rechnung zuerst einen Kunden zu, bevor du der Rechnung Kunden-Dateien zuweist.]]></de>
+            <en><![CDATA[The invoice does not have an assigned customer yet. Please assign a customer to the invoice first before assigning customer files to the invoice.]]></en>
+        </locale>
+        
+        <locale name="RestApi.Provider.invoice.comment.source">
+            <de><![CDATA[Rechnung erstellt über REST API. Herkunft: [source]]]></de>
+            <en><![CDATA[Invoice created via REST API. Source: [source]]]></en>
+        </locale>
+
         <locale name="PaymentReceiver.Invoice.title">
             <de><![CDATA[Rechnung]]></de>
             <en><![CDATA[Invoice]]></en>
@@ -1825,6 +1870,11 @@
             <de><![CDATA[Die Rechnung besitzt keine Bezahlmethode.]]></de>
             <en><![CDATA[The invoice has no payment method.]]></en>
         </locale>
+        <locale name="exception.invoice.verification.status_prevents_posting">
+            <de><![CDATA[Der aktuelle Status der Rechnung verhindert eine Buchung. Bitte prüfe die Rechnung.]]></de>
+            <en><![CDATA[The current status of the invoice prevents posting. Please check the invoice.]]></en>
+        </locale>
+
         <locale name="exception.invoice.not.found" html="true">
             <de><![CDATA[Die gewünschte Rechnung wurde leider nicht gefunden.]]></de>
             <en><![CDATA[The desired invoice was unfortunately not found.]]></en>

@@ -1,9 +1,5 @@
 <?php
 
-/**
- * This file contains package_quiqqer_invoice_ajax_processingStatus_update
- */
-
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler;
 
 /**
@@ -11,13 +7,20 @@ use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler;
  */
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_processingStatus_update',
-    function ($id, $color, $title) {
+    function ($id, $color, $title, $options) {
+        if (!empty($options)) {
+            $options = \json_decode($options, true);
+        } else {
+            $options = [];
+        }
+
         Handler::getInstance()->updateProcessingStatus(
             $id,
             $color,
-            \json_decode($title, true)
+            \json_decode($title, true),
+            $options
         );
     },
-    ['id', 'color', 'title'],
+    ['id', 'color', 'title', 'options'],
     'Permission::checkAdminUser'
 );
