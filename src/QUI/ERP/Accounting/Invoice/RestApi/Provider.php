@@ -259,7 +259,7 @@ class Provider implements QUI\REST\ProviderInterface
                     $UniqueProduct = $Product->createUniqueProduct($InvoiceDraft->getCustomer());
                     $UniqueProduct->setQuantity((float)$article['quantity']);
 
-                    $UniqueProduct->resetCalculation();
+                    $UniqueProduct->recalculation();
 
                     $Article = $UniqueProduct->toArticle(null, false);
                 } catch (\Exception $Exception) {
@@ -277,7 +277,7 @@ class Provider implements QUI\REST\ProviderInterface
 
         // Files
         if ($User && !empty($invoiceData['files'])) {
-            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir().'/uploads/'.$InvoiceDraft->getId();
+            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir().'uploads/'.$InvoiceDraft->getId().'/';
             QUI\Utils\System\File::mkdir($fileDir);
 
             $fileCounter = 0;
