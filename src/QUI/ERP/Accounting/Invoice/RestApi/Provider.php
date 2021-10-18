@@ -196,25 +196,44 @@ class Provider implements QUI\REST\ProviderInterface
 
         // Payment method
         $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
-        $payments = $Payments->getPayments([
-            'where' => [
-                'payment_type' => QUI\ERP\Accounting\Payments\Methods\Invoice\Payment::class
-            ]
-        ]);
+        $Customer = $InvoiceDraft->getCustomer();
+        $Payment  = false;
 
-        // Set default payment method
-        if (!empty($payments)) {
-            $DefaultPayment = $payments[0];
-            $InvoiceDraft->setAttribute('payment_method', $DefaultPayment->getId());
+        if ($Customer) {
+            $customerDefaultPaymentId = $Customer->getAttribute('quiqqer.erp.standard.payment');
+
+            if (!empty($customerDefaultPaymentId)) {
+                try {
+                    $Payment = $Payments->getPayment($customerDefaultPaymentId);
+                } catch (\Exception $Exception) {
+                    QUI\System\Log::writeDebugException($Exception);
+                }
+            }
         }
 
-        if (!empty($invoiceData['payment_method'])) {
+        if (!$Payment && !empty($invoiceData['payment_method'])) {
             try {
                 $Payment = $Payments->getPayment((int)$invoiceData['payment_method']);
-                $InvoiceDraft->setAttribute('payment_method', $Payment->getId());
             } catch (\Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
+        }
+
+        // Set default payment method
+        if (!$Payment) {
+            $payments = $Payments->getPayments([
+                'where' => [
+                    'payment_type' => QUI\ERP\Accounting\Payments\Methods\Invoice\Payment::class
+                ]
+            ]);
+
+            if (!empty($payments)) {
+                $Payment = $payments[0];
+            }
+        }
+
+        if ($Payment) {
+            $InvoiceDraft->setAttribute('payment_method', $Payment->getId());
         }
 
         // Currency
