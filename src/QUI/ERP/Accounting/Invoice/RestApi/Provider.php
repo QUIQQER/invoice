@@ -249,29 +249,40 @@ class Provider implements QUI\REST\ProviderInterface
             $InvoiceDraft->setAttribute('additional_invoice_text', $invoiceText);
         }
 
-        // Articles
+        // Articles - Existing products
+        $ProductList = new QUI\ERP\Products\Product\ProductList();
+        $ProductList->setUser($InvoiceDraft->getCustomer());
+
         foreach ($invoiceData['articles'] as $article) {
-            $Article = null;
+            if (empty($article['quiqqerProductId'])) {
+                continue;
+            }
 
+            try {
+                $Product = QUI\ERP\Products\Handler\Products::getProduct((int)$article['quiqqerProductId']);
+
+                $UniqueProduct = $Product->createUniqueProduct($InvoiceDraft->getCustomer());
+                $UniqueProduct->setQuantity((float)$article['quantity']);
+
+                $ProductList->addProduct($UniqueProduct);
+            } catch (\Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
+            }
+        }
+
+        $ProductList->recalculate();
+
+        foreach ($ProductList->getProducts() as $Product) {
+            $InvoiceDraft->addArticle($Product->toArticle());
+        }
+
+        // Articles - Custom
+        foreach ($invoiceData['articles'] as $article) {
             if (!empty($article['quiqqerProductId'])) {
-                try {
-                    $Product       = QUI\ERP\Products\Handler\Products::getProduct((int)$article['quiqqerProductId']);
-                    $UniqueProduct = $Product->createUniqueProduct($InvoiceDraft->getCustomer());
-                    $UniqueProduct->setQuantity((float)$article['quantity']);
-
-                    $UniqueProduct->recalculation();
-
-                    $Article = $UniqueProduct->toArticle(null, false);
-                } catch (\Exception $Exception) {
-                    QUI\System\Log::writeException($Exception);
-                }
+                continue;
             }
 
-            if (!$Article) {
-                $Article = new QUI\ERP\Accounting\Article($article);
-            }
-
-            $Article->calc();
+            $Article = new QUI\ERP\Accounting\Article($article);
             $InvoiceDraft->addArticle($Article);
         }
 
