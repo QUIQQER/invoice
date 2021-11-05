@@ -252,6 +252,11 @@ class InvoiceView extends QUI\QDOM
             return $this->Invoice->getAttribute('transaction_invoice_text') ?: '';
         }
 
+        if (class_exists('QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment')
+            && $this->Invoice->getPayment()->getPaymentType() === QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment::class) {
+            return '';
+        }
+
         try {
             $Locale = QUI::getLocale();
 

@@ -703,7 +703,7 @@ class InvoiceTemporary extends QUI\QDOM
             $projectName = $this->getAttribute('project_name');
         }
 
-        if ($this->getAttribute('time_for_payment')) {
+        if ($this->getAttribute('time_for_payment') || $this->getAttribute('time_for_payment') === 0) {
             $timeForPayment = (int)$this->getAttribute('time_for_payment');
         } else {
             $timeForPayment = Settings::getInstance()->get('invoice', 'time_for_payment');
