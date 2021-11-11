@@ -821,8 +821,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 }
 
                 const FileControl = new CustomerFileSelect({
-                    userId: customerId,
-                    events: {
+                    userId           : customerId,
+                    confirmItemDelete: true,
+                    events           : {
                         onChange: (FileSelectControl) => {
                             const customerFiles = FileSelectControl.getValue();
 
