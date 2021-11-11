@@ -812,8 +812,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }
 
                 const FileControl = new CustomerFileSelect({
-                    userId: this.getAttribute('customer_id'),
-                    events: {
+                    userId           : this.getAttribute('customer_id'),
+                    confirmItemDelete: true,
+                    events           : {
                         onChange: (FileSelectControl) => {
                             this.setAttribute('attached_customer_files', FileSelectControl.getValue());
                         }
