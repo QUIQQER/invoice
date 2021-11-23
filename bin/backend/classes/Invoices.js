@@ -301,11 +301,11 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
             var self = this;
 
             return new Promise(function (resolve, reject) {
-                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_reversal', function (reversalId) {
-                    self.fireEvent('createCreditNote', [self, invoiceId, reversalId]);
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_reversal', function (reversalHash) {
+                    self.fireEvent('createCreditNote', [self, invoiceId, reversalHash]);
                     resolve({
-                        invoiceId : invoiceId,
-                        reversalId: reversalId
+                        invoiceId   : invoiceId,
+                        reversalHash: reversalHash
                     });
                 }, {
                     'package': 'quiqqer/invoice',

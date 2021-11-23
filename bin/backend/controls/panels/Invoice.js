@@ -423,7 +423,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 require([
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
                 ], function (Dialogs) {
-                    Dialogs.openPrintDialog(Data.id, entityType).then(resolve);
+                    Dialogs.openPrintDialog(Data.hash, entityType).then(resolve);
                 });
             });
         },
