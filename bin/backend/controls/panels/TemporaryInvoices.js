@@ -995,7 +995,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     entityType = 'Invoice';
             }
 
-            Dialogs.openPrintDialog(selected.id, entityType);
+            Dialogs.openPrintDialog(selected.hash, entityType);
 
             Button.setAttribute('textimage', 'fa fa-file-pdf-o');
         },

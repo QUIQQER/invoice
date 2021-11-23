@@ -1910,7 +1910,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 require([
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
                 ], function (Dialogs) {
-                    Dialogs.openPrintDialog(self.getAttribute('id'), entityType).then(resolve);
+                    Dialogs.openPrintDialog(self.getAttribute('hash'), entityType).then(resolve);
                 });
             });
         }

@@ -1019,11 +1019,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             return new Promise(function (resolve) {
                 require([
-                    'package/quiqqer/invoice/bin/backend/utils/Dialogs',
-                    'package/quiqqer/erp/bin/backend/controls/OutputDialog'
-                ], function (Dialogs, OutputDialog) {
+                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
+                ], function (Dialogs) {
                     Dialogs.openReversalDialog(invoiceId).then(function (result) {
-                        Dialogs.openPrintDialog(result.reversalId, 'Canceled');
+                        Dialogs.openPrintDialog(result.reversalHash, 'Canceled');
                         return self.refresh();
                     }).then(resolve).catch(function (Exception) {
                         QUI.getMessageHandler().then(function (MH) {

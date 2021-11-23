@@ -21,7 +21,7 @@ QUI::$Ajax->registerFunction(
 
         $Settings->set('invoice', 'sendMailAtCreation', $currentSetting);
 
-        return $Reversal->getCleanId();
+        return $Reversal->getHash();
     },
     ['invoiceId', 'reason'],
     'Permission::checkAdminUser'
