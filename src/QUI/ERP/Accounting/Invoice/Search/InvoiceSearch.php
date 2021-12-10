@@ -189,6 +189,14 @@ class InvoiceSearch extends Singleton
     {
         $allowed = [];
 
+        if (strpos($order, 'display_sum') !== false) {
+            $order = str_replace('display_sum', 'sum', $order);
+        }
+
+        if (strpos($order, 'display_nettosum') !== false) {
+            $order = str_replace('display_nettosum', 'nettosum', $order);
+        }
+
         foreach ($this->getAllowedFields() as $field) {
             $allowed[] = $field;
             $allowed[] = $field.' ASC';

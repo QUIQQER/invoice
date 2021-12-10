@@ -18,7 +18,7 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_search',
     function ($params, $filter) {
         $Search = InvoiceSearch::getInstance();
-        $Grid   = new QUI\Utils\Grid();
+        $Grid = new QUI\Utils\Grid();
 
         // filter
         $filter = \json_decode($filter);
@@ -40,8 +40,15 @@ QUI::$Ajax->registerFunction(
             $Search->order($query['order']);
         }
 
+        if (isset($query['sortOn']) && isset($query['sortBy'])) {
+            $Search->order($query['sortOn'] .' '. $query['sortBy']);
+        }
+
         return $Search->searchForGrid();
     },
-    ['params', 'filter'],
+    [
+        'params',
+        'filter'
+    ],
     'Permission::checkAdminUser'
 );

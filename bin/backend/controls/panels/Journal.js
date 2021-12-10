@@ -556,7 +556,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataIndex: 'display_vatsum',
                     dataType : 'currency',
                     width    : 100,
-                    className: 'payment-status-amountCell'
+                    className: 'payment-status-amountCell',
+                    sortable : false
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
                     dataIndex: 'payment_title',
@@ -578,19 +579,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     dataIndex: 'display_paid',
                     dataType : 'currency',
                     width    : 100,
-                    className: 'payment-status-amountCell'
+                    className: 'payment-status-amountCell',
+                    sortable : false
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.open'),
                     type     : 'html',
                     dataIndex: 'display_toPay',
                     dataType : 'currency',
                     width    : 100,
-                    className: 'payment-status-amountCell'
+                    className: 'payment-status-amountCell',
+                    sortable : false
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.brutto'),
                     dataIndex: 'display_isbrutto',
                     dataType : 'node',
-                    width    : 50
+                    width    : 50,
+                    sortable : false
                 }, {
                     header   : QUILocale.get(lg, 'journal.grid.taxId'),
                     dataIndex: 'taxId',
