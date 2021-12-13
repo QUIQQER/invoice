@@ -16,11 +16,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     'qui/controls/elements/Sandbox',
     'utils/Lock',
     'Locale',
+    'Ajax',
     'Mustache',
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.css'
 
-], function (QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Comments, CustomerFileSelect, Sandbox, Locker, QUILocale, Mustache) {
+], function (QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Comments,
+             CustomerFileSelect, Sandbox, Locker, QUILocale, QUIAjax, Mustache) {
     "use strict";
 
     var lg = 'quiqqer/invoice';
@@ -46,7 +48,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             '$onInject',
             '$onDestroy',
             '$showLockMessage',
-            'openInvoiceFiles'
+            'openInvoiceFiles',
+            '$openXmlCategory'
         ],
 
         options: {
@@ -260,6 +263,30 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             });
 
             this.getContent().addClass('quiqqer-invoice-invoice');
+
+
+            // invoice.xml panel api
+            QUIAjax.get('package_quiqqer_invoice_ajax_invoices_panel_getCategories', (categories) => {
+                let cat, title;
+
+                for (let category in categories) {
+                    cat = categories[category];
+                    title = cat.title;
+
+                    this.addCategory({
+                        icon  : cat.icon,
+                        name  : cat.name,
+                        title : QUILocale.get(title[0], title[1]),
+                        text  : QUILocale.get(title[0], title[1]),
+                        events: {
+                            onClick: this.$openXmlCategory
+                        }
+                    });
+
+                }
+            }, {
+                'package': 'quiqqer/invoice'
+            });
         },
 
         /**
@@ -531,31 +558,31 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             data = {};
                         }
 
-                        data.textInvoiceStatus    = QUILocale.get(lg, 'invoice.settings.processingStatus.title');
+                        data.textInvoiceStatus = QUILocale.get(lg, 'invoice.settings.processingStatus.title');
                         data.textInvoiceRecipient = QUILocale.get(lg, 'cutomerData');
-                        data.textCustomer         = QUILocale.get(lg, 'customer');
-                        data.textCompany          = QUILocale.get(lg, 'company');
-                        data.textStreet           = QUILocale.get(lg, 'street');
-                        data.textZip              = QUILocale.get(lg, 'zip');
-                        data.textCity             = QUILocale.get(lg, 'city');
+                        data.textCustomer = QUILocale.get(lg, 'customer');
+                        data.textCompany = QUILocale.get(lg, 'company');
+                        data.textStreet = QUILocale.get(lg, 'street');
+                        data.textZip = QUILocale.get(lg, 'zip');
+                        data.textCity = QUILocale.get(lg, 'city');
 
                         data.textInvoiceDelivery = QUILocale.get(lg, 'deliveryAddress');
                         data.textDeliveryCompany = QUILocale.get(lg, 'company');
-                        data.textDeliveryStreet  = QUILocale.get(lg, 'street');
-                        data.textDeliveryZip     = QUILocale.get(lg, 'zip');
-                        data.textDeliveryCity    = QUILocale.get(lg, 'city');
+                        data.textDeliveryStreet = QUILocale.get(lg, 'street');
+                        data.textDeliveryZip = QUILocale.get(lg, 'zip');
+                        data.textDeliveryCity = QUILocale.get(lg, 'city');
                         data.textDeliveryCountry = QUILocale.get(lg, 'country');
 
-                        data.textInvoiceData   = QUILocale.get(lg, 'erp.panel.invoice.data.title');
-                        data.textInvoiceDate   = QUILocale.get(lg, 'erp.panel.invoice.data.date');
-                        data.textProjectName   = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
-                        data.textOrderedBy     = QUILocale.get(lg, 'erp.panel.invoice.data.orderedBy');
-                        data.textEditor        = QUILocale.get(lg, 'erp.panel.invoice.data.editor');
+                        data.textInvoiceData = QUILocale.get(lg, 'erp.panel.invoice.data.title');
+                        data.textInvoiceDate = QUILocale.get(lg, 'erp.panel.invoice.data.date');
+                        data.textProjectName = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
+                        data.textOrderedBy = QUILocale.get(lg, 'erp.panel.invoice.data.orderedBy');
+                        data.textEditor = QUILocale.get(lg, 'erp.panel.invoice.data.editor');
                         data.textContactPerson = QUILocale.get(lg, 'erp.panel.invoice.data.contactPerson');
 
-                        data.textInvoicePayment       = QUILocale.get(lg, 'erp.panel.invoice.data.payment');
+                        data.textInvoicePayment = QUILocale.get(lg, 'erp.panel.invoice.data.payment');
                         data.textInvoicePaymentMethod = QUILocale.get(lg, 'erp.panel.invoice.data.paymentMethod');
-                        data.textTermOfPayment        = QUILocale.get(lg, 'erp.panel.invoice.data.termOfPayment');
+                        data.textTermOfPayment = QUILocale.get(lg, 'erp.panel.invoice.data.termOfPayment');
 
                         data.textInvoiceText = QUILocale.get(lg, 'erp.panel.invoice.data.invoiceText');
 
@@ -567,17 +594,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             html: Mustache.render(template, data)
                         });
 
-                        var Form    = Container.getElement('form');
+                        var Form = Container.getElement('form');
                         var address = {};
 
                         try {
                             address = JSON.decode(data.invoice_address);
 
-                            Form.elements.customer.value  = address.salutation + ' ' + address.firstname + ' ' + address.lastname;
-                            Form.elements.company.value   = address.company;
+                            Form.elements.customer.value =
+                                address.salutation + ' ' + address.firstname + ' ' + address.lastname;
+                            Form.elements.company.value = address.company;
                             Form.elements.street_no.value = address.street_no;
-                            Form.elements.zip.value       = address.zip;
-                            Form.elements.city.value      = address.city;
+                            Form.elements.zip.value = address.zip;
+                            Form.elements.city.value = address.city;
                         } catch (e) {
                             console.error(e);
                         }
@@ -615,10 +643,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                                     deliveryAddress.firstname + ' ' +
                                     deliveryAddress.lastname;
 
-                                Form.elements['delivery-company'].value   = deliveryAddress.company;
+                                Form.elements['delivery-company'].value = deliveryAddress.company;
                                 Form.elements['delivery-street_no'].value = deliveryAddress.street_no;
-                                Form.elements['delivery-zip'].value       = deliveryAddress.zip;
-                                Form.elements['delivery-city'].value      = deliveryAddress.city;
+                                Form.elements['delivery-zip'].value = deliveryAddress.zip;
+                                Form.elements['delivery-city'].value = deliveryAddress.city;
                             } catch (e) {
                                 console.error(e);
                             }
@@ -799,7 +827,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.getCategory('invoiceFiles').setActive();
 
             const InvoiceAttributes = this.getAttribute('data');
-            let InvoiceData         = InvoiceAttributes.data;
+            let InvoiceData = InvoiceAttributes.data;
 
             if (InvoiceData) {
                 InvoiceData = JSON.decode(InvoiceData);
@@ -1132,6 +1160,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     });
                 });
             });
+        },
+
+        //region category stuff
+
+        $openXmlCategory: function (Category) {
+            this.Loader.show();
+
+            QUIAjax.get('package_quiqqer_invoice_ajax_invoices_panel_getCategory', (html) => {
+                this.$closeCategory().then((Container) => {
+                    Container.set('html', html);
+
+                    return QUI.parse(Container);
+                }).then(() => {
+                    return this.$openCategory();
+                }).then(() => {
+                    this.Loader.hide();
+                });
+            }, {
+                'package': 'quiqqer/invoice',
+                category : Category.getAttribute('name')
+            });
         }
+
+        //endregion
     });
 });
