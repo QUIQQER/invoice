@@ -19,7 +19,7 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_addPayment',
     function ($invoiceId, $amount, $paymentMethod, $date) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Payment  = Payments::getInstance()->getPayment($paymentMethod);
+        $Payment = Payments::getInstance()->getPayment($paymentMethod);
 
         try {
             $Invoice = $Invoices->getInvoice($invoiceId);
@@ -30,7 +30,7 @@ QUI::$Ajax->registerFunction(
         // create the transaction
         TransactionFactory::createPaymentTransaction(
             $amount,
-            QUI\ERP\Defaults::getCurrency(),
+            $Invoice->getCurrency(),
             $Invoice->getHash(),
             $Payment->getPaymentType()->getName(),
             [],
@@ -39,6 +39,11 @@ QUI::$Ajax->registerFunction(
             $Invoice->getGlobalProcessId()
         );
     },
-    ['invoiceId', 'amount', 'paymentMethod', 'date'],
+    [
+        'invoiceId',
+        'amount',
+        'paymentMethod',
+        'date'
+    ],
     'Permission::checkAdminUser'
 );
