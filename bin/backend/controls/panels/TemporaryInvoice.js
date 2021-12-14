@@ -1517,6 +1517,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 }
 
                 for (let category in categories) {
+                    if (!categories.hasOwnProperty(category)) {
+                        continue;
+                    }
+
                     cat = categories[category];
                     title = cat.title;
 

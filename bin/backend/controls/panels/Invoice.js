@@ -270,9 +270,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 let cat, title;
 
                 for (let category in categories) {
+                    if (!categories.hasOwnProperty(category)) {
+                        continue;
+                    }
+
                     cat = categories[category];
                     title = cat.title;
-
+                    console.log(cat);
                     this.addCategory({
                         icon  : cat.icon,
                         name  : cat.name,
@@ -1164,6 +1168,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
         //region category stuff
 
+        /**
+         * @param Category
+         */
         $openXmlCategory: function (Category) {
             this.Loader.show();
 
