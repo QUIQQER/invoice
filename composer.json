@@ -1,7 +1,8 @@
 {
     "name": "quiqqer\/invoice",
     "type": "quiqqer-module",
-    "description": "",
+    "description": "The E-COYN Invoice Module integrates complete invoice management in E-COYN.",
+    "version": "1.4.0",
     "license": [
         "PCSG QEL-1.0"
     ],
