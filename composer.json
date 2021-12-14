@@ -23,7 +23,7 @@
         "quiqqer\/erp": "^1.3|dev-master|dev-dev",
         "quiqqer/customer": "^1.1|dev-master|dev-dev",
         "quiqqer\/payments": "1.*|dev-master|dev-dev",
-        "quiqqer\/payment-transactions": "1.*|dev-master|dev-dev",
+        "quiqqer\/payment-transactions": ">=1.1.3|dev-master|dev-dev",
         "quiqqer\/htmltopdf": "^2|dev-master|dev-dev",
         "ramsey\/uuid": "3.*"
     },
