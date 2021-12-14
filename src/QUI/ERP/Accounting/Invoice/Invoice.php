@@ -431,7 +431,7 @@ class Invoice extends QUI\QDOM
             /* @var $Payment QUI\ERP\Accounting\Payments\Api\AbstractPayment */
             $Payment = $Transaction->getPayment();
 
-            if ($Payment->refundSupport()) {
+            if ($Payment && $Payment->refundSupport()) {
                 return true;
             }
         }
@@ -657,13 +657,9 @@ class Invoice extends QUI\QDOM
 
         $this->addComment($reason, QUI::getUsers()->getSystemUser());
 
-        // When an invoice is canceled, the payments (if any were posted on the invoice)
-        // must be posted in the opposite direction on the cancellation invoice
-        // @todo
-
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceReversalEnd',
-            [$this]
+            [$this, $CreditNote]
         );
 
         return $CreditNote->getCleanId();
