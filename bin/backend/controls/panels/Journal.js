@@ -25,11 +25,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Journal.css',
     'css!package/quiqqer/erp/bin/backend/payment-status.css'
 
-], function (QUI, QUIPanel, QUIButton, QUISeparator, QUISelect, QUIContextMenuItem, Grid, Invoices, Dialogs,
-             TimeFilter, QUILocale, QUIAjax, Mustache, templateTotal) {
+], function (QUI, QUIPanel, QUIButton, QUISeparator, QUISelect, QUIContextMenuItem, Grid, Invoices, Dialogs, TimeFilter, QUILocale, QUIAjax, Mustache, templateTotal) {
     "use strict";
 
-    var lg = 'quiqqer/invoice';
+    const lg = 'quiqqer/invoice';
 
     return new Class({
 
@@ -66,18 +65,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.parent(options);
 
-            this.$Grid       = null;
-            this.$Status     = null;
+            this.$Grid = null;
+            this.$Status = null;
             this.$TimeFilter = null;
-            this.$Total      = null;
+            this.$Total = null;
             this.$totalsOpen = false;
-            this.$Search     = null;
-            this.$Currency   = null;
+            this.$Search = null;
+            this.$Currency = null;
 
             this.$currentSearch = '';
-            this.$searchDelay   = null;
-            this.$periodFilter  = null;
-            this.$loaded        = false;
+            this.$searchDelay = null;
+            this.$periodFilter = null;
+            this.$loaded = false;
 
             this.addEvents({
                 onCreate: this.$onCreate,
@@ -106,8 +105,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 this.$periodFilter = this.$TimeFilter.getValue();
             }
 
-            var status = '';
-            var from   = '',
+            let status = '',
+                from   = '',
                 to     = '';
 
             this.$currentSearch = this.$Search.value;
@@ -118,8 +117,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 this.enableFilter();
 
                 status = this.$Status.getValue();
-                from   = this.$TimeFilter.getValue().from;
-                to     = this.$TimeFilter.getValue().to;
+                from = this.$TimeFilter.getValue().from;
+                to = this.$TimeFilter.getValue().to;
             }
 
             this.$Grid.setAttribute('exportName', this.$TimeFilter.$Select.$placeholderText);
@@ -136,10 +135,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 search     : this.$currentSearch,
                 currency   : this.$Currency.getAttribute('value')
             }).then(function (result) {
-                var gridData = result.grid;
+                let gridData = result.grid;
 
                 gridData.data = gridData.data.map(function (entry) {
-                    var Icon = new Element('span');
+                    const Icon = new Element('span');
 
                     switch (parseInt(entry.type)) {
                         // gutschrift
@@ -180,7 +179,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     }
 
                     entry.display_type = Icon;
-                    entry.opener       = '&nbsp;';
+                    entry.opener = '&nbsp;';
 
                     if ("overdue" in entry && entry.overdue) {
                         entry.className = 'journal-grid-overdue';
@@ -193,10 +192,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 this.$Grid.setData(gridData);
                 this.$refreshButtonStatus();
 
-                this.$Total.set(
-                    'html',
-                    Mustache.render(templateTotal, result.total)
-                );
+                this.$Total.set('html', Mustache.render(templateTotal, result.total));
 
                 this.Loader.hide();
             }.bind(this)).catch(function (err) {
@@ -214,28 +210,36 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return;
             }
 
-            var selected = this.$Grid.getSelectedData(),
-                buttons  = this.$Grid.getButtons();
+            const selected = this.$Grid.getSelectedData(), buttons = this.$Grid.getButtons();
 
-            var Actions = buttons.filter(function (Button) {
+            const Actions = buttons.filter(function (Button) {
                 return Button.getAttribute('name') === 'actions';
             })[0];
 
-            var Payment = Actions.getChildren().filter(function (Button) {
+            const Payment = Actions.getChildren().filter(function (Button) {
                 return Button.getAttribute('name') === 'addPayment';
             })[0];
 
-            var PDF = buttons.filter(function (Button) {
+            const CreditNote = Actions.getChildren().filter(function (Button) {
+                return Button.getAttribute('name') === 'createCreditNote';
+            })[0];
+
+            const PDF = buttons.filter(function (Button) {
                 return Button.getAttribute('name') === 'printPdf';
             })[0];
 
-            var Open = buttons.filter(function (Button) {
+            const Open = buttons.filter(function (Button) {
                 return Button.getAttribute('name') === 'open';
             })[0];
 
+            if (selected.length === 1 && parseInt(selected[0].type) === 3) {
+                CreditNote.disable(); // a credit note can't create a credit note
+            } else {
+                CreditNote.enable();
+            }
+
             if (selected.length) {
-                if (selected[0].paid_status === 1 ||
-                    selected[0].paid_status === 5) {
+                if (selected[0].paid_status === 1 || selected[0].paid_status === 5) {
                     Payment.disable();
                 } else {
                     Payment.enable();
@@ -293,40 +297,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 }
             });
 
-            this.$Status.appendChild(
-                QUILocale.get(lg, 'journal.paidstatus.all'),
-                ''
-            );
-
-            this.$Status.appendChild(
-                QUILocale.get(lg, 'journal.paidstatus.open'),
-                Invoices.PAYMENT_STATUS_OPEN
-            );
-
-            this.$Status.appendChild(
-                QUILocale.get(lg, 'journal.paidstatus.paid'),
-                Invoices.PAYMENT_STATUS_PAID
-            );
-
-            this.$Status.appendChild(
-                QUILocale.get(lg, 'journal.paidstatus.partial'),
-                Invoices.PAYMENT_STATUS_PART
-            );
-
-            this.$Status.appendChild(
-                QUILocale.get(lg, 'journal.paidstatus.canceled'),
-                Invoices.PAYMENT_STATUS_CANCELED
-            );
-
-            this.$Status.appendChild(
-                QUILocale.get(lg, 'journal.paidstatus.debit'),
-                Invoices.PAYMENT_STATUS_DEBIT
-            );
+            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.all'), '');
+            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.open'), Invoices.PAYMENT_STATUS_OPEN);
+            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.paid'), Invoices.PAYMENT_STATUS_PAID);
+            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.partial'), Invoices.PAYMENT_STATUS_PART);
+            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.canceled'), Invoices.PAYMENT_STATUS_CANCELED);
+            this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.debit'), Invoices.PAYMENT_STATUS_DEBIT);
 
             this.addButton(this.$Status);
 
-            var self      = this,
-                Separator = new QUISeparator();
+            const self      = this,
+                  Separator = new QUISeparator();
 
             this.addButton(Separator);
 
@@ -399,9 +380,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 position: 'relative'
             });
 
-            var Container = new Element('div').inject(this.getContent());
+            const Container = new Element('div').inject(this.getContent());
 
-            var Actions = new QUIButton({
+            const Actions = new QUIButton({
                 name      : 'actions',
                 text      : QUILocale.get(lg, 'journal.btn.actions'),
                 menuCorner: 'topRight',
@@ -463,195 +444,229 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     json: true,
                     xls : true
                 },
-                buttons              : [Actions, {
-                    name     : 'open',
-                    text     : QUILocale.get(lg, 'journal.btn.open'),
-                    textimage: 'fa fa-file-o',
-                    disabled : true,
-                    events   : {
-                        onClick: this.$onClickOpenInvoice
+                buttons              : [
+                    Actions,
+                    {
+                        name     : 'open',
+                        text     : QUILocale.get(lg, 'journal.btn.open'),
+                        textimage: 'fa fa-file-o',
+                        disabled : true,
+                        events   : {
+                            onClick: this.$onClickOpenInvoice
+                        }
+                    },
+                    {
+                        name     : 'printPdf',
+                        text     : QUILocale.get(lg, 'journal.btn.pdf'),
+                        textimage: 'fa fa-print',
+                        disabled : true,
+                        events   : {
+                            onClick: this.$onPDFExportButtonClick
+                        }
                     }
-                }, {
-                    name     : 'printPdf',
-                    text     : QUILocale.get(lg, 'journal.btn.pdf'),
-                    textimage: 'fa fa-print',
-                    disabled : true,
-                    events   : {
-                        onClick: this.$onPDFExportButtonClick
+                ],
+                columnModel          : [
+                    {
+                        header         : '&nbsp;',
+                        dataIndex      : 'opener',
+                        dataType       : 'int',
+                        width          : 30,
+                        showNotInExport: true,
+                        export         : false
+                    },
+                    {
+                        header         : QUILocale.get(lg, 'journal.grid.type'),
+                        dataIndex      : 'display_type',
+                        dataType       : 'node',
+                        width          : 30,
+                        showNotInExport: true,
+                        export         : false
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
+                        dataIndex: 'id',
+                        dataType : 'integer',
+                        width    : 100
+                    },
+                    {
+                        header   : QUILocale.get('quiqqer/system', 'name'),
+                        dataIndex: 'customer_name',
+                        dataType : 'string',
+                        width    : 200,
+                        className: 'clickable',
+                        sortable : false
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.customerNo'),
+                        dataIndex: 'customer_id_display',
+                        dataType : 'string',
+                        width    : 90,
+                        className: 'clickable'
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.status'),
+                        dataIndex: 'paid_status_display',
+                        dataType : 'html',
+                        width    : 120,
+                        export   : false,
+                        className: 'grid-align-center'
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.date'),
+                        dataIndex: 'date',
+                        dataType : 'date',
+                        width    : 90
+                    },
+                    {
+                        header   : QUILocale.get('quiqqer/quiqqer', 'project'),
+                        dataIndex: 'project_name',
+                        dataType : 'string',
+                        width    : 160
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.status'),
+                        dataIndex: 'paid_status_clean',
+                        dataType : 'html',
+                        width    : 120,
+                        hidden   : true,
+                        export   : true
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.sum'),
+                        type     : 'html',
+                        dataIndex: 'display_sum',
+                        dataType : 'currency',
+                        width    : 100,
+                        className: 'payment-status-amountCell'
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.netto'),
+                        type     : 'html',
+                        dataIndex: 'display_nettosum',
+                        dataType : 'currency',
+                        width    : 100,
+                        className: 'payment-status-amountCell'
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.vat'),
+                        type     : 'html',
+                        dataIndex: 'display_vatsum',
+                        dataType : 'currency',
+                        width    : 100,
+                        className: 'payment-status-amountCell',
+                        sortable : false
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
+                        dataIndex: 'payment_title',
+                        dataType : 'string',
+                        width    : 180
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.timeForPayment'),
+                        dataIndex: 'time_for_payment',
+                        dataType : 'date',
+                        width    : 120
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.paymentDate'),
+                        dataIndex: 'paid_date',
+                        dataType : 'date',
+                        width    : 120
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.paid'),
+                        type     : 'html',
+                        dataIndex: 'display_paid',
+                        dataType : 'currency',
+                        width    : 100,
+                        className: 'payment-status-amountCell',
+                        sortable : false
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.open'),
+                        type     : 'html',
+                        dataIndex: 'display_toPay',
+                        dataType : 'currency',
+                        width    : 100,
+                        className: 'payment-status-amountCell',
+                        sortable : false
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.brutto'),
+                        dataIndex: 'display_isbrutto',
+                        dataType : 'node',
+                        width    : 50,
+                        sortable : false
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.taxId'),
+                        dataIndex: 'taxId',
+                        dataType : 'string',
+                        width    : 105
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.orderNo'),
+                        dataIndex: 'order_id',
+                        dataType : 'integer',
+                        width    : 80
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.orderDate'),
+                        dataIndex: 'order_date',
+                        dataType : 'date',
+                        width    : 140
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.dunning'),
+                        dataIndex: 'dunning_level_display',
+                        dataType : 'string',
+                        width    : 80
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.processing'),
+                        dataIndex: 'processing_status_display',
+                        dataType : 'html',
+                        width    : 150
+                    },
+                    {
+                        header   : QUILocale.get('quiqqer/system', 'c_date'),
+                        dataIndex: 'c_date',
+                        dataType : 'date',
+                        width    : 140
+                    },
+                    {
+                        header   : QUILocale.get('quiqqer/system', 'c_user'),
+                        dataIndex: 'c_username',
+                        dataType : 'string',
+                        width    : 130,
+                        sortable : false
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.hash'),
+                        dataIndex: 'hash',
+                        dataType : 'string',
+                        width    : 280,
+                        className: 'monospace'
+                    },
+                    {
+                        header   : QUILocale.get(lg, 'journal.grid.globalProcessId'),
+                        dataIndex: 'globalProcessId',
+                        dataType : 'string',
+                        width    : 280,
+                        className: 'monospace'
+                    },
+                    {
+                        dataIndex: 'payment_method',
+                        dataType : 'string',
+                        hidden   : true
+                    },
+                    {
+                        dataIndex: 'type',
+                        dataType : 'number',
+                        hidden   : true
                     }
-                }],
-                columnModel          : [{
-                    header         : '&nbsp;',
-                    dataIndex      : 'opener',
-                    dataType       : 'int',
-                    width          : 30,
-                    showNotInExport: true,
-                    export         : false
-                }, {
-                    header         : QUILocale.get(lg, 'journal.grid.type'),
-                    dataIndex      : 'display_type',
-                    dataType       : 'node',
-                    width          : 30,
-                    showNotInExport: true,
-                    export         : false
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.invoiceNo'),
-                    dataIndex: 'id',
-                    dataType : 'integer',
-                    width    : 100
-                }, {
-                    header   : QUILocale.get('quiqqer/system', 'name'),
-                    dataIndex: 'customer_name',
-                    dataType : 'string',
-                    width    : 200,
-                    className: 'clickable',
-                    sortable : false
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.customerNo'),
-                    dataIndex: 'customer_id_display',
-                    dataType : 'string',
-                    width    : 90,
-                    className: 'clickable'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.status'),
-                    dataIndex: 'paid_status_display',
-                    dataType : 'html',
-                    width    : 120,
-                    export   : false,
-                    className: 'grid-align-center'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.date'),
-                    dataIndex: 'date',
-                    dataType : 'date',
-                    width    : 90
-                }, {
-                    header   : QUILocale.get('quiqqer/quiqqer', 'project'),
-                    dataIndex: 'project_name',
-                    dataType : 'string',
-                    width    : 160
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.status'),
-                    dataIndex: 'paid_status_clean',
-                    dataType : 'html',
-                    width    : 120,
-                    hidden   : true,
-                    export   : true
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.sum'),
-                    type     : 'html',
-                    dataIndex: 'display_sum',
-                    dataType : 'currency',
-                    width    : 100,
-                    className: 'payment-status-amountCell'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.netto'),
-                    type     : 'html',
-                    dataIndex: 'display_nettosum',
-                    dataType : 'currency',
-                    width    : 100,
-                    className: 'payment-status-amountCell'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.vat'),
-                    type     : 'html',
-                    dataIndex: 'display_vatsum',
-                    dataType : 'currency',
-                    width    : 100,
-                    className: 'payment-status-amountCell',
-                    sortable : false
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentMethod'),
-                    dataIndex: 'payment_title',
-                    dataType : 'string',
-                    width    : 180
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.timeForPayment'),
-                    dataIndex: 'time_for_payment',
-                    dataType : 'date',
-                    width    : 120
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paymentDate'),
-                    dataIndex: 'paid_date',
-                    dataType : 'date',
-                    width    : 120
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.paid'),
-                    type     : 'html',
-                    dataIndex: 'display_paid',
-                    dataType : 'currency',
-                    width    : 100,
-                    className: 'payment-status-amountCell',
-                    sortable : false
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.open'),
-                    type     : 'html',
-                    dataIndex: 'display_toPay',
-                    dataType : 'currency',
-                    width    : 100,
-                    className: 'payment-status-amountCell',
-                    sortable : false
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.brutto'),
-                    dataIndex: 'display_isbrutto',
-                    dataType : 'node',
-                    width    : 50,
-                    sortable : false
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.taxId'),
-                    dataIndex: 'taxId',
-                    dataType : 'string',
-                    width    : 105
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.orderNo'),
-                    dataIndex: 'order_id',
-                    dataType : 'integer',
-                    width    : 80
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.orderDate'),
-                    dataIndex: 'order_date',
-                    dataType : 'date',
-                    width    : 140
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.dunning'),
-                    dataIndex: 'dunning_level_display',
-                    dataType : 'string',
-                    width    : 80
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.processing'),
-                    dataIndex: 'processing_status_display',
-                    dataType : 'html',
-                    width    : 150
-                }, {
-                    header   : QUILocale.get('quiqqer/system', 'c_date'),
-                    dataIndex: 'c_date',
-                    dataType : 'date',
-                    width    : 140
-                }, {
-                    header   : QUILocale.get('quiqqer/system', 'c_user'),
-                    dataIndex: 'c_username',
-                    dataType : 'string',
-                    width    : 130,
-                    sortable : false
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.hash'),
-                    dataIndex: 'hash',
-                    dataType : 'string',
-                    width    : 280,
-                    className: 'monospace'
-                }, {
-                    header   : QUILocale.get(lg, 'journal.grid.globalProcessId'),
-                    dataIndex: 'globalProcessId',
-                    dataType : 'string',
-                    width    : 280,
-                    className: 'monospace'
-                }, {
-                    dataIndex: 'payment_method',
-                    dataType : 'string',
-                    hidden   : true
-                }, {
-                    dataIndex: 'type',
-                    dataType : 'number',
-                    hidden   : true
-                }]
+                ]
             });
 
             this.$Grid.addEvents({
@@ -674,13 +689,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return;
             }
 
-            var Body = this.getContent();
+            const Body = this.getContent();
 
             if (!Body) {
                 return;
             }
 
-            var size    = Body.getSize(),
+            let size    = Body.getSize(),
                 yOffset = 20;
 
             if (this.$totalsOpen) {
@@ -695,8 +710,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * event: on inject
          */
         $onInject: function () {
-            var self  = this,
-                value = this.$Status.getValue();
+            const self  = this,
+                  value = this.$Status.getValue();
 
             if (value === '' || !value) {
                 this.$Status.setValue('');
@@ -708,7 +723,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 'package_quiqqer_currency_ajax_getAllowedCurrencies',
                 'package_quiqqer_currency_ajax_getDefault'
             ], function (currencies, currency) {
-                var i, len, entry, text;
+                let i, len, entry, text;
 
                 if (!currencies.length || currencies.length === 1) {
                     self.$Currency.hide();
@@ -721,13 +736,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     text = entry.code + ' ' + entry.sign;
                     text = text.trim();
 
-                    self.$Currency.appendChild(
-                        new QUIContextMenuItem({
-                            name : entry.code,
-                            value: entry.code,
-                            text : text
-                        })
-                    );
+                    self.$Currency.appendChild(new QUIContextMenuItem({
+                        name : entry.code,
+                        value: entry.code,
+                        text : text
+                    }));
                 }
 
                 self.$Currency.enable();
@@ -771,7 +784,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * event : on PDF Export button click
          */
         $onPDFExportButtonClick: function (Button) {
-            var selectedData = this.$Grid.getSelectedData();
+            const selectedData = this.$Grid.getSelectedData();
 
             if (!selectedData.length) {
                 return;
@@ -779,8 +792,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            var Entry = selectedData[0],
-                entityType;
+            let Entry = selectedData[0], entityType;
 
             switch (parseInt(Entry.type)) {
                 case 3:
@@ -796,10 +808,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             }
 
             return new Promise(function (resolve) {
-                require([
-                    'package/quiqqer/erp/bin/backend/controls/OutputDialog'
-                ], function (OutputDialog) {
-                    Dialogs.openPrintDialog(Entry.hash, entityType);
+                require(['package/quiqqer/erp/bin/backend/controls/OutputDialog'], function (Dialogs) {
+                    Dialogs.openPrintDialog(Entry.hash, entityType).catch((err) => {
+                        QUI.getMessageHandler().then((MH) => {
+                            MH.addError(err.getMessage());
+                        });
+                    });
                     Button.setAttribute('textimage', 'fa fa-print');
                     resolve();
                 });
@@ -810,8 +824,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * event : on payment add button click
          */
         $onAddPaymentButtonClick: function (Button) {
-            var self         = this,
-                selectedData = this.$Grid.getSelectedData();
+            const self = this, selectedData = this.$Grid.getSelectedData();
 
             if (!selectedData.length) {
                 return;
@@ -819,7 +832,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            var hash = selectedData[0].hash;
+            const hash = selectedData[0].hash;
 
             require([
                 'package/quiqqer/payment-transactions/bin/backend/controls/IncomingPayments/AddPaymentWindow'
@@ -829,12 +842,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     entityType: 'Invoice',
                     events    : {
                         onSubmit: function (Win, data) {
-                            self.addPayment(
-                                hash,
-                                data.amount,
-                                data.payment_method,
-                                data.date
-                            ).then(function () {
+                            self.addPayment(hash, data.amount, data.payment_method, data.date).then(function () {
                                 Button.setAttribute('textimage', 'fa fa-money');
                                 self.refresh();
                             });
@@ -854,14 +862,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * @return {Promise}
          */
         $onClickCopyInvoice: function () {
-            var self     = this,
-                selected = this.$Grid.getSelectedData();
+            const self = this, selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
                 return Promise.resolve(false);
             }
 
-            var hash = selected[0].hash;
+            const hash = selected[0].hash;
 
             return new Promise(function (resolve) {
                 require([
@@ -881,8 +888,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * @param {Object} data
          */
         $onClickInvoiceDetails: function (data) {
-            var row        = data.row,
-                ParentNode = data.parent;
+            const row = data.row, ParentNode = data.parent;
 
             ParentNode.setStyle('padding', 10);
             ParentNode.set('html', '<div class="fa fa-spinner fa-spin"></div>');
@@ -904,22 +910,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * @return {Promise}
          */
         $onClickOpenInvoice: function (data) {
-            if (typeof data !== 'undefined' &&
-                typeof data.cell !== 'undefined' &&
-                (data.cell.get('data-index') === 'customer_id' ||
-                    data.cell.get('data-index') === 'customer_name')) {
+            if (typeof data !== 'undefined' && typeof data.cell !== 'undefined' &&
+                (data.cell.get('data-index') === 'customer_id' || data.cell.get('data-index') === 'customer_name')) {
 
-                var self     = this,
-                    Cell     = data.cell,
-                    position = Cell.getPosition(),
-                    rowData  = this.$Grid.getDataByRow(data.row);
+                const self = this, Cell = data.cell, position = Cell.getPosition(),
+                      rowData                                 = this.$Grid.getDataByRow(data.row);
 
                 return new Promise(function (resolve) {
                     require([
                         'qui/controls/contextmenu/Menu',
                         'qui/controls/contextmenu/Item'
                     ], function (QUIMenu, QUIMenuItem) {
-                        var Menu = new QUIMenu({
+                        const Menu = new QUIMenu({
                             events: {
                                 onBlur: function () {
                                     Menu.hide();
@@ -928,31 +930,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                             }
                         });
 
-                        Menu.appendChild(
-                            new QUIMenuItem({
-                                icon  : rowData.display_type.className,
-                                text  : QUILocale.get(lg, 'journal.contextMenu.open.invoice'),
-                                events: {
-                                    onClick: function () {
-                                        self.openInvoice(rowData.hash);
-                                    }
+                        Menu.appendChild(new QUIMenuItem({
+                            icon  : rowData.display_type.className,
+                            text  : QUILocale.get(lg, 'journal.contextMenu.open.invoice'),
+                            events: {
+                                onClick: function () {
+                                    self.openInvoice(rowData.hash);
                                 }
-                            })
-                        );
+                            }
+                        }));
 
-                        Menu.appendChild(
-                            new QUIMenuItem({
-                                icon  : 'fa fa-user-o',
-                                text  : QUILocale.get(lg, 'journal.contextMenu.open.user'),
-                                events: {
-                                    onClick: function () {
-                                        require(['package/quiqqer/customer/bin/backend/Handler'], function (CustomerHandler) {
-                                            CustomerHandler.openCustomer(rowData.customer_id);
-                                        });
-                                    }
+                        Menu.appendChild(new QUIMenuItem({
+                            icon  : 'fa fa-user-o',
+                            text  : QUILocale.get(lg, 'journal.contextMenu.open.user'),
+                            events: {
+                                onClick: function () {
+                                    require(['package/quiqqer/customer/bin/backend/Handler'], function (CustomerHandler) {
+                                        CustomerHandler.openCustomer(rowData.customer_id);
+                                    });
                                 }
-                            })
-                        );
+                            }
+                        }));
 
                         Menu.inject(document.body);
                         Menu.setPosition(position.x, position.y + 30);
@@ -965,7 +963,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 });
             }
 
-            var selected = this.$Grid.getSelectedData();
+            const selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
                 return Promise.resolve();
@@ -980,14 +978,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * @return {Promise}
          */
         $onClickCreateCredit: function () {
-            var selected = this.$Grid.getSelectedData();
+            const selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
                 return Promise.resolve();
             }
 
-            var self      = this,
-                invoiceId = selected[0].hash;
+            const self = this, invoiceId = selected[0].hash;
 
             return new Promise(function (resolve) {
                 require([
@@ -1012,14 +1009,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * @return {Promise}
          */
         $onClickReversal: function () {
-            var selected = this.$Grid.getSelectedData();
+            const selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
                 return Promise.resolve();
             }
 
-            var self      = this,
-                invoiceId = selected[0].hash;
+            const self = this, invoiceId = selected[0].hash;
 
             return new Promise(function (resolve) {
                 require([
@@ -1055,7 +1051,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          */
         downloadPdf: function (invoiceId) {
             return new Promise(function (resolve) {
-                var id = 'download-invoice-' + invoiceId;
+                const id = 'download-invoice-' + invoiceId;
 
                 new Element('iframe', {
                     src   : URL_OPT_DIR + 'quiqqer/invoice/bin/backend/downloadInvoice.php?' + Object.toQueryString({
@@ -1090,7 +1086,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'package/quiqqer/invoice/bin/backend/controls/panels/Invoice',
                     'utils/Panels'
                 ], function (InvoicePanel, PanelUtils) {
-                    var Panel = new InvoicePanel({
+                    const Panel = new InvoicePanel({
                         invoiceId: invoiceId,
                         '#id'    : 'invoice-' + invoiceId
                     });
@@ -1112,16 +1108,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * @return {Promise}
          */
         addPayment: function (hash, amount, paymentMethod, date) {
-            var self = this;
+            const self = this;
 
             this.Loader.show();
 
-            return Invoices.addPaymentToInvoice(
-                hash,
-                amount,
-                paymentMethod,
-                date
-            ).then(function () {
+            return Invoices.addPaymentToInvoice(hash, amount, paymentMethod, date).then(function () {
                 return self.refresh();
             }).then(function () {
                 self.Loader.hide();
@@ -1148,18 +1139,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
         /**
          * Toggle the total display
+         *
+         * @return {Promise}
          */
         toggleTotal: function () {
             if (parseInt(this.$Total.getStyle('opacity')) === 1) {
-                this.hideTotal();
-                return;
+                return this.hideTotal();
             }
 
-            this.showTotal();
+            return this.showTotal();
         },
 
         /**
          * Show the total display
+         *
+         * @return {Promise}
          */
         showTotal: function () {
             this.getButtons('total').setActive();
@@ -1187,9 +1181,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
         /**
          * Hide the total display
+         *
+         * @return {Promise}
          */
         hideTotal: function () {
-            var self = this;
+            const self = this;
 
             this.$totalsOpen = false;
 
@@ -1236,10 +1232,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * @param {DOMEvent} event
          */
         $onSearchKeyUp: function (event) {
-            if (event.key === 'up' ||
-                event.key === 'down' ||
-                event.key === 'left' ||
-                event.key === 'right') {
+            if (event.key === 'up' || event.key === 'down' || event.key === 'left' || event.key === 'right') {
                 return;
             }
 
@@ -1266,7 +1259,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 this.$searchDelay = (function () {
                     this.refresh();
                 }).delay(250, this);
-                return;
             }
         }
     });
