@@ -154,10 +154,10 @@ class Invoice
      */
     protected static function getMissingAddressFields(InvoiceTemporary $Invoice): array
     {
-        $address  = $Invoice->getAttribute('invoice_address');
-        $missing  = [];
+        $address = $Invoice->getAttribute('invoice_address');
+        $missing = [];
         $Customer = null;
-        $Address  = null;
+        $Address = null;
 
         $addressNeedles = [
             'lastname',
@@ -175,14 +175,14 @@ class Invoice
 
             foreach ($addressNeedles as $addressNeedle) {
                 if (!isset($address[$addressNeedle])) {
-                    $missing[] = 'invoice_address_'.$addressNeedle;
+                    $missing[] = 'invoice_address_' . $addressNeedle;
                     continue;
                 }
 
                 try {
                     self::verificateField($address[$addressNeedle]);
                 } catch (QUI\Exception $Exception) {
-                    $missing[] = 'invoice_address_'.$addressNeedle;
+                    $missing[] = 'invoice_address_' . $addressNeedle;
                 }
             }
 
@@ -190,11 +190,11 @@ class Invoice
         }
 
         $customerId = $Invoice->getAttribute('customer_id');
-        $addressId  = $Invoice->getAttribute('invoice_address_id');
+        $addressId = $Invoice->getAttribute('invoice_address_id');
 
         if ($Invoice->getCustomer() === null) {
             $customerId = false;
-            $addressId  = false;
+            $addressId = false;
         }
 
         //customer
@@ -231,7 +231,7 @@ class Invoice
                 try {
                     self::verificateField($Address->getAttribute($addressNeedle));
                 } catch (QUI\Exception $Exception) {
-                    $missing[] = 'invoice_address_'.$addressNeedle;
+                    $missing[] = 'invoice_address_' . $addressNeedle;
                 }
             }
         }
@@ -255,7 +255,7 @@ class Invoice
     public static function getMissingAttributeMessage(string $missingAttribute): string
     {
         $Locale = QUI::getLocale();
-        $lg     = 'quiqqer/invoice';
+        $lg = 'quiqqer/invoice';
 
         switch ($missingAttribute) {
             case 'customer_id':
@@ -303,7 +303,7 @@ class Invoice
             return $message;
         }
 
-        throw new Exception('Missing Field not found: '.$missingAttribute);
+        throw new Exception('Missing Field not found: ' . $missingAttribute);
     }
 
     /**
@@ -340,7 +340,7 @@ class Invoice
         foreach ($articles['articles'] as $key => $article) {
             foreach ($fields as $field) {
                 if (isset($article[$field])) {
-                    $articles['articles'][$key]['display_'.$field] = $Currency->format($article[$field]);
+                    $articles['articles'][$key]['display_' . $field] = $Currency->format($article[$field]);
                 }
             }
         }
@@ -398,18 +398,18 @@ class Invoice
         $date = $Invoice->getAttribute('date');
         $date = \strtotime($date);
 
-        $year  = \date('Y', $date);
+        $year = \date('Y', $date);
         $month = \date('m', $date);
-        $day   = \date('d', $date);
+        $day = \date('d', $date);
 
         $placeholders = [
-            '%HASH%'  => $Invoice->getHash(),
-            '%ID%'    => $Invoice->getCleanId(),
-            '%INO%'   => $Invoice->getId(),
-            '%DATE%'  => $Formatter->format($date),
-            '%YEAR%'  => $year,
+            '%HASH%' => $Invoice->getHash(),
+            '%ID%' => $Invoice->getCleanId(),
+            '%INO%' => $Invoice->getId(),
+            '%DATE%' => $Formatter->format($date),
+            '%YEAR%' => $year,
             '%MONTH%' => $month,
-            '%DAY%'   => $day
+            '%DAY%' => $day
         ];
 
         if ($Locale === null) {
@@ -460,8 +460,8 @@ class Invoice
         if ($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
             $timeForPayment = (int)$timeForPayment;
 
-            if ($timeForPayment) {
-                $timeForPayment = \strtotime('+'.$timeForPayment.' day');
+            if ($timeForPayment || $timeForPayment === 0) {
+                $timeForPayment = \strtotime('+' . $timeForPayment . ' day');
             }
         } else {
             $timeForPayment = \strtotime($timeForPayment);
@@ -486,7 +486,7 @@ class Invoice
         }
 
         return \array_map(function ($data) use ($Currency) {
-            return $data['text'].': '.$Currency->format($data['sum']);
+            return $data['text'] . ': ' . $Currency->format($data['sum']);
         }, $vatArray);
     }
 
