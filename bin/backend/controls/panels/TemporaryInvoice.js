@@ -1707,12 +1707,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          */
         $clickDelete: function () {
             const self = this;
+            const invoiceId = this.getAttribute('invoiceId');
 
             new QUIConfirm({
                 title      : QUILocale.get(lg, 'dialog.ti.delete.title'),
                 text       : QUILocale.get(lg, 'dialog.ti.delete.text'),
                 information: QUILocale.get(lg, 'dialog.ti.delete.information', {
-                    id: this.getAttribute('invoiceId')
+                    invoices: '<ul><li>' + invoiceId + '</li></ul>'
                 }),
                 icon       : 'fa fa-trash',
                 texticon   : 'fa fa-trash',
@@ -1740,8 +1741,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         /**
          * event : on invoice deletion
          */
-        $onDeleteInvoice: function () {
-            this.destroy();
+        $onDeleteInvoice: function (Invoices, invoiceId) {
+            if (invoiceId === this.getAttribute('invoiceId')) {
+                this.destroy();
+            }
         },
 
         /**

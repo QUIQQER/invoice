@@ -248,11 +248,14 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @returns {Promise}
          */
         createInvoice: function () {
-            var self = this;
+            const self = this;
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_create', function (newId) {
-                    self.fireEvent('createInvoice', [self, newId]);
+                    self.fireEvent('createInvoice', [
+                        self,
+                        newId
+                    ]);
                     resolve(newId);
                 }, {
                     'package': 'quiqqer/invoice',
@@ -272,13 +275,16 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @returns {Promise}
          */
         createCreditNote: function (invoiceId, data) {
-            var self = this;
+            const self = this;
 
             data = data || {};
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_createCreditNote', function (newId) {
-                    self.fireEvent('createCreditNote', [self, newId]);
+                    self.fireEvent('createCreditNote', [
+                        self,
+                        newId
+                    ]);
                     resolve(newId);
                 }, {
                     'package'  : 'quiqqer/invoice',
@@ -298,11 +304,15 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @returns {Promise}
          */
         reversalInvoice: function (invoiceId, reason) {
-            var self = this;
+            const self = this;
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_reversal', function (reversalHash) {
-                    self.fireEvent('createCreditNote', [self, invoiceId, reversalHash]);
+                    self.fireEvent('createCreditNote', [
+                        self,
+                        invoiceId,
+                        reversalHash
+                    ]);
                     resolve({
                         invoiceId   : invoiceId,
                         reversalHash: reversalHash
@@ -334,10 +344,13 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @returns {Promise}
          */
         deleteInvoice: function (invoiceId) {
-            var self = this;
+            const self = this;
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_delete', function () {
-                    self.fireEvent('deleteInvoice', [self, invoiceId]);
+                    self.fireEvent('deleteInvoice', [
+                        self,
+                        invoiceId
+                    ]);
                     resolve();
                 }, {
                     'package': 'quiqqer/invoice',
@@ -356,11 +369,15 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @returns {Promise}
          */
         saveInvoice: function (invoiceId, data) {
-            var self = this;
+            const self = this;
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_save', function (result) {
-                    self.fireEvent('saveInvoice', [self, invoiceId, data]);
+                    self.fireEvent('saveInvoice', [
+                        self,
+                        invoiceId,
+                        data
+                    ]);
                     resolve(result);
                 }, {
                     'package': 'quiqqer/invoice',
@@ -379,11 +396,15 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @return {Promise} - [hash]
          */
         postInvoice: function (invoiceId) {
-            var self = this;
+            const self = this;
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_post', function (hash) {
-                    self.fireEvent('postInvoice', [self, invoiceId, hash]);
+                    self.fireEvent('postInvoice', [
+                        self,
+                        invoiceId,
+                        hash
+                    ]);
                     resolve(hash);
                 }, {
                     'package': 'quiqqer/invoice',
@@ -400,11 +421,15 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @return {Promise}
          */
         copyInvoice: function (invoiceId) {
-            var self = this;
+            const self = this;
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_copy', function (id) {
-                    self.fireEvent('copyInvoice', [self, invoiceId, id]);
+                    self.fireEvent('copyInvoice', [
+                        self,
+                        invoiceId,
+                        id
+                    ]);
                     resolve(id);
                 }, {
                     'package': 'quiqqer/invoice',
@@ -442,14 +467,22 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @param {Number|String} [date]
          */
         addPaymentToInvoice: function (invoiceId, amount, paymentMethod, date) {
-            var self = this;
+            const self = this;
 
             date = date || false;
 
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_addPayment', function (id) {
-                    self.fireEvent('addPaymentToInvoice', [self, invoiceId, id]);
-                    QUI.fireEvent('quiqqerInvoiceAddPaymentToInvoice', [self, invoiceId, id]);
+                    self.fireEvent('addPaymentToInvoice', [
+                        self,
+                        invoiceId,
+                        id
+                    ]);
+                    QUI.fireEvent('quiqqerInvoiceAddPaymentToInvoice', [
+                        self,
+                        invoiceId,
+                        id
+                    ]);
                     resolve(id);
                 }, {
                     'package'    : 'quiqqer/invoice',
@@ -552,10 +585,14 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
          * @returns {Promise}
          */
         copyTemporaryInvoice: function (invoiceId) {
-            var self = this;
+            const self = this;
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_temporary_copy', function (newId) {
-                    self.fireEvent('copyInvoice', [self, invoiceId, newId]);
+                    self.fireEvent('copyInvoice', [
+                        self,
+                        invoiceId,
+                        newId
+                    ]);
                     resolve(newId);
                 }, {
                     'package': 'quiqqer/invoice',
