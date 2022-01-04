@@ -297,6 +297,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         }
                     });
 
+
+                    this.fireEvent('categoryCreate', [
+                        this,
+                        Actions
+                    ]);
+
+                    QUI.fireEvent('quiqqerInvoiceCategoryCreate', [
+                        this,
+                        Actions
+                    ]);
                 }
             }, {
                 'package': 'quiqqer/invoice'
