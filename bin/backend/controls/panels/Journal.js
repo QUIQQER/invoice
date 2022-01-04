@@ -427,6 +427,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 }
             });
 
+            this.fireEvent('actionButtonCreate', [
+                this,
+                Actions
+            ]);
+
+            QUI.fireEvent('quiqqerInvoiceActionButtonCreate', [
+                this,
+                Actions
+            ]);
+
 
             this.$Grid = new Grid(Container, {
                 storageKey           : 'quiqqer-invoice-grid-journal',
