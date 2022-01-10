@@ -235,16 +235,16 @@ class Invoice extends QUI\QDOM
      */
     public function getArticles(): ArticleListUnique
     {
+        try {
+            $Currency = $this->getCurrency();
+        } catch (QUI\Exception $Exception) {
+            $Currency = QUI\ERP\Defaults::getCurrency();
+        }
+
         $articles = $this->getAttribute('articles');
 
         if (\is_string($articles)) {
             $articles = \json_decode($articles, true);
-        }
-
-        try {
-            $articles['calculations']['currencyData'] = $this->getCurrency()->toArray();
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeDebugException($Exception);
         }
 
         $List = new ArticleListUnique($articles, $this->getCustomer());
