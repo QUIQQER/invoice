@@ -6,6 +6,7 @@
 
 namespace QUI\ERP\Accounting\Invoice;
 
+use IntlDateFormatter;
 use QUI;
 use QUI\ERP\Customer\CustomerFiles;
 use QUI\Permissions\Permission;
@@ -14,6 +15,17 @@ use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Output\Output as ERPOutput;
+
+use function array_key_exists;
+use function class_exists;
+use function date;
+use function is_array;
+use function is_string;
+use function json_decode;
+use function json_encode;
+use function str_replace;
+use function strtotime;
+use function time;
 
 /**
  * Class Invoice
@@ -57,7 +69,7 @@ class Invoice extends QUI\QDOM
      *
      * @var int
      */
-    protected $type;
+    protected int $type;
 
     /**
      * @var string
@@ -67,7 +79,7 @@ class Invoice extends QUI\QDOM
     /**
      * @var int
      */
-    protected $id;
+    protected int $id;
 
     /**
      * @var string
@@ -115,7 +127,7 @@ class Invoice extends QUI\QDOM
             $this->prefix = Settings::getInstance()->getInvoicePrefix();
         }
 
-        $this->id = (int)\str_replace($this->prefix, '', $id);
+        $this->id   = (int)str_replace($this->prefix, '', $id);
         $this->type = Handler::TYPE_INVOICE;
 
         switch ((int)$this->getAttribute('type')) {
@@ -129,11 +141,11 @@ class Invoice extends QUI\QDOM
         }
 
         if ($this->getAttribute('data')) {
-            $this->data = \json_decode($this->getAttribute('data'), true);
+            $this->data = json_decode($this->getAttribute('data'), true);
         }
 
         if ($this->getAttribute('custom_data')) {
-            $this->customData = \json_decode($this->getAttribute('custom_data'), true);
+            $this->customData = json_decode($this->getAttribute('custom_data'), true);
         }
 
         if ($this->getAttribute('global_process_id')) {
@@ -143,9 +155,9 @@ class Invoice extends QUI\QDOM
         // invoice payment data
         if ($this->getAttribute('payment_data')) {
             $paymentData = QUI\Security\Encryption::decrypt($this->getAttribute('payment_data'));
-            $paymentData = \json_decode($paymentData, true);
+            $paymentData = json_decode($paymentData, true);
 
-            if (\is_array($paymentData)) {
+            if (is_array($paymentData)) {
                 $this->paymentData = $paymentData;
             }
         }
@@ -153,9 +165,9 @@ class Invoice extends QUI\QDOM
         // shipping
         if ($this->getAttribute('shipping_id')) {
             $shippingData = $this->getAttribute('shipping_data');
-            $shippingData = \json_decode($shippingData, true);
+            $shippingData = json_decode($shippingData, true);
 
-            if (!\class_exists('QUI\ERP\Shipping\Types\ShippingUnique')) {
+            if (!class_exists('QUI\ERP\Shipping\Types\ShippingUnique')) {
                 $this->Shipping = new QUI\ERP\Shipping\Types\ShippingUnique($shippingData);
             }
         }
@@ -166,10 +178,10 @@ class Invoice extends QUI\QDOM
             !empty($this->getAttribute('contact_person'))
         ) {
             $invoiceAddress = $this->getAttribute('invoice_address');
-            $invoiceAddress = \json_decode($invoiceAddress, true);
+            $invoiceAddress = json_decode($invoiceAddress, true);
 
             $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
-            $this->setAttribute('invoice_address', \json_encode($invoiceAddress));
+            $this->setAttribute('invoice_address', json_encode($invoiceAddress));
         }
     }
 
@@ -211,7 +223,7 @@ class Invoice extends QUI\QDOM
      */
     public function getCleanId(): int
     {
-        return (int)\str_replace($this->prefix, '', $this->getId());
+        return (int)str_replace($this->prefix, '', $this->getId());
     }
 
     /**
@@ -243,8 +255,8 @@ class Invoice extends QUI\QDOM
 
         $articles = $this->getAttribute('articles');
 
-        if (\is_string($articles)) {
-            $articles = \json_decode($articles, true);
+        if (is_string($articles)) {
+            $articles = json_decode($articles, true);
         }
 
         $List = new ArticleListUnique($articles, $this->getCustomer());
@@ -285,8 +297,8 @@ class Invoice extends QUI\QDOM
             return QUI\ERP\Defaults::getCurrency();
         }
 
-        if (\is_string($currency)) {
-            $currency = \json_decode($currency, true);
+        if (is_string($currency)) {
+            $currency = json_decode($currency, true);
         }
 
         if (!$currency || !isset($currency['code'])) {
@@ -310,15 +322,15 @@ class Invoice extends QUI\QDOM
     public function getCustomer(): QUI\ERP\User
     {
         $invoiceAddress = $this->getAttribute('invoice_address');
-        $customerData = $this->getAttribute('customer_data');
+        $customerData   = $this->getAttribute('customer_data');
 
-        if (\is_string($customerData)) {
-            $customerData = \json_decode($customerData, true);
+        if (is_string($customerData)) {
+            $customerData = json_decode($customerData, true);
         }
 
         // address
-        if (\is_string($invoiceAddress)) {
-            $invoiceAddress = \json_decode($invoiceAddress, true);
+        if (is_string($invoiceAddress)) {
+            $invoiceAddress = json_decode($invoiceAddress, true);
         }
 
         $userData = $customerData;
@@ -374,7 +386,7 @@ class Invoice extends QUI\QDOM
 
         QUI\ERP\Accounting\Calc::calculatePayments($this);
 
-        // the status is another as calced, to we must update the invoice data
+        // the status is another as canceled, to we must update the invoice data
         if ($this->getAttribute('paid_status') !== $oldStatus) {
             $this->calculatePayments();
         }
@@ -399,7 +411,7 @@ class Invoice extends QUI\QDOM
      */
     public function getPaymentDataEntry(string $key)
     {
-        if (\array_key_exists($key, $this->paymentData)) {
+        if (array_key_exists($key, $this->paymentData)) {
             return $this->paymentData[$key];
         }
 
@@ -472,8 +484,8 @@ class Invoice extends QUI\QDOM
             return new Payment([]);
         }
 
-        if (\is_string($data)) {
-            $data = \json_decode($data, true);
+        if (is_string($data)) {
+            $data = json_decode($data, true);
         }
 
         return new Payment($data);
@@ -501,7 +513,7 @@ class Invoice extends QUI\QDOM
      */
     public function getInvoiceType(): int
     {
-        return (int)$this->type;
+        return $this->type;
     }
 
     /**
@@ -518,7 +530,7 @@ class Invoice extends QUI\QDOM
      */
     public function reversal(string $reason, $PermissionUser = null): int
     {
-        // is cancelation / reversal possible?
+        // is canceled / reversal possible?
         if (!Settings::getInstance()->get('invoice', 'storno')) {
             // @todo implement credit note
             throw new Exception([
@@ -588,18 +600,18 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->getCurrent()
         );
 
-        $Formatter = new \IntlDateFormatter(
+        $Formatter = new IntlDateFormatter(
             $localeCode[0],
-            \IntlDateFormatter::SHORT,
-            \IntlDateFormatter::NONE
+            IntlDateFormatter::SHORT,
+            IntlDateFormatter::NONE
         );
 
         $currentDate = $this->getAttribute('date');
 
         if (!$currentDate) {
-            $currentDate = \time();
+            $currentDate = time();
         } else {
-            $currentDate = \strtotime($currentDate);
+            $currentDate = strtotime($currentDate);
         }
 
         $message = $this->getCustomer()->getLocale()->get(
@@ -649,7 +661,7 @@ class Invoice extends QUI\QDOM
             Handler::getInstance()->invoiceTable(),
             [
                 'type'        => $this->type,
-                'data'        => \json_encode($this->data),
+                'data'        => json_encode($this->data),
                 'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
             ],
             ['id' => $this->getCleanId()]
@@ -737,7 +749,7 @@ class Invoice extends QUI\QDOM
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
-        $New = $Factory->createInvoice($User);
+        $New     = $Factory->createInvoice($User);
 
         $currentData = QUI::getDataBase()->fetch([
             'from'  => $Handler->invoiceTable(),
@@ -758,15 +770,15 @@ class Invoice extends QUI\QDOM
 
         // Invoice Address
         $invoiceAddressId = '';
-        $invoiceAddress = '';
+        $invoiceAddress   = '';
 
         if ($this->getAttribute('invoice_address')) {
             try {
-                $address = \json_decode($this->getAttribute('invoice_address'), true);
+                $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
                 $invoiceAddressId = $Address->getId();
-                $invoiceAddress = $Address->toJSON();
+                $invoiceAddress   = $Address->toJSON();
             } catch (\Exception $Exception) {
                 QUI\System\Log::addDebug($Exception->getMessage());
             }
@@ -853,7 +865,7 @@ class Invoice extends QUI\QDOM
             [$this]
         );
 
-        $Copy = $this->copy(QUI::getUsers()->getSystemUser(), $globalProcessId);
+        $Copy     = $this->copy(QUI::getUsers()->getSystemUser(), $globalProcessId);
         $articles = $Copy->getArticles()->getArticles();
 
         // change all prices
@@ -862,7 +874,7 @@ class Invoice extends QUI\QDOM
         $ArticleList->setCurrency($this->getCurrency());
 
         foreach ($articles as $Article) {
-            $article = $Article->toArray();
+            $article              = $Article->toArray();
             $article['unitPrice'] = $article['unitPrice'] * -1;
 
             $Clone = new QUI\ERP\Accounting\Article($article);
@@ -870,7 +882,7 @@ class Invoice extends QUI\QDOM
         }
 
         $PriceFactors = $ArticleList->getPriceFactors();
-        $Currency = $this->getCurrency();
+        $Currency     = $this->getCurrency();
 
         /* @var $PriceFactor QUI\ERP\Accounting\PriceFactors\Factor */
         foreach ($PriceFactors as $PriceFactor) {
@@ -895,18 +907,18 @@ class Invoice extends QUI\QDOM
             QUI::getLocale()->getCurrent()
         );
 
-        $Formatter = new \IntlDateFormatter(
+        $Formatter = new IntlDateFormatter(
             $localeCode[0],
-            \IntlDateFormatter::SHORT,
-            \IntlDateFormatter::NONE
+            IntlDateFormatter::SHORT,
+            IntlDateFormatter::NONE
         );
 
         $currentDate = $this->getAttribute('date');
 
         if (!$currentDate) {
-            $currentDate = \time();
+            $currentDate = time();
         } else {
-            $currentDate = \strtotime($currentDate);
+            $currentDate = strtotime($currentDate);
         }
 
         $message = $this->getCustomer()->getLocale()->get(
@@ -930,18 +942,18 @@ class Invoice extends QUI\QDOM
         $Copy->setData('originalId', $this->getCleanId());
         $Copy->setData('originalIdPrefixed', $this->getId());
 
-        $Copy->setAttribute('date', \date('Y-m-d H:i:s'));
+        $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
         $Copy->setInvoiceType(Handler::TYPE_INVOICE_CREDIT_NOTE);
 
         if ($this->getAttribute('invoice_address')) {
             try {
-                $address = \json_decode($this->getAttribute('invoice_address'), true);
+                $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
                 $invoiceAddressId = $Address->getId();
-                $invoiceAddress = $Address->toJSON();
+                $invoiceAddress   = $Address->toJSON();
 
                 $Copy->setAttribute('invoice_address_id', $invoiceAddressId);
                 $Copy->setAttribute('invoice_address', $invoiceAddress);
@@ -1005,10 +1017,10 @@ class Invoice extends QUI\QDOM
 
         QUI\ERP\Debug::getInstance()->log('Order:: add transaction start');
 
-        $User = QUI::getUserBySession();
+        $User     = QUI::getUserBySession();
         $paidData = $this->getAttribute('paid_data');
-        $amount = Price::validatePrice($Transaction->getAmount());
-        $date = $Transaction->getDate();
+        $amount   = Price::validatePrice($Transaction->getAmount());
+        $date     = $Transaction->getDate();
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddTransactionBegin',
@@ -1024,8 +1036,8 @@ class Invoice extends QUI\QDOM
             return;
         }
 
-        if (!\is_array($paidData)) {
-            $paidData = \json_decode($paidData, true);
+        if (!is_array($paidData)) {
+            $paidData = json_decode($paidData, true);
         }
 
         if ($date === false) {
@@ -1058,10 +1070,10 @@ class Invoice extends QUI\QDOM
         };
 
         if ($isValidTimeStamp($date) === false) {
-            $date = \strtotime($date);
+            $date = strtotime($date);
 
             if ($isValidTimeStamp($date) === false) {
-                $date = \time();
+                $date = time();
             }
         }
 
@@ -1251,7 +1263,7 @@ class Invoice extends QUI\QDOM
      */
     public function sendTo(string $recipient, $template = false)
     {
-        $type = $this->getInvoiceType();
+        $type       = $this->getInvoiceType();
         $outputType = 'Invoice';
 
         switch ($type) {
@@ -1303,7 +1315,7 @@ class Invoice extends QUI\QDOM
             <img><table><tbody><td><tfoot><th><thead><tr>'
         );
 
-        $User = QUI::getUserBySession();
+        $User     = QUI::getUserBySession();
         $comments = $this->getAttribute('comments');
         $Comments = QUI\ERP\Comments::unserialize($comments);
 
@@ -1404,7 +1416,7 @@ class Invoice extends QUI\QDOM
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
-            ['custom_data' => \json_encode($this->customData)],
+            ['custom_data' => json_encode($this->customData)],
             ['id' => $this->getCleanId()]
         );
 
@@ -1500,8 +1512,7 @@ class Invoice extends QUI\QDOM
             ]
         );
 
-        if ($CurrentStatus && $CurrentStatus->getId() !== $Status->getId()
-            || !$CurrentStatus) {
+        if ($CurrentStatus && $CurrentStatus->getId() !== $Status->getId() || !$CurrentStatus) {
             QUI::getEvents()->fireEvent(
                 'quiqqerInvoiceProcessingStatusChange',
                 [
@@ -1605,7 +1616,7 @@ class Invoice extends QUI\QDOM
             'options' => $options
         ];
 
-        $customerFiles = $this->getCustomerFiles();
+        $customerFiles   = $this->getCustomerFiles();
         $customerFiles[] = $fileEntry;
 
         $this->data['customer_files'] = $customerFiles;
@@ -1613,7 +1624,7 @@ class Invoice extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
             [
-                'data' => \json_encode($this->data)
+                'data' => json_encode($this->data)
             ],
             [
                 'id' => $this->getCleanId()
@@ -1633,7 +1644,7 @@ class Invoice extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
             [
-                'data' => \json_encode($this->data)
+                'data' => json_encode($this->data)
             ],
             [
                 'id' => $this->getCleanId()
