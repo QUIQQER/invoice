@@ -818,7 +818,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             }
 
             return new Promise(function (resolve) {
-                require(['package/quiqqer/erp/bin/backend/controls/OutputDialog'], function (Dialogs) {
+                require(['package/quiqqer/invoice/bin/backend/utils/Dialogs'], function (Dialogs) {
                     Dialogs.openPrintDialog(Entry.hash, entityType).catch((err) => {
                         QUI.getMessageHandler().then((MH) => {
                             MH.addError(err.getMessage());
