@@ -13,7 +13,13 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_delete',
     function ($invoiceId) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Temporary = $Invoices->getTemporaryInvoice($invoiceId);
+
+        try {
+            $Temporary = $Invoices->getTemporaryInvoiceByHash($invoiceId);
+        } catch (QUI\Exception $Exception) {
+            $Temporary = $Invoices->getTemporaryInvoice($invoiceId);
+        }
+
         $Temporary->delete();
     },
     ['invoiceId'],
