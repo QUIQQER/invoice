@@ -13,21 +13,11 @@
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_addComment',
     function ($invoiceId, $comment) {
-        $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice  = null;
-
         try {
-            $Invoice = $Invoices->getInvoice($invoiceId);
+            $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
         } catch (\Exception $Exception) {
             QUI\System\Log::addDebug($Exception->getMessage());
-        }
-
-        if ($Invoice === null) {
-            try {
-                $Invoice = $Invoices->getTemporaryInvoice($invoiceId);
-            } catch (\Exception $Exception) {
-                QUI\System\Log::addDebug($Exception->getMessage());
-            }
+            throw $Exception;
         }
 
         $Invoice->addComment($comment);
