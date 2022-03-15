@@ -176,6 +176,17 @@ class OutputProviderInvoice implements OutputProviderInterface
             $globalInvoiceText = QUI::getLocale()->get('quiqqer/invoice', 'global.invoice.text');
         }
 
+        // order number
+        $orderNumber = '';
+        
+        if ($InvoiceView->getAttribute('order_id')) {
+            try {
+                $Order       = QUI\ERP\Order\Handler::getInstance()->getOrderById($InvoiceView->getAttribute('order_id'));
+                $orderNumber = $Order->getPrefixedId();
+            } catch (QUI\Exception $Exception) {
+            }
+        }
+
         return [
             'this'              => $InvoiceView,
             'ArticleList'       => $Articles,
@@ -187,7 +198,8 @@ class OutputProviderInvoice implements OutputProviderInterface
             'transaction'       => $InvoiceView->getTransactionText(),
             'projectName'       => $Invoice->getAttribute('project_name'),
             'useShipping'       => QUI::getPackageManager()->isInstalled('quiqqer/shipping'),
-            'globalInvoiceText' => $globalInvoiceText
+            'globalInvoiceText' => $globalInvoiceText,
+            'orderNumber'       => $orderNumber
         ];
     }
 
