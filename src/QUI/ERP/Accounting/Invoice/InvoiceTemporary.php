@@ -705,9 +705,8 @@ class InvoiceTemporary extends QUI\QDOM
         );
 
         // attributes
-        $projectName    = '';
-        $timeForPayment = null;
-        $date           = '';
+        $projectName = '';
+        $date        = '';
 
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
 
@@ -778,7 +777,6 @@ class InvoiceTemporary extends QUI\QDOM
                 $invoiceAddressId = $invoiceAddressCheck['id'];
             }
         }
-
 
         $this->Articles->calc();
         $listCalculations = $this->Articles->getCalculations();

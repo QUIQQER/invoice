@@ -416,10 +416,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 OrderedBy.setAttribute('showAddressName', false);
 
                 Data.addEvent('onChange', function () {
-                    if (self.renderDataDone === false) {
-                        return;
-                    }
-
                     const Customer = Data.getValue();
                     let userId     = Customer.userId;
 
