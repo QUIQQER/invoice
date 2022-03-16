@@ -117,25 +117,23 @@ class OutputProviderInvoice implements OutputProviderInterface
             ]);
         }
 
-        $Editor    = $Invoice->getEditor();
-        $addressId = $Invoice->getAttribute('invoice_address_id');
-        $address   = [];
+        $Editor = $Invoice->getEditor();
 
-        if ($Invoice->getAttribute('invoice_address')) {
-            $address = \json_decode($Invoice->getAttribute('invoice_address'), true);
-        }
-
-        if (!empty($address)) {
-            $Address = new QUI\ERP\Address($address, $Customer);
+        try {
+            $Address = $Customer->getStandardAddress();
             $Address->clearMail();
             $Address->clearPhone();
-        } else {
-            try {
-                $Address = $Customer->getAddress($addressId);
-                $Address->clearMail();
-                $Address->clearPhone();
-            } catch (QUI\Exception $Exception) {
-                $Address = null;
+        } catch (QUI\Exception $Exception) {
+            $Address = null;
+
+            if ($Invoice->getAttribute('invoice_address')) {
+                $address = \json_decode($Invoice->getAttribute('invoice_address'), true);
+
+                if (!empty($address)) {
+                    $Address = new QUI\ERP\Address($address, $Customer);
+                    $Address->clearMail();
+                    $Address->clearPhone();
+                }
             }
         }
 
@@ -178,7 +176,7 @@ class OutputProviderInvoice implements OutputProviderInterface
 
         // order number
         $orderNumber = '';
-        
+
         if ($InvoiceView->getAttribute('order_id')) {
             try {
                 $Order       = QUI\ERP\Order\Handler::getInstance()->getOrderById($InvoiceView->getAttribute('order_id'));
