@@ -375,6 +375,10 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         if (!empty($invoiceAddress)) {
+            if (!empty($this->getAttribute('contact_person'))) {
+                $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
+            }
+
             $userData['address'] = $invoiceAddress;
 
             if (empty($userData['firstname']) && !empty($invoiceAddress['firstname'])) {
