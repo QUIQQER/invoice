@@ -353,6 +353,8 @@ class InvoiceTemporary extends QUI\QDOM
             'email'     => $User->getAttribute('email')
         ];
 
+        $Customer = false;
+
         try {
             $Customer = QUI\ERP\User::convertUserToErpUser($User);
             $userData = $Customer->getAttributes();
@@ -388,10 +390,6 @@ class InvoiceTemporary extends QUI\QDOM
             if (empty($userData['lastname']) && !empty($invoiceAddress['lastname'])) {
                 $userData['lastname'] = $invoiceAddress['lastname'];
             }
-        }
-
-        if (!empty($this->getAttribute('contact_person'))) {
-            $userData['quiqqer.erp.customer.contact.person'] = $this->getAttribute('contact_person');
         }
 
         if (empty($userData['country'])) {
@@ -767,8 +765,9 @@ class InvoiceTemporary extends QUI\QDOM
                 $invoiceAddressCheck['contactEmail'] = $contactEmail;
 
                 $invoiceAddress = \json_encode($invoiceAddressCheck);
-            } else {
+            } elseif (\is_array($invoiceAddress)) {
                 $invoiceAddress['contactEmail'] = $contactEmail;
+                $invoiceAddress                 = \json_encode($invoiceAddress);
             }
 
             if (!$invoiceAddressCheck) {
