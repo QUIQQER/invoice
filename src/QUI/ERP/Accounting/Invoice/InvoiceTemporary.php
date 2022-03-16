@@ -7,12 +7,27 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
+use QUI\ERP\Accounting\ArticleList;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Customer\CustomerFiles;
 use QUI\Utils\Security\Orthos;
 
-use QUI\ERP\Accounting\ArticleList;
-use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
-use QUI\ERP\Accounting\Invoice\ProcessingStatus;
-use QUI\ERP\Customer\CustomerFiles;
+use function array_flip;
+use function class_exists;
+use function date;
+use function is_array;
+use function is_numeric;
+use function is_string;
+use function json_decode;
+use function json_encode;
+use function json_last_error;
+use function mb_strpos;
+use function str_replace;
+use function strip_tags;
+use function strtotime;
+
+use const JSON_ERROR_NONE;
 
 /**
  * Class InvoiceTemporary
@@ -38,7 +53,7 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * @var string
      */
-    protected $prefix;
+    protected string $prefix;
 
     /**
      * @var string
@@ -53,7 +68,7 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * @var int
      */
-    protected $type;
+    protected int $type;
 
     /**
      * @var array
@@ -75,27 +90,27 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * @var array
      */
-    protected $articles = [];
+    protected array $articles = [];
 
     /**
      * @var ArticleList
      */
-    protected $Articles;
+    protected ArticleList $Articles;
 
     /**
      * @var QUI\ERP\Comments
      */
-    protected $Comments;
+    protected QUI\ERP\Comments $Comments;
 
     /**
      * @var QUI\ERP\Comments
      */
-    protected $History;
+    protected QUI\ERP\Comments $History;
 
     /**
      * @var integer|null
      */
-    protected $shippingId = null;
+    protected ?int $shippingId = null;
 
     /**
      * @var array
@@ -103,9 +118,9 @@ class InvoiceTemporary extends QUI\QDOM
     protected $addressDelivery = [];
 
     /**
-     * @var null
+     * @var null|QUI\ERP\Currency\Currency
      */
-    protected $Currency = null;
+    protected ?QUI\ERP\Currency\Currency $Currency = null;
 
     /**
      * Invoice constructor.
@@ -121,16 +136,16 @@ class InvoiceTemporary extends QUI\QDOM
         $data = $Handler->getTemporaryInvoiceData($id);
 
         $this->prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
-        $this->id     = (int)\str_replace($this->prefix, '', $id);
+        $this->id     = (int)str_replace($this->prefix, '', $id);
 
         $this->Articles = new ArticleList();
         $this->History  = new QUI\ERP\Comments();
         $this->Comments = new QUI\ERP\Comments();
 
         if (!empty($data['delivery_address'])) {
-            $deliveryAddressData = \json_decode($data['delivery_address'], true);
+            $deliveryAddressData = json_decode($data['delivery_address'], true);
 
-            if (\json_last_error() === \JSON_ERROR_NONE) {
+            if (json_last_error() === JSON_ERROR_NONE) {
                 $this->addressDelivery = $deliveryAddressData;
             } else {
                 $this->addressDelivery = false;
@@ -151,7 +166,7 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         if (isset($data['articles'])) {
-            $articles = \json_decode($data['articles'], true);
+            $articles = json_decode($data['articles'], true);
 
             if ($articles) {
                 try {
@@ -180,21 +195,21 @@ class InvoiceTemporary extends QUI\QDOM
 
 
         // invoice extra data
-        $this->data = \json_decode($data['data'], true);
+        $this->data = json_decode($data['data'], true);
 
-        if (!\is_array($this->data)) {
+        if (!is_array($this->data)) {
             $this->data = [];
         }
 
         if ($data['custom_data']) {
-            $this->customData = \json_decode($data['custom_data'], true);
+            $this->customData = json_decode($data['custom_data'], true);
         }
 
         // invoice payment data
         $paymentData = QUI\Security\Encryption::decrypt($data['payment_data']);
-        $paymentData = \json_decode($paymentData, true);
+        $paymentData = json_decode($paymentData, true);
 
-        if (\is_array($paymentData)) {
+        if (is_array($paymentData)) {
             $this->paymentData = $paymentData;
         }
 
@@ -240,14 +255,14 @@ class InvoiceTemporary extends QUI\QDOM
             !empty($this->getAttribute('contact_person'))
         ) {
             $invoiceAddress = $this->getAttribute('invoice_address');
-            $invoiceAddress = \json_decode($invoiceAddress, true);
+            $invoiceAddress = json_decode($invoiceAddress, true);
 
             $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
-            $this->setAttribute('invoice_address', \json_encode($invoiceAddress));
+            $this->setAttribute('invoice_address', json_encode($invoiceAddress));
         }
 
         // shipping
-        if (\is_numeric($data['shipping_id'])) {
+        if (is_numeric($data['shipping_id'])) {
             $this->shippingId = (int)$data['shipping_id'];
         }
 
@@ -279,7 +294,7 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function getId(): string
     {
-        return $this->prefix.$this->id;
+        return $this->prefix . $this->id;
     }
 
     /**
@@ -289,7 +304,7 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function getCleanId(): int
     {
-        return (int)\str_replace($this->prefix, '', $this->getId());
+        return (int)str_replace($this->prefix, '', $this->getId());
     }
 
     /**
@@ -364,8 +379,8 @@ class InvoiceTemporary extends QUI\QDOM
 
 
         // address
-        if (\is_string($invoiceAddress)) {
-            $invoiceAddress = \json_decode($invoiceAddress, true);
+        if (is_string($invoiceAddress)) {
+            $invoiceAddress = json_decode($invoiceAddress, true);
         }
 
         if (!isset($userData['isCompany'])) {
@@ -417,7 +432,7 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function setCurrency($currency)
     {
-        if (\is_string($currency)) {
+        if (is_string($currency)) {
             try {
                 $currency = QUI\ERP\Currency\Handler::getCurrency($currency);
             } catch (QUI\Exception $Exception) {
@@ -455,8 +470,8 @@ class InvoiceTemporary extends QUI\QDOM
             return QUI\ERP\Defaults::getCurrency();
         }
 
-        if (\is_string($currency)) {
-            $currency = \json_decode($currency, true);
+        if (is_string($currency)) {
+            $currency = json_decode($currency, true);
         }
 
         if (!$currency || !isset($currency['code'])) {
@@ -644,7 +659,7 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->type = $type;
-        $typeTitle  = QUI::getLocale()->get('quiqqer/invoice', 'invoice.type.'.$type);
+        $typeTitle  = QUI::getLocale()->get('quiqqer/invoice', 'invoice.type.' . $type);
 
         $this->addHistory(
             QUI::getLocale()->get(
@@ -744,7 +759,7 @@ class InvoiceTemporary extends QUI\QDOM
             );
 
             $invoiceAddressData = $this->getAttribute('invoice_address');
-            $invoiceAddressData = \json_decode($invoiceAddressData, true);
+            $invoiceAddressData = json_decode($invoiceAddressData, true);
 
             if ($invoiceAddressData) {
                 $Address->setAttributes($invoiceAddressData);
@@ -760,14 +775,14 @@ class InvoiceTemporary extends QUI\QDOM
             $invoiceAddress      = $this->getAttribute('invoice_address');
             $invoiceAddressCheck = false;
 
-            if (\is_string($invoiceAddress)) {
-                $invoiceAddressCheck                 = \json_decode($invoiceAddress, true);
+            if (is_string($invoiceAddress)) {
+                $invoiceAddressCheck                 = json_decode($invoiceAddress, true);
                 $invoiceAddressCheck['contactEmail'] = $contactEmail;
 
-                $invoiceAddress = \json_encode($invoiceAddressCheck);
-            } elseif (\is_array($invoiceAddress)) {
+                $invoiceAddress = json_encode($invoiceAddressCheck);
+            } elseif (is_array($invoiceAddress)) {
                 $invoiceAddress['contactEmail'] = $contactEmail;
-                $invoiceAddress                 = \json_encode($invoiceAddress);
+                $invoiceAddress                 = json_encode($invoiceAddress);
             }
 
             if (!$invoiceAddressCheck) {
@@ -811,7 +826,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'vatId' => $this->getCustomer()->getAttribute('quiqqer.erp.euVatId')
             ]);
 
-            if (\mb_strpos($invoiceText, $extraText) === false) {
+            if (mb_strpos($invoiceText, $extraText) === false) {
                 $invoiceText .= $extraText;
             }
         }
@@ -871,7 +886,7 @@ class InvoiceTemporary extends QUI\QDOM
         // processing status
         $processingStatus = null;
 
-        if (\is_numeric($this->getAttribute('processing_status'))) {
+        if (is_numeric($this->getAttribute('processing_status'))) {
             $processingStatus = (int)$this->getAttribute('processing_status');
 
             try {
@@ -920,7 +935,7 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // payments
                 'payment_method'          => $paymentMethod,
-                'payment_data'            => QUI\Security\Encryption::encrypt(\json_encode($this->paymentData)),
+                'payment_data'            => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
                 'payment_time'            => null,
 
                 // address
@@ -943,7 +958,7 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // invoice data
                 'date'                    => $date,
-                'data'                    => \json_encode($this->data),
+                'data'                    => json_encode($this->data),
                 'articles'                => $this->Articles->toJSON(),
                 'history'                 => $this->History->toJSON(),
                 'comments'                => $this->Comments->toJSON(),
@@ -952,12 +967,12 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // Calc data
                 'isbrutto'                => $isBrutto,
-                'currency_data'           => \json_encode($this->getCurrency()->toArray()),
+                'currency_data'           => json_encode($this->getCurrency()->toArray()),
                 'currency'                => $this->getCurrency()->getCode(),
                 'nettosum'                => $listCalculations['nettoSum'],
                 'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
                 'sum'                     => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
-                'vat_array'               => \json_encode($listCalculations['vatArray'])
+                'vat_array'               => json_encode($listCalculations['vatArray'])
             ],
             [
                 'id' => $this->getCleanId()
@@ -1102,7 +1117,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // data
         $User     = QUI::getUserBySession();
-        $date     = \date('Y-m-d H:i:s'); // invoice date, to today
+        $date     = date('Y-m-d H:i:s'); // invoice date, to today
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
         $Customer = $this->getCustomer();
         $Handler  = Handler::getInstance();
@@ -1189,8 +1204,8 @@ class InvoiceTemporary extends QUI\QDOM
             $paymentTime = 0;
         }
 
-        $timeForPayment = \strtotime(\date('Y-m-d').' 00:00 + '.$paymentTime.' days');
-        $timeForPayment = \date('Y-m-d', $timeForPayment);
+        $timeForPayment = strtotime(date('Y-m-d') . ' 00:00 + ' . $paymentTime . ' days');
+        $timeForPayment = date('Y-m-d', $timeForPayment);
         $timeForPayment .= ' 23:59:59';
 
 
@@ -1216,7 +1231,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         $uniqueList['calculations']['sum']    = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['sum']);
         $uniqueList['calculations']['subSum'] = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['subSum']);
-        $uniqueList                           = \json_encode($uniqueList);
+        $uniqueList                           = json_encode($uniqueList);
 
         //shipping
         $shippingId   = null;
@@ -1241,7 +1256,7 @@ class InvoiceTemporary extends QUI\QDOM
         // processing status
         $processingStatus = null;
 
-        if (\is_numeric($this->getAttribute('processing_status'))) {
+        if (is_numeric($this->getAttribute('processing_status'))) {
             $processingStatus = (int)$this->getAttribute('processing_status');
 
             try {
@@ -1283,9 +1298,9 @@ class InvoiceTemporary extends QUI\QDOM
             // if invoice hash exist, we need a new hash
             $this->setAttribute('hash', QUI\Utils\Uuid::get());
             $this->getComments()->addComment(
-                'A new hash has been created. The hash already existed.'.
-                'Old Hash: '.$oldHash.
-                'New Hash: '.$this->getAttribute('hash')
+                'A new hash has been created. The hash already existed.' .
+                'Old Hash: ' . $oldHash .
+                'New Hash: ' . $this->getAttribute('hash')
             );
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
@@ -1310,7 +1325,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'ordered_by_name'          => $orderedByName,
                 'contact_person'           => $contactPerson,
                 'customer_id'              => $this->getCustomer()->getId(),
-                'customer_data'            => \json_encode($customerData),
+                'customer_data'            => json_encode($customerData),
 
                 // addresses
                 'invoice_address'          => $invoiceAddress,
@@ -1318,8 +1333,8 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // payments
                 'payment_method'           => $this->getAttribute('payment_method'),
-                'payment_method_data'      => \json_encode($paymentMethodData),
-                'payment_data'             => QUI\Security\Encryption::encrypt(\json_encode($this->paymentData)),
+                'payment_method_data'      => json_encode($paymentMethodData),
+                'payment_data'             => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
                 'payment_time'             => null,
                 'time_for_payment'         => $timeForPayment,
 
@@ -1337,23 +1352,23 @@ class InvoiceTemporary extends QUI\QDOM
                 'hash'                     => $this->getAttribute('hash'),
                 'project_name'             => $this->getAttribute('project_name'),
                 'date'                     => $date,
-                'data'                     => \json_encode($this->data),
+                'data'                     => json_encode($this->data),
                 'additional_invoice_text'  => $this->getAttribute('additional_invoice_text'),
                 'transaction_invoice_text' => $this->getView()->getTransactionText(),
                 'articles'                 => $uniqueList,
                 'history'                  => $this->getHistory()->toJSON(),
                 'comments'                 => $this->getComments()->toJSON(),
-                'custom_data'              => \json_encode($this->customData),
+                'custom_data'              => json_encode($this->customData),
 
                 // calculation data
                 'isbrutto'                 => $isBrutto === QUI\ERP\Utils\User::IS_BRUTTO_USER ? 1 : 0,
-                'currency_data'            => \json_encode($this->getCurrency()->toArray()),
+                'currency_data'            => json_encode($this->getCurrency()->toArray()),
                 'currency'                 => $this->getCurrency()->getCode(),
                 'nettosum'                 => $listCalculations['nettoSum'],
                 'nettosubsum'              => $listCalculations['nettoSubSum'],
                 'subsum'                   => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
                 'sum'                      => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
-                'vat_array'                => \json_encode($listCalculations['vatArray'])
+                'vat_array'                => json_encode($listCalculations['vatArray'])
             ]
         );
 
@@ -1395,7 +1410,7 @@ class InvoiceTemporary extends QUI\QDOM
             QUI::getDataBase()->update(
                 $Handler->invoiceTable(),
                 [
-                    'paid_data'   => \json_encode($calculation['paidData']),
+                    'paid_data'   => json_encode($calculation['paidData']),
                     'paid_date'   => (int)$calculation['paidDate'],
                     'paid_status' => (int)$calculation['paidStatus']
                 ],
@@ -1538,7 +1553,7 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function importArticles($articles = [])
     {
-        if (!\is_array($articles)) {
+        if (!is_array($articles)) {
             $articles = [];
         }
 
@@ -1550,7 +1565,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         foreach ($articles as $article) {
             try {
-                if (isset($article['class']) && \class_exists($article['class'])) {
+                if (isset($article['class']) && class_exists($article['class'])) {
                     $Article = new $article['class']($article);
 
                     if ($Article instanceof QUI\ERP\Accounting\Article) {
@@ -1598,7 +1613,7 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function addComment(string $message)
     {
-        $message = \strip_tags(
+        $message = strip_tags(
             $message,
             '<div><span><pre><p><br><hr>
             <ul><ol><li><dl><dt><dd><strong><em><b><i><u>
@@ -1677,7 +1692,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
-            ['custom_data' => \json_encode($this->customData)],
+            ['custom_data' => json_encode($this->customData)],
             ['id' => $this->getCleanId()]
         );
 
@@ -1813,7 +1828,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function lock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-'.$this->getId();
+        $key     = 'temporary-invoice-' . $this->getId();
 
         QUI\Lock\Locker::lock($Package, $key);
     }
@@ -1828,7 +1843,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function unlock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-'.$this->getId();
+        $key     = 'temporary-invoice-' . $this->getId();
 
         QUI\Lock\Locker::unlock($Package, $key);
     }
@@ -1843,7 +1858,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function isLocked(): bool
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-'.$this->getId();
+        $key     = 'temporary-invoice-' . $this->getId();
 
         return QUI\Lock\Locker::isLocked($Package, $key);
     }
@@ -1857,7 +1872,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function checkLocked()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-'.$this->getId();
+        $key     = 'temporary-invoice-' . $this->getId();
 
         QUI\Lock\Locker::checkLocked($Package, $key);
     }
@@ -1912,7 +1927,7 @@ class InvoiceTemporary extends QUI\QDOM
             return null;
         }
 
-        if (!\class_exists('QUI\ERP\Shipping\Shipping')) {
+        if (!class_exists('QUI\ERP\Shipping\Shipping')) {
             return null;
         }
 
@@ -1993,7 +2008,7 @@ class InvoiceTemporary extends QUI\QDOM
             return;
         }
 
-        if (\is_array($address)) {
+        if (is_array($address)) {
             $this->addressDelivery = $this->parseAddressData($address);
         }
     }
@@ -2004,7 +2019,7 @@ class InvoiceTemporary extends QUI\QDOM
      */
     protected function parseAddressData(array $address): array
     {
-        $fields = \array_flip([
+        $fields = array_flip([
             'id',
             'salutation',
             'firstname',
