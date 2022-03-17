@@ -518,6 +518,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 address.userId        = self.getAttribute('customer_id');
                 address.addressId     = self.getAttribute('invoice_address_id');
                 address.contactPerson = self.getAttribute('contact_person') ? self.getAttribute('contact_person') : '';
+                address.contactEmail  = self.getAttribute('contactEmail') ? self.getAttribute('contactEmail') : '';
 
                 return Data.setValue(address);
             }).then(function () {
