@@ -8,13 +8,13 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use IntlDateFormatter;
 use QUI;
-use QUI\ERP\Customer\CustomerFiles;
-use QUI\Permissions\Permission;
-use QUI\ERP\Money\Price;
 use QUI\ERP\Accounting\ArticleListUnique;
-use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use QUI\ERP\Customer\CustomerFiles;
+use QUI\ERP\Money\Price;
 use QUI\ERP\Output\Output as ERPOutput;
+use QUI\Permissions\Permission;
 
 use function array_key_exists;
 use function class_exists;
@@ -24,6 +24,7 @@ use function is_string;
 use function json_decode;
 use function json_encode;
 use function str_replace;
+use function strip_tags;
 use function strtotime;
 use function time;
 
@@ -873,9 +874,38 @@ class Invoice extends QUI\QDOM
         $ArticleList->clear();
         $ArticleList->setCurrency($this->getCurrency());
 
+        $priceKeyList = [
+            'price',
+            'basisPrice',
+            'nettoPriceNotRounded',
+            'sum',
+            'nettoSum',
+            'nettoSubSum',
+            'nettoPrice',
+            'nettoBasisPrice',
+            'unitPrice',
+        ];
+
         foreach ($articles as $Article) {
-            $article              = $Article->toArray();
-            $article['unitPrice'] = $article['unitPrice'] * -1;
+            $article = $Article->toArray();
+
+            foreach ($priceKeyList as $priceKey) {
+                if (isset($article[$priceKey])) {
+                    $article[$priceKey] = $article[$priceKey] * -1;
+                }
+            }
+
+            if (isset($article['calculated'])) {
+                foreach ($priceKeyList as $priceKey) {
+                    if (isset($article['calculated'][$priceKey])) {
+                        $article['calculated'][$priceKey] = $article['calculated'][$priceKey] * -1;
+                    }
+                }
+            }
+
+            if (isset($article['calculated']['vatArray'])) {
+                $article['calculated']['vatArray']['sum'] = $article['calculated']['vatArray']['sum'] * -1;
+            }
 
             $Clone = new QUI\ERP\Accounting\Article($article);
             $ArticleList->addArticle($Clone);
@@ -1308,7 +1338,7 @@ class Invoice extends QUI\QDOM
             $PermissionUser
         );
 
-        $comment = \strip_tags(
+        $comment = strip_tags(
             $comment,
             '<div><span><pre><p><br><hr>
             <ul><ol><li><dl><dt><dd><strong><em><b><i><u>
