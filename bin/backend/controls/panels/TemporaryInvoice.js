@@ -520,6 +520,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 address.contactPerson = self.getAttribute('contact_person') ? self.getAttribute('contact_person') : '';
                 address.contactEmail  = self.getAttribute('contactEmail') ? self.getAttribute('contactEmail') : '';
 
+                if (self.getAttribute('contactEmail')) {
+                    address.contactEmail = self.getAttribute('contactEmail');
+                }
+
                 return Data.setValue(address);
             }).then(function () {
                 // delivery address
