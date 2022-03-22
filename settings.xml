@@ -30,6 +30,10 @@
                 <conf name="productDescriptionSource">
                     <type>integer</type>
                 </conf>
+                <conf name="includeQrCode">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[0]]></defaultvalue>
+                </conf>
             </section>
 
             <section name="temporaryInvoice">
@@ -161,6 +165,17 @@
                             <description>
                                 <locale group="quiqqer/invoice"
                                         var="invoice.settings.invoice.productDescriptionSource.description"/>
+                            </description>
+                        </input>
+
+                        <input type="checkbox" conf="invoice.includeQrCode">
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.includeQrCode"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.includeQrCode.description"/>
                             </description>
                         </input>
                     </settings>

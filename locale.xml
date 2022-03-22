@@ -524,6 +524,14 @@
             You can create a product field at <b>Administration -> Shop -> Product fields</b> with type text (normal or multilangual).
             ]]></en>
         </locale>
+        <locale name="invoice.settings.invoice.includeQrCode">
+            <de><![CDATA[EPC-QR-Code (GiroCode) auf Rechnung anzeigen]]></de>
+            <en><![CDATA[Show EPC QR code on invoice]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.includeQrCode.description">
+            <de><![CDATA[Auf Rechnungen mit Zahlungsart Rechnung und Vorkasse soll ein EPC-QR-Code (auch "GiroCode") angezeigt werden. Mit diesem können alle nötigen Zahlungsinformationen für SEPA-Überweisungen in gängigen Banking-Apps über das Scannen des QR-Codes verfügbar gemacht werden.]]></de>
+            <en><![CDATA[An EPC QR code is to be displayed on invoices with payment methods invoice and prepayment. With this, all necessary payment information for SEPA transfers can be made available in common banking apps by scanning the QR code.]]></en>
+        </locale>
 
         <locale name="invoice.send.mail.message.description" html="true">
             <de><![CDATA[
@@ -1637,6 +1645,10 @@
 
     <groups name="quiqqer/invoice" datatype="php">
 
+        <locale name="OutputProvider.epc_qr_code_purpose">
+            <de><![CDATA[Rechnung [invoiceNo]]]></de>
+            <en><![CDATA[Invoice [invoiceNo]]]></en>
+        </locale>
         <locale name="exception.Invoice.addCustomerFile.no_customer">
             <de><![CDATA[Die Rechnung hat noch keinen zugewiesenen Kunden. Bitte weise der Rechnung zuerst einen Kunden zu, bevor du der Rechnung Kunden-Dateien zuweist.]]></de>
             <en><![CDATA[The invoice does not have an assigned customer yet. Please assign a customer to the invoice first before assigning customer files to the invoice.]]></en>

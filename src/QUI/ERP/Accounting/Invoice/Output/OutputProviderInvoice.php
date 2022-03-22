@@ -8,6 +8,13 @@ use QUI\ERP\Output\OutputProviderInterface;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\Interfaces\Users\User;
 use QUI\Locale;
+use chillerlan\QRCode\QROptions;
+use chillerlan\QRCode\QRCode;
+use QUI\ERP\Payments\SEPA\Provider as SepaProvider;
+use QUI\ERP\BankAccounts\Handler as BankAccounts;
+use QUI\ERP\Accounting\Invoice\Settings;
+use QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment as AdvancePayment;
+use QUI\ERP\Accounting\Payments\Methods\Invoice\Payment as InvoicePayment;
 
 /**
  * Class OutputProvider
@@ -185,6 +192,13 @@ class OutputProviderInvoice implements OutputProviderInterface
             }
         }
 
+        // EPC QR Code
+        $epcQrCodeImageSrc = false;
+
+        if (Settings::getInstance()->isIncludeQrCode()) {
+            $epcQrCodeImageSrc = self::getEpcQrCodeImageImgSrc($Invoice);
+        }
+
         return [
             'this'              => $InvoiceView,
             'ArticleList'       => $Articles,
@@ -197,7 +211,8 @@ class OutputProviderInvoice implements OutputProviderInterface
             'projectName'       => $Invoice->getAttribute('project_name'),
             'useShipping'       => QUI::getPackageManager()->isInstalled('quiqqer/shipping'),
             'globalInvoiceText' => $globalInvoiceText,
-            'orderNumber'       => $orderNumber
+            'orderNumber'       => $orderNumber,
+            'epcQrCodeImageSrc' => $epcQrCodeImageSrc
         ];
     }
 
@@ -435,5 +450,109 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         return $Formatter->format($date);
+    }
+
+    /**
+     * Get raw base64 img src for EPC QR code.
+     *
+     * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
+     * @return string|false - Raw <img> "src" attribute with base64 image data or false if code can or must not be generated.
+     */
+    protected static function getEpcQrCodeImageImgSrc($Invoice)
+    {
+        try {
+            // Check currency (must be EUR)
+            if ($Invoice->getCurrency()->getCode() !== 'EUR') {
+                return false;
+            }
+
+            // Check payment type (must be "invoice" or "pay in advance")
+            $paymentTypeClassName = $Invoice->getPayment()->getPaymentType();
+
+            $allowedPaymentTypeClasses = [
+                AdvancePayment::class,
+                InvoicePayment::class
+            ];
+
+            if (!\in_array($paymentTypeClassName, $allowedPaymentTypeClasses)) {
+                return false;
+            }
+
+            $varDir = QUI::getPackage('quiqqer/invoice')->getVarDir();
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            return false;
+        }
+
+
+        // Prefer bank account set in SEPA module if available
+        if (QUI::getPackageManager()->isInstalled('quiqqer/payment-sepa')) {
+            $creditorBankAccount = SepaProvider::getCreditorBankAccount();
+        } else {
+            $creditorBankAccount = BankAccounts::getCompanyBankAccount();
+        }
+
+        $requiredFields = [
+            'accountHolder',
+            'iban',
+            'bic',
+        ];
+
+        foreach ($requiredFields as $requiredField) {
+            if (empty($creditorBankAccount[$requiredField])) {
+                return false;
+            }
+        }
+
+        try {
+            $paidStatus = $Invoice->getPaidStatusInformation();
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            return false;
+        }
+
+
+        $amount = $paidStatus['toPay'];
+
+        if ($amount <= 0) {
+            return false;
+        }
+
+        $purposeText = QUI::getLocale()->get(
+            'quiqqer/invoice',
+            'OutputProvider.epc_qr_code_purpose',
+            [
+                'invoiceNo' => $Invoice->getId()
+            ]
+        );
+
+        // @todo Warnung, wenn $purposeText zu lang
+
+        // See
+        $qrCodeLines = [
+            'BCD',
+            '002',
+            '1', // UTF-8
+            'SCT',
+            $creditorBankAccount['bic'],
+            $creditorBankAccount['accountHolder'],
+            $creditorBankAccount['iban'],
+            'EUR'.\number_format($amount, 2, '.', ''),
+            '',
+            '',
+            $purposeText
+        ];
+
+        $qrCodeText = \implode(\PHP_EOL, $qrCodeLines);
+
+        $QrOptions = new QROptions([
+            'version'        => QRCode::VERSION_AUTO,
+            'outputType'     => QRCode::OUTPUT_IMAGE_PNG,
+            'eccLevel'       => QRCode::ECC_M,
+            'pngCompression' => -1
+        ]);
+
+        $QrCode = new QRCode($QrOptions);
+        return $QrCode->render($qrCodeText);
     }
 }

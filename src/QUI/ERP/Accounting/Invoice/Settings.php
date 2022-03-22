@@ -230,5 +230,22 @@ class Settings extends Singleton
         return $first['name'];
     }
 
+    /**
+     * Check if EPC QR code shall be included.
+     *
+     * @return bool
+     */
+    public function isIncludeQrCode(): bool
+    {
+        try {
+            $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+            return false;
+        }
+
+        return !empty($Config->getValue('invoice', 'includeQrCode'));
+    }
+
     //endregion
 }
