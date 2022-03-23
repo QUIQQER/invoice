@@ -8,6 +8,14 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 
+use function array_flip;
+use function explode;
+use function is_numeric;
+use function is_string;
+use function mb_strtoupper;
+use function str_replace;
+use function strpos;
+
 /**
  * Class Handler
  * - Maintains invoices
@@ -229,7 +237,7 @@ class Handler extends QUI\Utils\Singleton
      * @param array $params - search params
      * @return array
      */
-    public function searchTemporaryInvoices($params = [])
+    public function searchTemporaryInvoices(array $params = []): array
     {
         $query = [
             'from'  => $this->temporaryInvoiceTable(),
@@ -267,7 +275,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @throws QUI\DataBase\Exception
      */
-    public function countTemporaryInvoices($queryParams = [])
+    public function countTemporaryInvoices(array $queryParams = []): int
     {
         $query = [
             'from'  => $this->temporaryInvoiceTable(),
@@ -298,7 +306,7 @@ class Handler extends QUI\Utils\Singleton
      * Return an Invoice
      * Alias for getInvoice()
      *
-     * @param string $id - ID of the Invoice or InvoiceTemporary
+     * @param string|int $id - ID of the Invoice or InvoiceTemporary
      * @return InvoiceTemporary|Invoice
      *
      * @throws QUI\Exception
@@ -307,7 +315,7 @@ class Handler extends QUI\Utils\Singleton
     {
         $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
 
-        if (\strpos($id, $prefix) !== false) {
+        if (strpos($id, $prefix) !== false) {
             return $this->getTemporaryInvoice($id);
         }
 
@@ -317,13 +325,13 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return an Invoice
      *
-     * @param string $id - ID of the Invoice
+     * @param string|int $id - ID of the Invoice
      * @return Invoice
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoice($id)
+    public function getInvoice($id): Invoice
     {
         return new Invoice($id, $this);
     }
@@ -337,7 +345,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoiceByHash($hash)
+    public function getInvoiceByHash(string $hash): Invoice
     {
         $result = QUI::getDataBase()->fetch([
             'select' => 'id',
@@ -348,9 +356,11 @@ class Handler extends QUI\Utils\Singleton
             'limit'  => 1
         ]);
 
+        $hash = QUI\Utils\Security\Orthos::clear($hash);
+
         if (!isset($result[0])) {
             throw new Exception(
-                ['quiqqer/invoice', 'exception.invoice.not.found'],
+                ['quiqqer/invoice', 'exception.invoice.not.found', ['id' => $hash]],
                 404
             );
         }
@@ -367,13 +377,14 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoiceData($id)
+    public function getInvoiceData($id): array
     {
         $prefix = Settings::getInstance()->getInvoicePrefix();
+        $hash   = QUI\Utils\Security\Orthos::clear($id);
 
-        if (!\is_numeric(\str_replace($prefix, '', $id))) {
+        if (!is_numeric(str_replace($prefix, '', $id))) {
             throw new Exception(
-                ['quiqqer/invoice', 'exception.invoice.not.found'],
+                ['quiqqer/invoice', 'exception.invoice.not.found', ['id' => $hash]],
                 404
             );
         }
@@ -381,14 +392,14 @@ class Handler extends QUI\Utils\Singleton
         $result = QUI::getDataBase()->fetch([
             'from'  => self::invoiceTable(),
             'where' => [
-                'id' => (int)\str_replace($prefix, '', $id)
+                'id' => (int)str_replace($prefix, '', $id)
             ],
             'limit' => 1
         ]);
 
         if (!isset($result[0])) {
             throw new Exception(
-                ['quiqqer/invoice', 'exception.invoice.not.found'],
+                ['quiqqer/invoice', 'exception.invoice.not.found', ['id' => $hash]],
                 404
             );
         }
@@ -416,7 +427,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @return string
      */
-    public function temporaryInvoiceTable()
+    public function temporaryInvoiceTable(): string
     {
         return QUI::getDBTableName(self::TABLE_TEMPORARY_INVOICE);
     }
@@ -424,13 +435,13 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return a temporary invoice
      *
-     * @param string $id - ID of the Invoice
+     * @param string|int $id - ID of the Invoice
      * @return InvoiceTemporary
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getTemporaryInvoice($id)
+    public function getTemporaryInvoice($id): InvoiceTemporary
     {
         return new InvoiceTemporary($id, $this);
     }
@@ -444,7 +455,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getTemporaryInvoiceByHash($hash)
+    public function getTemporaryInvoiceByHash(string $hash): InvoiceTemporary
     {
         $result = QUI::getDataBase()->fetch([
             'select' => 'id',
@@ -455,9 +466,11 @@ class Handler extends QUI\Utils\Singleton
             'limit'  => 1
         ]);
 
+        $hash = QUI\Utils\Security\Orthos::clear($hash);
+
         if (!isset($result[0])) {
             throw new Exception(
-                ['quiqqer/invoice', 'exception.temporary.invoice.not.found'],
+                ['quiqqer/invoice', 'exception.temporary.invoice.not.found', ['id' => $hash]],
                 404
             );
         }
@@ -468,27 +481,29 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return the data from a temporary invoice
      *
-     * @param string $id
+     * @param string|int $id
      * @return array
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getTemporaryInvoiceData($id)
+    public function getTemporaryInvoiceData($id): array
     {
         $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
 
         $result = QUI::getDataBase()->fetch([
             'from'  => self::temporaryInvoiceTable(),
             'where' => [
-                'id' => (int)\str_replace($prefix, '', $id)
+                'id' => (int)str_replace($prefix, '', $id)
             ],
             'limit' => 1
         ]);
 
+        $id = QUI\Utils\Security\Orthos::clear($id);
+
         if (!isset($result[0])) {
             throw new Exception(
-                ['quiqqer/invoice', 'exception.temporary.invoice.not.found'],
+                ['quiqqer/invoice', 'exception.temporary.invoice.not.found', ['id' => $id]],
                 404
             );
         }
@@ -527,7 +542,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @throws QUI\DataBase\Exception
      */
-    public function getInvoicesByGlobalProcessId($processId)
+    public function getInvoicesByGlobalProcessId($processId): array
     {
         $result = [];
 
@@ -567,7 +582,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * @return array
      */
-    protected function getOrderGroupFields()
+    protected function getOrderGroupFields(): array
     {
         return [
             'id',
@@ -603,14 +618,14 @@ class Handler extends QUI\Utils\Singleton
      * @param $str
      * @return bool
      */
-    protected function canBeUseAsOrderField($str)
+    protected function canBeUseAsOrderField($str): bool
     {
-        if (!\is_string($str)) {
+        if (!is_string($str)) {
             return false;
         }
 
-        $fields = \array_flip($this->getOrderGroupFields());
-        $str    = \explode(' ', $str);
+        $fields = array_flip($this->getOrderGroupFields());
+        $str    = explode(' ', $str);
 
         if (!isset($fields[$str[0]])) {
             return false;
@@ -620,8 +635,8 @@ class Handler extends QUI\Utils\Singleton
             return true;
         }
 
-        if (\mb_strtoupper($fields[$str[1]]) === 'DESC' ||
-            \mb_strtoupper($fields[$str[1]]) === 'ASC') {
+        if (mb_strtoupper($fields[$str[1]]) === 'DESC' ||
+            mb_strtoupper($fields[$str[1]]) === 'ASC') {
             return true;
         }
 

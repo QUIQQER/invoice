@@ -529,8 +529,10 @@
             <en><![CDATA[Show EPC QR code on invoice]]></en>
         </locale>
         <locale name="invoice.settings.invoice.includeQrCode.description">
-            <de><![CDATA[Auf Rechnungen mit Zahlungsart Rechnung und Vorkasse soll ein EPC-QR-Code (auch "GiroCode") angezeigt werden. Mit diesem können alle nötigen Zahlungsinformationen für SEPA-Überweisungen in gängigen Banking-Apps über das Scannen des QR-Codes verfügbar gemacht werden.]]></de>
-            <en><![CDATA[An EPC QR code is to be displayed on invoices with payment methods invoice and prepayment. With this, all necessary payment information for SEPA transfers can be made available in common banking apps by scanning the QR code.]]></en>
+            <de>
+                <![CDATA[Auf Rechnungen mit Zahlungsart Rechnung und Vorkasse soll ein EPC-QR-Code (auch "GiroCode") angezeigt werden. Mit diesem können alle nötigen Zahlungsinformationen für SEPA-Überweisungen in gängigen Banking-Apps über das Scannen des QR-Codes verfügbar gemacht werden.]]></de>
+            <en>
+                <![CDATA[An EPC QR code is to be displayed on invoices with payment methods invoice and prepayment. With this, all necessary payment information for SEPA transfers can be made available in common banking apps by scanning the QR code.]]></en>
         </locale>
 
         <locale name="invoice.send.mail.message.description" html="true">
@@ -775,10 +777,12 @@
     </groups>
 
     <groups name="quiqqer/invoice" datatype="js">
-        
+
         <locale name="controls.panels.TemporaryInvoice.invoice_files_no_customer">
-            <de><![CDATA[Bitte wähle zuerst einen Kunden für diese Rechnung aus, um Kunden-Dateien mit dieser Rechnung verknüpfen zu können.]]></de>
-            <en><![CDATA[Please select a customer for this invoice first to be able to link customer files to this invoice.]]></en>
+            <de>
+                <![CDATA[Bitte wähle zuerst einen Kunden für diese Rechnung aus, um Kunden-Dateien mit dieser Rechnung verknüpfen zu können.]]></de>
+            <en>
+                <![CDATA[Please select a customer for this invoice first to be able to link customer files to this invoice.]]></en>
         </locale>
 
         <locale name="journal.btn.paymentBook">
@@ -1277,8 +1281,10 @@
             <en><![CDATA[Prevents posting of invoice drafts]]></en>
         </locale>
         <locale name="processingStatus.tpl.descPreventInvoicePosting">
-            <de><![CDATA[Rechnungsentwürfe mit diesem Status können <b>nicht gebucht</b> werden, solange sie diesen Status innehaben. Sinnvoll für Status, die eine manuelle Überprüfung einer Rechnung erfordern.]]></de>
-            <en><![CDATA[Draft invoices with this status can <b>not be posted</b> as long as they have this status. Useful for statuses that require manual review of an invoice.]]></en>
+            <de>
+                <![CDATA[Rechnungsentwürfe mit diesem Status können <b>nicht gebucht</b> werden, solange sie diesen Status innehaben. Sinnvoll für Status, die eine manuelle Überprüfung einer Rechnung erfordern.]]></de>
+            <en>
+                <![CDATA[Draft invoices with this status can <b>not be posted</b> as long as they have this status. Useful for statuses that require manual review of an invoice.]]></en>
         </locale>
 
         <locale name="dialog.processingStatus.create.title">
@@ -1650,10 +1656,12 @@
             <en><![CDATA[Invoice [invoiceNo]]]></en>
         </locale>
         <locale name="exception.Invoice.addCustomerFile.no_customer">
-            <de><![CDATA[Die Rechnung hat noch keinen zugewiesenen Kunden. Bitte weise der Rechnung zuerst einen Kunden zu, bevor du der Rechnung Kunden-Dateien zuweist.]]></de>
-            <en><![CDATA[The invoice does not have an assigned customer yet. Please assign a customer to the invoice first before assigning customer files to the invoice.]]></en>
+            <de>
+                <![CDATA[Die Rechnung hat noch keinen zugewiesenen Kunden. Bitte weise der Rechnung zuerst einen Kunden zu, bevor du der Rechnung Kunden-Dateien zuweist.]]></de>
+            <en>
+                <![CDATA[The invoice does not have an assigned customer yet. Please assign a customer to the invoice first before assigning customer files to the invoice.]]></en>
         </locale>
-        
+
         <locale name="RestApi.Provider.invoice.comment.source">
             <de><![CDATA[Rechnung erstellt über REST API. Herkunft: [source]]]></de>
             <en><![CDATA[Invoice created via REST API. Source: [source]]]></en>
@@ -1888,12 +1896,12 @@
         </locale>
 
         <locale name="exception.invoice.not.found" html="true">
-            <de><![CDATA[Die gewünschte Rechnung wurde leider nicht gefunden.]]></de>
-            <en><![CDATA[The desired invoice was unfortunately not found.]]></en>
+            <de><![CDATA[Die gewünschte Rechnung [id] wurde leider nicht gefunden.]]></de>
+            <en><![CDATA[The desired invoice [id] was unfortunately not found.]]></en>
         </locale>
         <locale name="exception.temporary.invoice.not.found" html="true">
-            <de><![CDATA[Die gewünschte Rechnung wurde leider nicht gefunden.]]></de>
-            <en><![CDATA[The desired invoice was unfortunately not found.]]></en>
+            <de><![CDATA[Die gewünschte Rechnung [id] wurde leider nicht gefunden.]]></de>
+            <en><![CDATA[The desired invoice [id] was unfortunately not found.]]></en>
         </locale>
 
         <locale name="exception.parted.invoice.cant.be.canceled">
