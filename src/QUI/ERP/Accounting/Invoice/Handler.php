@@ -379,17 +379,23 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getInvoiceData($id): array
     {
-        $sql = "SELECT *, CONCAT(`id_prefix`, `id`) as id_with_prefix FROM ".self::invoiceTable();
+        $whereOr = [
+            'id_with_prefix' => $id
+        ];
 
-        if (\is_numeric($id)) {
-            $sql .= " HAVING `id` = ".(int)$id." OR `id_with_prefix` = ".$id;
-        } else {
-            $sql .= " HAVING `id_with_prefix` = '".$id."'";
+        $idSanitized = \str_replace(Settings::getInstance()->getInvoicePrefix(), '', $id);
+
+        if (\is_numeric($idSanitized)) {
+            $whereOr['id'] = (int)$idSanitized;
         }
 
-        $result = QUI::getDataBase()->fetchSQL($sql);
+        $result = QUI::getDataBase()->fetch([
+            'from'     => self::invoiceTable(),
+            'where_or' => $whereOr,
+            'limit'    => 1
+        ]);
 
-        if (!isset($result[0])) {
+        if (empty($result)) {
             throw new Exception(
                 ['quiqqer/invoice', 'exception.invoice.not.found', ['id' => $id]],
                 404

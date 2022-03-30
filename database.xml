@@ -6,6 +6,7 @@
         <table name="invoice">
             <field type="INT NOT NULL">id</field>
             <field type="VARCHAR(10)">id_prefix</field>
+            <field type="VARCHAR(255) NULL DEFAULT NULL">id_with_prefix</field>
             <field type="INT NOT NULL">customer_id</field>
             <field type="VARCHAR(250) NOT NULL">hash</field>
             <field type="VARCHAR(250) NOT NULL">global_process_id</field>
@@ -76,6 +77,7 @@
             <index>c_date</index>
             <index>hash</index>
             <index>global_process_id</index>
+            <index>id_with_prefix</index>
             <auto_increment>id</auto_increment>
         </table>
 

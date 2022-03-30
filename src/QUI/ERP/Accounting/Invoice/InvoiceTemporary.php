@@ -294,7 +294,7 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function getId(): string
     {
-        return $this->prefix . $this->id;
+        return $this->prefix.$this->id;
     }
 
     /**
@@ -659,7 +659,7 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->type = $type;
-        $typeTitle  = QUI::getLocale()->get('quiqqer/invoice', 'invoice.type.' . $type);
+        $typeTitle  = QUI::getLocale()->get('quiqqer/invoice', 'invoice.type.'.$type);
 
         $this->addHistory(
             QUI::getLocale()->get(
@@ -1204,7 +1204,7 @@ class InvoiceTemporary extends QUI\QDOM
             $paymentTime = 0;
         }
 
-        $timeForPayment = strtotime(date('Y-m-d') . ' 00:00 + ' . $paymentTime . ' days');
+        $timeForPayment = strtotime(date('Y-m-d').' 00:00 + '.$paymentTime.' days');
         $timeForPayment = date('Y-m-d', $timeForPayment);
         $timeForPayment .= ' 23:59:59';
 
@@ -1298,20 +1298,22 @@ class InvoiceTemporary extends QUI\QDOM
             // if invoice hash exist, we need a new hash
             $this->setAttribute('hash', QUI\Utils\Uuid::get());
             $this->getComments()->addComment(
-                'A new hash has been created. The hash already existed.' .
-                'Old Hash: ' . $oldHash .
-                'New Hash: ' . $this->getAttribute('hash')
+                'A new hash has been created. The hash already existed.'.
+                'Old Hash: '.$oldHash.
+                'New Hash: '.$this->getAttribute('hash')
             );
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
 
         // create invoice
+        $invoicePrefix = Settings::getInstance()->getInvoicePrefix();
+
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             [
                 'type'                     => $type,
-                'id_prefix'                => Settings::getInstance()->getInvoicePrefix(),
+                'id_prefix'                => $invoicePrefix,
                 'global_process_id'        => $this->getGlobalProcessId(),
 
                 // user relationships
@@ -1374,6 +1376,12 @@ class InvoiceTemporary extends QUI\QDOM
 
         $newId = QUI::getDataBase()->getPDO()->lastInsertId('id');
 
+        // Insert full id with prefix
+        QUI::getDataBase()->update(
+            $Handler->invoiceTable(),
+            ['id_with_prefix' => $invoicePrefix.$newId],
+            ['id' => $newId]
+        );
 
         // if temporary invoice was a credit note
         // add history entry to original invoice
@@ -1828,7 +1836,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function lock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key     = 'temporary-invoice-'.$this->getId();
 
         QUI\Lock\Locker::lock($Package, $key);
     }
@@ -1843,7 +1851,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function unlock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key     = 'temporary-invoice-'.$this->getId();
 
         QUI\Lock\Locker::unlock($Package, $key);
     }
@@ -1858,7 +1866,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function isLocked(): bool
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key     = 'temporary-invoice-'.$this->getId();
 
         return QUI\Lock\Locker::isLocked($Package, $key);
     }
@@ -1872,7 +1880,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function checkLocked()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key     = 'temporary-invoice-'.$this->getId();
 
         QUI\Lock\Locker::checkLocked($Package, $key);
     }

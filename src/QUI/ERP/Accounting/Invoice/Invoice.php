@@ -59,10 +59,10 @@ class Invoice extends QUI\QDOM
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -120,7 +120,8 @@ class Invoice extends QUI\QDOM
      */
     public function __construct($id, Handler $Handler)
     {
-        $this->setAttributes($Handler->getInvoiceData($id));
+        $invoiceData = $Handler->getInvoiceData($id);
+        $this->setAttributes($invoiceData);
 
         $this->prefix = $this->getAttribute('id_prefix');
 
@@ -128,7 +129,7 @@ class Invoice extends QUI\QDOM
             $this->prefix = Settings::getInstance()->getInvoicePrefix();
         }
 
-        $this->id   = (int)str_replace($this->prefix, '', $id);
+        $this->id   = (int)str_replace($this->prefix, '', $invoiceData['id']);
         $this->type = Handler::TYPE_INVOICE;
 
         switch ((int)$this->getAttribute('type')) {
@@ -193,7 +194,7 @@ class Invoice extends QUI\QDOM
      */
     public function getId(): string
     {
-        return $this->prefix . $this->id;
+        return $this->prefix.$this->id;
     }
 
     /**
@@ -479,7 +480,7 @@ class Invoice extends QUI\QDOM
 
         if (!$data) {
             QUI\System\Log::addCritical(
-                'Error with invoice ' . $this->getId() . '. No payment Data available'
+                'Error with invoice '.$this->getId().'. No payment Data available'
             );
 
             return new Payment([]);
@@ -1095,8 +1096,8 @@ class Invoice extends QUI\QDOM
 
         $isValidTimeStamp = function ($timestamp) {
             return ((string)(int)$timestamp === $timestamp)
-                && ($timestamp <= PHP_INT_MAX)
-                && ($timestamp >= ~PHP_INT_MAX);
+                   && ($timestamp <= PHP_INT_MAX)
+                   && ($timestamp >= ~PHP_INT_MAX);
         };
 
         if ($isValidTimeStamp($date) === false) {
@@ -1267,8 +1268,8 @@ class Invoice extends QUI\QDOM
                 [
                     'username'  => $User->getName(),
                     'uid'       => $User->getId(),
-                    'oldStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.' . $oldPaymentStatus),
-                    'newStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.' . $paymentStatus)
+                    'oldStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.'.$oldPaymentStatus),
+                    'newStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.'.$paymentStatus)
                 ]
             )
         );

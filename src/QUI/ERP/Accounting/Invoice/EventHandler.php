@@ -36,6 +36,13 @@ class EventHandler
             return;
         }
 
+        // Patches
+        try {
+            self::patchIdWithPrefixColumn();
+        } catch (\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+        }
+
         // create invoice payment status
         $Handler = ProcessingStatus\Handler::getInstance();
         $Factory = ProcessingStatus\Factory::getInstance();
@@ -349,5 +356,46 @@ class EventHandler
             QUI\System\Log::writeException($Exception);
             return;
         }
+    }
+
+    /**
+     * PATCH:
+     *
+     * Writes values to "id_with_prefix" columns in invoice table.
+     *
+     * @return void
+     *
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
+     */
+    protected static function patchIdWithPrefixColumn()
+    {
+        $Conf = QUI::getPackage('quiqqer/invoice')->getConfig();
+
+        if (!empty($Conf->getValue('patch', 'id_with_prefix'))) {
+            return;
+        }
+
+        $table = Handler::getInstance()->invoiceTable();
+
+        $result = QUI::getDataBase()->fetch([
+            'select' => ['id', 'id_prefix'],
+            'from'   => $table
+        ]);
+
+        foreach ($result as $row) {
+            QUI::getDataBase()->update(
+                $table,
+                [
+                    'id_with_prefix' => $row['id_prefix'].$row['id']
+                ],
+                [
+                    'id' => $row['id']
+                ]
+            );
+        }
+
+        $Conf->setValue('patch', 'id_with_prefix', 1);
+        $Conf->save();
     }
 }
