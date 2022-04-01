@@ -316,12 +316,18 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     protected static function getInvoiceLocaleVar($Invoice, $Customer): array
     {
-        $user = $Customer->getName();
-        $user = \trim($user);
+        $CustomerAddress = $Customer->getAddress();
+        $user            = $CustomerAddress->getAttribute('contactPerson');
+
+        if (empty($user)) {
+            $user = $Customer->getName();
+        }
 
         if (empty($user)) {
             $user = $Customer->getAddress()->getName();
         }
+
+        $user = \trim($user);
 
         // contact person
         $contactPerson = $Invoice->getAttribute('contact_person');
@@ -394,12 +400,17 @@ class OutputProviderInvoice implements OutputProviderInterface
         $Address = $Customer->getAddress();
 
         // customer name
-        $user = $Customer->getName();
-        $user = \trim($user);
+        $user = $Address->getAttribute('contactPerson');
+
+        if (empty($user)) {
+            $user = $Customer->getName();
+        }
 
         if (empty($user)) {
             $user = $Address->getName();
         }
+
+        $user = \trim($user);
 
         // email
         $email = $Customer->getAttribute('email');
@@ -411,7 +422,6 @@ class OutputProviderInvoice implements OutputProviderInterface
                 $email = $mailList[0];
             }
         }
-
 
         return [
             'user'          => $user,
