@@ -68,7 +68,11 @@ QUI::$Ajax->registerFunction(
             }
 
             foreach ($customerFiles as $entry) {
-                $Invoice->addCustomerFile($entry['hash'], $entry['options']);
+                try {
+                    $Invoice->addCustomerFile($entry['hash'], $entry['options']);
+                } catch (\Exception $Exception) {
+                    QUI\System\Log::writeException($Exception);
+                }
             }
         }
 
