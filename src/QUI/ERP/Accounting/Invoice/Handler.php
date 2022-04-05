@@ -340,13 +340,15 @@ class Handler extends QUI\Utils\Singleton
      * Return an Invoice by hash
      *
      * @param string $hash - Hash of the Invoice
-     * @return Invoice
+     * @return Invoice|InvoiceTemporary
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoiceByHash(string $hash): Invoice
+    public function getInvoiceByHash(string $hash)
     {
+        $hash = QUI\Utils\Security\Orthos::clear($hash);
+
         $result = QUI::getDataBase()->fetch([
             'select' => 'id',
             'from'   => self::invoiceTable(),
@@ -356,16 +358,27 @@ class Handler extends QUI\Utils\Singleton
             'limit'  => 1
         ]);
 
-        $hash = QUI\Utils\Security\Orthos::clear($hash);
-
-        if (!isset($result[0])) {
-            throw new Exception(
-                ['quiqqer/invoice', 'exception.invoice.not.found', ['id' => $hash]],
-                404
-            );
+        if (!empty($result)) {
+            return $this->getInvoice($result[0]['id']);
         }
 
-        return $this->getInvoice($result[0]['id']);
+        $result = QUI::getDataBase()->fetch([
+            'select' => 'id',
+            'from'   => self::temporaryInvoiceTable(),
+            'where'  => [
+                'hash' => $hash
+            ],
+            'limit'  => 1
+        ]);
+
+        if (!empty($result)) {
+            return $this->getTemporaryInvoice($result[0]['id']);
+        }
+
+        throw new Exception(
+            ['quiqqer/invoice', 'exception.invoice.not.found', ['id' => $hash]],
+            404
+        );
     }
 
     /**

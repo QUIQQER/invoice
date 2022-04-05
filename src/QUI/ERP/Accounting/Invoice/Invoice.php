@@ -769,7 +769,6 @@ class Invoice extends QUI\QDOM
             $globalProcessId = $this->getHash();
         }
 
-
         // Invoice Address
         $invoiceAddressId = '';
         $invoiceAddress   = '';
