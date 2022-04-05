@@ -642,15 +642,15 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         /**
          * Set invoice customer files
          *
-         * @param {Number} invoiceId
+         * @param {String} invoiceHash
          * @param {String} customerFiles (JSON)
          * @return {Promise}
          */
-        setCustomerFiles: function (invoiceId, customerFiles) {
+        setCustomerFiles: function (invoiceHash, customerFiles) {
             return new Promise(function (resolve, reject) {
                 QUIAjax.post('package_quiqqer_invoice_ajax_invoices_setCustomerFiles', resolve, {
                     'package'    : 'quiqqer/invoice',
-                    invoiceId    : invoiceId,
+                    invoiceHash  : invoiceHash,
                     customerFiles: customerFiles,
                     onError      : reject,
                     showError    : false

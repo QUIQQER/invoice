@@ -774,7 +774,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     confirmItemDelete: true,
                     events           : {
                         onChange: (FileSelectControl) => {
-                            this.setAttribute('attached_customer_files', FileSelectControl.getValue());
+                            FileSelectControl.getFiles().then((customerFiles) => {
+                                this.setAttribute('attached_customer_files', customerFiles);
+                            });
                         }
                     }
                 }).inject(Container);

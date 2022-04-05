@@ -1661,6 +1661,10 @@
             <en>
                 <![CDATA[The invoice does not have an assigned customer yet. Please assign a customer to the invoice first before assigning customer files to the invoice.]]></en>
         </locale>
+        <locale name="exception.Invoice.addCustomerFile.file_not_found">
+            <de><![CDATA[Diese Datei ist noch nicht in den Kunden-Dateien hochgeladen und kann der Rechnung daher nicht hinzugefügt werden.]]></de>
+            <en><![CDATA[This file is not yet uploaded in the customer files and therefore cannot be added to the invoice.]]></en>
+        </locale>
 
         <locale name="RestApi.Provider.invoice.comment.source">
             <de><![CDATA[Rechnung erstellt über REST API. Herkunft: [source]]]></de>

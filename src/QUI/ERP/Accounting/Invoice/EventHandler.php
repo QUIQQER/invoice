@@ -292,6 +292,16 @@ class EventHandler
         string $recipient,
         QUI\Mail\Mailer $Mailer
     ) {
+        $allowedEntityTypes = [
+            OutputProviderInvoice::getEntityType(),
+            OutputProviderCancelled::getEntityType(),
+            OutputProviderCreditNote::getEntityType()
+        ];
+
+        if (!\in_array($entityType, $allowedEntityTypes)) {
+            return;
+        }
+
         try {
             $Invoice = OutputProviderInvoice::getEntity($entityId);
         } catch (\Exception $Exception) {

@@ -284,7 +284,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         continue;
                     }
 
-                    cat = categories[category];
+                    cat   = categories[category];
                     title = cat.title;
 
                     this.addCategory({
@@ -410,7 +410,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          * show the lock message window
          */
         $showLockMessage: function () {
-            const self = this;
+            const self  = this;
             let btnText = QUILocale.get('quiqqer/quiqqer', 'submit');
 
             if (window.USER.isSU) {
@@ -583,31 +583,31 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             data = {};
                         }
 
-                        data.textInvoiceStatus = QUILocale.get(lg, 'invoice.settings.processingStatus.title');
+                        data.textInvoiceStatus    = QUILocale.get(lg, 'invoice.settings.processingStatus.title');
                         data.textInvoiceRecipient = QUILocale.get(lg, 'cutomerData');
-                        data.textCustomer = QUILocale.get(lg, 'customer');
-                        data.textCompany = QUILocale.get(lg, 'company');
-                        data.textStreet = QUILocale.get(lg, 'street');
-                        data.textZip = QUILocale.get(lg, 'zip');
-                        data.textCity = QUILocale.get(lg, 'city');
+                        data.textCustomer         = QUILocale.get(lg, 'customer');
+                        data.textCompany          = QUILocale.get(lg, 'company');
+                        data.textStreet           = QUILocale.get(lg, 'street');
+                        data.textZip              = QUILocale.get(lg, 'zip');
+                        data.textCity             = QUILocale.get(lg, 'city');
 
                         data.textInvoiceDelivery = QUILocale.get(lg, 'deliveryAddress');
                         data.textDeliveryCompany = QUILocale.get(lg, 'company');
-                        data.textDeliveryStreet = QUILocale.get(lg, 'street');
-                        data.textDeliveryZip = QUILocale.get(lg, 'zip');
-                        data.textDeliveryCity = QUILocale.get(lg, 'city');
+                        data.textDeliveryStreet  = QUILocale.get(lg, 'street');
+                        data.textDeliveryZip     = QUILocale.get(lg, 'zip');
+                        data.textDeliveryCity    = QUILocale.get(lg, 'city');
                         data.textDeliveryCountry = QUILocale.get(lg, 'country');
 
-                        data.textInvoiceData = QUILocale.get(lg, 'erp.panel.invoice.data.title');
-                        data.textInvoiceDate = QUILocale.get(lg, 'erp.panel.invoice.data.date');
-                        data.textProjectName = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
-                        data.textOrderedBy = QUILocale.get(lg, 'erp.panel.invoice.data.orderedBy');
-                        data.textEditor = QUILocale.get(lg, 'erp.panel.invoice.data.editor');
+                        data.textInvoiceData   = QUILocale.get(lg, 'erp.panel.invoice.data.title');
+                        data.textInvoiceDate   = QUILocale.get(lg, 'erp.panel.invoice.data.date');
+                        data.textProjectName   = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
+                        data.textOrderedBy     = QUILocale.get(lg, 'erp.panel.invoice.data.orderedBy');
+                        data.textEditor        = QUILocale.get(lg, 'erp.panel.invoice.data.editor');
                         data.textContactPerson = QUILocale.get(lg, 'erp.panel.invoice.data.contactPerson');
 
-                        data.textInvoicePayment = QUILocale.get(lg, 'erp.panel.invoice.data.payment');
+                        data.textInvoicePayment       = QUILocale.get(lg, 'erp.panel.invoice.data.payment');
                         data.textInvoicePaymentMethod = QUILocale.get(lg, 'erp.panel.invoice.data.paymentMethod');
-                        data.textTermOfPayment = QUILocale.get(lg, 'erp.panel.invoice.data.termOfPayment');
+                        data.textTermOfPayment        = QUILocale.get(lg, 'erp.panel.invoice.data.termOfPayment');
 
                         data.textInvoiceText = QUILocale.get(lg, 'erp.panel.invoice.data.invoiceText');
 
@@ -619,18 +619,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             html: Mustache.render(template, data)
                         });
 
-                        const Form = Container.getElement('form');
+                        const Form  = Container.getElement('form');
                         let address = {};
 
                         try {
                             address = JSON.decode(data.invoice_address);
 
-                            Form.elements.customer.value =
+                            Form.elements.customer.value  =
                                 address.salutation + ' ' + address.firstname + ' ' + address.lastname;
-                            Form.elements.company.value = address.company;
+                            Form.elements.company.value   = address.company;
                             Form.elements.street_no.value = address.street_no;
-                            Form.elements.zip.value = address.zip;
-                            Form.elements.city.value = address.city;
+                            Form.elements.zip.value       = address.zip;
+                            Form.elements.city.value      = address.city;
                         } catch (e) {
                             console.error(e);
                         }
@@ -665,13 +665,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                                 }
 
                                 Form.elements['delivery-customer'].value = deliveryAddress.salutation + ' ' +
-                                                                           deliveryAddress.firstname + ' ' +
-                                                                           deliveryAddress.lastname;
+                                    deliveryAddress.firstname + ' ' +
+                                    deliveryAddress.lastname;
 
-                                Form.elements['delivery-company'].value = deliveryAddress.company;
+                                Form.elements['delivery-company'].value   = deliveryAddress.company;
                                 Form.elements['delivery-street_no'].value = deliveryAddress.street_no;
-                                Form.elements['delivery-zip'].value = deliveryAddress.zip;
-                                Form.elements['delivery-city'].value = deliveryAddress.city;
+                                Form.elements['delivery-zip'].value       = deliveryAddress.zip;
+                                Form.elements['delivery-city'].value      = deliveryAddress.city;
                             } catch (e) {
                                 console.error(e);
                             }
@@ -852,7 +852,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.getCategory('invoiceFiles').setActive();
 
             const InvoiceAttributes = this.getAttribute('data');
-            let InvoiceData = InvoiceAttributes.data;
+            let InvoiceData         = InvoiceAttributes.data;
 
             if (InvoiceData) {
                 InvoiceData = JSON.decode(InvoiceData);
@@ -878,19 +878,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     confirmItemDelete: true,
                     events           : {
                         onChange: (FileSelectControl) => {
-                            const customerFiles = FileSelectControl.getValue();
-
                             this.Loader.show();
 
-                            Invoices.setCustomerFiles(this.getAttribute('invoiceId'), customerFiles).then(() => {
-                                InvoiceData.customer_files = customerFiles;
+                            FileSelectControl.getFiles().then((customerFiles) => {
+                                Invoices.setCustomerFiles(this.getAttribute('data').hash, customerFiles).then(() => {
+                                    InvoiceData.customer_files = customerFiles;
 
-                                InvoiceAttributes.data = JSON.encode(InvoiceData);
-                                this.setAttribute('data', InvoiceAttributes);
+                                    InvoiceAttributes.data = JSON.encode(InvoiceData);
+                                    this.setAttribute('data', InvoiceAttributes);
 
-                                this.Loader.hide();
-                            }).catch(() => {
-                                this.Loader.hide();
+                                    this.Loader.hide();
+                                }).catch(() => {
+                                    this.Loader.hide();
+                                });
                             });
                         }
                     }
