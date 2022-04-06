@@ -500,12 +500,12 @@ class InvoiceTemporary extends QUI\QDOM
 
         if ($this->getAttribute('editor_id')) {
             try {
-                $Editor    = QUI::getUsers()->get($this->getAttribute('editor_id'));
-                $isInGroup = $Editor->isInGroup($Employees->getEmployeeGroup()->getId());
-
-                if ($isInGroup) {
-                    return $Editor;
-                }
+                $Editor = QUI::getUsers()->get($this->getAttribute('editor_id'));
+//                $isInGroup = $Editor->isInGroup($Employees->getEmployeeGroup()->getId());
+//
+//                if ($isInGroup) {
+                return $Editor;
+//                }
             } catch (QUI\Exception $Exception) {
             }
         }
