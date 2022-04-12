@@ -1651,6 +1651,11 @@
 
     <groups name="quiqqer/invoice" datatype="php">
 
+        <locale name="history.InvoiceTemporary.new_hash_on_post">
+            <de><![CDATA[Bei Buchung der Rechnung musste eine neue Vorgangsnummer ("Hash") generiert werden, da bereits ein anderer Rechnungs-Entwurf mit identischer Vorgangsnummer vorlag. Vorherige Vorgangsnummer: [oldHash] | Neue Vorgangsnummer: [newHash]]]></de>
+            <en><![CDATA[When posting the invoice, a new procedure number ("hash") had to be generated because another invoice draft with an identical procedure number already existed. Previous procedure number: [oldHash] | New procedure number: [newHash]]]></en>
+        </locale>
+        
         <locale name="OutputProvider.epc_qr_code_purpose">
             <de><![CDATA[Rechnung [invoiceNo]]]></de>
             <en><![CDATA[Invoice [invoiceNo]]]></en>

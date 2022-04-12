@@ -1291,17 +1291,25 @@ class InvoiceTemporary extends QUI\QDOM
 
         // check if hash already exists
         try {
-            $oldHash = $this->getAttribute('hash');
+            $oldHash          = $this->getAttribute('hash');
+            $HashCheckInvoice = Handler::getInstance()->getInvoiceByHash($oldHash);
 
-            Handler::getInstance()->getInvoiceByHash($oldHash);
+            if ($HashCheckInvoice instanceof InvoiceTemporary &&
+                $HashCheckInvoice->getCleanId() !== $this->getCleanId()) {
+                // if invoice hash exist, we need a new hash
+                $this->setAttribute('hash', QUI\Utils\Uuid::get());
 
-            // if invoice hash exist, we need a new hash
-            $this->setAttribute('hash', QUI\Utils\Uuid::get());
-            $this->getComments()->addComment(
-                'A new hash has been created. The hash already existed.'.
-                'Old Hash: '.$oldHash.
-                'New Hash: '.$this->getAttribute('hash')
-            );
+                $this->getComments()->addComment(
+                    QUI::getLocale()->get(
+                        'quiqqer/invoice',
+                        'history.InvoiceTemporary.new_hash_on_post',
+                        [
+                            'oldHash' => $oldHash,
+                            'newHash' => $this->getAttribute('hash')
+                        ]
+                    )
+                );
+            }
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
