@@ -351,6 +351,15 @@ class Invoice extends QUI\QDOM
             $userData['id'] = $this->getAttribute('customer_id');
         }
 
+        // Country fallback
+        if (empty($userData['country'])) {
+            if (!empty($invoiceAddress['country'])) {
+                $userData['country'] = $invoiceAddress['country'];
+            } else {
+                $userData['country'] = QUI\ERP\Defaults::getCountry()->getCode();
+            }
+        }
+
         return new QUI\ERP\User($userData);
     }
 
