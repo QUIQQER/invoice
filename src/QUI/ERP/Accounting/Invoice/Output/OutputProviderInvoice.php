@@ -15,6 +15,7 @@ use QUI\ERP\BankAccounts\Handler as BankAccounts;
 use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment as AdvancePayment;
 use QUI\ERP\Accounting\Payments\Methods\Invoice\Payment as InvoicePayment;
+use QUI\ERP\Customer\Utils as CustomerUtils;
 
 /**
  * Class OutputProvider
@@ -311,7 +312,7 @@ class OutputProviderInvoice implements OutputProviderInterface
 
     /**
      * @param $Invoice
-     * @param $Customer
+     * @param QUI\ERP\User $Customer
      * @return array
      */
     protected static function getInvoiceLocaleVar($Invoice, $Customer): array
@@ -331,6 +332,15 @@ class OutputProviderInvoice implements OutputProviderInterface
 
         // contact person
         $contactPerson = $Invoice->getAttribute('contact_person');
+
+        if (empty($contactPerson)) {
+            // Fetch contact person from live user (if existing)
+            $ContactPersonAddress = CustomerUtils::getInstance()->getContactPersonAddress($Customer);
+
+            if ($ContactPersonAddress) {
+                $contactPerson = $ContactPersonAddress->getName();
+            }
+        }
 
         if (empty($contactPerson)) {
             $contactPerson = $user;
