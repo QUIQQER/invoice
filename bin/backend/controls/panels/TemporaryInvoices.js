@@ -490,12 +490,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         width    : 100
                     },
                     {
-                        header   : QUILocale.get(lg, 'journal.grid.processing'),
-                        dataIndex: 'processing_status_display',
-                        dataType : 'html',
-                        width    : 150
-                    },
-                    {
                         header   : QUILocale.get(lg, 'journal.grid.hash'),
                         dataIndex: 'hash',
                         dataType : 'string',
@@ -575,7 +569,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onDblClick: function (data) {
                     if (typeof data !== 'undefined' &&
                         (data.cell.get('data-index') === 'customer_id' ||
-                            data.cell.get('data-index') === 'customer_name')) {
+                         data.cell.get('data-index') === 'customer_name')) {
 
                         var Cell     = data.cell,
                             position = Cell.getPosition(),
