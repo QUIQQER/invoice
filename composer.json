@@ -1,7 +1,8 @@
 {
   "name": "quiqqer\/invoice",
   "type": "quiqqer-module",
-  "description": "",
+  "description": "Invoice management for ecoyn.",
+  "version": "1.5.0",
   "license": [
     "PCSG QEL-1.0"
   ],
