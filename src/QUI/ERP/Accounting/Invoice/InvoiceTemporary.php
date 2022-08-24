@@ -927,8 +927,8 @@ class InvoiceTemporary extends QUI\QDOM
                 $orderPaidStatusData = $Order->getPaidStatusInformation();
 
                 $paidStatus = $Order->getAttribute('paid_status');
-                $paidDate   = $orderPaidStatusData['paid_date'];
-                $paidData   = \json_encode($orderPaidStatusData['paid_data']);
+                $paidDate   = $orderPaidStatusData['paidDate'];
+                $paidData   = \json_encode($orderPaidStatusData['paidData']);
             } catch (\Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
             }
@@ -1338,6 +1338,8 @@ class InvoiceTemporary extends QUI\QDOM
         // create invoice
         $invoicePrefix = Settings::getInstance()->getInvoicePrefix();
 
+        $paidStatusInformation = $this->getPaidStatusInformation();
+
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             [
@@ -1370,9 +1372,9 @@ class InvoiceTemporary extends QUI\QDOM
                 'time_for_payment'         => $timeForPayment,
 
                 // paid status
-                'paid_status'              => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
-                'paid_date'                => null,
-                'paid_data'                => '',
+                'paid_status'              => $this->getAttribute('paid_status'),
+                'paid_date'                => $paidStatusInformation['paidDate'],
+                'paid_data'                => \json_encode($paidStatusInformation['paidData']),
                 'processing_status'        => $processingStatus,
 
                 // shipping
