@@ -12,6 +12,7 @@ use QUI\ERP\Accounting\Invoice\ProcessingStatus;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Customer\CustomerFiles;
 use QUI\Utils\Security\Orthos;
+use QUI\ERP\Order\Handler as OrderHandler;
 
 use function array_flip;
 use function class_exists;
@@ -912,6 +913,26 @@ class InvoiceTemporary extends QUI\QDOM
             $orderDate = $this->getAttribute('order_date');
         }
 
+        // Determine payment status by order (if an order is linked to the invoice)
+        $paidStatus = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
+        $paidDate   = null;
+        $paidData   = '';
+        $orderId    = $this->getAttribute('order_id');
+
+        if (!empty($orderId)) {
+            $Orders = OrderHandler::getInstance();
+
+            try {
+                $Order               = $Orders->getOrderById($orderId);
+                $orderPaidStatusData = $Order->getPaidStatusInformation();
+
+                $paidStatus = $Order->getAttribute('paid_status');
+                $paidDate   = $orderPaidStatusData['paid_date'];
+                $paidData   = \json_encode($orderPaidStatusData['paid_data']);
+            } catch (\Exception $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+            }
+        }
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceSave',
@@ -927,7 +948,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'customer_id'             => (int)$this->getAttribute('customer_id'),
                 'editor_id'               => $editorId,
                 'editor_name'             => $editorName,
-                'order_id'                => (int)$this->getAttribute('order_id'),
+                'order_id'                => $orderId,
                 'ordered_by'              => $orderedBy,
                 'order_date'              => $orderDate,
                 'ordered_by_name'         => $orderedByName,
@@ -946,9 +967,9 @@ class InvoiceTemporary extends QUI\QDOM
 
                 // processing
                 'time_for_payment'        => $timeForPayment,
-                'paid_status'             => QUI\ERP\Constants::PAYMENT_STATUS_OPEN, // nicht in gui
-                'paid_date'               => null, // nicht in gui
-                'paid_data'               => '',   // nicht in gui
+                'paid_status'             => $paidStatus,
+                'paid_date'               => $paidDate,
+                'paid_data'               => $paidData,
                 'processing_status'       => $processingStatus,
                 'customer_data'           => '',   // nicht in gui
 
