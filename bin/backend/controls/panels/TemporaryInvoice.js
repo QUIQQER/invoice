@@ -167,7 +167,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 if (data.articles.articles && data.articles.articles.length) {
                     self.$serializedList = {
-                        articles: data.articles.articles
+                        articles    : data.articles.articles,
+                        priceFactors: data.articles.priceFactors
                     };
 
                     self.setAttribute('articles', data.articles.articles);
