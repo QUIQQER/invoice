@@ -172,6 +172,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     };
 
                     self.setAttribute('articles', data.articles.articles);
+                    self.setAttribute('priceFactors', data.articles.priceFactors);
                 }
 
                 if (data.invoice_address) {
@@ -279,6 +280,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 invoice_address_id     : this.getAttribute('invoice_address_id'),
                 project_name           : this.getAttribute('project_name'),
                 articles               : this.getAttribute('articles'),
+                priceFactors           : this.getAttribute('priceFactors'),
                 date                   : this.getAttribute('date'),
                 editor_id              : this.getAttribute('editor_id'),
                 ordered_by             : this.getAttribute('ordered_by'),
@@ -1233,6 +1235,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
             if (this.$ArticleList) {
                 this.setAttribute('articles', this.$ArticleList.save());
+                this.setAttribute('priceFactors', this.$ArticleList.getPriceFactors());
                 this.$serializedList = this.$ArticleList.serialize();
 
                 if (destroyList) {

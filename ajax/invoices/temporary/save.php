@@ -4,9 +4,6 @@
  * This file contains package_quiqqer_invoice_ajax_invoices_temporary_save
  */
 
-use QUI\ERP\Shipping\Shipping;
-use QUI\ERP\Accounting\Invoice\Handler as InvoiceHandler;
-
 /**
  * Saves the temporary invoice
  *
@@ -17,7 +14,7 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_save',
     function ($invoiceId, $data) {
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
-        $data    = \json_decode($data, true);
+        $data    = json_decode($data, true);
 
         if (empty($data['customer_id'])) {
             $data['invoice_address_id'] = '';
@@ -44,13 +41,21 @@ QUI::$Ajax->registerFunction(
             unset($data['articles']);
         }
 
+        if (isset($data['priceFactors'])) {
+            try {
+                $List = new QUI\ERP\Accounting\PriceFactors\FactorList($data['priceFactors']);
+                $Invoice->getArticles()->importPriceFactors($List);
+            } catch (QUI\Exception $Exception) {
+            }
+        }
+
         if (isset($data['currency'])) {
             $Invoice->setCurrency($data['currency']);
         }
 
         if (!empty($data['currencyRate'])) {
             $Currency = $Invoice->getCurrency();
-            $Currency->setExchangeRate(\floatval($data['currencyRate']));
+            $Currency->setExchangeRate(floatval($data['currencyRate']));
             $Invoice->setCurrency($Currency);
         }
 
@@ -61,8 +66,8 @@ QUI::$Ajax->registerFunction(
         $Invoice->clearCustomerFiles();
 
         if (!empty($data['attached_customer_files'])) {
-            if (\is_string($data['attached_customer_files'])) {
-                $customerFiles = \json_decode($data['attached_customer_files'], true);
+            if (is_string($data['attached_customer_files'])) {
+                $customerFiles = json_decode($data['attached_customer_files'], true);
             } else {
                 $customerFiles = $data['attached_customer_files'];
             }
