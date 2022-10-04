@@ -41,7 +41,7 @@ QUI::$Ajax->registerFunction(
             unset($data['articles']);
         }
 
-        if (isset($data['priceFactors'])) {
+        if (isset($data['priceFactors']) && is_array($data['priceFactors'])) {
             try {
                 $List = new QUI\ERP\Accounting\PriceFactors\FactorList($data['priceFactors']);
                 $Invoice->getArticles()->importPriceFactors($List);
