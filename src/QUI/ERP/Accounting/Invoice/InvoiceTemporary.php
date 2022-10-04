@@ -786,7 +786,7 @@ class InvoiceTemporary extends QUI\QDOM
                 $invoiceAddress                 = json_encode($invoiceAddress);
             }
 
-            if (!$invoiceAddressCheck) {
+            if (empty($invoiceAddressCheck['id'])) {
                 QUI\System\Log::addNotice($Exception->getMessage());
             } else {
                 $invoiceAddressId = $invoiceAddressCheck['id'];
