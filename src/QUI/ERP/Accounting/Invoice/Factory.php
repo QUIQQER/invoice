@@ -80,6 +80,12 @@ class Factory extends QUI\Utils\Singleton
             $TemporaryInvoice = Handler::getInstance()->getTemporaryInvoice($newId);
         }
 
+        try {
+            QUI::getEvents()->fireEvent('onQuiqqerInvoiceTemporaryInvoiceCreated', [$TemporaryInvoice]);
+        } catch (\Exception $Exception) {
+            QUI\System\Log::addError($Exception->getMessage());
+        }
+
         return $TemporaryInvoice;
     }
 }
