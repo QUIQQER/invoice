@@ -159,27 +159,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * Refresh the invoice data
          */
         doRefresh: function () {
-            const self = this;
             let invoiceId = this.getAttribute('invoiceId');
 
-            return Invoices.getTemporaryInvoice(invoiceId).then(function (data) {
-                self.setAttributes(data);
+            return Invoices.getTemporaryInvoice(invoiceId).then((data) => {
+                this.setAttributes(data);
 
-                if (data.articles.articles && data.articles.articles.length) {
-                    self.$serializedList = {
-                        articles    : data.articles.articles,
-                        priceFactors: data.articles.priceFactors
-                    };
+                if (data.articles) {
+                    this.$serializedList = data.articles;
 
-                    self.setAttribute('articles', data.articles.articles);
-                    self.setAttribute('priceFactors', data.articles.priceFactors);
+                    if (typeof this.$serializedList.articles !== 'undefined') {
+                        this.setAttribute('articles', this.$serializedList.articles);
+                        this.setAttribute('priceFactors', data.articles.priceFactors);
+                    }
+
+                    if (this.$ArticleList) {
+                        this.$ArticleList.unserialize(this.$serializedList);
+                    }
                 }
 
                 if (data.invoice_address) {
-                    self.setAttribute('invoice_address', data.invoice_address);
+                    this.setAttribute('invoice_address', data.invoice_address);
                 }
 
-                self.refresh();
+                this.refresh();
             });
         },
 
