@@ -10,9 +10,11 @@ use QUI;
 use QUI\ERP\Accounting\ArticleList;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Customer\CustomerFiles;
-use QUI\Utils\Security\Orthos;
+use QUI\ERP\Money\Price;
 use QUI\ERP\Order\Handler as OrderHandler;
+use QUI\Utils\Security\Orthos;
 
 use function array_flip;
 use function class_exists;
@@ -27,8 +29,10 @@ use function mb_strpos;
 use function str_replace;
 use function strip_tags;
 use function strtotime;
+use function time;
 
 use const JSON_ERROR_NONE;
+use const PHP_INT_MAX;
 
 /**
  * Class InvoiceTemporary
@@ -295,7 +299,7 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function getId(): string
     {
-        return $this->prefix.$this->id;
+        return $this->prefix . $this->id;
     }
 
     /**
@@ -660,7 +664,7 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->type = $type;
-        $typeTitle  = QUI::getLocale()->get('quiqqer/invoice', 'invoice.type.'.$type);
+        $typeTitle  = QUI::getLocale()->get('quiqqer/invoice', 'invoice.type.' . $type);
 
         $this->addHistory(
             QUI::getLocale()->get(
@@ -1225,7 +1229,7 @@ class InvoiceTemporary extends QUI\QDOM
             $paymentTime = 0;
         }
 
-        $timeForPayment = strtotime(date('Y-m-d').' 00:00 + '.$paymentTime.' days');
+        $timeForPayment = strtotime(date('Y-m-d') . ' 00:00 + ' . $paymentTime . ' days');
         $timeForPayment = date('Y-m-d', $timeForPayment);
         $timeForPayment .= ' 23:59:59';
 
@@ -1410,7 +1414,7 @@ class InvoiceTemporary extends QUI\QDOM
         // Insert full id with prefix
         QUI::getDataBase()->update(
             $Handler->invoiceTable(),
-            ['id_with_prefix' => $invoicePrefix.$newId],
+            ['id_with_prefix' => $invoicePrefix . $newId],
             ['id' => $newId]
         );
 
@@ -1534,6 +1538,140 @@ class InvoiceTemporary extends QUI\QDOM
         $attributes['globalProcessId'] = $this->getGlobalProcessId();
 
         return $attributes;
+    }
+
+
+    /**
+     * @param Transaction $Transaction
+     *
+     * @throws QUI\Exception
+     */
+    public function addTransaction(Transaction $Transaction)
+    {
+        QUI\ERP\Debug::getInstance()->log('Invoice:: add transaction');
+
+        if ($this->getHash() !== $Transaction->getHash()) {
+            return;
+        }
+
+        $currentPaidStatus = $this->getAttribute('paid_status');
+
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
+
+        if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+        ) {
+            return;
+        }
+
+        if ($currentPaidStatus === $this->getAttribute('paid_status')
+            && ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID ||
+                $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED)
+        ) {
+            return;
+        }
+
+        QUI\ERP\Debug::getInstance()->log('Order:: add transaction start');
+
+        $User     = QUI::getUserBySession();
+        $paidData = $this->getAttribute('paid_data');
+        $amount   = Price::validatePrice($Transaction->getAmount());
+        $date     = $Transaction->getDate();
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryAddTransactionBegin',
+            [
+                $this,
+                $amount,
+                $Transaction,
+                $date
+            ]
+        );
+
+        if (!$amount) {
+            return;
+        }
+
+        if (!is_array($paidData)) {
+            $paidData = json_decode($paidData, true);
+        }
+
+        if ($date === false) {
+            $date = time();
+        }
+
+        $isTxAlreadyAdded = function ($txid, $paidData) {
+            foreach ($paidData as $paidEntry) {
+                if (!isset($paidEntry['txid'])) {
+                    continue;
+                }
+
+                if ($paidEntry['txid'] == $txid) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        // already added
+        if ($isTxAlreadyAdded($Transaction->getTxId(), $paidData)) {
+            return;
+        }
+
+        $isValidTimeStamp = function ($timestamp) {
+            return ((string)(int)$timestamp === $timestamp)
+                && ($timestamp <= PHP_INT_MAX)
+                && ($timestamp >= ~PHP_INT_MAX);
+        };
+
+        if ($isValidTimeStamp($date) === false) {
+            $date = strtotime($date);
+
+            if ($isValidTimeStamp($date) === false) {
+                $date = time();
+            }
+        }
+
+        $this->setAttribute('paid_date', $date);
+
+
+        $this->addHistory(
+            QUI::getLocale()->get(
+                'quiqqer/invoice',
+                'history.message.addPayment',
+                [
+                    'username' => $User->getName(),
+                    'uid'      => $User->getId(),
+                    'txid'     => $Transaction->getTxId()
+                ]
+            )
+        );
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryAddTransaction',
+            [
+                $this,
+                $amount,
+                $Transaction,
+                $date
+            ]
+        );
+
+        //$this->calculatePayments();
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
+
+
+        QUI::getEvents()->fireEvent(
+            'quiqqerInvoiceTemporaryAddTransactionEnd',
+            [
+                $this,
+                $amount,
+                $Transaction,
+                $date
+            ]
+        );
     }
 
     //region Article Management
@@ -1867,7 +2005,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function lock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-'.$this->getId();
+        $key     = 'temporary-invoice-' . $this->getId();
 
         QUI\Lock\Locker::lock($Package, $key);
     }
@@ -1882,7 +2020,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function unlock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-'.$this->getId();
+        $key     = 'temporary-invoice-' . $this->getId();
 
         QUI\Lock\Locker::unlock($Package, $key);
     }
@@ -1897,7 +2035,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function isLocked(): bool
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-'.$this->getId();
+        $key     = 'temporary-invoice-' . $this->getId();
 
         return QUI\Lock\Locker::isLocked($Package, $key);
     }
@@ -1911,7 +2049,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function checkLocked()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-'.$this->getId();
+        $key     = 'temporary-invoice-' . $this->getId();
 
         QUI\Lock\Locker::checkLocked($Package, $key);
     }
