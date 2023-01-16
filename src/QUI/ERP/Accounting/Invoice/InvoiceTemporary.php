@@ -26,6 +26,7 @@ use function json_decode;
 use function json_encode;
 use function json_last_error;
 use function mb_strpos;
+use function preg_replace;
 use function str_replace;
 use function strip_tags;
 use function strtotime;
@@ -831,7 +832,18 @@ class InvoiceTemporary extends QUI\QDOM
                 'vatId' => $this->getCustomer()->getAttribute('quiqqer.erp.euVatId')
             ]);
 
-            if (mb_strpos($invoiceText, $extraText) === false) {
+
+            $invoiceTextClean = trim(strip_tags($invoiceText));
+            $invoiceTextClean = str_replace("\n", ' ', $invoiceTextClean);
+            $invoiceTextClean = html_entity_decode($invoiceTextClean);
+            $invoiceTextClean = preg_replace('#( ){2,}#', "$1", $invoiceTextClean);
+
+            $extraTextClean = trim(strip_tags($extraText));
+            $extraTextClean = str_replace("\n", ' ', $extraTextClean);
+            $extraTextClean = html_entity_decode($extraTextClean);
+            $extraTextClean = preg_replace('#( ){2,}#', "$1", $extraTextClean);
+
+            if (mb_strpos($invoiceTextClean, $extraTextClean) === false) {
                 $invoiceText .= $extraText;
             }
         }
