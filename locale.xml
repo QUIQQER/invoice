@@ -498,8 +498,8 @@
         </locale>
 
         <locale name="global.invoice.text">
-            <de><![CDATA[]]></de>
-            <en><![CDATA[]]></en>
+            <de><![CDATA[ ]]></de>
+            <en><![CDATA[ ]]></en>
         </locale>
         <locale name="invoice.settings.invoice.globalInvoiceText">
             <de><![CDATA[Globaler Rechnungstext]]></de>
@@ -1718,24 +1718,24 @@
             <en><![CDATA[Invoice e-mail]]></en>
         </locale>
         <locale name="invoice.send.mail.description">
-            <de><![CDATA[]]></de>
-            <en><![CDATA[]]></en>
+            <de><![CDATA[ ]]></de>
+            <en><![CDATA[ ]]></en>
         </locale>
         <locale name="invoice.cancelled.title">
             <de><![CDATA[Storno-Rechnungsmail]]></de>
             <en><![CDATA[Cancelletion Invoice mail]]></en>
         </locale>
         <locale name="invoice.cancelled.description">
-            <de><![CDATA[]]></de>
-            <en><![CDATA[]]></en>
+            <de><![CDATA[ ]]></de>
+            <en><![CDATA[ ]]></en>
         </locale>
         <locale name="invoice.credit_note.title">
             <de><![CDATA[Gutschrift-Mail]]></de>
             <en><![CDATA[Credit note mail]]></en>
         </locale>
         <locale name="invoice.credit_note.description">
-            <de><![CDATA[]]></de>
-            <en><![CDATA[]]></en>
+            <de><![CDATA[ ]]></de>
+            <en><![CDATA[ ]]></en>
         </locale>
         <locale name="invoice.send.mail.message">
             <de><![CDATA[
@@ -2062,8 +2062,8 @@
             ]]></en>
         </locale>
         <locale name="additional.invoice.text" html="true">
-            <de><![CDATA[]]></de>
-            <en><![CDATA[]]></en>
+            <de><![CDATA[ ]]></de>
+            <en><![CDATA[ ]]></en>
         </locale>
         <locale name="additional.invoice.text.timeForPayment">
             <de><![CDATA[Zahlungsziel]]></de>
