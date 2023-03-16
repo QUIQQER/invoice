@@ -5,8 +5,8 @@
  */
 
 use QUI\ERP\Accounting\Invoice\Handler;
-use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatusHandler;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 /**
  * Returns temporary invoices list for a grid
@@ -33,8 +33,8 @@ QUI::$Ajax->registerFunction(
             $processing[$Status->getId()] = $Status;
         }
 
-        $query  = $Grid->parseDBParams(\json_decode($params, true));
-        $filter = \json_decode($filter, true);
+        $query  = $Grid->parseDBParams(json_decode($params, true));
+        $filter = json_decode($filter, true);
 
         if (!empty($filter['currency'])) {
             $query['where']['currency'] = $filter['currency'];
@@ -100,9 +100,9 @@ QUI::$Ajax->registerFunction(
             }
 
             $paidStatus = $TemporaryInvoice->getAttribute('paid_status');
-            $paidText   = $Locale->get('quiqqer/invoice', 'payment.status.'.$paidStatus);
+            $paidText   = $Locale->get('quiqqer/invoice', 'payment.status.' . $paidStatus);
 
-            $data[$key]['paid_status_display'] = '<span class="payment-status payment-status-'.$paidStatus.'">'.$paidText.'</span>';
+            $data[$key]['paid_status_display'] = '<span class="payment-status payment-status-' . $paidStatus . '">' . $paidText . '</span>';
 
 
             // processing status
@@ -113,9 +113,9 @@ QUI::$Ajax->registerFunction(
                 $Status = $processing[$processStatus];
                 $color  = $Status->getColor();
 
-                $data[$key]['processing_status_display'] = '<span class="processing-status" style="color: '.$color.'">'.
-                                                           $Status->getTitle().
-                                                           '</span>';
+                $data[$key]['processing_status_display'] = '<span class="processing-status" style="color: ' . $color . '">' .
+                    $Status->getTitle() .
+                    '</span>';
             }
 
 
@@ -140,7 +140,7 @@ QUI::$Ajax->registerFunction(
                             $customer .= ' ';
                             $customer .= $Address->getAttribute('lastname');
 
-                            $customer = \trim($customer);
+                            $customer = trim($customer);
                         }
 
                         if ($Customer->isCompany() && $Address && !empty($Address->getAttribute('company'))) {
@@ -148,7 +148,7 @@ QUI::$Ajax->registerFunction(
                             $customer  = $Address->getAttribute('company');
 
                             if (!empty($oCustomer)) {
-                                $customer .= ' ('.$oCustomer.')';
+                                $customer .= ' (' . $oCustomer . ')';
                             }
                         }
                     }
@@ -166,7 +166,7 @@ QUI::$Ajax->registerFunction(
                 try {
                     $CUser = QUI::getUsers()->get($entry['c_user']);
 
-                    $data[$key]['c_username'] = $CUser->getName().' ('.$CUser->getId().')';
+                    $data[$key]['c_username'] = $CUser->getName() . ' (' . $CUser->getId() . ')';
                 } catch (QUI\Exception $Exception) {
                     $data[$key]['c_user']     = Handler::EMPTY_VALUE;
                     $data[$key]['c_username'] = Handler::EMPTY_VALUE;
@@ -175,12 +175,12 @@ QUI::$Ajax->registerFunction(
 
             // format
             $data[$key]['date'] = $Locale->formatDate(
-                \strtotime($TemporaryInvoice->getAttribute('date')),
+                strtotime($TemporaryInvoice->getAttribute('date')),
                 $defaultDateFormat
             );
 
             $data[$key]['c_date'] = $Locale->formatDate(
-                \strtotime($TemporaryInvoice->getAttribute('date')),
+                strtotime($TemporaryInvoice->getAttribute('date')),
                 $defaultTimeFormat
             );
 

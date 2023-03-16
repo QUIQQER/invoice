@@ -421,6 +421,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 OrderedBy.setAttribute('showAddressName', false);
 
                 Data.addEvent('onChange', function () {
+                    if (self.renderDataDone === false) {
+                        return;
+                    }
+
                     const Customer = Data.getValue();
                     let userId = Customer.userId;
 
@@ -476,6 +480,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 // editor
                 EditorId.addEvent('onChange', function () {
+                    if (self.renderDataDone === false) {
+                        return;
+                    }
+                    
                     self.setAttribute('editor_id', EditorId.getValue());
                 });
 
@@ -571,7 +579,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         }
                     }
                 }).inject(Container);
-
             }).then(function () {
                 return Payments.getPayments();
             }).then(function (payments) {
