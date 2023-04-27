@@ -48,17 +48,22 @@ class Factory extends QUI\Utils\Singleton
         }
 
 
+        $editor = 0;
         $c_user = $User->getId();
 
         if (!$c_user) {
             $c_user = QUI::getUsers()->getSystemUser()->getId();
         }
 
+        if (QUI::isBackend()) {
+            $editor = $c_user;
+        }
+
         QUI::getDataBase()->insert(
             Handler::getInstance()->temporaryInvoiceTable(),
             [
                 'c_user'            => $c_user,
-                'editor_id'         => $c_user,
+                'editor_id'         => $editor,
                 'editor_name'       => '-',
                 'hash'              => $hash,
                 'global_process_id' => $processId,
