@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu>
+    <item parent="/extras/"
+          name="erp"
+          icon="fa fa-sun-o"
+    >
+        <locale group="quiqqer/erp" var="menu.erp.title"/>
+    </item>
+    <item parent="/extras/erp/"
+          name="invoice-drafts"
+          require="package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices"
+          icon="fa fa-file-text-o"
+    >
+        <locale group="quiqqer/invoice" var="erp.panel.invoice.drafts.text"/>
+    </item>
+    <item parent="/extras/erp/"
+          name="invoice-journal"
+          require="package/quiqqer/invoice/bin/backend/controls/panels/Journal"
+          icon="fa fa-file-text-o"
+    >
+        <locale group="quiqqer/invoice" var="erp.panel.invoice.journal.text"/>
+    </item>
+</menu>
