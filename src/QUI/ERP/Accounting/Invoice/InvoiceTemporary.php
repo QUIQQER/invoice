@@ -1587,8 +1587,8 @@ class InvoiceTemporary extends QUI\QDOM
 
         if (
             $currentPaidStatus === $this->getAttribute('paid_status')
-            && ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID ||
-                $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED)
+            && ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID
+                || $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED)
         ) {
             return;
         }
