@@ -7,7 +7,6 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
-use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Output\Output as ERPOutput;
 
 /**
@@ -99,7 +98,7 @@ class InvoiceView extends QUI\QDOM
             $Locale = QUI::getLocale();
         }
 
-        $date      = $this->Invoice->getAttribute('date');
+        $date = $this->Invoice->getAttribute('date');
         $Formatter = $Locale->getDateFormatter();
 
         return $Formatter->format(\strtotime($date));
@@ -194,7 +193,7 @@ class InvoiceView extends QUI\QDOM
         try {
             $output = '';
             $output .= '<style>';
-            $output .= \file_get_contents(\dirname(__FILE__).'/Utils/Template.Articles.Preview.css');
+            $output .= \file_get_contents(\dirname(__FILE__) . '/Utils/Template.Articles.Preview.css');
             $output .= '</style>';
             $output .= $this->getArticles()->toHTML();
 
@@ -252,8 +251,11 @@ class InvoiceView extends QUI\QDOM
             return $this->Invoice->getAttribute('transaction_invoice_text') ?: '';
         }
 
-        if (class_exists('QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment')
-            && $this->Invoice->getPayment()->getPaymentType() === QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment::class) {
+        if (
+            class_exists('QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment')
+            && $this->Invoice->getPayment()->getPaymentType(
+            ) === QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment::class
+        ) {
             return '';
         }
 
@@ -275,7 +277,7 @@ class InvoiceView extends QUI\QDOM
 
         if (empty($transactions)) {
             // Time for payment text
-            $Formatter      = $Locale->getDateFormatter();
+            $Formatter = $Locale->getDateFormatter();
             $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
 
             // temporary invoice, the time for payment are days
@@ -287,7 +289,7 @@ class InvoiceView extends QUI\QDOM
                 }
 
                 if ($timeForPayment) {
-                    $timeForPayment = \strtotime('+'.$timeForPayment.' day');
+                    $timeForPayment = \strtotime('+' . $timeForPayment . ' day');
                     $timeForPayment = $Formatter->format($timeForPayment);
                 } else {
                     $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
@@ -313,10 +315,10 @@ class InvoiceView extends QUI\QDOM
 
         /* @var $Transaction QUI\ERP\Accounting\Payments\Transactions\Transaction */
         $Transaction = \array_pop($transactions);
-        $Payment     = $Transaction->getPayment(); // payment method
+        $Payment = $Transaction->getPayment(); // payment method
         $PaymentType = $this->getPayment(); // payment method
 
-        $payment   = $Payment->getTitle();
+        $payment = $Payment->getTitle();
         $Formatter = $Locale->getDateFormatter();
 
         if ($PaymentType->getPaymentType() === $Payment->getClass()) {
@@ -324,7 +326,7 @@ class InvoiceView extends QUI\QDOM
         }
 
         return $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
-            'date'    => $Formatter->format(\strtotime($Transaction->getDate())),
+            'date' => $Formatter->format(\strtotime($Transaction->getDate())),
             'payment' => $payment
         ]);
     }

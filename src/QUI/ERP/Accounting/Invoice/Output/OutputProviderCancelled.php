@@ -52,7 +52,7 @@ class OutputProviderCancelled extends OutputProviderInvoice
      */
     public static function getMailSubject($entityId)
     {
-        $Invoice  = self::getEntity($entityId);
+        $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
         $mailVars = OutputProviderInvoice::getInvoiceLocaleVar($Invoice, $Customer);
 
@@ -92,11 +92,11 @@ class OutputProviderCancelled extends OutputProviderInvoice
      */
     public static function getMailBody($entityId)
     {
-        $Invoice  = self::getEntity($entityId);
+        $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
         // Additional mail placeholders for cancelled invoice
-        $mailVars           = OutputProviderInvoice::getInvoiceLocaleVar($Invoice, $Customer);
+        $mailVars = OutputProviderInvoice::getInvoiceLocaleVar($Invoice, $Customer);
         $cancelledInvoiceId = $Invoice->getData('originalIdPrefixed');
 
         if (empty($cancelledInvoiceId)) {

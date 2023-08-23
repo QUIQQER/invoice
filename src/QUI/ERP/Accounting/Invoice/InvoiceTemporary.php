@@ -8,7 +8,6 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 use QUI\ERP\Accounting\ArticleList;
-use QUI\ERP\Accounting\Invoice\ProcessingStatus;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Customer\CustomerFiles;
@@ -142,10 +141,10 @@ class InvoiceTemporary extends QUI\QDOM
         $data = $Handler->getTemporaryInvoiceData($id);
 
         $this->prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
-        $this->id     = (int)str_replace($this->prefix, '', $id);
+        $this->id = (int)str_replace($this->prefix, '', $id);
 
         $this->Articles = new ArticleList();
-        $this->History  = new QUI\ERP\Comments();
+        $this->History = new QUI\ERP\Comments();
         $this->Comments = new QUI\ERP\Comments();
 
         if (!empty($data['delivery_address'])) {
@@ -157,7 +156,8 @@ class InvoiceTemporary extends QUI\QDOM
                 $this->addressDelivery = false;
             }
 
-            if (empty($this->addressDelivery['company'])
+            if (
+                empty($this->addressDelivery['company'])
                 && empty($this->addressDelivery['firstname'])
                 && empty($this->addressDelivery['lastname'])
                 && empty($this->addressDelivery['street_no'])
@@ -257,7 +257,8 @@ class InvoiceTemporary extends QUI\QDOM
 
 
         // consider contact person in address
-        if (!empty($this->getAttribute('invoice_address')) &&
+        if (
+            !empty($this->getAttribute('invoice_address')) &&
             !empty($this->getAttribute('contact_person'))
         ) {
             $invoiceAddress = $this->getAttribute('invoice_address');
@@ -365,13 +366,13 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $userData = [
-            'id'        => $User->getId(),
-            'country'   => $User->getCountry(),
-            'username'  => $User->getUsername(),
+            'id' => $User->getId(),
+            'country' => $User->getCountry(),
+            'username' => $User->getUsername(),
             'firstname' => $User->getAttribute('firstname'),
-            'lastname'  => $User->getAttribute('lastname'),
-            'lang'      => $User->getLang(),
-            'email'     => $User->getAttribute('email')
+            'lastname' => $User->getAttribute('lastname'),
+            'lang' => $User->getLang(),
+            'email' => $User->getAttribute('email')
         ];
 
         $Customer = false;
@@ -596,8 +597,8 @@ class InvoiceTemporary extends QUI\QDOM
         return [
             'paidData' => $this->getAttribute('paid_data'),
             'paidDate' => $this->getAttribute('paid_date'),
-            'paid'     => $this->getAttribute('paid'),
-            'toPay'    => $this->getAttribute('toPay')
+            'paid' => $this->getAttribute('paid'),
+            'toPay' => $this->getAttribute('toPay')
         ];
     }
 
@@ -665,14 +666,14 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $this->type = $type;
-        $typeTitle  = QUI::getLocale()->get('quiqqer/invoice', 'invoice.type.' . $type);
+        $typeTitle = QUI::getLocale()->get('quiqqer/invoice', 'invoice.type.' . $type);
 
         $this->addHistory(
             QUI::getLocale()->get(
                 'quiqqer/invoice',
                 'history.message.temporaryInvoice.type.changed',
                 [
-                    'type'      => $type,
+                    'type' => $type,
                     'typeTitle' => $typeTitle
                 ]
             )
@@ -725,7 +726,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // attributes
         $projectName = '';
-        $date        = '';
+        $date = '';
 
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
 
@@ -747,14 +748,15 @@ class InvoiceTemporary extends QUI\QDOM
             $timeForPayment = 0;
         }
 
-        if ($this->getAttribute('date')
+        if (
+            $this->getAttribute('date')
             && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('date'))
         ) {
             $date = $this->getAttribute('date');
         }
 
         // address
-        $contactEmail     = $this->getAttribute('contactEmail') ?: false;
+        $contactEmail = $this->getAttribute('contactEmail') ?: false;
         $invoiceAddressId = false;
 
         try {
@@ -778,17 +780,17 @@ class InvoiceTemporary extends QUI\QDOM
 
             $invoiceAddressId = $Address->getId();
         } catch (QUI\Exception $Exception) {
-            $invoiceAddress      = $this->getAttribute('invoice_address');
+            $invoiceAddress = $this->getAttribute('invoice_address');
             $invoiceAddressCheck = false;
 
             if (is_string($invoiceAddress)) {
-                $invoiceAddressCheck                 = json_decode($invoiceAddress, true);
+                $invoiceAddressCheck = json_decode($invoiceAddress, true);
                 $invoiceAddressCheck['contactEmail'] = $contactEmail;
 
                 $invoiceAddress = json_encode($invoiceAddressCheck);
             } elseif (is_array($invoiceAddress)) {
                 $invoiceAddress['contactEmail'] = $contactEmail;
-                $invoiceAddress                 = json_encode($invoiceAddress);
+                $invoiceAddress = json_encode($invoiceAddress);
             }
 
             if (empty($invoiceAddressCheck['id'])) {
@@ -807,7 +809,7 @@ class InvoiceTemporary extends QUI\QDOM
         try {
             if ($this->getAttribute('payment_method')) {
                 $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
-                $Payment  = $Payments->getPayment($this->getAttribute('payment_method'));
+                $Payment = $Payments->getPayment($this->getAttribute('payment_method'));
 
                 $paymentMethod = $Payment->getId();
             }
@@ -828,7 +830,7 @@ class InvoiceTemporary extends QUI\QDOM
 
             $extraText = '<br />';
             $extraText .= $Locale->get('quiqqer/tax', 'message.EUVAT.addition', [
-                'user'  => $this->getCustomer()->getInvoiceName(),
+                'user' => $this->getCustomer()->getInvoiceName(),
                 'vatId' => $this->getCustomer()->getAttribute('quiqqer.erp.euVatId')
             ]);
 
@@ -849,50 +851,50 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         // Editor
-        $Editor     = $this->getEditor();
-        $editorId   = 0;
+        $Editor = $this->getEditor();
+        $editorId = 0;
         $editorName = '';
 
         // use default advisor as editor
         if ($Editor) {
-            $editorId   = $Editor->getId();
+            $editorId = $Editor->getId();
             $editorName = $Editor->getName();
         }
 
         // Ordered By
-        $OrderedBy     = $this->getOrderedByUser();
-        $orderedBy     = (int)$this->getAttribute('customer_id');
+        $OrderedBy = $this->getOrderedByUser();
+        $orderedBy = (int)$this->getAttribute('customer_id');
         $orderedByName = '';
 
         if ($OrderedBy) {
-            $orderedBy     = $OrderedBy->getId();
+            $orderedBy = $OrderedBy->getId();
             $orderedByName = $OrderedBy->getName();
         } elseif ($orderedBy) {
             try {
-                $User          = QUI::getUsers()->get($orderedBy);
-                $orderedBy     = $User->getId();
+                $User = QUI::getUsers()->get($orderedBy);
+                $orderedBy = $User->getId();
                 $orderedByName = $User->getName();
             } catch (QUI\Exception $Exception) {
             }
         }
 
         // shipping
-        $shippingId   = null;
+        $shippingId = null;
         $shippingData = null;
 
         if ($this->getShipping()) {
-            $shippingId   = $this->getShipping()->getId();
+            $shippingId = $this->getShipping()->getId();
             $shippingData = $this->getShipping()->toJSON();
         }
 
         // delivery address
-        $deliveryAddress   = '';
+        $deliveryAddress = '';
         $deliveryAddressId = null;
-        $DeliveryAddress   = $this->getDeliveryAddress();
+        $DeliveryAddress = $this->getDeliveryAddress();
 
         // Save delivery address separately only if it differs from invoice address
         if ($DeliveryAddress && ($invoiceAddressId && $DeliveryAddress->getId() !== $invoiceAddressId)) {
-            $deliveryAddress   = $DeliveryAddress->toJSON();
+            $deliveryAddress = $DeliveryAddress->toJSON();
             $deliveryAddressId = $DeliveryAddress->getId();
 
             if (empty($deliveryAddressId)) {
@@ -923,7 +925,8 @@ class InvoiceTemporary extends QUI\QDOM
         // order date
         $orderDate = null;
 
-        if ($this->getAttribute('order_date')
+        if (
+            $this->getAttribute('order_date')
             && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('order_date'))
         ) {
             $orderDate = $this->getAttribute('order_date');
@@ -931,20 +934,20 @@ class InvoiceTemporary extends QUI\QDOM
 
         // Determine payment status by order (if an order is linked to the invoice)
         $paidStatus = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
-        $paidDate   = null;
-        $paidData   = '';
-        $orderId    = $this->getAttribute('order_id');
+        $paidDate = null;
+        $paidData = '';
+        $orderId = $this->getAttribute('order_id');
 
         if (!empty($orderId)) {
             $Orders = OrderHandler::getInstance();
 
             try {
-                $Order               = $Orders->getOrderById($orderId);
+                $Order = $Orders->getOrderById($orderId);
                 $orderPaidStatusData = $Order->getPaidStatusInformation();
 
                 $paidStatus = $Order->getAttribute('paid_status');
-                $paidDate   = $orderPaidStatusData['paidDate'];
-                $paidData   = \json_encode($orderPaidStatusData['paidData']);
+                $paidDate = $orderPaidStatusData['paidDate'];
+                $paidData = \json_encode($orderPaidStatusData['paidData']);
             } catch (\Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
             }
@@ -958,58 +961,58 @@ class InvoiceTemporary extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             [
-                'type'                    => $this->getInvoiceType(),
+                'type' => $this->getInvoiceType(),
 
                 // user relationships
-                'customer_id'             => (int)$this->getAttribute('customer_id'),
-                'editor_id'               => $editorId,
-                'editor_name'             => $editorName,
-                'order_id'                => $orderId,
-                'ordered_by'              => $orderedBy,
-                'order_date'              => $orderDate,
-                'ordered_by_name'         => $orderedByName,
-                'contact_person'          => $contactPerson,
+                'customer_id' => (int)$this->getAttribute('customer_id'),
+                'editor_id' => $editorId,
+                'editor_name' => $editorName,
+                'order_id' => $orderId,
+                'ordered_by' => $orderedBy,
+                'order_date' => $orderDate,
+                'ordered_by_name' => $orderedByName,
+                'contact_person' => $contactPerson,
 
                 // payments
-                'payment_method'          => $paymentMethod,
-                'payment_data'            => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
-                'payment_time'            => null,
+                'payment_method' => $paymentMethod,
+                'payment_data' => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
+                'payment_time' => null,
 
                 // address
-                'invoice_address_id'      => (int)$this->getAttribute('invoice_address_id'),
-                'invoice_address'         => $invoiceAddress,
-                'delivery_address_id'     => $deliveryAddressId,
-                'delivery_address'        => $deliveryAddress,
+                'invoice_address_id' => (int)$this->getAttribute('invoice_address_id'),
+                'invoice_address' => $invoiceAddress,
+                'delivery_address_id' => $deliveryAddressId,
+                'delivery_address' => $deliveryAddress,
 
                 // processing
-                'time_for_payment'        => $timeForPayment,
-                'paid_status'             => $paidStatus,
-                'paid_date'               => $paidDate,
-                'paid_data'               => $paidData,
-                'processing_status'       => $processingStatus,
-                'customer_data'           => '',   // nicht in gui
+                'time_for_payment' => $timeForPayment,
+                'paid_status' => $paidStatus,
+                'paid_date' => $paidDate,
+                'paid_data' => $paidData,
+                'processing_status' => $processingStatus,
+                'customer_data' => '',   // nicht in gui
 
                 // shipping
-                'shipping_id'             => $shippingId,
-                'shipping_data'           => $shippingData,
+                'shipping_id' => $shippingId,
+                'shipping_data' => $shippingData,
 
                 // invoice data
-                'date'                    => $date,
-                'data'                    => json_encode($this->data),
-                'articles'                => $this->Articles->toJSON(),
-                'history'                 => $this->History->toJSON(),
-                'comments'                => $this->Comments->toJSON(),
+                'date' => $date,
+                'data' => json_encode($this->data),
+                'articles' => $this->Articles->toJSON(),
+                'history' => $this->History->toJSON(),
+                'comments' => $this->Comments->toJSON(),
                 'additional_invoice_text' => $invoiceText,
-                'project_name'            => $projectName,
+                'project_name' => $projectName,
 
                 // Calc data
-                'isbrutto'                => $isBrutto,
-                'currency_data'           => json_encode($this->getCurrency()->toArray()),
-                'currency'                => $this->getCurrency()->getCode(),
-                'nettosum'                => $listCalculations['nettoSum'],
-                'subsum'                  => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
-                'sum'                     => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
-                'vat_array'               => json_encode($listCalculations['vatArray'])
+                'isbrutto' => $isBrutto,
+                'currency_data' => json_encode($this->getCurrency()->toArray()),
+                'currency' => $this->getCurrency()->getCode(),
+                'nettosum' => $listCalculations['nettoSum'],
+                'subsum' => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
+                'sum' => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
+                'vat_array' => json_encode($listCalculations['vatArray'])
             ],
             [
                 'id' => $this->getCleanId()
@@ -1083,17 +1086,17 @@ class InvoiceTemporary extends QUI\QDOM
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
-        $New     = $Factory->createInvoice($PermissionUser);
+        $New = $Factory->createInvoice($PermissionUser);
 
         $currentData = QUI::getDataBase()->fetch([
-            'from'  => $Handler->temporaryInvoiceTable(),
+            'from' => $Handler->temporaryInvoiceTable(),
             'where' => [
                 'id' => $this->getCleanId()
             ],
             'limit' => 1
         ]);
 
-        $currentData         = $currentData[0];
+        $currentData = $currentData[0];
         $currentData['hash'] = QUI\Utils\Uuid::get();
 
         unset($currentData['id']);
@@ -1153,14 +1156,15 @@ class InvoiceTemporary extends QUI\QDOM
         $this->validate();
 
         // data
-        $User     = QUI::getUserBySession();
-        $date     = date('Y-m-d H:i:s'); // invoice date, to today
+        $User = QUI::getUserBySession();
+        $date = date('Y-m-d H:i:s'); // invoice date, to today
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
         $Customer = $this->getCustomer();
-        $Handler  = Handler::getInstance();
+        $Handler = Handler::getInstance();
 
         if (QUI\Permissions\Permission::hasPermission('quiqqer.invoice.changeDate')) {
-            if ($this->getAttribute('date')
+            if (
+                $this->getAttribute('date')
                 && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('date'))
             ) {
                 $date = $this->getAttribute('date');
@@ -1189,37 +1193,37 @@ class InvoiceTemporary extends QUI\QDOM
         // customerData
         $ErpCustomer = QUI\ERP\User::convertUserToErpUser($Customer);
 
-        $customerData                    = $ErpCustomer->getAttributes();
+        $customerData = $ErpCustomer->getAttributes();
         $customerData['erp.isNettoUser'] = $Customer->getAttribute('quiqqer.erp.isNettoUser');
-        $customerData['erp.euVatId']     = $Customer->getAttribute('quiqqer.erp.euVatId');
-        $customerData['erp.taxId']       = $Customer->getAttribute('quiqqer.erp.taxId');
+        $customerData['erp.euVatId'] = $Customer->getAttribute('quiqqer.erp.euVatId');
+        $customerData['erp.taxId'] = $Customer->getAttribute('quiqqer.erp.taxId');
 
 
         // Editor
-        $Editor     = $this->getEditor();
-        $editorId   = 0;
+        $Editor = $this->getEditor();
+        $editorId = 0;
         $editorName = '';
 
         // use default advisor as editor
         if ($Editor) {
-            $editorId   = $Editor->getId();
+            $editorId = $Editor->getId();
             $editorName = $Editor->getName();
         }
 
         // Ordered By
-        $OrderedBy     = $this->getOrderedByUser();
-        $orderedBy     = (int)$this->getAttribute('customer_id');
+        $OrderedBy = $this->getOrderedByUser();
+        $orderedBy = (int)$this->getAttribute('customer_id');
         $orderedByName = '';
 
 
         // use default advisor as editor
         if ($OrderedBy) {
-            $orderedBy     = $OrderedBy->getId();
+            $orderedBy = $OrderedBy->getId();
             $orderedByName = $OrderedBy->getName();
         } elseif ($orderedBy) {
             try {
-                $User          = QUI::getUsers()->get($orderedBy);
-                $orderedBy     = $User->getId();
+                $User = QUI::getUsers()->get($orderedBy);
+                $orderedBy = $User->getId();
                 $orderedByName = $User->getName();
             } catch (QUI\Exception $Exception) {
             }
@@ -1232,10 +1236,10 @@ class InvoiceTemporary extends QUI\QDOM
 
         // payment stuff
         $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
-        $Payment  = $Payments->getPayment($this->getAttribute('payment_method'));
+        $Payment = $Payments->getPayment($this->getAttribute('payment_method'));
 
         $paymentMethodData = $this->parsePaymentForPaymentData($Payment);
-        $paymentTime       = (int)$this->getAttribute('time_for_payment');
+        $paymentTime = (int)$this->getAttribute('time_for_payment');
 
         if ($paymentTime < 0) {
             $paymentTime = 0;
@@ -1264,18 +1268,18 @@ class InvoiceTemporary extends QUI\QDOM
         $this->Articles->calc();
 
         $listCalculations = $this->Articles->getCalculations();
-        $uniqueList       = $this->Articles->toUniqueList()->toArray();
+        $uniqueList = $this->Articles->toUniqueList()->toArray();
 
-        $uniqueList['calculations']['sum']    = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['sum']);
+        $uniqueList['calculations']['sum'] = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['sum']);
         $uniqueList['calculations']['subSum'] = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['subSum']);
-        $uniqueList                           = json_encode($uniqueList);
+        $uniqueList = json_encode($uniqueList);
 
         //shipping
-        $shippingId   = null;
+        $shippingId = null;
         $shippingData = null;
 
         if ($this->getShipping()) {
-            $shippingId   = $this->getShipping()->getId();
+            $shippingId = $this->getShipping()->getId();
             $shippingData = $this->getShipping()->toJSON();
         }
 
@@ -1305,7 +1309,7 @@ class InvoiceTemporary extends QUI\QDOM
 
         // payment custom data
         try {
-            $InvoicePayment                             = new Payment($paymentMethodData);
+            $InvoicePayment = new Payment($paymentMethodData);
             $this->customData['InvoiceInformationText'] = $InvoicePayment->getInvoiceInformationText($this);
         } catch (\Exception $Exception) {
         }
@@ -1320,7 +1324,8 @@ class InvoiceTemporary extends QUI\QDOM
         // order date
         $orderDate = null;
 
-        if ($this->getAttribute('order_date')
+        if (
+            $this->getAttribute('order_date')
             && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('order_date'))
         ) {
             $orderDate = $this->getAttribute('order_date');
@@ -1328,11 +1333,13 @@ class InvoiceTemporary extends QUI\QDOM
 
         // check if hash already exists
         try {
-            $oldHash          = $this->getAttribute('hash');
+            $oldHash = $this->getAttribute('hash');
             $HashCheckInvoice = Handler::getInstance()->getInvoiceByHash($oldHash);
 
-            if ($HashCheckInvoice instanceof InvoiceTemporary &&
-                $HashCheckInvoice->getCleanId() !== $this->getCleanId()) {
+            if (
+                $HashCheckInvoice instanceof InvoiceTemporary &&
+                $HashCheckInvoice->getCleanId() !== $this->getCleanId()
+            ) {
                 // if invoice hash exist, we need a new hash
                 $this->setAttribute('hash', QUI\Utils\Uuid::get());
 
@@ -1359,65 +1366,65 @@ class InvoiceTemporary extends QUI\QDOM
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             [
-                'type'                     => $type,
-                'id_prefix'                => $invoicePrefix,
-                'global_process_id'        => $this->getGlobalProcessId(),
+                'type' => $type,
+                'id_prefix' => $invoicePrefix,
+                'global_process_id' => $this->getGlobalProcessId(),
 
                 // user relationships
-                'c_user'                   => $User->getId(),
-                'c_username'               => $User->getName(),
-                'editor_id'                => $editorId,
-                'editor_name'              => $editorName,
-                'order_id'                 => $this->getAttribute('order_id'),
-                'order_date'               => $orderDate,
-                'ordered_by'               => $orderedBy,
-                'ordered_by_name'          => $orderedByName,
-                'contact_person'           => $contactPerson,
-                'customer_id'              => $this->getCustomer()->getId(),
-                'customer_data'            => json_encode($customerData),
+                'c_user' => $User->getId(),
+                'c_username' => $User->getName(),
+                'editor_id' => $editorId,
+                'editor_name' => $editorName,
+                'order_id' => $this->getAttribute('order_id'),
+                'order_date' => $orderDate,
+                'ordered_by' => $orderedBy,
+                'ordered_by_name' => $orderedByName,
+                'contact_person' => $contactPerson,
+                'customer_id' => $this->getCustomer()->getId(),
+                'customer_data' => json_encode($customerData),
 
                 // addresses
-                'invoice_address'          => $invoiceAddress,
-                'delivery_address'         => $deliveryAddress,
+                'invoice_address' => $invoiceAddress,
+                'delivery_address' => $deliveryAddress,
 
                 // payments
-                'payment_method'           => $this->getAttribute('payment_method'),
-                'payment_method_data'      => json_encode($paymentMethodData),
-                'payment_data'             => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
-                'payment_time'             => null,
-                'time_for_payment'         => $timeForPayment,
+                'payment_method' => $this->getAttribute('payment_method'),
+                'payment_method_data' => json_encode($paymentMethodData),
+                'payment_data' => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
+                'payment_time' => null,
+                'time_for_payment' => $timeForPayment,
 
                 // paid status
-                'paid_status'              => $this->getAttribute('paid_status'),
-                'paid_date'                => $paidStatusInformation['paidDate'],
-                'paid_data'                => \json_encode($paidStatusInformation['paidData']),
-                'processing_status'        => $processingStatus,
+                'paid_status' => $this->getAttribute('paid_status'),
+                'paid_date' => $paidStatusInformation['paidDate'],
+                'paid_data' => \json_encode($paidStatusInformation['paidData']),
+                'processing_status' => $processingStatus,
 
                 // shipping
-                'shipping_id'              => $shippingId,
-                'shipping_data'            => $shippingData,
+                'shipping_id' => $shippingId,
+                'shipping_data' => $shippingData,
 
                 // data
-                'hash'                     => $this->getAttribute('hash'),
-                'project_name'             => $this->getAttribute('project_name'),
-                'date'                     => $date,
-                'data'                     => json_encode($this->data),
-                'additional_invoice_text'  => $this->getAttribute('additional_invoice_text'),
+                'hash' => $this->getAttribute('hash'),
+                'project_name' => $this->getAttribute('project_name'),
+                'date' => $date,
+                'data' => json_encode($this->data),
+                'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),
                 'transaction_invoice_text' => $this->getView()->getTransactionText(),
-                'articles'                 => $uniqueList,
-                'history'                  => $this->getHistory()->toJSON(),
-                'comments'                 => $this->getComments()->toJSON(),
-                'custom_data'              => json_encode($this->customData),
+                'articles' => $uniqueList,
+                'history' => $this->getHistory()->toJSON(),
+                'comments' => $this->getComments()->toJSON(),
+                'custom_data' => json_encode($this->customData),
 
                 // calculation data
-                'isbrutto'                 => $isBrutto === QUI\ERP\Utils\User::IS_BRUTTO_USER ? 1 : 0,
-                'currency_data'            => json_encode($this->getCurrency()->toArray()),
-                'currency'                 => $this->getCurrency()->getCode(),
-                'nettosum'                 => $listCalculations['nettoSum'],
-                'nettosubsum'              => $listCalculations['nettoSubSum'],
-                'subsum'                   => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
-                'sum'                      => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
-                'vat_array'                => json_encode($listCalculations['vatArray'])
+                'isbrutto' => $isBrutto === QUI\ERP\Utils\User::IS_BRUTTO_USER ? 1 : 0,
+                'currency_data' => json_encode($this->getCurrency()->toArray()),
+                'currency' => $this->getCurrency()->getCode(),
+                'nettosum' => $listCalculations['nettoSum'],
+                'nettosubsum' => $listCalculations['nettoSubSum'],
+                'subsum' => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
+                'sum' => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
+                'vat_array' => json_encode($listCalculations['vatArray'])
             ]
         );
 
@@ -1452,7 +1459,7 @@ class InvoiceTemporary extends QUI\QDOM
         $this->delete(QUI::getUsers()->getSystemUser());
 
         // invoice payment calculation
-        $Invoice     = $Handler->getInvoice($newId);
+        $Invoice = $Handler->getInvoice($newId);
         $calculation = QUI\ERP\Accounting\Calc::calculatePayments($Invoice);
 
         if (empty($calculation)) {
@@ -1465,8 +1472,8 @@ class InvoiceTemporary extends QUI\QDOM
             QUI::getDataBase()->update(
                 $Handler->invoiceTable(),
                 [
-                    'paid_data'   => json_encode($calculation['paidData']),
-                    'paid_date'   => (int)$calculation['paidDate'],
+                    'paid_data' => json_encode($calculation['paidData']),
+                    'paid_date' => (int)$calculation['paidDate'],
                     'paid_status' => (int)$calculation['paidStatus']
                 ],
                 ['id' => $newId]
@@ -1479,8 +1486,8 @@ class InvoiceTemporary extends QUI\QDOM
 
             $acData = [
                 'accountingCurrency' => $AccountingCurrency->toArray(),
-                'currency'           => $this->getCurrency()->toArray(),
-                'rate'               => $this->getCurrency()->getExchangeRate($AccountingCurrency)
+                'currency' => $this->getCurrency()->toArray(),
+                'rate' => $this->getCurrency()->getExchangeRate($AccountingCurrency)
             ];
 
             $Invoice->addCustomDataEntry('accountingCurrencyData', $acData);
@@ -1543,8 +1550,8 @@ class InvoiceTemporary extends QUI\QDOM
     {
         $attributes = $this->getAttributes();
 
-        $attributes['id']       = $this->getId();
-        $attributes['type']     = $this->getInvoiceType();
+        $attributes['id'] = $this->getId();
+        $attributes['type'] = $this->getInvoiceType();
         $attributes['articles'] = $this->Articles->toArray();
 
         $attributes['globalProcessId'] = $this->getGlobalProcessId();
@@ -1570,26 +1577,28 @@ class InvoiceTemporary extends QUI\QDOM
 
         QUI\ERP\Accounting\Calc::calculatePayments($this);
 
-        if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
+        if (
+            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
             || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
             || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
         ) {
             return;
         }
 
-        if ($currentPaidStatus === $this->getAttribute('paid_status')
-            && ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID ||
-                $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED)
+        if (
+            $currentPaidStatus === $this->getAttribute('paid_status')
+            && ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID
+                || $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED)
         ) {
             return;
         }
 
         QUI\ERP\Debug::getInstance()->log('Order:: add transaction start');
 
-        $User     = QUI::getUserBySession();
+        $User = QUI::getUserBySession();
         $paidData = $this->getAttribute('paid_data');
-        $amount   = Price::validatePrice($Transaction->getAmount());
-        $date     = $Transaction->getDate();
+        $amount = Price::validatePrice($Transaction->getAmount());
+        $date = $Transaction->getDate();
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryAddTransactionBegin',
@@ -1655,8 +1664,8 @@ class InvoiceTemporary extends QUI\QDOM
                 'history.message.addPayment',
                 [
                     'username' => $User->getName(),
-                    'uid'      => $User->getId(),
-                    'txid'     => $Transaction->getTxId()
+                    'uid' => $User->getId(),
+                    'txid' => $Transaction->getTxId()
                 ]
             )
         );
@@ -1713,6 +1722,12 @@ class InvoiceTemporary extends QUI\QDOM
      */
     public function getArticles(): ArticleList
     {
+        if ($this->Currency && $this->Currency->getCode() !== QUI\ERP\Defaults::getCurrency()->getCode()) {
+            $this->Articles->setExchangeCurrency(
+                $this->Currency
+            );
+        }
+
         return $this->Articles;
     }
 
@@ -1825,7 +1840,7 @@ class InvoiceTemporary extends QUI\QDOM
                 'history.message.addComment',
                 [
                     'username' => $User->getName(),
-                    'uid'      => $User->getId()
+                    'uid' => $User->getId()
                 ]
             )
         );
@@ -1954,20 +1969,20 @@ class InvoiceTemporary extends QUI\QDOM
      */
     protected function parsePaymentForPaymentData(QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment): array
     {
-        $data      = $Payment->toArray();
-        $Locale    = new QUI\Locale();
+        $data = $Payment->toArray();
+        $Locale = new QUI\Locale();
         $languages = QUI\Translator::getAvailableLanguages();
 
-        $data['title']        = [];
+        $data['title'] = [];
         $data['workingTitle'] = [];
-        $data['description']  = [];
+        $data['description'] = [];
 
         foreach ($languages as $language) {
             $Locale->setCurrent($language);
 
-            $data['title'][$language]        = $Payment->getTitle($Locale);
+            $data['title'][$language] = $Payment->getTitle($Locale);
             $data['workingTitle'][$language] = $Payment->getWorkingTitle($Locale);
-            $data['description'][$language]  = $Payment->getDescription($Locale);
+            $data['description'][$language] = $Payment->getDescription($Locale);
         }
 
         return $data;
@@ -2017,7 +2032,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function lock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key = 'temporary-invoice-' . $this->getId();
 
         QUI\Lock\Locker::lock($Package, $key);
     }
@@ -2032,7 +2047,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function unlock()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key = 'temporary-invoice-' . $this->getId();
 
         QUI\Lock\Locker::unlock($Package, $key);
     }
@@ -2047,7 +2062,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function isLocked(): bool
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key = 'temporary-invoice-' . $this->getId();
 
         return QUI\Lock\Locker::isLocked($Package, $key);
     }
@@ -2061,7 +2076,7 @@ class InvoiceTemporary extends QUI\QDOM
     public function checkLocked()
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key     = 'temporary-invoice-' . $this->getId();
+        $key = 'temporary-invoice-' . $this->getId();
 
         QUI\Lock\Locker::checkLocked($Package, $key);
     }
@@ -2167,7 +2182,7 @@ class InvoiceTemporary extends QUI\QDOM
                 );
 
                 if ($Address) {
-                    $addressData       = $Address->getAttributes();
+                    $addressData = $Address->getAttributes();
                     $addressData['id'] = $Address->getId();
 
                     return new QUI\ERP\Address($addressData, $this->getCustomer());
@@ -2292,11 +2307,11 @@ class InvoiceTemporary extends QUI\QDOM
         }
 
         $fileEntry = [
-            'hash'    => $fileHash,
+            'hash' => $fileHash,
             'options' => $options
         ];
 
-        $customerFiles   = $this->getCustomerFiles();
+        $customerFiles = $this->getCustomerFiles();
         $customerFiles[] = $fileEntry;
 
         $this->setData('customer_files', $customerFiles);

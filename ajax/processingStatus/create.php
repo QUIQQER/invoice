@@ -1,10 +1,11 @@
 <?php
 
-use QUI\ERP\Accounting\Invoice\ProcessingStatus\Factory;
-
 /**
  * Create a new  processing status
  */
+
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Factory;
+
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_processingStatus_create',
     function ($id, $color, $title, $options) {

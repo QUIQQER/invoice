@@ -26,11 +26,11 @@ class UserInvoices extends Control implements ControlInterface
     public function __construct(array $attributes = [])
     {
         $this->addCSSClass('quiqqer-invoice-profile-invoices');
-        $this->addCSSFile(\dirname(__FILE__).'/UserInvoices.css');
+        $this->addCSSFile(\dirname(__FILE__) . '/UserInvoices.css');
 
         $this->setAttributes([
             // 'data-qui' => 'package/quiqqer/order/bin/frontend/controls/frontendusers/Orders',
-            'page'  => 1,
+            'page' => 1,
             'limit' => 5
         ]);
 
@@ -44,9 +44,9 @@ class UserInvoices extends Control implements ControlInterface
      */
     public function getBody()
     {
-        $Engine   = QUI::getTemplateManager()->getEngine();
-        $User     = QUI::getUserBySession();
-        $Search   = QUI\ERP\Accounting\Invoice\Search\InvoiceSearch::getInstance();
+        $Engine = QUI::getTemplateManager()->getEngine();
+        $User = QUI::getUserBySession();
+        $Search = QUI\ERP\Accounting\Invoice\Search\InvoiceSearch::getInstance();
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
         if ($this->getAttribute('User')) {
@@ -57,14 +57,14 @@ class UserInvoices extends Control implements ControlInterface
             $this->setAttribute('limit', 5);
         }
 
-        $limit        = (int)$this->getAttribute('limit');
+        $limit = (int)$this->getAttribute('limit');
         $sheetCurrent = (int)$this->getAttribute('page');
-        $start        = ($sheetCurrent - 1) * $limit;
+        $start = ($sheetCurrent - 1) * $limit;
 
         $Search->limit($start, $start + $limit);
         $Search->setFilter('customer_id', $User->getId());
 
-        $result   = $Search->search();
+        $result = $Search->search();
         $invoices = [];
 
         foreach ($result as $entry) {
@@ -79,7 +79,7 @@ class UserInvoices extends Control implements ControlInterface
             'invoices' => $invoices
         ]);
 
-        return $Engine->fetch(\dirname(__FILE__).'/UserInvoices.html');
+        return $Engine->fetch(\dirname(__FILE__) . '/UserInvoices.html');
     }
 
     /**

@@ -8,6 +8,7 @@
  *
  * @return void
  */
+
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_setCustomerFiles',
     function ($invoiceHash, $customerFiles) {
