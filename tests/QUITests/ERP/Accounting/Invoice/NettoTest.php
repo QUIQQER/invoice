@@ -2,7 +2,7 @@
 
 namespace QUITests\ERP\Accounting\Invoice;
 
-require_once dirname(__FILE__).'/Classes/ListHelper.php';
+require_once dirname(__FILE__) . '/Classes/ListHelper.php';
 
 use QUI;
 use QUITests\ERP\Accounting\Invoice\Classes\ListHelper;
@@ -20,14 +20,14 @@ class NettoTest extends \PHPUnit_Framework_TestCase
         writePhpUnitMessage();
 
         $NettoUser = new QUI\ERP\User([
-            'id'        => 0,
-            'country'   => 'DE',
-            'username'  => 'user',
+            'id' => 0,
+            'country' => 'DE',
+            'username' => 'user',
             'firstname' => 'Markus',
-            'lastname'  => 'Baumgartner',
-            'lang'      => 'de',
+            'lastname' => 'Baumgartner',
+            'lang' => 'de',
             'isCompany' => 0,
-            'isNetto'   => 1
+            'isNetto' => 1
         ]);
 
         $NettoUser->setAttribute('quiqqer.erp.isNettoUser', 1);
@@ -37,26 +37,26 @@ class NettoTest extends \PHPUnit_Framework_TestCase
 
         $List->addArticle(
             new QUI\ERP\Accounting\Article([
-                'id'          => 10,
-                'articleNo'   => 'ART001',
-                'title'       => 'Artikel 1',
+                'id' => 10,
+                'articleNo' => 'ART001',
+                'title' => 'Artikel 1',
                 'description' => 'Artikel Desc',
-                'unitPrice'   => 10,
-                'quantity'    => 2,
-                'vat'         => 19
+                'unitPrice' => 10,
+                'quantity' => 2,
+                'vat' => 19
             ])
         );
 
 
         $List->addArticle(
             new QUI\ERP\Accounting\Article([
-                'id'          => 11,
-                'articleNo'   => 'ART002',
-                'title'       => 'Artikel 2',
+                'id' => 11,
+                'articleNo' => 'ART002',
+                'title' => 'Artikel 2',
                 'description' => 'Artikel Desc',
-                'unitPrice'   => 10,
-                'quantity'    => 3,
-                'vat'         => 7
+                'unitPrice' => 10,
+                'quantity' => 3,
+                'vat' => 7
             ])
         );
 

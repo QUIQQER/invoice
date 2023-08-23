@@ -6,17 +6,30 @@
 
 namespace QUI\ERP\Accounting\Invoice\Search;
 
+use Exception;
+use PDO;
 use QUI;
-use QUI\Utils\Singleton;
-
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
-use QUI\ERP\Accounting\Invoice\Settings;
-
-use QUI\ERP\Currency\Handler as Currencies;
-use QUI\ERP\Accounting\Payments\Payments as Payments;
-use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatusHandler;
+use QUI\ERP\Accounting\Invoice\Settings;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
+use QUI\ERP\Accounting\Payments\Payments as Payments;
+use QUI\ERP\Currency\Handler as Currencies;
+use QUI\Utils\Singleton;
+
+use function array_flip;
+use function array_map;
+use function count;
+use function implode;
+use function is_array;
+use function json_decode;
+use function strip_tags;
+use function strlen;
+use function strpos;
+use function strtotime;
+use function substr;
+use function time;
 
 /**
  * Class Search
@@ -29,7 +42,7 @@ class InvoiceSearch extends Singleton
     /**
      * @var array
      */
-    protected $filter = [];
+    protected array $filter = [];
 
     /**
      * search value
@@ -39,26 +52,26 @@ class InvoiceSearch extends Singleton
     protected $search = null;
 
     /**
-     * @var array
+     * @var array|bool
      */
     protected $limit = [0, 20];
 
     /**
      * @var string
      */
-    protected $order = 'id DESC';
+    protected string $order = 'id DESC';
 
     /**
      * currency of the searched invoices
      *
      * @var string
      */
-    protected $currency = '';
+    protected string $currency = '';
 
     /**
      * @var array
      */
-    protected $cache = [];
+    protected array $cache = [];
 
     /**
      * Set a filter
@@ -66,7 +79,7 @@ class InvoiceSearch extends Singleton
      * @param string $filter
      * @param string|array $value
      */
-    public function setFilter($filter, $value)
+    public function setFilter(string $filter, $value)
     {
         if ($filter === 'search') {
             $this->search = $value;
@@ -87,12 +100,11 @@ class InvoiceSearch extends Singleton
                 return;
             }
 
-            $allowed = \array_map(function ($Currency) {
-                /* @var $Currency QUI\ERP\Currency\Currency */
+            $allowed = array_map(function ($Currency) {
                 return $Currency->getCode();
             }, $allowed);
 
-            $allowed = \array_flip($allowed);
+            $allowed = array_flip($allowed);
 
             if (isset($allowed[$value])) {
                 $this->currency = $value;
@@ -101,13 +113,13 @@ class InvoiceSearch extends Singleton
             return;
         }
 
-        $keys = \array_flip($this->getAllowedFields());
+        $keys = array_flip($this->getAllowedFields());
 
         if (!isset($keys[$filter]) && $filter !== 'from' && $filter !== 'to') {
             return;
         }
 
-        if (!\is_array($value)) {
+        if (!is_array($value)) {
             $value = [$value];
         }
 
@@ -132,8 +144,10 @@ class InvoiceSearch extends Singleton
                 }
             }
 
-            if (empty($val)
-                && ($filter === 'from' || $filter === 'to')) {
+            if (
+                empty($val)
+                && ($filter === 'from' || $filter === 'to')
+            ) {
                 continue;
             }
 
@@ -147,7 +161,7 @@ class InvoiceSearch extends Singleton
 
             $this->filter[] = [
                 'filter' => $filter,
-                'value'  => $val
+                'value' => $val
             ];
         }
     }
@@ -163,8 +177,8 @@ class InvoiceSearch extends Singleton
     /**
      * Set the limit
      *
-     * @param string $from
-     * @param string $to
+     * @param string|int $from
+     * @param string|int $to
      */
     public function limit($from, $to)
     {
@@ -199,14 +213,14 @@ class InvoiceSearch extends Singleton
 
         foreach ($this->getAllowedFields() as $field) {
             $allowed[] = $field;
-            $allowed[] = $field.' ASC';
-            $allowed[] = $field.' asc';
-            $allowed[] = $field.' DESC';
-            $allowed[] = $field.' desc';
+            $allowed[] = $field . ' ASC';
+            $allowed[] = $field . ' asc';
+            $allowed[] = $field . ' DESC';
+            $allowed[] = $field . ' desc';
         }
 
-        $order   = \trim($order);
-        $allowed = \array_flip($allowed);
+        $order = \trim($order);
+        $allowed = array_flip($allowed);
 
         if (isset($allowed[$order])) {
             $this->order = $order;
@@ -236,7 +250,7 @@ class InvoiceSearch extends Singleton
         $this->cache = [];
 
         // select display invoices
-        $query      = $this->getQuery();
+        $query = $this->getQuery();
         $countQuery = $this->getQueryCount();
 
         $invoices = $this->executeQueryParams($query);
@@ -251,7 +265,7 @@ class InvoiceSearch extends Singleton
         $oldLimit = $this->limit;
 
         $this->limit = false;
-        $calc        = $this->parseListForGrid($this->executeQueryParams($this->getQuery()));
+        $calc = $this->parseListForGrid($this->executeQueryParams($this->getQuery()));
 
         //$this->filter = $oldFiler;
         $this->limit = $oldLimit;
@@ -267,11 +281,11 @@ class InvoiceSearch extends Singleton
 
         // result
         $result = $this->parseListForGrid($invoices);
-        $Grid   = new QUI\Utils\Grid();
+        $Grid = new QUI\Utils\Grid();
         $Grid->setAttribute('page', ($this->limit[0] / $this->limit[1]) + 1);
 
         return [
-            'grid'  => $Grid->parseResult($result, $count),
+            'grid' => $Grid->parseResult($result, $count),
             'total' => QUI\ERP\Accounting\Calc::calculateTotal($calc, $Currency)
         ];
     }
@@ -300,8 +314,8 @@ class InvoiceSearch extends Singleton
 
         if ($this->limit && isset($this->limit[0]) && isset($this->limit[1])) {
             $start = $this->limit[0];
-            $end   = $this->limit[1];
-            $limit = " LIMIT {$start},{$end}";
+            $end = $this->limit[1];
+            $limit = " LIMIT $start,$end";
         }
 
         if (empty($this->filter) && empty($this->search)) {
@@ -326,7 +340,7 @@ class InvoiceSearch extends Singleton
         // filter
         $where = [];
         $binds = [];
-        $fc    = 0;
+        $fc = 0;
 
         // currency
         $DefaultCurrency = QUI\ERP\Currency\Handler::getDefaultCurrency();
@@ -344,50 +358,50 @@ class InvoiceSearch extends Singleton
 
         $binds[':currency'] = [
             'value' => $this->currency,
-            'type'  => \PDO::PARAM_STR
+            'type' => PDO::PARAM_STR
         ];
 
 
         // filter
         foreach ($this->filter as $filter) {
-            $bind = ':filter'.$fc;
-            $flr  = $filter['filter'];
+            $bind = ':filter' . $fc;
+            $flr = $filter['filter'];
 
             switch ($flr) {
                 case 'from':
-                    $where[] = 'date >= '.$bind;
+                    $where[] = 'date >= ' . $bind;
                     break;
 
                 case 'to':
-                    $where[] = 'date <= '.$bind;
+                    $where[] = 'date <= ' . $bind;
                     break;
 
                 case 'paid_status':
                     if ((int)$filter['value'] === QUI\ERP\Constants::PAYMENT_STATUS_OPEN) {
-                        $bind1 = ':filter'.$fc;
+                        $bind1 = ':filter' . $fc;
                         $fc++;
-                        $bind2 = ':filter'.$fc;
+                        $bind2 = ':filter' . $fc;
 
-                        $where[] = '(paid_status = '.$bind1.' OR paid_status = '.$bind2.')';
+                        $where[] = '(paid_status = ' . $bind1 . ' OR paid_status = ' . $bind2 . ')';
 
                         $binds[$bind1] = [
                             'value' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
-                            'type'  => \PDO::PARAM_INT
+                            'type' => PDO::PARAM_INT
                         ];
 
                         $binds[$bind2] = [
                             'value' => QUI\ERP\Constants::PAYMENT_STATUS_PART,
-                            'type'  => \PDO::PARAM_INT
+                            'type' => PDO::PARAM_INT
                         ];
 
                         break;
                     }
 
-                    $where[] = 'paid_status = '.$bind;
+                    $where[] = 'paid_status = ' . $bind;
 
                     $binds[$bind] = [
                         'value' => (int)$filter['value'],
-                        'type'  => \PDO::PARAM_INT
+                        'type' => PDO::PARAM_INT
                     ];
 
                     break;
@@ -399,11 +413,11 @@ class InvoiceSearch extends Singleton
                 case 'taxId':
                 case 'hash':
                 case 'isbrutto':
-                    $where[] = $flr.' = '.$bind;
+                    $where[] = $flr . ' = ' . $bind;
 
                     $binds[$bind] = [
                         'value' => (int)$filter['value'],
-                        'type'  => \PDO::PARAM_INT
+                        'type' => PDO::PARAM_INT
                     ];
 
                     break;
@@ -411,7 +425,7 @@ class InvoiceSearch extends Singleton
 
             $binds[$bind] = [
                 'value' => $filter['value'],
-                'type'  => \PDO::PARAM_STR
+                'type' => PDO::PARAM_STR
             ];
 
             $fc++;
@@ -450,39 +464,39 @@ class InvoiceSearch extends Singleton
                 sum LIKE :search
             )';
 
-            $prefix     = Settings::getInstance()->getInvoicePrefix();
+            $prefix = Settings::getInstance()->getInvoicePrefix();
             $tempPrefix = Settings::getInstance()->getTemporaryInvoicePrefix();
 
-            if (\strpos($this->search, $prefix) === 0) {
-                $idSearch = \substr($this->search, \strlen($prefix));
+            if (strpos($this->search, $prefix) === 0) {
+                $idSearch = substr($this->search, strlen($prefix));
 
                 $binds['searchId'] = [
-                    'value' => $idSearch.'%',
-                    'type'  => \PDO::PARAM_STR
+                    'value' => $idSearch . '%',
+                    'type' => PDO::PARAM_STR
                 ];
-            } elseif (\strpos($this->search, $tempPrefix) === 0) {
-                $idSearch = \substr($this->search, \strlen($tempPrefix));
+            } elseif (strpos($this->search, $tempPrefix) === 0) {
+                $idSearch = substr($this->search, strlen($tempPrefix));
 
                 $binds['searchId'] = [
-                    'value' => $idSearch.'%',
-                    'type'  => \PDO::PARAM_STR
+                    'value' => $idSearch . '%',
+                    'type' => PDO::PARAM_STR
                 ];
             } else {
                 $binds['searchId'] = [
-                    'value' => '%'.$this->search.'%',
-                    'type'  => \PDO::PARAM_STR
+                    'value' => '%' . $this->search . '%',
+                    'type' => PDO::PARAM_STR
                 ];
             }
 
             $binds['search'] = [
-                'value' => '%'.$this->search.'%',
-                'type'  => \PDO::PARAM_STR
+                'value' => '%' . $this->search . '%',
+                'type' => PDO::PARAM_STR
             ];
         }
 
-        $whereQuery = 'WHERE '.\implode(' AND ', $where);
+        $whereQuery = 'WHERE ' . implode(' AND ', $where);
 
-        if (!\count($where)) {
+        if (!count($where)) {
             $whereQuery = '';
         }
 
@@ -516,7 +530,7 @@ class InvoiceSearch extends Singleton
      */
     protected function executeQueryParams(array $queryData = []): array
     {
-        $PDO   = QUI::getDataBase()->getPDO();
+        $PDO = QUI::getDataBase()->getPDO();
         $binds = $queryData['binds'];
         $query = $queryData['query'];
 
@@ -529,8 +543,8 @@ class InvoiceSearch extends Singleton
         try {
             $Statement->execute();
 
-            return $Statement->fetchAll(\PDO::FETCH_ASSOC);
-        } catch (\Exception $Exception) {
+            return $Statement->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $Exception) {
             QUI\System\Log::writeRecursive($Exception);
             QUI\System\Log::writeRecursive($query);
             QUI\System\Log::writeRecursive($binds);
@@ -545,7 +559,7 @@ class InvoiceSearch extends Singleton
     protected function parseListForGrid(array $data): array
     {
         $Invoices = Handler::getInstance();
-        $Locale   = QUI::getLocale();
+        $Locale = QUI::getLocale();
         $Payments = Payments::getInstance();
 
         $defaultDateFormat = QUI\ERP\Defaults::getDateFormat();
@@ -593,8 +607,8 @@ class InvoiceSearch extends Singleton
 
         // processing status stuff
         $ProcessingStatus = ProcessingStatusHandler::getInstance();
-        $list             = $ProcessingStatus->getProcessingStatusList();
-        $processing       = [];
+        $list = $ProcessingStatus->getProcessingStatusList();
+        $processing = [];
 
         foreach ($list as $Status) {
             $processing[$Status->getId()] = $Status;
@@ -617,13 +631,13 @@ class InvoiceSearch extends Singleton
 
             $Invoice->getPaidStatusInformation();
 
-            $Customer    = $Invoice->getCustomer();
+            $Customer = $Invoice->getCustomer();
             $invoiceData = $Invoice->getAttributes();
 
             $fillFields($invoiceData);
 
             try {
-                $currency = \json_decode($Invoice->getAttribute('currency_data'), true);
+                $currency = json_decode($Invoice->getAttribute('currency_data'), true);
                 $Currency = Currencies::getCurrency($currency['code']);
             } catch (QUI\Exception $Exception) {
                 $Currency = QUI\ERP\Defaults::getCurrency();
@@ -637,7 +651,7 @@ class InvoiceSearch extends Singleton
 
                 $invoiceData['order_date'] = $Order->getCreateDate();
                 $invoiceData['order_date'] = $Locale->formatDate(
-                    \strtotime($invoiceData['order_date']),
+                    strtotime($invoiceData['order_date']),
                     $defaultTimeFormat
                 );
             } catch (QUI\Exception $Exception) {
@@ -652,19 +666,19 @@ class InvoiceSearch extends Singleton
             }
 
 
-            $timeForPayment = \strtotime($Invoice->getAttribute('time_for_payment'));
+            $timeForPayment = strtotime($Invoice->getAttribute('time_for_payment'));
 
             $invoiceData['globalProcessId'] = $Invoice->getGlobalProcessId();
 
             $invoiceData['date'] = $Locale->formatDate(
-                \strtotime($Invoice->getAttribute('date')),
+                strtotime($Invoice->getAttribute('date')),
                 $defaultDateFormat
             );
 
             $invoiceData['time_for_payment'] = $Locale->formatDate($timeForPayment, $defaultDateFormat);
 
             $invoiceData['c_date'] = $Locale->formatDate(
-                \strtotime($Invoice->getAttribute('c_date')),
+                strtotime($Invoice->getAttribute('c_date')),
                 $defaultTimeFormat
             );
 
@@ -680,16 +694,16 @@ class InvoiceSearch extends Singleton
             $paidStatus = $Invoice->getAttribute('paid_status');
             $textStatus = $Locale->get(
                 'quiqqer/invoice',
-                'payment.status.'.$paidStatus
+                'payment.status.' . $paidStatus
             );
 
-            $invoiceData['paid_status']         = $textStatus;
-            $invoiceData['paid_status_display'] = '<span class="payment-status payment-status-'.$paidStatus.'">'.$textStatus.'</span>';
-            $invoiceData['paid_status_clean']   = \strip_tags($textStatus);
+            $invoiceData['paid_status'] = $textStatus;
+            $invoiceData['paid_status_display'] = '<span class="payment-status payment-status-' . $paidStatus . '">' . $textStatus . '</span>';
+            $invoiceData['paid_status_clean'] = strip_tags($textStatus);
 
             $invoiceData['dunning_level_display'] = $Locale->get(
                 'quiqqer/invoice',
-                'dunning.level.'.$invoiceData['dunning_level']
+                'dunning.level.' . $invoiceData['dunning_level']
             );
 
             try {
@@ -704,8 +718,8 @@ class InvoiceSearch extends Singleton
                 $invoiceData['id_prefix'] = Settings::getInstance()->getInvoicePrefix();
             }
 
-            $invoiceData['id'] = $invoiceData['id_prefix'].$invoiceData['id'];
-            $invoiceAddress    = \json_decode($invoiceData['invoice_address'], true);
+            $invoiceData['id'] = $invoiceData['id_prefix'] . $invoiceData['id'];
+            $invoiceAddress = json_decode($invoiceData['invoice_address'], true);
 
             if (!isset($invoiceAddress['salutation'])) {
                 $invoiceAddress['salutation'] = '';
@@ -718,8 +732,8 @@ class InvoiceSearch extends Singleton
             }
 
             $invoiceData['customer_name'] = trim(
-                $invoiceAddress['salutation'].' '.
-                $invoiceAddress['firstname'].' '.
+                $invoiceAddress['salutation'] . ' ' .
+                $invoiceAddress['firstname'] . ' ' .
                 $invoiceAddress['lastname']
             );
 
@@ -727,7 +741,7 @@ class InvoiceSearch extends Singleton
                 $invoiceData['customer_name'] = trim($invoiceData['customer_name']);
 
                 if (!empty($invoiceData['customer_name'])) {
-                    $invoiceData['customer_name'] = $invoiceAddress['company'].' ('.$invoiceData['customer_name'].')';
+                    $invoiceData['customer_name'] = $invoiceAddress['company'] . ' (' . $invoiceData['customer_name'] . ')';
                 } else {
                     $invoiceData['customer_name'] = $invoiceAddress['company'];
                 }
@@ -739,38 +753,37 @@ class InvoiceSearch extends Singleton
             if (isset($processing[$processStatus])) {
                 /* @var $Status QUI\ERP\Accounting\Invoice\ProcessingStatus\Status */
                 $Status = $processing[$processStatus];
-                $color  = $Status->getColor();
+                $color = $Status->getColor();
 
-                $invoiceData['processing_status_display'] = '<span class="processing-status" style="color: '.$color.'">'.
-                                                            $Status->getTitle().
-                                                            '</span>';
+                $invoiceData['processing_status_display'] = '<span class="processing-status" style="color: ' . $color . '">' .
+                    $Status->getTitle() . '</span>';
             }
 
             // display totals
             $invoiceData['display_nettosum'] = $Currency->format($invoiceData['nettosum']);
-            $invoiceData['display_sum']      = $Currency->format($invoiceData['sum']);
-            $invoiceData['display_subsum']   = $Currency->format($invoiceData['subsum']);
-            $invoiceData['display_paid']     = $Currency->format($invoiceData['paid']);
-            $invoiceData['display_toPay']    = $Currency->format($invoiceData['toPay']);
+            $invoiceData['display_sum'] = $Currency->format($invoiceData['sum']);
+            $invoiceData['display_subsum'] = $Currency->format($invoiceData['subsum']);
+            $invoiceData['display_paid'] = $Currency->format($invoiceData['paid']);
+            $invoiceData['display_toPay'] = $Currency->format($invoiceData['toPay']);
 
             $invoiceData['calculated_nettosum'] = $invoiceData['nettosum'];
-            $invoiceData['calculated_sum']      = $invoiceData['sum'];
-            $invoiceData['calculated_subsum']   = $invoiceData['subsum'];
-            $invoiceData['calculated_paid']     = $invoiceData['paid'];
-            $invoiceData['calculated_toPay']    = $invoiceData['toPay'];
+            $invoiceData['calculated_sum'] = $invoiceData['sum'];
+            $invoiceData['calculated_subsum'] = $invoiceData['subsum'];
+            $invoiceData['calculated_paid'] = $invoiceData['paid'];
+            $invoiceData['calculated_toPay'] = $invoiceData['toPay'];
 
             // vat information
             $vatTextArray = InvoiceUtils::getVatTextArrayFromVatArray($invoiceData['vat_array'], $Currency);
-            $vatSumArray  = InvoiceUtils::getVatSumArrayFromVatArray($invoiceData['vat_array']);
-            $vatSum       = InvoiceUtils::getVatSumFromVatArray($invoiceData['vat_array']);
+            $vatSumArray = InvoiceUtils::getVatSumArrayFromVatArray($invoiceData['vat_array']);
+            $vatSum = InvoiceUtils::getVatSumFromVatArray($invoiceData['vat_array']);
 
-            $invoiceData['vat']               = $vatTextArray;
-            $invoiceData['display_vatsum']    = $Currency->format($vatSum);
-            $invoiceData['calculated_vat']    = $vatSumArray;
+            $invoiceData['vat'] = $vatTextArray;
+            $invoiceData['display_vatsum'] = $Currency->format($vatSum);
+            $invoiceData['calculated_vat'] = $vatSumArray;
             $invoiceData['calculated_vatsum'] = $vatSum;
 
             // customer data
-            $customerData = \json_decode($invoiceData['customer_data'], true);
+            $customerData = json_decode($invoiceData['customer_data'], true);
 
             if (empty($customerData['erp.taxId'])) {
                 $customerData['erp.taxId'] = Handler::EMPTY_VALUE;
@@ -779,7 +792,8 @@ class InvoiceSearch extends Singleton
             $invoiceData['taxId'] = $customerData['erp.taxId'];
 
             // overdue check
-            if (\time() > $timeForPayment &&
+            if (
+                time() > $timeForPayment &&
                 $Invoice->getAttribute('paid_status') != QUI\ERP\Constants::PAYMENT_STATUS_PAID &&
                 $Invoice->getAttribute('paid_status') != QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
             ) {

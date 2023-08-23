@@ -1,10 +1,11 @@
 <?php
 
-use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler;
-
 /**
  * Update a processing status
  */
+
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler;
+
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_processingStatus_update',
     function ($id, $color, $title, $options) {

@@ -59,10 +59,10 @@ class Invoice extends QUI\QDOM
     //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
     //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
-    const DUNNING_LEVEL_OPEN       = 0; // No Dunning -> Keine Mahnung
-    const DUNNING_LEVEL_REMIND     = 1; // Payment reminding -> Zahlungserinnerung
-    const DUNNING_LEVEL_DUNNING    = 2; // Dunning -> Erste Mahnung
-    const DUNNING_LEVEL_DUNNING2   = 3; // Second dunning -> Zweite Mahnung
+    const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
+    const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
+    const DUNNING_LEVEL_DUNNING = 2; // Dunning -> Erste Mahnung
+    const DUNNING_LEVEL_DUNNING2 = 3; // Second dunning -> Zweite Mahnung
     const DUNNING_LEVEL_COLLECTION = 4; // Collection -> Inkasso
 
     /**
@@ -129,7 +129,7 @@ class Invoice extends QUI\QDOM
             $this->prefix = Settings::getInstance()->getInvoicePrefix();
         }
 
-        $this->id   = (int)str_replace($this->prefix, '', $invoiceData['id']);
+        $this->id = (int)str_replace($this->prefix, '', $invoiceData['id']);
         $this->type = Handler::TYPE_INVOICE;
 
         switch ((int)$this->getAttribute('type')) {
@@ -176,7 +176,8 @@ class Invoice extends QUI\QDOM
 
 
         // consider contact person in address
-        if (!empty($this->getAttribute('invoice_address')) &&
+        if (
+            !empty($this->getAttribute('invoice_address')) &&
             !empty($this->getAttribute('contact_person'))
         ) {
             $invoiceAddress = $this->getAttribute('invoice_address');
@@ -194,7 +195,7 @@ class Invoice extends QUI\QDOM
      */
     public function getId(): string
     {
-        return $this->prefix.$this->id;
+        return $this->prefix . $this->id;
     }
 
     /**
@@ -324,7 +325,7 @@ class Invoice extends QUI\QDOM
     public function getCustomer(): QUI\ERP\User
     {
         $invoiceAddress = $this->getAttribute('invoice_address');
-        $customerData   = $this->getAttribute('customer_data');
+        $customerData = $this->getAttribute('customer_data');
 
         if (is_string($customerData)) {
             $customerData = json_decode($customerData, true);
@@ -371,14 +372,14 @@ class Invoice extends QUI\QDOM
     public function getEditor(): QUI\ERP\User
     {
         return new QUI\ERP\User([
-            'id'        => $this->getAttribute('editor_id'),
-            'country'   => '',
-            'username'  => '',
+            'id' => $this->getAttribute('editor_id'),
+            'country' => '',
+            'username' => '',
             'firstname' => '',
-            'lastname'  => $this->getAttribute('editor_name'),
-            'lang'      => '',
+            'lastname' => $this->getAttribute('editor_name'),
+            'lang' => '',
             'isCompany' => '',
-            'isNetto'   => ''
+            'isNetto' => ''
         ]);
     }
 
@@ -409,8 +410,8 @@ class Invoice extends QUI\QDOM
         return [
             'paidData' => $this->getAttribute('paid_data'),
             'paidDate' => $this->getAttribute('paid_date'),
-            'paid'     => $this->getAttribute('paid'),
-            'toPay'    => $this->getAttribute('toPay')
+            'paid' => $this->getAttribute('paid'),
+            'toPay' => $this->getAttribute('toPay')
         ];
     }
 
@@ -489,7 +490,7 @@ class Invoice extends QUI\QDOM
 
         if (!$data) {
             QUI\System\Log::addCritical(
-                'Error with invoice '.$this->getId().'. No payment Data available'
+                'Error with invoice ' . $this->getId() . '. No payment Data available'
             );
 
             return new Payment([]);
@@ -594,7 +595,7 @@ class Invoice extends QUI\QDOM
                 'history.message.reversal',
                 [
                     'username' => $User->getName(),
-                    'uid'      => $User->getId()
+                    'uid' => $User->getId()
                 ]
             )
         );
@@ -629,7 +630,7 @@ class Invoice extends QUI\QDOM
             'quiqqer/invoice',
             'message.invoice.cancellationInvoice.additionalInvoiceText',
             [
-                'id'   => $this->getId(),
+                'id' => $this->getId(),
                 'date' => $Formatter->format($currentDate)
             ]
         );
@@ -654,8 +655,8 @@ class Invoice extends QUI\QDOM
                 'quiqqer/invoice',
                 'history.message.reversal.created',
                 [
-                    'username'     => $User->getName(),
-                    'uid'          => $User->getId(),
+                    'username' => $User->getName(),
+                    'uid' => $User->getId(),
                     'creditNoteId' => $CreditNote->getId()
                 ]
             )
@@ -671,8 +672,8 @@ class Invoice extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
             [
-                'type'        => $this->type,
-                'data'        => json_encode($this->data),
+                'type' => $this->type,
+                'data' => json_encode($this->data),
                 'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
             ],
             ['id' => $this->getCleanId()]
@@ -751,7 +752,7 @@ class Invoice extends QUI\QDOM
                 'history.message.copy',
                 [
                     'username' => $User->getName(),
-                    'uid'      => $User->getId()
+                    'uid' => $User->getId()
                 ]
             )
         );
@@ -760,10 +761,10 @@ class Invoice extends QUI\QDOM
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
-        $New     = $Factory->createInvoice($User);
+        $New = $Factory->createInvoice($User);
 
         $currentData = QUI::getDataBase()->fetch([
-            'from'  => $Handler->invoiceTable(),
+            'from' => $Handler->invoiceTable(),
             'where' => [
                 'id' => $this->getCleanId()
             ],
@@ -780,7 +781,7 @@ class Invoice extends QUI\QDOM
 
         // Invoice Address
         $invoiceAddressId = '';
-        $invoiceAddress   = '';
+        $invoiceAddress = '';
 
         if ($this->getAttribute('invoice_address')) {
             try {
@@ -788,7 +789,7 @@ class Invoice extends QUI\QDOM
                 $Address = new QUI\ERP\Address($address);
 
                 $invoiceAddressId = $Address->getId();
-                $invoiceAddress   = $Address->toJSON();
+                $invoiceAddress = $Address->toJSON();
             } catch (\Exception $Exception) {
                 QUI\System\Log::addDebug($Exception->getMessage());
             }
@@ -797,38 +798,38 @@ class Invoice extends QUI\QDOM
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
             [
-                'global_process_id'       => $globalProcessId,
-                'type'                    => Handler::TYPE_INVOICE_TEMPORARY,
-                'customer_id'             => $currentData['customer_id'],
-                'contact_person'          => $currentData['contact_person'],
-                'invoice_address_id'      => $invoiceAddressId,
-                'invoice_address'         => $invoiceAddress,
-                'delivery_address'        => $currentData['delivery_address'],
-                'order_id'                => $currentData['order_id'],
-                'project_name'            => $currentData['project_name'],
-                'payment_method'          => $currentData['payment_method'],
-                'payment_data'            => '',
-                'payment_time'            => $currentData['payment_time'],
-                'time_for_payment'        => (int)Settings::getInstance()->get('invoice', 'time_for_payment'),
-                'paid_status'             => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
-                'paid_date'               => null,
-                'paid_data'               => null,
-                'date'                    => date('Y-m-d H:i:s'),
-                'data'                    => $currentData['data'],
+                'global_process_id' => $globalProcessId,
+                'type' => Handler::TYPE_INVOICE_TEMPORARY,
+                'customer_id' => $currentData['customer_id'],
+                'contact_person' => $currentData['contact_person'],
+                'invoice_address_id' => $invoiceAddressId,
+                'invoice_address' => $invoiceAddress,
+                'delivery_address' => $currentData['delivery_address'],
+                'order_id' => $currentData['order_id'],
+                'project_name' => $currentData['project_name'],
+                'payment_method' => $currentData['payment_method'],
+                'payment_data' => '',
+                'payment_time' => $currentData['payment_time'],
+                'time_for_payment' => (int)Settings::getInstance()->get('invoice', 'time_for_payment'),
+                'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
+                'paid_date' => null,
+                'paid_data' => null,
+                'date' => date('Y-m-d H:i:s'),
+                'data' => $currentData['data'],
                 'additional_invoice_text' => $currentData['additional_invoice_text'],
-                'articles'                => $currentData['articles'],
-                'history'                 => '',
-                'comments'                => '',
-                'customer_data'           => $currentData['customer_data'],
-                'isbrutto'                => $currentData['isbrutto'],
-                'currency_data'           => $currentData['currency_data'],
-                'currency'                => $currentData['currency'],
-                'nettosum'                => $currentData['nettosum'],
-                'nettosubsum'             => $currentData['nettosubsum'],
-                'subsum'                  => $currentData['subsum'],
-                'sum'                     => $currentData['sum'],
-                'vat_array'               => $currentData['vat_array'],
-                'processing_status'       => null
+                'articles' => $currentData['articles'],
+                'history' => '',
+                'comments' => '',
+                'customer_data' => $currentData['customer_data'],
+                'isbrutto' => $currentData['isbrutto'],
+                'currency_data' => $currentData['currency_data'],
+                'currency' => $currentData['currency'],
+                'nettosum' => $currentData['nettosum'],
+                'nettosubsum' => $currentData['nettosubsum'],
+                'subsum' => $currentData['subsum'],
+                'sum' => $currentData['sum'],
+                'vat_array' => $currentData['vat_array'],
+                'processing_status' => null
             ],
             ['id' => $New->getCleanId()]
         );
@@ -875,7 +876,7 @@ class Invoice extends QUI\QDOM
             [$this]
         );
 
-        $Copy     = $this->copy(QUI::getUsers()->getSystemUser(), $globalProcessId);
+        $Copy = $this->copy(QUI::getUsers()->getSystemUser(), $globalProcessId);
         $articles = $Copy->getArticles()->getArticles();
 
         // change all prices
@@ -921,7 +922,7 @@ class Invoice extends QUI\QDOM
         }
 
         $PriceFactors = $ArticleList->getPriceFactors();
-        $Currency     = $this->getCurrency();
+        $Currency = $this->getCurrency();
 
         /* @var $PriceFactor QUI\ERP\Accounting\PriceFactors\Factor */
         foreach ($PriceFactors as $PriceFactor) {
@@ -937,7 +938,7 @@ class Invoice extends QUI\QDOM
         $Copy->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', [
                 'invoiceParentId' => $this->getId(),
-                'invoiceId'       => $this->getId()
+                'invoiceId' => $this->getId()
             ])
         );
 
@@ -964,7 +965,7 @@ class Invoice extends QUI\QDOM
             'quiqqer/invoice',
             'message.invoice.creditNote.additionalInvoiceText',
             [
-                'id'   => $this->getId(),
+                'id' => $this->getId(),
                 'date' => $Formatter->format($currentDate)
             ]
         );
@@ -992,7 +993,7 @@ class Invoice extends QUI\QDOM
                 $Address = new QUI\ERP\Address($address);
 
                 $invoiceAddressId = $Address->getId();
-                $invoiceAddress   = $Address->toJSON();
+                $invoiceAddress = $Address->toJSON();
 
                 $Copy->setAttribute('invoice_address_id', $invoiceAddressId);
                 $Copy->setAttribute('invoice_address', $invoiceAddress);
@@ -1006,7 +1007,7 @@ class Invoice extends QUI\QDOM
         $this->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit', [
                 'invoiceParentId' => $this->getId(),
-                'invoiceId'       => $Copy->getId()
+                'invoiceId' => $Copy->getId()
             ])
         );
 
@@ -1040,14 +1041,16 @@ class Invoice extends QUI\QDOM
 
         $this->calculatePayments();
 
-        if ($this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
+        if (
+            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
             || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
             || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
         ) {
             return;
         }
 
-        if ($currentPaidStatus === $this->getAttribute('paid_status')
+        if (
+            $currentPaidStatus === $this->getAttribute('paid_status')
             && ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID ||
                 $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED)
         ) {
@@ -1056,10 +1059,10 @@ class Invoice extends QUI\QDOM
 
         QUI\ERP\Debug::getInstance()->log('Order:: add transaction start');
 
-        $User     = QUI::getUserBySession();
+        $User = QUI::getUserBySession();
         $paidData = $this->getAttribute('paid_data');
-        $amount   = Price::validatePrice($Transaction->getAmount());
-        $date     = $Transaction->getDate();
+        $amount = Price::validatePrice($Transaction->getAmount());
+        $date = $Transaction->getDate();
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceAddTransactionBegin',
@@ -1104,8 +1107,8 @@ class Invoice extends QUI\QDOM
 
         $isValidTimeStamp = function ($timestamp) {
             return ((string)(int)$timestamp === $timestamp)
-                   && ($timestamp <= PHP_INT_MAX)
-                   && ($timestamp >= ~PHP_INT_MAX);
+                && ($timestamp <= PHP_INT_MAX)
+                && ($timestamp >= ~PHP_INT_MAX);
         };
 
         if ($isValidTimeStamp($date) === false) {
@@ -1125,8 +1128,8 @@ class Invoice extends QUI\QDOM
                 'history.message.addPayment',
                 [
                     'username' => $User->getName(),
-                    'uid'      => $User->getId(),
-                    'txid'     => $Transaction->getTxId()
+                    'uid' => $User->getId(),
+                    'txid' => $Transaction->getTxId()
                 ]
             )
         );
@@ -1193,8 +1196,8 @@ class Invoice extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
             [
-                'paid_data'   => $this->getAttribute('paid_data'),
-                'paid_date'   => $this->getAttribute('paid_date'),
+                'paid_data' => $this->getAttribute('paid_data'),
+                'paid_date' => $this->getAttribute('paid_date'),
                 'paid_status' => $this->getAttribute('paid_status')
             ],
             ['id' => $this->getCleanId()]
@@ -1208,7 +1211,7 @@ class Invoice extends QUI\QDOM
                     'history.message.edit',
                     [
                         'username' => $User->getName(),
-                        'uid'      => $User->getId()
+                        'uid' => $User->getId()
                     ]
                 )
             );
@@ -1259,8 +1262,8 @@ class Invoice extends QUI\QDOM
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
             [
-                'paid_data'   => $this->getAttribute('paid_data'),
-                'paid_date'   => $this->getAttribute('paid_date'),
+                'paid_data' => $this->getAttribute('paid_data'),
+                'paid_date' => $this->getAttribute('paid_date'),
                 'paid_status' => $paymentStatus
             ],
             ['id' => $this->getCleanId()]
@@ -1274,10 +1277,10 @@ class Invoice extends QUI\QDOM
                 'quiqqer/invoice',
                 'history.message.set_payment_status',
                 [
-                    'username'  => $User->getName(),
-                    'uid'       => $User->getId(),
-                    'oldStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.'.$oldPaymentStatus),
-                    'newStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.'.$paymentStatus)
+                    'username' => $User->getName(),
+                    'uid' => $User->getId(),
+                    'oldStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.' . $oldPaymentStatus),
+                    'newStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.' . $paymentStatus)
                 ]
             )
         );
@@ -1302,7 +1305,7 @@ class Invoice extends QUI\QDOM
      */
     public function sendTo(string $recipient, $template = false)
     {
-        $type       = $this->getInvoiceType();
+        $type = $this->getInvoiceType();
         $outputType = 'Invoice';
 
         switch ($type) {
@@ -1354,7 +1357,7 @@ class Invoice extends QUI\QDOM
             <img><table><tbody><td><tfoot><th><thead><tr>'
         );
 
-        $User     = QUI::getUserBySession();
+        $User = QUI::getUserBySession();
         $comments = $this->getAttribute('comments');
         $Comments = QUI\ERP\Comments::unserialize($comments);
 
@@ -1367,7 +1370,7 @@ class Invoice extends QUI\QDOM
                 'history.message.addComment',
                 [
                     'username' => $User->getName(),
-                    'uid'      => $User->getId()
+                    'uid' => $User->getId()
                 ]
             )
         );
@@ -1651,11 +1654,11 @@ class Invoice extends QUI\QDOM
         }
 
         $fileEntry = [
-            'hash'    => $fileHash,
+            'hash' => $fileHash,
             'options' => $options
         ];
 
-        $customerFiles   = $this->getCustomerFiles();
+        $customerFiles = $this->getCustomerFiles();
         $customerFiles[] = $fileEntry;
 
         $this->data['customer_files'] = $customerFiles;
