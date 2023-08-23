@@ -37,7 +37,7 @@ class Invoice implements NumberRangeInterface
      */
     public function getRange()
     {
-        $Table   = QUI::getDataBase()->table();
+        $Table = QUI::getDataBase()->table();
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
         return $Table->getAutoIncrementIndex(
@@ -54,12 +54,12 @@ class Invoice implements NumberRangeInterface
             return;
         }
 
-        $PDO       = QUI::getDataBase()->getPDO();
-        $Handler   = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+        $PDO = QUI::getDataBase()->getPDO();
+        $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $tableName = $Handler->invoiceTable();
 
         $Statement = $PDO->prepare(
-            "ALTER TABLE {$tableName} AUTO_INCREMENT = ".(int)$range
+            "ALTER TABLE {$tableName} AUTO_INCREMENT = " . (int)$range
         );
 
         $Statement->execute();

@@ -5,13 +5,13 @@ namespace QUI\ERP\Accounting\Invoice\RestApi;
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use QUI;
+use QUI\ERP\Accounting\Invoice\Factory as InvoiceFactory;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
+use QUI\ERP\Currency\Handler as CurrencyHandler;
 use QUI\REST\Response;
 use QUI\REST\Server;
-use Slim\Routing\RouteCollectorProxy;
 use QUI\REST\Utils\RequestUtils;
-use QUI\ERP\Accounting\Invoice\Factory as InvoiceFactory;
-use QUI\ERP\Currency\Handler as CurrencyHandler;
-use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
+use Slim\Routing\RouteCollectorProxy;
 
 /**
  * Class Provider
@@ -24,8 +24,8 @@ class Provider implements QUI\REST\ProviderInterface
      * Error codes
      */
     const ERROR_CODE_MISSING_PARAMETERS = 4001;
-    const ERROR_CODE_PARAMETER_INVALID  = 4002;
-    const ERROR_CODE_SERVER_ERROR       = 5001;
+    const ERROR_CODE_PARAMETER_INVALID = 4002;
+    const ERROR_CODE_SERVER_ERROR = 5001;
 
     /**
      * @param Server $Server
@@ -71,8 +71,8 @@ class Provider implements QUI\REST\ProviderInterface
          * Maps invoice fields to required status.
          */
         $invoiceFields = [
-            'customer_no'    => false,
-            'customer_data'  => false,
+            'customer_no' => false,
+            'customer_data' => false,
 //            'ordered_by_name' => false,
             'contact_person' => false,
 
@@ -83,21 +83,21 @@ class Provider implements QUI\REST\ProviderInterface
             'articles' => true,
 
             'paid_status' => false,
-            'paid_date'   => false,
+            'paid_date' => false,
 
             'project_name' => false,
-            'comments'     => false,
+            'comments' => false,
 
             'post' => false,
 
             'source' => true,
 
-            'currency'       => false,
+            'currency' => false,
             'payment_method' => false,
 
             'additional_invoice_text' => false,
-            'files'                   => false,
-            'processing_status'       => false,
+            'files' => false,
+            'processing_status' => false,
         ];
 
         // Remove unknown fields
@@ -110,19 +110,19 @@ class Provider implements QUI\REST\ProviderInterface
         foreach ($invoiceFields as $field => $isRequired) {
             if ($isRequired && !isset($invoiceData[$field])) {
                 return $this->getClientErrorResponse(
-                    'Missing "'.$field.'" field in "invoiceData".',
+                    'Missing "' . $field . '" field in "invoiceData".',
                     self::ERROR_CODE_MISSING_PARAMETERS
                 );
             }
         }
 
         $articlesFields = [
-            'title'       => false,
-            'articleNo'   => false,
+            'title' => false,
+            'articleNo' => false,
             'description' => false,
-            'unitPrice'   => false,
-            'quantity'    => true,
-            'vat'         => false,
+            'unitPrice' => false,
+            'quantity' => true,
+            'vat' => false,
 
             'quiqqerProductId' => false
         ];
@@ -133,7 +133,7 @@ class Provider implements QUI\REST\ProviderInterface
             foreach ($articles as $k => $article) {
                 if ($isRequired && !isset($article[$field])) {
                     return $this->getClientErrorResponse(
-                        'Missing "'.$field.'" field in article at index '.$k.'.',
+                        'Missing "' . $field . '" field in article at index ' . $k . '.',
                         self::ERROR_CODE_MISSING_PARAMETERS
                     );
                 }
@@ -144,8 +144,8 @@ class Provider implements QUI\REST\ProviderInterface
             \define('SYSTEM_INTERN', true);
         }
 
-        $Factory    = InvoiceFactory::getInstance();
-        $Users      = QUI::getUsers();
+        $Factory = InvoiceFactory::getInstance();
+        $Users = QUI::getUsers();
         $SystemUser = $Users->getSystemUser();
 
         $InvoiceDraft = $Factory->createInvoice($SystemUser);
@@ -197,7 +197,7 @@ class Provider implements QUI\REST\ProviderInterface
         // Payment method
         $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
         $Customer = $InvoiceDraft->getCustomer();
-        $Payment  = false;
+        $Payment = false;
 
         if ($Customer) {
             $customerDefaultPaymentId = $Customer->getAttribute('quiqqer.erp.standard.payment');
@@ -262,7 +262,7 @@ class Provider implements QUI\REST\ProviderInterface
 
         // Additional invoice text
         if (!empty($invoiceData['additional_invoice_text'])) {
-            $invoiceText = '<p>'.$invoiceData['additional_invoice_text'].'</p>';
+            $invoiceText = '<p>' . $invoiceData['additional_invoice_text'] . '</p>';
             $invoiceText .= QUI::getLocale()->get('quiqqer/invoice', 'additional.invoice.text');
 
             $InvoiceDraft->setAttribute('additional_invoice_text', $invoiceText);
@@ -307,7 +307,7 @@ class Provider implements QUI\REST\ProviderInterface
 
         // Files
         if ($User && !empty($invoiceData['files'])) {
-            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir().'uploads/'.$InvoiceDraft->getId().'/';
+            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir() . 'uploads/' . $InvoiceDraft->getId() . '/';
             QUI\Utils\System\File::mkdir($fileDir);
 
             $fileCounter = 0;
@@ -323,7 +323,7 @@ class Provider implements QUI\REST\ProviderInterface
                 if (!empty($file['name'])) {
                     $localFile .= $file['name'];
                 } else {
-                    $localFile .= 'file_'.++$fileCounter;
+                    $localFile .= 'file_' . ++$fileCounter;
                 }
 
                 \file_put_contents($localFile, \hex2bin($file['content']));
@@ -349,7 +349,7 @@ class Provider implements QUI\REST\ProviderInterface
 
         // Processing status
         if (!empty($invoiceData['processing_status'])) {
-            $statusId      = (int)$invoiceData['processing_status'];
+            $statusId = (int)$invoiceData['processing_status'];
             $StatusHandler = ProcessingStatuses::getInstance();
 
             try {
@@ -375,7 +375,7 @@ class Provider implements QUI\REST\ProviderInterface
 
         if (!empty($invoiceData['post'])) {
             try {
-                $Invoice   = $InvoiceDraft->post($SystemUser);
+                $Invoice = $InvoiceDraft->post($SystemUser);
                 $invoiceId = $Invoice->getId();
             } catch (\Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
@@ -468,8 +468,8 @@ class Provider implements QUI\REST\ProviderInterface
 
         $Body = $Response->getBody();
         $body = [
-            'msg'       => $msg,
-            'error'     => true,
+            'msg' => $msg,
+            'error' => true,
             'errorCode' => $errorCode
         ];
 
@@ -490,7 +490,7 @@ class Provider implements QUI\REST\ProviderInterface
 
         $Body = $Response->getBody();
         $body = [
-            'msg'   => $msg,
+            'msg' => $msg,
             'error' => false
         ];
 
@@ -511,8 +511,8 @@ class Provider implements QUI\REST\ProviderInterface
 
         $Body = $Response->getBody();
         $body = [
-            'msg'       => $msg,
-            'error'     => true,
+            'msg' => $msg,
+            'error' => true,
             'errorCode' => self::ERROR_CODE_SERVER_ERROR
         ];
 

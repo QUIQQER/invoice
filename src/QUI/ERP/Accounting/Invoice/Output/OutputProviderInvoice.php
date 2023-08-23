@@ -2,20 +2,34 @@
 
 namespace QUI\ERP\Accounting\Invoice\Output;
 
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
+use Exception;
+use IntlDateFormatter;
 use QUI;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
-use QUI\ERP\Output\OutputProviderInterface;
-use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
-use QUI\Interfaces\Users\User;
-use QUI\Locale;
-use chillerlan\QRCode\QROptions;
-use chillerlan\QRCode\QRCode;
-use QUI\ERP\Payments\SEPA\Provider as SepaProvider;
-use QUI\ERP\BankAccounts\Handler as BankAccounts;
 use QUI\ERP\Accounting\Invoice\Settings;
+use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment as AdvancePayment;
 use QUI\ERP\Accounting\Payments\Methods\Invoice\Payment as InvoicePayment;
+use QUI\ERP\BankAccounts\Handler as BankAccounts;
 use QUI\ERP\Customer\Utils as CustomerUtils;
+use QUI\ERP\Output\OutputProviderInterface;
+use QUI\ERP\Payments\SEPA\Provider as SepaProvider;
+use QUI\Interfaces\Users\User;
+use QUI\Locale;
+
+use function array_merge;
+use function get_class;
+use function implode;
+use function in_array;
+use function json_decode;
+use function number_format;
+use function strtotime;
+use function time;
+use function trim;
+
+use const PHP_EOL;
 
 /**
  * Class OutputProvider
@@ -90,7 +104,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getLocale($entityId)
     {
-        $Invoice  = self::getEntity($entityId);
+        $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
         if ($Customer) {
@@ -108,20 +122,20 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getTemplateData($entityId)
     {
-        $Invoice     = self::getEntity($entityId);
+        $Invoice = self::getEntity($entityId);
         $InvoiceView = $Invoice->getView();
-        $Customer    = $Invoice->getCustomer();
+        $Customer = $Invoice->getCustomer();
 
         if (!$Customer) {
             $Customer = new QUI\ERP\User([
-                'id'        => '',
-                'country'   => '',
-                'username'  => '',
+                'id' => '',
+                'country' => '',
+                'username' => '',
                 'firstname' => '',
-                'lastname'  => '',
-                'lang'      => '',
+                'lastname' => '',
+                'lang' => '',
                 'isCompany' => '',
-                'isNetto'   => ''
+                'isNetto' => ''
             ]);
         }
 
@@ -135,7 +149,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $Address = null;
 
             if ($Invoice->getAttribute('invoice_address')) {
-                $address = \json_decode($Invoice->getAttribute('invoice_address'), true);
+                $address = json_decode($Invoice->getAttribute('invoice_address'), true);
 
                 if (!empty($address)) {
                     $Address = new QUI\ERP\Address($address, $Customer);
@@ -148,7 +162,7 @@ class OutputProviderInvoice implements OutputProviderInterface
         // list calculation
         $Articles = $Invoice->getArticles();
 
-        if (\get_class($Articles) !== QUI\ERP\Accounting\ArticleListUnique::class) {
+        if (get_class($Articles) !== QUI\ERP\Accounting\ArticleListUnique::class) {
             $Articles->setUser($Customer);
             $Articles = $Articles->toUniqueList();
         }
@@ -159,7 +173,7 @@ class OutputProviderInvoice implements OutputProviderInterface
 
         if (!empty($deliveryAddress)) {
             $DeliveryAddress = new QUI\ERP\Address(
-                \json_decode($deliveryAddress, true),
+                json_decode($deliveryAddress, true),
                 $Customer
             );
 
@@ -187,7 +201,7 @@ class OutputProviderInvoice implements OutputProviderInterface
 
         if ($InvoiceView->getAttribute('order_id')) {
             try {
-                $Order       = QUI\ERP\Order\Handler::getInstance()->getOrderById($InvoiceView->getAttribute('order_id'));
+                $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById($InvoiceView->getAttribute('order_id'));
                 $orderNumber = $Order->getPrefixedId();
             } catch (QUI\Exception $Exception) {
             }
@@ -201,18 +215,18 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         return [
-            'this'              => $InvoiceView,
-            'ArticleList'       => $Articles,
-            'Customer'          => $Customer,
-            'Editor'            => $Editor,
-            'Address'           => $Address,
-            'DeliveryAddress'   => $DeliveryAddress,
-            'Payment'           => $Invoice->getPayment(),
-            'transaction'       => $InvoiceView->getTransactionText(),
-            'projectName'       => $Invoice->getAttribute('project_name'),
-            'useShipping'       => QUI::getPackageManager()->isInstalled('quiqqer/shipping'),
+            'this' => $InvoiceView,
+            'ArticleList' => $Articles,
+            'Customer' => $Customer,
+            'Editor' => $Editor,
+            'Address' => $Address,
+            'DeliveryAddress' => $DeliveryAddress,
+            'Payment' => $Invoice->getPayment(),
+            'transaction' => $InvoiceView->getTransactionText(),
+            'projectName' => $Invoice->getAttribute('project_name'),
+            'useShipping' => QUI::getPackageManager()->isInstalled('quiqqer/shipping'),
             'globalInvoiceText' => $globalInvoiceText,
-            'orderNumber'       => $orderNumber,
+            'orderNumber' => $orderNumber,
             'epcQrCodeImageSrc' => $epcQrCodeImageSrc
         ];
     }
@@ -231,7 +245,7 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         try {
-            $Invoice  = self::getEntity($entityId);
+            $Invoice = self::getEntity($entityId);
             $Customer = $Invoice->getCustomer();
 
             if (empty($Customer)) {
@@ -239,7 +253,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             }
 
             return $User->getId() === $Customer->getId();
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
             return false;
@@ -256,7 +270,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getEmailAddress($entityId)
     {
-        $Invoice  = self::getEntity($entityId);
+        $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
         if (empty($Customer)) {
@@ -280,7 +294,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getMailSubject($entityId)
     {
-        $Invoice  = self::getEntity($entityId);
+        $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
         return $Invoice->getCustomer()->getLocale()->get(
@@ -300,7 +314,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     public static function getMailBody($entityId)
     {
-        $Invoice  = self::getEntity($entityId);
+        $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
 
         return $Customer->getLocale()->get(
@@ -318,7 +332,7 @@ class OutputProviderInvoice implements OutputProviderInterface
     protected static function getInvoiceLocaleVar($Invoice, $Customer): array
     {
         $CustomerAddress = $Customer->getAddress();
-        $user            = $CustomerAddress->getAttribute('contactPerson');
+        $user = $CustomerAddress->getAttribute('contactPerson');
 
         if (empty($user)) {
             $user = $Customer->getName();
@@ -328,7 +342,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $user = $Customer->getAddress()->getName();
         }
 
-        $user = \trim($user);
+        $user = trim($user);
 
         // contact person
         $contactPerson = $Invoice->getAttribute('contact_person');
@@ -352,13 +366,13 @@ class OutputProviderInvoice implements OutputProviderInterface
             $contactPersonOrName = $user;
         }
 
-        return \array_merge([
-            'invoiceId'     => $Invoice->getId(),
-            'hash'          => $Invoice->getAttribute('hash'),
-            'date'          => self::dateFormat($Invoice->getAttribute('date')),
+        return array_merge([
+            'invoiceId' => $Invoice->getId(),
+            'hash' => $Invoice->getAttribute('hash'),
+            'date' => self::dateFormat($Invoice->getAttribute('date')),
             'systemCompany' => self::getCompanyName(),
 
-            'contactPerson'       => $contactPerson,
+            'contactPerson' => $contactPerson,
             'contactPersonOrName' => $contactPersonOrName
         ], self::getCustomerVariables($Customer));
     }
@@ -371,9 +385,9 @@ class OutputProviderInvoice implements OutputProviderInterface
     protected static function getCompanyName(): string
     {
         try {
-            $Conf    = QUI::getPackage('quiqqer/erp')->getConfig();
+            $Conf = QUI::getPackage('quiqqer/erp')->getConfig();
             $company = $Conf->get('company', 'name');
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
             return '';
@@ -420,7 +434,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $user = $Address->getName();
         }
 
-        $user = \trim($user);
+        $user = trim($user);
 
         // email
         $email = $Customer->getAttribute('email');
@@ -434,15 +448,15 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         return [
-            'user'          => $user,
-            'name'          => $user,
-            'company'       => $Customer->getStandardAddress()->getAttribute('company'),
+            'user' => $user,
+            'name' => $user,
+            'company' => $Customer->getStandardAddress()->getAttribute('company'),
             'companyOrName' => self::getCompanyOrName($Customer),
-            'address'       => $Address->render(),
-            'email'         => $email,
-            'salutation'    => $Address->getAttribute('salutation'),
-            'firstname'     => $Address->getAttribute('firstname'),
-            'lastname'      => $Address->getAttribute('lastname')
+            'address' => $Address->render(),
+            'email' => $email,
+            'salutation' => $Address->getAttribute('salutation'),
+            'firstname' => $Address->getAttribute('firstname'),
+            'lastname' => $Address->getAttribute('lastname')
         ];
     }
 
@@ -457,16 +471,16 @@ class OutputProviderInvoice implements OutputProviderInterface
             QUI::getLocale()->getCurrent()
         );
 
-        $Formatter = new \IntlDateFormatter(
+        $Formatter = new IntlDateFormatter(
             $localeCode[0],
-            \IntlDateFormatter::SHORT,
-            \IntlDateFormatter::NONE
+            IntlDateFormatter::SHORT,
+            IntlDateFormatter::NONE
         );
 
         if (!$date) {
-            $date = \time();
+            $date = time();
         } else {
-            $date = \strtotime($date);
+            $date = strtotime($date);
         }
 
         return $Formatter->format($date);
@@ -494,12 +508,12 @@ class OutputProviderInvoice implements OutputProviderInterface
                 InvoicePayment::class
             ];
 
-            if (!\in_array($paymentTypeClassName, $allowedPaymentTypeClasses)) {
+            if (!in_array($paymentTypeClassName, $allowedPaymentTypeClasses)) {
                 return false;
             }
 
             $varDir = QUI::getPackage('quiqqer/invoice')->getVarDir();
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             return false;
         }
@@ -526,7 +540,7 @@ class OutputProviderInvoice implements OutputProviderInterface
 
         try {
             $paidStatus = $Invoice->getPaidStatusInformation();
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             return false;
         }
@@ -557,18 +571,18 @@ class OutputProviderInvoice implements OutputProviderInterface
             $creditorBankAccount['bic'],
             $creditorBankAccount['accountHolder'],
             $creditorBankAccount['iban'],
-            'EUR'.\number_format($amount, 2, '.', ''),
+            'EUR' . number_format($amount, 2, '.', ''),
             '',
             '',
             $purposeText
         ];
 
-        $qrCodeText = \implode(\PHP_EOL, $qrCodeLines);
+        $qrCodeText = implode(PHP_EOL, $qrCodeLines);
 
         $QrOptions = new QROptions([
-            'version'        => QRCode::VERSION_AUTO,
-            'outputType'     => QRCode::OUTPUT_IMAGE_PNG,
-            'eccLevel'       => QRCode::ECC_M,
+            'version' => QRCode::VERSION_AUTO,
+            'outputType' => QRCode::OUTPUT_IMAGE_PNG,
+            'eccLevel' => QRCode::ECC_M,
             'pngCompression' => -1
         ]);
 

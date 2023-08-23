@@ -29,7 +29,7 @@ class Factory extends QUI\Utils\Singleton
     public function createProcessingStatus($id, $color, array $title, array $options = [])
     {
         $list = Handler::getInstance()->getList();
-        $id   = (int)$id;
+        $id = (int)$id;
         $data = [];
 
         if (isset($list[$id])) {
@@ -41,12 +41,16 @@ class Factory extends QUI\Utils\Singleton
 
         // config
         $Package = QUI::getPackage('quiqqer/invoice');
-        $Config  = $Package->getConfig();
+        $Config = $Package->getConfig();
 
-        $Config->setValue('processing_status', $id, \json_encode([
-            'color'   => $color,
-            'options' => $options
-        ]));
+        $Config->setValue(
+            'processing_status',
+            $id,
+            \json_encode([
+                'color' => $color,
+                'options' => $options
+            ])
+        );
 
         $Config->save();
 
@@ -61,13 +65,13 @@ class Factory extends QUI\Utils\Singleton
             }
         }
 
-        $data['package']  = 'quiqqer/invoice';
+        $data['package'] = 'quiqqer/invoice';
         $data['datatype'] = 'php,js';
-        $data['html']     = 1;
+        $data['html'] = 1;
 
         QUI\Translator::addUserVar(
             'quiqqer/invoice',
-            'processing.status.'.$id,
+            'processing.status.' . $id,
             $data
         );
 

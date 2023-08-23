@@ -52,7 +52,7 @@ class Status
         }
 
         $this->id = (int)$id;
-        $data     = $list[$id];
+        $data = $list[$id];
 
         // Fallback for old data structure
         if (\mb_strpos($data, '#') === 0) {
@@ -92,7 +92,7 @@ class Status
             $Locale = QUI::getLocale();
         }
 
-        return $Locale->get('quiqqer/invoice', 'processing.status.'.$this->id);
+        return $Locale->get('quiqqer/invoice', 'processing.status.' . $this->id);
     }
 
     /**
@@ -160,23 +160,23 @@ class Status
         $title = $this->getTitle($Locale);
 
         if ($Locale === null) {
-            $title     = [];
-            $Locale    = QUI::getLocale();
+            $title = [];
+            $Locale = QUI::getLocale();
             $languages = QUI::availableLanguages();
 
             foreach ($languages as $language) {
                 $title[$language] = $Locale->getByLang(
                     $language,
                     'quiqqer/invoice',
-                    'processing.status.'.$this->getId()
+                    'processing.status.' . $this->getId()
                 );
             }
         }
 
         return [
-            'id'      => $this->getId(),
-            'title'   => $title,
-            'color'   => $this->getColor(),
+            'id' => $this->getId(),
+            'title' => $title,
+            'color' => $this->getColor(),
             'options' => $this->getOptions()
         ];
     }
