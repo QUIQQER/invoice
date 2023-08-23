@@ -10,7 +10,6 @@ use QUI;
 
 use function array_flip;
 use function explode;
-use function is_numeric;
 use function is_string;
 use function mb_strtoupper;
 use function str_replace;
@@ -108,8 +107,8 @@ class Handler extends QUI\Utils\Singleton
         try {
             $invoices = QUI::getDataBase()->fetch([
                 'select' => 'id',
-                'from'   => self::invoiceTable(),
-                'where'  => [
+                'from' => self::invoiceTable(),
+                'where' => [
                     'customer_id' => $User->getId()
                 ]
             ]);
@@ -167,7 +166,7 @@ class Handler extends QUI\Utils\Singleton
     public function search($params = [])
     {
         $query = [
-            'from'  => $this->invoiceTable(),
+            'from' => $this->invoiceTable(),
             'limit' => 20
         ];
 
@@ -207,10 +206,10 @@ class Handler extends QUI\Utils\Singleton
     public function count($queryParams = [])
     {
         $query = [
-            'from'  => $this->invoiceTable(),
+            'from' => $this->invoiceTable(),
             'count' => [
                 'select' => 'id',
-                'as'     => 'count'
+                'as' => 'count'
             ]
         ];
 
@@ -240,7 +239,7 @@ class Handler extends QUI\Utils\Singleton
     public function searchTemporaryInvoices(array $params = []): array
     {
         $query = [
-            'from'  => $this->temporaryInvoiceTable(),
+            'from' => $this->temporaryInvoiceTable(),
             'limit' => 20
         ];
 
@@ -278,10 +277,10 @@ class Handler extends QUI\Utils\Singleton
     public function countTemporaryInvoices(array $queryParams = []): int
     {
         $query = [
-            'from'  => $this->temporaryInvoiceTable(),
+            'from' => $this->temporaryInvoiceTable(),
             'count' => [
                 'select' => 'id',
-                'as'     => 'count'
+                'as' => 'count'
             ]
         ];
 
@@ -351,11 +350,11 @@ class Handler extends QUI\Utils\Singleton
 
         $result = QUI::getDataBase()->fetch([
             'select' => 'id',
-            'from'   => self::invoiceTable(),
-            'where'  => [
+            'from' => self::invoiceTable(),
+            'where' => [
                 'hash' => $hash
             ],
-            'limit'  => 1
+            'limit' => 1
         ]);
 
         if (!empty($result)) {
@@ -364,11 +363,11 @@ class Handler extends QUI\Utils\Singleton
 
         $result = QUI::getDataBase()->fetch([
             'select' => 'id',
-            'from'   => self::temporaryInvoiceTable(),
-            'where'  => [
+            'from' => self::temporaryInvoiceTable(),
+            'where' => [
                 'hash' => $hash
             ],
-            'limit'  => 1
+            'limit' => 1
         ]);
 
         if (!empty($result)) {
@@ -403,9 +402,9 @@ class Handler extends QUI\Utils\Singleton
         }
 
         $result = QUI::getDataBase()->fetch([
-            'from'     => self::invoiceTable(),
+            'from' => self::invoiceTable(),
             'where_or' => $whereOr,
-            'limit'    => 1
+            'limit' => 1
         ]);
 
         if (empty($result)) {
@@ -415,17 +414,17 @@ class Handler extends QUI\Utils\Singleton
             );
         }
 
-        $result[0]['id']          = (int)$result[0]['id'];
+        $result[0]['id'] = (int)$result[0]['id'];
         $result[0]['customer_id'] = (int)$result[0]['customer_id'];
-        $result[0]['order_id']    = (int)$result[0]['order_id'];
-        $result[0]['isbrutto']    = (int)$result[0]['isbrutto'];
+        $result[0]['order_id'] = (int)$result[0]['order_id'];
+        $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
         $result[0]['paid_status'] = (int)$result[0]['paid_status'];
-        $result[0]['canceled']    = (int)$result[0]['canceled'];
-        $result[0]['c_user']      = (int)$result[0]['c_user'];
+        $result[0]['canceled'] = (int)$result[0]['canceled'];
+        $result[0]['c_user'] = (int)$result[0]['c_user'];
 
-        $result[0]['nettosum']          = (float)$result[0]['nettosum'];
-        $result[0]['subsum']            = (float)$result[0]['subsum'];
-        $result[0]['sum']               = (float)$result[0]['sum'];
+        $result[0]['nettosum'] = (float)$result[0]['nettosum'];
+        $result[0]['subsum'] = (float)$result[0]['subsum'];
+        $result[0]['sum'] = (float)$result[0]['sum'];
         $result[0]['processing_status'] = (int)$result[0]['processing_status'];
 
         return $result[0];
@@ -470,11 +469,11 @@ class Handler extends QUI\Utils\Singleton
     {
         $result = QUI::getDataBase()->fetch([
             'select' => 'id',
-            'from'   => self::temporaryInvoiceTable(),
-            'where'  => [
+            'from' => self::temporaryInvoiceTable(),
+            'where' => [
                 'hash' => $hash
             ],
-            'limit'  => 1
+            'limit' => 1
         ]);
 
         $hash = QUI\Utils\Security\Orthos::clear($hash);
@@ -503,7 +502,7 @@ class Handler extends QUI\Utils\Singleton
         $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
 
         $result = QUI::getDataBase()->fetch([
-            'from'  => self::temporaryInvoiceTable(),
+            'from' => self::temporaryInvoiceTable(),
             'where' => [
                 'id' => (int)str_replace($prefix, '', $id)
             ],
@@ -525,20 +524,20 @@ class Handler extends QUI\Utils\Singleton
             $canceled = (int)$result[0]['canceled'];
         }
 
-        $result[0]['id']                 = (int)$result[0]['id'];
-        $result[0]['customer_id']        = (int)$result[0]['customer_id'];
-        $result[0]['order_id']           = (int)$result[0]['order_id'];
+        $result[0]['id'] = (int)$result[0]['id'];
+        $result[0]['customer_id'] = (int)$result[0]['customer_id'];
+        $result[0]['order_id'] = (int)$result[0]['order_id'];
         $result[0]['invoice_address_id'] = (int)$result[0]['invoice_address_id'];
-        $result[0]['isbrutto']           = (int)$result[0]['isbrutto'];
-        $result[0]['paid_status']        = (int)$result[0]['paid_status'];
-        $result[0]['processing_status']  = (int)$result[0]['processing_status'];
-        $result[0]['time_for_payment']   = (int)$result[0]['time_for_payment'];
-        $result[0]['canceled']           = $canceled;
-        $result[0]['c_user']             = (int)$result[0]['c_user'];
+        $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
+        $result[0]['paid_status'] = (int)$result[0]['paid_status'];
+        $result[0]['processing_status'] = (int)$result[0]['processing_status'];
+        $result[0]['time_for_payment'] = (int)$result[0]['time_for_payment'];
+        $result[0]['canceled'] = $canceled;
+        $result[0]['c_user'] = (int)$result[0]['c_user'];
 
         $result[0]['nettosum'] = (float)$result[0]['nettosum'];
-        $result[0]['subsum']   = (float)$result[0]['subsum'];
-        $result[0]['sum']      = (float)$result[0]['sum'];
+        $result[0]['subsum'] = (float)$result[0]['subsum'];
+        $result[0]['sum'] = (float)$result[0]['sum'];
 
         return $result[0];
     }
@@ -559,8 +558,8 @@ class Handler extends QUI\Utils\Singleton
 
         $data = QUI::getDataBase()->fetch([
             'select' => 'id',
-            'from'   => self::invoiceTable(),
-            'where'  => [
+            'from' => self::invoiceTable(),
+            'where' => [
                 'global_process_id' => $processId
             ]
         ]);
@@ -574,8 +573,8 @@ class Handler extends QUI\Utils\Singleton
 
         $data = QUI::getDataBase()->fetch([
             'select' => 'id',
-            'from'   => self::temporaryInvoiceTable(),
-            'where'  => [
+            'from' => self::temporaryInvoiceTable(),
+            'where' => [
                 'global_process_id' => $processId
             ]
         ]);
@@ -636,7 +635,7 @@ class Handler extends QUI\Utils\Singleton
         }
 
         $fields = array_flip($this->getOrderGroupFields());
-        $str    = explode(' ', $str);
+        $str = explode(' ', $str);
 
         if (!isset($fields[$str[0]])) {
             return false;
@@ -646,8 +645,10 @@ class Handler extends QUI\Utils\Singleton
             return true;
         }
 
-        if (mb_strtoupper($fields[$str[1]]) === 'DESC' ||
-            mb_strtoupper($fields[$str[1]]) === 'ASC') {
+        if (
+            mb_strtoupper($fields[$str[1]]) === 'DESC' ||
+            mb_strtoupper($fields[$str[1]]) === 'ASC'
+        ) {
             return true;
         }
 

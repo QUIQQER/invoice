@@ -41,7 +41,7 @@ class Handler extends QUI\Utils\Singleton
 
         try {
             $Package = QUI::getPackage('quiqqer/invoice');
-            $Config  = $Package->getConfig();
+            $Config = $Package->getConfig();
         } catch (QUI\Exception $Exception) {
             return [];
         }
@@ -66,7 +66,7 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getProcessingStatusList()
     {
-        $list   = $this->getList();
+        $list = $this->getList();
         $result = [];
 
         foreach ($list as $statusId => $v) {
@@ -109,14 +109,14 @@ class Handler extends QUI\Utils\Singleton
         // remove translation
         QUI\Translator::delete(
             'quiqqer/invoice',
-            'processing.status.'.$Status->getId()
+            'processing.status.' . $Status->getId()
         );
 
         QUI\Translator::publish('quiqqer/invoice');
 
         // update config
         $Package = QUI::getPackage('quiqqer/invoice');
-        $Config  = $Package->getConfig();
+        $Config = $Package->getConfig();
 
         $Config->del('processing_status', $Status->getId());
         $Config->save();
@@ -143,21 +143,21 @@ class Handler extends QUI\Utils\Singleton
         $languages = QUI::availableLanguages();
 
         $data = [
-            'package'  => 'quiqqer/invoice',
+            'package' => 'quiqqer/invoice',
             'datatype' => 'php,js',
-            'html'     => 1
+            'html' => 1
         ];
 
         foreach ($languages as $language) {
             if (isset($title[$language])) {
-                $data[$language]         = $title[$language];
-                $data[$language.'_edit'] = $title[$language];
+                $data[$language] = $title[$language];
+                $data[$language . '_edit'] = $title[$language];
             }
         }
 
         QUI\Translator::edit(
             'quiqqer/invoice',
-            'processing.status.'.$Status->getId(),
+            'processing.status.' . $Status->getId(),
             'quiqqer/invoice',
             $data
         );
@@ -166,12 +166,16 @@ class Handler extends QUI\Utils\Singleton
 
         // update config
         $Package = QUI::getPackage('quiqqer/invoice');
-        $Config  = $Package->getConfig();
+        $Config = $Package->getConfig();
 
-        $Config->setValue('processing_status', $Status->getId(), \json_encode([
-            'color'   => $color,
-            'options' => $options
-        ]));
+        $Config->setValue(
+            'processing_status',
+            $Status->getId(),
+            \json_encode([
+                'color' => $color,
+                'options' => $options
+            ])
+        );
 
         $Config->save();
     }

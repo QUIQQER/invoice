@@ -9,7 +9,6 @@ namespace QUI\ERP\Accounting\Invoice\Utils;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
-use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 
 /**
@@ -379,8 +378,10 @@ class Invoice
      */
     public static function getInvoiceFilename($Invoice, $Locale = null): string
     {
-        if (!($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
-            !($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary)) {
+        if (
+            !($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
+            !($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary)
+        ) {
             return '';
         }
 

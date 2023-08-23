@@ -7,15 +7,14 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
-use QUI\Package\Package;
-use QUI\ERP\Accounting\Invoice\ProcessingStatus;
-use QUI\ERP\Products\Handler\Fields;
-use QUI\ERP\Products\Handler\Search;
-use QUI\ERP\Accounting\Payments\Transactions\Transaction;
-use Quiqqer\Engine\Collector;
-use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
+use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use QUI\ERP\Products\Handler\Fields;
+use QUI\ERP\Products\Handler\Search;
+use QUI\Package\Package;
+use Quiqqer\Engine\Collector;
 
 /**
  * Class EventHandler
@@ -46,7 +45,7 @@ class EventHandler
         // create invoice payment status
         $Handler = ProcessingStatus\Handler::getInstance();
         $Factory = ProcessingStatus\Factory::getInstance();
-        $list    = $Handler->getList();
+        $list = $Handler->getList();
 
         if (!empty($list)) {
             return;
@@ -98,21 +97,21 @@ class EventHandler
 
         try {
             Fields::createField([
-                'id'            => Handler::INVOICE_PRODUCT_TEXT_ID,
-                'type'          => 'InputMultiLang',
-                'prefix'        => '',
-                'suffix'        => '',
-                'priority'      => 3,
-                'systemField'   => 0,
+                'id' => Handler::INVOICE_PRODUCT_TEXT_ID,
+                'type' => 'InputMultiLang',
+                'prefix' => '',
+                'suffix' => '',
+                'priority' => 3,
+                'systemField' => 0,
                 'standardField' => 1,
                 'requiredField' => 0,
-                'publicField'   => 0,
-                'search_type'   => Search::SEARCHTYPE_TEXT,
-                'options'       => [
+                'publicField' => 0,
+                'search_type' => Search::SEARCHTYPE_TEXT,
+                'options' => [
                     'maxLength' => 255,
                     'minLength' => 3
                 ],
-                'titles'        => [
+                'titles' => [
                     'de' => 'Rechnungstext',
                     'en' => 'Invoice text'
                 ]
@@ -188,14 +187,14 @@ class EventHandler
 
         $Engine->assign([
             'addresses' => $User->getAddressList(),
-            'current'   => $current
+            'current' => $current
         ]);
 
         $result = '';
         $result .= '<style>';
-        $result .= \file_get_contents(\dirname(__FILE__).'/FrontendUsers/userProfileAddressSelect.css');
+        $result .= \file_get_contents(\dirname(__FILE__) . '/FrontendUsers/userProfileAddressSelect.css');
         $result .= '</style>';
-        $result .= $Engine->fetch(\dirname(__FILE__).'/FrontendUsers/userProfileAddressSelect.html');
+        $result .= $Engine->fetch(\dirname(__FILE__) . '/FrontendUsers/userProfileAddressSelect.html');
 
         $Collector->append($result);
     }
@@ -207,13 +206,13 @@ class EventHandler
     public static function onUserSaveBegin(QUI\Users\User $User)
     {
         $Package = QUI::getPackage('quiqqer/frontend-users');
-        $Config  = $Package->getConfig();
+        $Config = $Package->getConfig();
 
         if (!$Config->get('userProfile', 'useAddressManagement')) {
             return;
         }
 
-        $Request   = QUI::getRequest();
+        $Request = QUI::getRequest();
         $addressId = $Request->get('quiqqer-frontendUsers-userdata-invoice-address');
 
         if (!$addressId) {
@@ -241,7 +240,7 @@ class EventHandler
         QUI\Users\User $User,
         QUI\ERP\Comments $Comments
     ) {
-        $Handler  = Handler::getInstance();
+        $Handler = Handler::getInstance();
         $invoices = $Handler->getInvoicesByUser($User);
 
         foreach ($invoices as $Invoice) {
@@ -259,7 +258,7 @@ class EventHandler
         QUI\Users\User $User,
         QUI\ERP\Comments $Comments
     ) {
-        $Handler  = Handler::getInstance();
+        $Handler = Handler::getInstance();
         $invoices = $Handler->getInvoicesByUser($User);
 
         foreach ($invoices as $Invoice) {
@@ -319,7 +318,7 @@ class EventHandler
             $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Invoice->getCustomer()->getId(), $entry['hash']);
 
             if ($file) {
-                $filePath = $file['dirname'].'/'.$file['basename'];
+                $filePath = $file['dirname'] . '/' . $file['basename'];
 
                 if (\file_exists($filePath)) {
                     $Mailer->addAttachment($filePath);
@@ -390,14 +389,14 @@ class EventHandler
 
         $result = QUI::getDataBase()->fetch([
             'select' => ['id', 'id_prefix'],
-            'from'   => $table
+            'from' => $table
         ]);
 
         foreach ($result as $row) {
             QUI::getDataBase()->update(
                 $table,
                 [
-                    'id_with_prefix' => $row['id_prefix'].$row['id']
+                    'id_with_prefix' => $row['id_prefix'] . $row['id']
                 ],
                 [
                     'id' => $row['id']

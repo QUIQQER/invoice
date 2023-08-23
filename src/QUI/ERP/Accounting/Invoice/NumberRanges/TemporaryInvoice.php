@@ -37,7 +37,7 @@ class TemporaryInvoice implements NumberRangeInterface
      */
     public function getRange()
     {
-        $Table   = QUI::getDataBase()->table();
+        $Table = QUI::getDataBase()->table();
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
         return $Table->getAutoIncrementIndex(
@@ -54,12 +54,12 @@ class TemporaryInvoice implements NumberRangeInterface
             return;
         }
 
-        $Handler   = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+        $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $tableName = $Handler->temporaryInvoiceTable();
-        $PDO       = QUI::getDataBase()->getPDO();
+        $PDO = QUI::getDataBase()->getPDO();
 
         $Statement = $PDO->prepare(
-            "ALTER TABLE {$tableName} AUTO_INCREMENT = ".(int)$range
+            "ALTER TABLE {$tableName} AUTO_INCREMENT = " . (int)$range
         );
 
         $Statement->execute();
