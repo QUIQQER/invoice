@@ -710,12 +710,12 @@ class InvoiceTemporary extends QUI\QDOM
             $PermissionUser = QUI::getUserBySession();
         }
 
-        if (!$this->getCustomer() || $PermissionUser->getId() !== $this->getCustomer()->getId()) {
-            QUI\Permissions\Permission::checkPermission(
-                'quiqqer.invoice.temporary.edit',
-                $PermissionUser
-            );
-        }
+        //if (!$this->getCustomer() || $PermissionUser->getId() !== $this->getCustomer()->getId()) {
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.temporary.edit',
+            $PermissionUser
+        );
+        //}
 
         $this->checkLocked();
 

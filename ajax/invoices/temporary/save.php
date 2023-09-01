@@ -14,11 +14,11 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_save',
     function ($invoiceId, $data) {
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
-        $data    = json_decode($data, true);
+        $data = json_decode($data, true);
 
         if (empty($data['customer_id'])) {
             $data['invoice_address_id'] = '';
-            $data['invoice_address']    = '';
+            $data['invoice_address'] = '';
         }
 
         if (!empty($data['addressDelivery'])) {
