@@ -528,13 +528,14 @@ class InvoiceTemporary extends QUI\QDOM
     /**
      * Return the ordered by user
      *
-     * @return null|QUI\Interfaces\Users\User
+     * @return QUI\ERP\User|null
      */
-    public function getOrderedByUser(): ?QUI\Interfaces\Users\User
+    public function getOrderedByUser(): ?QUI\ERP\User
     {
         if ($this->getAttribute('ordered_by')) {
             try {
-                return QUI::getUsers()->get($this->getAttribute('ordered_by'));
+                $User = QUI::getUsers()->get($this->getAttribute('ordered_by'));
+                return QUI\ERP\User::convertUserToErpUser($User);
             } catch (QUI\Exception $Exception) {
             }
         }
@@ -710,12 +711,12 @@ class InvoiceTemporary extends QUI\QDOM
             $PermissionUser = QUI::getUserBySession();
         }
 
-        if (!$this->getCustomer() || $PermissionUser->getId() !== $this->getCustomer()->getId()) {
-            QUI\Permissions\Permission::checkPermission(
-                'quiqqer.invoice.temporary.edit',
-                $PermissionUser
-            );
-        }
+        //if (!$this->getCustomer() || $PermissionUser->getId() !== $this->getCustomer()->getId()) {
+        QUI\Permissions\Permission::checkPermission(
+            'quiqqer.invoice.temporary.edit',
+            $PermissionUser
+        );
+        //}
 
         $this->checkLocked();
 
@@ -866,14 +867,17 @@ class InvoiceTemporary extends QUI\QDOM
         $orderedBy = (int)$this->getAttribute('customer_id');
         $orderedByName = '';
 
+        // use default advisor as editor
         if ($OrderedBy) {
             $orderedBy = $OrderedBy->getId();
-            $orderedByName = $OrderedBy->getName();
+            $orderedByName = $OrderedBy->getInvoiceName();
         } elseif ($orderedBy) {
             try {
                 $User = QUI::getUsers()->get($orderedBy);
+                $User = QUI\ERP\User::convertUserToErpUser($User);
+
                 $orderedBy = $User->getId();
-                $orderedByName = $User->getName();
+                $orderedByName = $User->getInvoiceName();
             } catch (QUI\Exception $Exception) {
             }
         }
@@ -1215,16 +1219,17 @@ class InvoiceTemporary extends QUI\QDOM
         $orderedBy = (int)$this->getAttribute('customer_id');
         $orderedByName = '';
 
-
         // use default advisor as editor
         if ($OrderedBy) {
             $orderedBy = $OrderedBy->getId();
-            $orderedByName = $OrderedBy->getName();
+            $orderedByName = $OrderedBy->getInvoiceName();
         } elseif ($orderedBy) {
             try {
                 $User = QUI::getUsers()->get($orderedBy);
+                $User = QUI\ERP\User::convertUserToErpUser($User);
+
                 $orderedBy = $User->getId();
-                $orderedByName = $User->getName();
+                $orderedByName = $User->getInvoiceName();
             } catch (QUI\Exception $Exception) {
             }
         }
