@@ -11,6 +11,8 @@ use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 
+use function json_decode;
+
 /**
  * Class Invoice
  * Invoice Utils Helper
@@ -166,26 +168,7 @@ class Invoice
         ];
 
         if (!empty($address)) {
-            $address = \json_decode($address, true);
-
-            if (empty($address['lastname']) && !empty($address['company'])) {
-                $address['lastname'] = $address['company'];
-            }
-
-            foreach ($addressNeedles as $addressNeedle) {
-                if (!isset($address[$addressNeedle])) {
-                    $missing[] = 'invoice_address_' . $addressNeedle;
-                    continue;
-                }
-
-                try {
-                    self::verificateField($address[$addressNeedle]);
-                } catch (QUI\Exception $Exception) {
-                    $missing[] = 'invoice_address_' . $addressNeedle;
-                }
-            }
-
-            return $missing;
+            return self::getMissingAddressData(json_decode($address, true));
         }
 
         $customerId = $Invoice->getAttribute('customer_id');
@@ -239,6 +222,53 @@ class Invoice
         // @todo better company check
         if ($Customer && $Customer->isCompany() && \in_array('invoice_address_lastname', $missing)) {
             unset($missing[\array_search('invoice_address_lastname', $missing)]);
+        }
+
+        return $missing;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function checkAddress(QUI\Users\Address $Address)
+    {
+        $missing = self::getMissingAddressData($Address->getAttributes());
+
+        if (!empty($missing)) {
+            throw new Exception(self::getMissingAttributeMessage($missing[0]));
+        }
+    }
+
+    /**
+     * @param array $address
+     * @return array
+     */
+    public static function getMissingAddressData(array $address): array
+    {
+        $missing = [];
+
+        $addressNeedles = [
+            'lastname',
+            'street_no',
+            'city',
+            'country'
+        ];
+
+        if (empty($address['lastname']) && !empty($address['company'])) {
+            $address['lastname'] = $address['company'];
+        }
+
+        foreach ($addressNeedles as $addressNeedle) {
+            if (!isset($address[$addressNeedle])) {
+                $missing[] = 'invoice_address_' . $addressNeedle;
+                continue;
+            }
+
+            try {
+                self::verificateField($address[$addressNeedle]);
+            } catch (QUI\Exception $Exception) {
+                $missing[] = 'invoice_address_' . $addressNeedle;
+            }
         }
 
         return $missing;
