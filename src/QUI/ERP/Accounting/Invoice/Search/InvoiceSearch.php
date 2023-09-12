@@ -645,15 +645,19 @@ class InvoiceSearch extends Singleton
 
             // order
             try {
-                $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById(
-                    $invoiceData['order_id']
-                );
+                if (QUI::getPackageManager()->isInstalled('quiqqer/order')) {
+                    $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById(
+                        $invoiceData['order_id']
+                    );
 
-                $invoiceData['order_date'] = $Order->getCreateDate();
-                $invoiceData['order_date'] = $Locale->formatDate(
-                    strtotime($invoiceData['order_date']),
-                    $defaultTimeFormat
-                );
+                    $invoiceData['order_date'] = $Order->getCreateDate();
+                    $invoiceData['order_date'] = $Locale->formatDate(
+                        strtotime($invoiceData['order_date']),
+                        $defaultTimeFormat
+                    );
+                } else {
+                    $invoiceData['order_date'] = Handler::EMPTY_VALUE;
+                }
             } catch (QUI\Exception $Exception) {
             }
 
