@@ -776,7 +776,7 @@ class Invoice extends QUI\QDOM
         QUI::getEvents()->fireEvent('quiqqerInvoiceCopy', [$this]);
 
         if (empty($globalProcessId)) {
-            $globalProcessId = $this->getHash();
+            $globalProcessId = QUI\Utils\Uuid::get();
         }
 
         // Invoice Address
