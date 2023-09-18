@@ -317,7 +317,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     }
 
     /**
-     * Return the hash - its the unique invoice id
+     * Return the hash - it's the unique invoice id
      *
      * @return mixed
      */
@@ -415,7 +415,11 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         }
 
         if (empty($userData['country'])) {
-            $userData['country'] = QUI\ERP\Defaults::getCountry()->getCode();
+            try {
+                $userData['country'] = QUI\ERP\Defaults::getCountry()->getCode();
+            } catch (\Exception $exception) {
+                $userData['country'] = '';
+            }
         }
 
         if (!empty($invoiceAddress['contactEmail'])) {
@@ -436,6 +440,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
     /**
      * @param string|QUI\ERP\Currency\Currency $currency
+     * @throws QUI\Exception
      */
     public function setCurrency($currency)
     {
@@ -2130,7 +2135,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @return QUI\ERP\Shipping\Types\ShippingEntry|null
      */
-    public function getShipping()
+    public function getShipping(): ?QUI\ERP\Shipping\Types\ShippingEntry
     {
         if ($this->shippingId === null) {
             return null;
