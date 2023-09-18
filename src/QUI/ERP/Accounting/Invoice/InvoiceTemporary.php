@@ -8,9 +8,11 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 use QUI\ERP\Accounting\ArticleList;
+use QUI\ERP\Accounting\Calculations;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Customer\CustomerFiles;
+use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Order\Handler as OrderHandler;
 use QUI\Utils\Security\Orthos;
@@ -42,7 +44,7 @@ use const PHP_INT_MAX;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class InvoiceTemporary extends QUI\QDOM
+class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 {
     /**
      * Special attributes
@@ -353,7 +355,7 @@ class InvoiceTemporary extends QUI\QDOM
      *
      * @return null|QUI\ERP\User|QUI\Users\Nobody|QUI\Users\SystemUser|QUI\Users\User
      */
-    public function getCustomer()
+    public function getCustomer(): ?QUI\ERP\User
     {
         $invoiceAddress = $this->getAttribute('invoice_address');
 
@@ -374,8 +376,6 @@ class InvoiceTemporary extends QUI\QDOM
             'lang' => $User->getLang(),
             'email' => $User->getAttribute('email')
         ];
-
-        $Customer = false;
 
         try {
             $Customer = QUI\ERP\User::convertUserToErpUser($User);
@@ -2349,4 +2349,124 @@ class InvoiceTemporary extends QUI\QDOM
     }
 
     // endregion
+
+    /**
+     * Returns the price calculation for the invoice.
+     *
+     * @return Calculations The price calculation object.
+     * @throws Exception
+     */
+    public function getPriceCalculation(): Calculations
+    {
+        return new QUI\ERP\Accounting\Calculations(
+            $this->Articles->getCalculations(),
+            $this->Articles->getArticles()
+        );
+    }
+
+    /**
+     * Set the customer for the invoice.
+     *
+     * @param QUI\ERP\User|array|QUI\Interfaces\Users\User|null $User The customer data. Can be a QUI\ERP\User object,
+     *                                                              an array of customer data, or a QUI\Interfaces\Users\User
+     *                                                              object. Pass null to unset the customer.
+     *
+     * @throws Exception If there is an error setting the user.
+     * @throws QUI\Exception If there is an error retrieving the user.
+     */
+    public function setCustomer($User)
+    {
+        $oldCustomerId = $this->getAttribute('customer_id');
+        $customerId = null;
+
+        if (empty($User)) {
+            $this->setAttribute('customer_id', null);
+            QUI::getEvents()->fireEvent('onQuiqqerOrderCustomerSet', [$this]);
+            return;
+        }
+
+        if (is_array($User)) {
+            $missing = QUI\ERP\User::getMissingAttributes($User);
+
+            // if something is missing
+            if (!empty($missing)) {
+                try {
+                    $Customer = QUI::getUsers()->get($User['id']);
+
+                    if (isset($User['address'])) {
+                        $address = $User['address'];
+                    }
+
+                    foreach ($missing as $missingAttribute) {
+                        if ($missingAttribute === 'username') {
+                            $User[$missingAttribute] = $Customer->getUsername();
+                            continue;
+                        }
+
+                        if ($missingAttribute === 'isCompany') {
+                            $User[$missingAttribute] = $Customer->isCompany();
+                            continue;
+                        }
+
+                        if (!empty($address[$missingAttribute])) {
+                            $User[$missingAttribute] = $address[$missingAttribute];
+                            continue;
+                        }
+
+                        $User[$missingAttribute] = $Customer->getAttribute($missingAttribute);
+                    }
+                } catch (QUI\Exception $Exception) {
+                    // we have a problem, we cant set the user
+                    // we need to fill the user data with empty values
+                    $address = [];
+
+                    if (isset($User['address'])) {
+                        $address = $User['address'];
+                    }
+
+                    foreach ($missing as $missingAttribute) {
+                        if ($missingAttribute === 'isCompany') {
+                            if (!empty($address['company'])) {
+                                $User[$missingAttribute] = 1;
+                                continue;
+                            }
+
+                            $User[$missingAttribute] = 0;
+                            continue;
+                        }
+
+                        if (
+                            $missingAttribute === 'country' ||
+                            $missingAttribute === 'lastname' ||
+                            $missingAttribute === 'firstname'
+                        ) {
+                            if (!empty($address[$missingAttribute])) {
+                                $User[$missingAttribute] = $address[$missingAttribute];
+                                continue;
+                            }
+
+                            $User[$missingAttribute] = '';
+                            continue;
+                        }
+
+                        $User[$missingAttribute] = '';
+                    }
+                }
+            }
+
+            $customerId = (new QUI\ERP\User($User))->getId();
+        } elseif ($User instanceof QUI\ERP\User) {
+            $customerId = $User->getId();
+        } elseif ($User instanceof QUI\Interfaces\Users\User) {
+            $customerId = $User->getId();
+        }
+
+
+        $this->setAttribute('customer_id', $customerId);
+        QUI::getEvents()->fireEvent('onQuiqqerOrderCustomerSet', [$this]);
+
+        if ($customerId !== $oldCustomerId) {
+            QUI::getEvents()->fireEvent('onQuiqqerOrderCustomerChange', [$this]);
+        }
+    }
 }

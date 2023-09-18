@@ -9,9 +9,12 @@ namespace QUI\ERP\Accounting\Invoice;
 use IntlDateFormatter;
 use QUI;
 use QUI\ERP\Accounting\ArticleListUnique;
+use QUI\ERP\Accounting\Calculations;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use QUI\ERP\Address as ErpAddress;
 use QUI\ERP\Customer\CustomerFiles;
+use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Output\Output as ERPOutput;
 use QUI\Permissions\Permission;
@@ -35,7 +38,7 @@ use function time;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class Invoice extends QUI\QDOM
+class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 {
     /* @deprecated */
     const PAYMENT_STATUS_OPEN = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
@@ -320,7 +323,7 @@ class Invoice extends QUI\QDOM
     /**
      * @return QUI\ERP\User
      *
-     * @throws QUI\ERP\Exception
+     * @throws QUI\ERP\Exception|QUI\Exception
      */
     public function getCustomer(): QUI\ERP\User
     {
@@ -1711,4 +1714,72 @@ class Invoice extends QUI\QDOM
     }
 
     // endregion
+
+    /**
+     * Get the price calculation
+     *
+     * @return Calculations
+     * @throws Exception
+     */
+    public function getPriceCalculation(): Calculations
+    {
+        $Articles = $this->getArticles();
+
+        return new Calculations(
+            $Articles->getCalculations(),
+            $Articles->getArticles()
+        );
+    }
+
+    /**
+     * Retrieves the invoice address of the object.
+     *
+     * @return ErpAddress|null The invoice address, or null if no invoice address is available.
+     */
+    public function getInvoiceAddress(): ?ErpAddress
+    {
+        if ($this->getAttribute('invoice_address')) {
+            try {
+                return new QUI\ERP\Address(
+                    json_decode($this->getAttribute('invoice_address'), true)
+                );
+            } catch (\Exception $Exception) {
+                QUI\System\Log::addDebug($Exception->getMessage());
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the delivery address for the current object.
+     *
+     * @return ErpAddress|null Returns an instance of ErpAddress if the 'invoice_address' attribute is set. Returns null otherwise.
+     */
+    public function getDeliveryAddress(): ?ErpAddress
+    {
+        if ($this->getAttribute('delivery_address')) {
+            try {
+                return new QUI\ERP\Address(
+                    json_decode($this->getAttribute('delivery_address'), true)
+                );
+            } catch (\Exception $Exception) {
+                QUI\System\Log::addDebug($Exception->getMessage());
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * this method is there to comply with the interface
+     * customer is not changeable at an invoice
+     *
+     * @param $User
+     * @return void
+     */
+    public function setCustomer($User)
+    {
+        // customer is not changeable at an invoice
+    }
 }
