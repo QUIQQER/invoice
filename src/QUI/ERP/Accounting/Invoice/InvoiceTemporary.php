@@ -2386,7 +2386,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         if (empty($User)) {
             $this->setAttribute('customer_id', null);
-            QUI::getEvents()->fireEvent('onQuiqqerOrderCustomerSet', [$this]);
+            QUI::getEvents()->fireEvent('onQuiqqerInvoiceCustomerSet', [$this]);
             return;
         }
 
@@ -2468,10 +2468,10 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
 
         $this->setAttribute('customer_id', $customerId);
-        QUI::getEvents()->fireEvent('onQuiqqerOrderCustomerSet', [$this]);
+        QUI::getEvents()->fireEvent('onQuiqqerInvoiceCustomerSet', [$this]);
 
         if ($customerId !== $oldCustomerId) {
-            QUI::getEvents()->fireEvent('onQuiqqerOrderCustomerChange', [$this]);
+            QUI::getEvents()->fireEvent('onQuiqqerInvoiceCustomerChange', [$this]);
         }
     }
 }
