@@ -19,6 +19,11 @@ QUI::$Ajax->registerFunction(
         if (empty($data['customer_id'])) {
             $data['invoice_address_id'] = '';
             $data['invoice_address'] = '';
+        } else {
+            try {
+                $Invoice->setCustomer(QUI::getUsers()->get($data['customer_id']));
+            } catch (\Exception $exception) {
+            }
         }
 
         if (!empty($data['addressDelivery'])) {
