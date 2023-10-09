@@ -458,6 +458,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             return;
         }
 
+        $this->Currency = $currency;
         $this->setAttribute('currency_data', $currency->toArray());
         $this->Articles->setCurrency($this->Currency);
         $this->Currency = $this->getCurrency();
