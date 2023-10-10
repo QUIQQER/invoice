@@ -472,9 +472,17 @@ class Invoice
      * @param float|int $amount
      * @return int|float
      */
-    public static function roundInvoiceSum($amount)
+    public static function roundInvoiceSum($amount, QUI\ERP\Currency\Currency $Currency = null)
     {
-        return round($amount, 2);
+        if ($Currency === null) {
+            $Currency = QUI\ERP\Defaults::getCurrency();
+
+            QUI\System\Log::addError('Währung fehlt bei Invoice::roundInvoiceSum() ... bitte beheben', [
+                'stack' => debug_backtrace()
+            ]);
+        }
+
+        return round($amount, $Currency->getPrecision());
     }
 
     /**
