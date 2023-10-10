@@ -1020,8 +1020,8 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 'currency_data' => json_encode($this->getCurrency()->toArray()),
                 'currency' => $this->getCurrency()->getCode(),
                 'nettosum' => $listCalculations['nettoSum'],
-                'subsum' => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
-                'sum' => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
+                'subsum' => InvoiceUtils::roundInvoiceSum($listCalculations['subSum'], $this->Currency),
+                'sum' => InvoiceUtils::roundInvoiceSum($listCalculations['sum'], $this->Currency),
                 'vat_array' => json_encode($listCalculations['vatArray'])
             ],
             [
@@ -1281,8 +1281,16 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         $listCalculations = $this->Articles->getCalculations();
         $uniqueList = $this->Articles->toUniqueList()->toArray();
 
-        $uniqueList['calculations']['sum'] = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['sum']);
-        $uniqueList['calculations']['subSum'] = InvoiceUtils::roundInvoiceSum($uniqueList['calculations']['subSum']);
+        $uniqueList['calculations']['sum'] = InvoiceUtils::roundInvoiceSum(
+            $uniqueList['calculations']['sum'],
+            $this->Currency
+        );
+
+        $uniqueList['calculations']['subSum'] = InvoiceUtils::roundInvoiceSum(
+            $uniqueList['calculations']['subSum'],
+            $this->Currency
+        );
+
         $uniqueList = json_encode($uniqueList);
 
         //shipping
@@ -1433,8 +1441,8 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 'currency' => $this->getCurrency()->getCode(),
                 'nettosum' => $listCalculations['nettoSum'],
                 'nettosubsum' => $listCalculations['nettoSubSum'],
-                'subsum' => InvoiceUtils::roundInvoiceSum($listCalculations['subSum']),
-                'sum' => InvoiceUtils::roundInvoiceSum($listCalculations['sum']),
+                'subsum' => InvoiceUtils::roundInvoiceSum($listCalculations['subSum'], $this->Currency),
+                'sum' => InvoiceUtils::roundInvoiceSum($listCalculations['sum'], $this->Currency),
                 'vat_array' => json_encode($listCalculations['vatArray'])
             ]
         );
