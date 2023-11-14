@@ -29,6 +29,7 @@ use function strlen;
 use function strpos;
 use function strtotime;
 use function substr;
+use function substr_replace;
 use function time;
 
 /**
@@ -361,7 +362,6 @@ class InvoiceSearch extends Singleton
             'type' => PDO::PARAM_STR
         ];
 
-
         // filter
         foreach ($this->filter as $filter) {
             $bind = ':filter' . $fc;
@@ -407,6 +407,28 @@ class InvoiceSearch extends Singleton
                     break;
 
                 case 'customer_id':
+                    $value = (int)$filter['value'];
+                    $where[] = $flr . ' = ' . $bind;
+
+                    // remove customer prefix, for better search
+                    if (QUI::getPackageManager()->isInstalled('quiqqer/customer')) {
+                        $prefix = QUI::getpackage('quiqqer/customer')->getConfig()->getValue(
+                            'customer',
+                            'customerNoPrefix'
+                        );
+
+                        if (strpos($value, $prefix) === 0) {
+                            $value = substr_replace($value, '', 0, strlen($value));
+                        }
+                    }
+
+                    $binds[$bind] = [
+                        'value' => $value,
+                        'type' => PDO::PARAM_INT
+                    ];
+
+                    break;
+
                 case 'c_user':
                 case 'id':
                 case 'order_id':
@@ -432,9 +454,28 @@ class InvoiceSearch extends Singleton
         }
 
         if (!empty($this->search)) {
+            $customerIdSearch = $this->search;
+
+            // remove customer prefix, for better search
+            if (QUI::getPackageManager()->isInstalled('quiqqer/customer')) {
+                $prefix = QUI::getpackage('quiqqer/customer')->getConfig()->getValue(
+                    'customer',
+                    'customerNoPrefix'
+                );
+
+                if (strpos($customerIdSearch, $prefix) === 0) {
+                    $customerIdSearch = substr_replace($customerIdSearch, '', 0, strlen($prefix));
+                }
+            }
+
+            $binds['customerIdSearch'] = [
+                'value' => '%' . $customerIdSearch . '%',
+                'type' => PDO::PARAM_STR
+            ];
+
             $where[] = '(
                 id LIKE :searchId OR
-                customer_id LIKE :search OR
+                customer_id LIKE :customerIdSearch OR
                 hash LIKE :search OR
                 global_process_id LIKE :search OR
                 type LIKE :search OR
@@ -456,7 +497,7 @@ class InvoiceSearch extends Singleton
                 editor_name LIKE :search OR
                 data LIKE :search OR
                 additional_invoice_text LIKE :search OR
-                customer_data LIKE :search OR
+                customer_data LIKE :customerIdSearch OR
                 currency_data LIKE :search OR
                 nettosum LIKE :search OR
                 nettosubsum LIKE :search OR
