@@ -728,15 +728,17 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * Copy the invoice to a temporary invoice
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @param false|string $globalProcessId
+     * @param bool|string $globalProcessId
      * @return InvoiceTemporary
      *
      * @throws Exception
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function copy($PermissionUser = null, $globalProcessId = false): InvoiceTemporary
-    {
+    public function copy(
+        QUI\Interfaces\Users\User $PermissionUser = null,
+        bool|string $globalProcessId = false
+    ): InvoiceTemporary {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
         }
