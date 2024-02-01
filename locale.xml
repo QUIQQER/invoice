@@ -1652,10 +1652,12 @@
     <groups name="quiqqer/invoice" datatype="php">
 
         <locale name="history.InvoiceTemporary.new_hash_on_post">
-            <de><![CDATA[Bei Buchung der Rechnung musste eine neue Vorgangsnummer ("Hash") generiert werden, da bereits ein anderer Rechnungs-Entwurf mit identischer Vorgangsnummer vorlag. Vorherige Vorgangsnummer: [oldHash] | Neue Vorgangsnummer: [newHash]]]></de>
-            <en><![CDATA[When posting the invoice, a new procedure number ("hash") had to be generated because another invoice draft with an identical procedure number already existed. Previous procedure number: [oldHash] | New procedure number: [newHash]]]></en>
+            <de>
+                <![CDATA[Bei Buchung der Rechnung musste eine neue Vorgangsnummer ("Hash") generiert werden, da bereits ein anderer Rechnungs-Entwurf mit identischer Vorgangsnummer vorlag. Vorherige Vorgangsnummer: [oldHash] | Neue Vorgangsnummer: [newHash]]]></de>
+            <en>
+                <![CDATA[When posting the invoice, a new procedure number ("hash") had to be generated because another invoice draft with an identical procedure number already existed. Previous procedure number: [oldHash] | New procedure number: [newHash]]]></en>
         </locale>
-        
+
         <locale name="OutputProvider.epc_qr_code_purpose">
             <de><![CDATA[Rechnung [invoiceNo]]]></de>
             <en><![CDATA[Invoice [invoiceNo]]]></en>
@@ -1667,8 +1669,10 @@
                 <![CDATA[The invoice does not have an assigned customer yet. Please assign a customer to the invoice first before assigning customer files to the invoice.]]></en>
         </locale>
         <locale name="exception.Invoice.addCustomerFile.file_not_found">
-            <de><![CDATA[Diese Datei ist noch nicht in den Kunden-Dateien hochgeladen und kann der Rechnung daher nicht hinzugefügt werden.]]></de>
-            <en><![CDATA[This file is not yet uploaded in the customer files and therefore cannot be added to the invoice.]]></en>
+            <de>
+                <![CDATA[Diese Datei ist noch nicht in den Kunden-Dateien hochgeladen und kann der Rechnung daher nicht hinzugefügt werden.]]></de>
+            <en>
+                <![CDATA[This file is not yet uploaded in the customer files and therefore cannot be added to the invoice.]]></en>
         </locale>
 
         <locale name="RestApi.Provider.invoice.comment.source">
@@ -2146,6 +2150,15 @@
         <locale name="erp.comment.invoice.created">
             <de><![CDATA[Rechnung #[invoiceId] erstellt]]></de>
             <en><![CDATA[Created invoice #[invoiceId]]]></en>
+        </locale>
+
+        <locale name="history.invoiceTemporary.created">
+            <de><![CDATA[Rechnungsentwurf erstellt]]></de>
+            <en><![CDATA[Draft invoice created]]></en>
+        </locale>
+        <locale name="history.invoiceTemporary.post">
+            <de><![CDATA[Rechnung gebucht von #[userId] - [username]]]></de>
+            <en><![CDATA[Invoice posted by #[userId]] - [username]]]></en>
         </locale>
     </groups>
 
