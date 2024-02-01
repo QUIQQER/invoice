@@ -16,6 +16,8 @@ use QUI\ERP\Products\Handler\Search;
 use QUI\Package\Package;
 use Quiqqer\Engine\Collector;
 
+use function strtotime;
+
 /**
  * Class EventHandler
  *
@@ -267,9 +269,10 @@ class EventHandler
                 QUI::getLocale()->get('quiqqer/invoice', 'erp.comment.invoice.created', [
                     'invoiceId' => $Invoice->getId()
                 ]),
-                \strtotime($Invoice->getAttribute('c_date')),
+                strtotime($Invoice->getAttribute('c_date')),
                 'quiqqer/invoice',
-                'fa fa-history'
+                'fa fa-file-text-o',
+                $Invoice->getHash()
             );
         }
     }
