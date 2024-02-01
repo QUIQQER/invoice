@@ -237,7 +237,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @return InvoiceView
      *
-     * @throws Exception
+     * @throws \QUI\ERP\Accounting\Invoice\Exception
      */
     public function getView(): InvoiceView
     {
@@ -249,7 +249,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @return ArticleListUnique
      *
-     * @throws QUI\ERP\Exception
+     * @throws QUI\ERP\Exception|QUI\Exception
      */
     public function getArticles(): ArticleListUnique
     {
@@ -1412,7 +1412,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @throws QUI\Exception
      */
-    public function addHistory(string $comment)
+    public function addHistory(string $comment): void
     {
         $history = $this->getAttribute('history');
         $History = QUI\ERP\Comments::unserialize($history);
