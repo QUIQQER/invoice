@@ -22,22 +22,20 @@ class Factory extends QUI\Utils\Singleton
      * Creates a new temporary invoice
      *
      * @param QUI\Interfaces\Users\User|null $User
-     * @param string|bool $hash - hash of the process
+     * @param bool|string $globalProcessId - hash of the process
      * @return InvoiceTemporary
      * @throws
      */
-    public function createInvoice($User = null, $hash = false): InvoiceTemporary
-    {
+    public function createInvoice(
+        QUI\Interfaces\Users\User $User = null,
+        bool|string $globalProcessId = false
+    ): InvoiceTemporary {
         if ($User === null) {
             $User = QUI::getUserBySession();
         }
 
-        if ($hash === false) {
-            $hash = QUI\Utils\Uuid::get();
-        }
 
-        $processId = $hash;
-
+        $hash = QUI\Utils\Uuid::get();
 
         // check if hash already exists, if hash exists, we cant use it twice
         try {
@@ -46,7 +44,7 @@ class Factory extends QUI\Utils\Singleton
             // if invoice hash exist, we need a new hash
             $hash = QUI\Utils\Uuid::get();
         } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeDebugException($Exception);
+            // nothing
         }
 
 
@@ -68,7 +66,7 @@ class Factory extends QUI\Utils\Singleton
                 'editor_id' => $editor,
                 'editor_name' => '-',
                 'hash' => $hash,
-                'global_process_id' => $processId,
+                'global_process_id' => $globalProcessId,
                 'customer_id' => 0,
                 'type' => Handler::TYPE_INVOICE_TEMPORARY,
                 'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,

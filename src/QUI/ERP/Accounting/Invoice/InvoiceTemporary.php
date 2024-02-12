@@ -1096,7 +1096,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
-        $New = $Factory->createInvoice($PermissionUser);
+        $New = $Factory->createInvoice($PermissionUser, $this->getGlobalProcessId());
 
         $currentData = QUI::getDataBase()->fetch([
             'from' => $Handler->temporaryInvoiceTable(),
@@ -1140,7 +1140,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @throws QUI\Permissions\Exception
      * @throws QUI\Exception
      */
-    public function post($PermissionUser = null): Invoice
+    public function post(QUI\Interfaces\Users\User $PermissionUser = null): Invoice
     {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
