@@ -57,7 +57,7 @@
             </params>
 
             <categories>
-                <category name="invoice" index="2">
+                <category name="invoice">
                     <text>
                         <locale group="quiqqer/invoice" var="window.erp.invoice.title"/>
                     </text>
