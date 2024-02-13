@@ -163,10 +163,9 @@ class Invoice
         $addressRequired = self::addressRequirement();
         $addressThreshold = self::addressRequirementThreshold();
         $addressNeedles = [];
-
         $Calculation = $Invoice->getPriceCalculation();
 
-        if ($Calculation->getSum()->value() > $addressThreshold) {
+        if ($addressRequired === false && $Calculation->getSum()->value() > $addressThreshold) {
             $addressRequired = true;
         }
 
