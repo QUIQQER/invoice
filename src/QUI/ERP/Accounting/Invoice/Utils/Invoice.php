@@ -160,15 +160,28 @@ class Invoice
         $Customer = null;
         $Address = null;
 
-        $addressNeedles = [
-            'lastname',
-            'street_no',
-            'city',
-            'country'
-        ];
+        $addressRequired = self::addressRequirement();
+        $addressThreshold = self::addressRequirementThreshold();
+        $addressNeedles = [];
 
-        if (!empty($address)) {
-            return self::getMissingAddressData(json_decode($address, true));
+        $Calculation = $Invoice->getPriceCalculation();
+
+        if ($Calculation->getSum()->value() > $addressThreshold) {
+            $addressRequired = true;
+        }
+
+
+        if ($addressRequired) {
+            $addressNeedles = [
+                'lastname',
+                'street_no',
+                'city',
+                'country'
+            ];
+
+            if (!empty($address)) {
+                return self::getMissingAddressData(json_decode($address, true));
+            }
         }
 
         $customerId = $Invoice->getAttribute('customer_id');
@@ -192,19 +205,21 @@ class Invoice
             }
         }
 
-        try {
-            if ($Customer) {
-                $Address = $Customer->getAddress($addressId);
-                $Address->getCountry(); // check address fields
-            } else {
+        if ($addressRequired) {
+            try {
+                if ($Customer) {
+                    $Address = $Customer->getAddress($addressId);
+                    $Address->getCountry(); // check address fields
+                } else {
+                    $missing[] = 'invoice_address_id';
+                }
+            } catch (QUI\Exception $Exception) {
                 $missing[] = 'invoice_address_id';
             }
-        } catch (QUI\Exception $Exception) {
-            $missing[] = 'invoice_address_id';
         }
 
         // address
-        if (empty($addressId) && empty($address)) {
+        if ($addressRequired && empty($addressId) && empty($address)) {
             $missing[] = 'invoice_address_id';
         }
 
@@ -584,5 +599,27 @@ class Invoice
         $transactions = $Transactions->getTransactionsByHash($Invoice->getHash());
 
         return $transactions;
+    }
+
+    /**
+     * Are addresses for invoices mandatory?
+     *
+     * @return bool
+     * @throws QUI\Exception
+     */
+    public static function addressRequirement(): bool
+    {
+        return !!QUI::getPackage('quiqqer/invoice')->getConfig()->get('invoice', 'invoiceAddressRequirement');
+    }
+
+    /**
+     * returns the threshold above which an address is mandatory, if addresses are not mandatory in principle
+     *
+     * @return bool
+     * @throws QUI\Exception
+     */
+    public static function addressRequirementThreshold(): float
+    {
+        return QUI::getPackage('quiqqer/invoice')->getConfig()->get('invoice', 'invoiceAddressRequirementThreshold');
     }
 }
