@@ -535,6 +535,39 @@
                 <![CDATA[An EPC QR code is to be displayed on invoices with payment methods invoice and prepayment. With this, all necessary payment information for SEPA transfers can be made available in common banking apps by scanning the QR code.]]></en>
         </locale>
 
+        <locale name="invoice.settings.invoice.invoiceAddressRequirement">
+            <de><![CDATA[Adresspflicht]]></de>
+            <en><![CDATA[Address requirement]]></en>
+        </locale>
+        <locale name="invoice.settings.invoice.invoiceAddressRequirement.description">
+            <de><![CDATA[
+            (Standard: JA!)
+            Diese Option ermöglicht es, ob generell eine Adresse des Rechnungsempfängers für alle Rechnungen erforderlich ist,
+            unabhängig vom Betrag. Durch Aktivieren dieser Einstellung wird die Adressangabe für alle Rechnungen verlangt.
+            ]]></de>
+            <en><![CDATA[
+            (Default: YES!)
+            This option allows you to specify whether an address of the invoice recipient is generally required for all invoices,
+            regardless of the amount. By activating this setting, the address details are required for all invoices.
+            ]]></en>
+        </locale>
+        <locale name="invoice.invoiceAddressRequirementThreshold">
+            <de><![CDATA[Schwellenwert für die Adresspflicht]]></de>
+            <en><![CDATA[Threshold value for the address obligation]]></en>
+        </locale>
+        <locale name="invoice.invoiceAddressRequirementThreshold.description">
+            <de><![CDATA[
+            Hier kann der Betrag definiert werden, ab dem die vollständige Adresse des Rechnungsempfängers erforderlich wird.
+            Standardmäßig ist dieser Wert auf 200 Euro gesetzt, um der Kleinbetragsregelung zu entsprechen.
+            Diese Einstellung hat nur Einfluss auf die Adresseingabe, wenn die Adresspflicht ausgeschaltet ist.
+            ]]></de>
+            <en><![CDATA[
+            Here you can define the amount above which the full address of the invoice recipient is required.
+            By default, this value is set to 200 euros in order to comply with the low-value regulation.
+            This setting only affects the address entry if the address requirement is switched off.
+            ]]></en>
+        </locale>
+
         <locale name="invoice.send.mail.message.description" html="true">
             <de><![CDATA[
             <p>Inhalt der Rechnungsmail. Verfügbare Platzhalter:</p>

@@ -34,6 +34,13 @@
                     <type><![CDATA[bool]]></type>
                     <defaultvalue><![CDATA[0]]></defaultvalue>
                 </conf>
+                <conf name="invoiceAddressRequirement">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[1]]></defaultvalue>
+                </conf>
+                <conf name="invoiceAddressRequirementThreshold">
+                    <type><![CDATA[float]]></type>
+                </conf>
             </section>
 
             <section name="temporaryInvoice">
@@ -57,7 +64,7 @@
             </params>
 
             <categories>
-                <category name="invoice" index="2">
+                <category name="invoice">
                     <text>
                         <locale group="quiqqer/invoice" var="window.erp.invoice.title"/>
                     </text>
@@ -176,6 +183,33 @@
                             <description>
                                 <locale group="quiqqer/invoice"
                                         var="invoice.settings.invoice.includeQrCode.description"/>
+                            </description>
+                        </input>
+
+                        <input type="checkbox" conf="invoice.invoiceAddressRequirement"
+                               data-qui="package/quiqqer/invoice/bin/backend/controls/settings/InvoiceAddressRequirement"
+                        >
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.invoiceAddressRequirement"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.invoice.invoiceAddressRequirement.description"/>
+                            </description>
+                        </input>
+                        <input conf="invoice.invoiceAddressRequirementThreshold"
+                               type="number"
+                               step="0.01"
+                               placeholder="200.00"
+                        >
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.invoiceAddressRequirementThreshold"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.invoiceAddressRequirementThreshold.description"/>
                             </description>
                         </input>
                     </settings>
