@@ -497,6 +497,25 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Link an existing transaction to an invoice.
+         *
+         * @param {String} invoiceHash
+         * @param {String} txId
+         * @return {Promise<void>}
+         */
+        linkTransaction: function (invoiceHash, txId) {
+            return new Promise((resolve, reject) => {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_linkTransaction', resolve, {
+                    'package'  : 'quiqqer/invoice',
+                    invoiceHash: invoiceHash,
+                    txId       : txId,
+                    onError    : reject,
+                    showError  : true
+                });
+            });
+        },
+
+        /**
          * Return the invoice html form a temporary invoice
          *
          * @param {String} invoiceId
