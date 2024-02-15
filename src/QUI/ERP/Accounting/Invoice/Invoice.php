@@ -1030,6 +1030,67 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     }
 
     /**
+     * Links an existing transaction (i.e. a transaction that was originally created for a different entity than
+     * this invoice) to this invoice.
+     *
+     * @param Transaction $Transaction
+     * @return void
+     *
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
+     */
+    public function linkTransaction(Transaction $Transaction): void
+    {
+        if ($this->isTransactionIdAddedToInvoice($Transaction->getTxId())) {
+            return;
+        }
+
+        if ($Transaction->isHashLinked($this->getHash())) {
+            return;
+        }
+
+        if (
+            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+        ) {
+            return;
+        }
+
+        $currentPaidStatus = $this->getAttribute('paid_status');
+        $this->calculatePayments();
+
+        if (
+            $currentPaidStatus === $this->getAttribute('paid_status')
+            && ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID
+                || $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED)
+        ) {
+            return;
+        }
+
+        QUI\ERP\Debug::getInstance()->log('Invoice :: link transaction');
+
+        $Transaction->addLinkedHash($this->getHash());
+
+        $this->calculatePayments();
+
+        $User = QUI::getUserBySession();
+
+        $this->addHistory(
+            QUI::getLocale()->get(
+                'quiqqer/invoice',
+                'history.message.linkTransaction',
+                [
+                    'username' => $User->getName(),
+                    'uid' => $User->getId(),
+                    'txId' => $Transaction->getTxId(),
+                    'txAmount' => $Transaction->getAmountFormatted()
+                ]
+            )
+        );
+    }
+
+    /**
      * @param Transaction $Transaction
      *
      * @throws QUI\Exception
@@ -1065,7 +1126,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         QUI\ERP\Debug::getInstance()->log('Order:: add transaction start');
 
         $User = QUI::getUserBySession();
-        $paidData = $this->getAttribute('paid_data');
         $amount = Price::validatePrice($Transaction->getAmount());
         $date = $Transaction->getDate();
 
@@ -1083,30 +1143,12 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             return;
         }
 
-        if (!is_array($paidData)) {
-            $paidData = json_decode($paidData, true);
-        }
-
-        if ($date === false) {
+        if (empty($date)) {
             $date = time();
         }
 
-        $isTxAlreadyAdded = function ($txid, $paidData) {
-            foreach ($paidData as $paidEntry) {
-                if (!isset($paidEntry['txid'])) {
-                    continue;
-                }
-
-                if ($paidEntry['txid'] == $txid) {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-
         // already added
-        if ($isTxAlreadyAdded($Transaction->getTxId(), $paidData)) {
+        if ($this->isTransactionIdAddedToInvoice($Transaction->getTxId())) {
             return;
         }
 
@@ -1125,7 +1167,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         }
 
         $this->setAttribute('paid_date', $date);
-
 
         $this->addHistory(
             QUI::getLocale()->get(
@@ -1160,6 +1201,35 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 $date
             ]
         );
+    }
+
+    /**
+     * @param string $txId
+     * @return bool
+     */
+    protected function isTransactionIdAddedToInvoice(string $txId): bool
+    {
+        $paidData = $this->getAttribute('paid_data');
+
+        if (is_string($paidData)) {
+            $paidData = json_decode($paidData, true);
+        }
+
+        if (!is_array($paidData)) {
+            $paidData = [];
+        }
+
+        foreach ($paidData as $paidEntry) {
+            if (!isset($paidEntry['txid'])) {
+                continue;
+            }
+
+            if ($paidEntry['txid'] == $txId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -612,7 +612,8 @@ class Invoice
     }
 
     /**
-     * returns the threshold above which an address is mandatory, if addresses are not mandatory in principle
+     * Maximum invoice gross total up to which an invoice address is not required.
+     * This applies only if a general invoice address requirement is disabled.
      *
      * @return float
      * @throws QUI\Exception

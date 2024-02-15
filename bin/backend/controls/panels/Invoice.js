@@ -22,7 +22,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.css'
 
 ], function (QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Comments,
-             CustomerFileSelect, Sandbox, Locker, QUILocale, QUIAjax, Mustache) {
+    CustomerFileSelect, Sandbox, Locker, QUILocale, QUIAjax, Mustache) {
     "use strict";
 
     const lg = 'quiqqer/invoice';
@@ -774,13 +774,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             entityType: 'Invoice',
                             disabled  : self.$locked || self.getAttribute('data').paid_status === 1,
                             events    : {
-                                onLoad          : resolve,
-                                onAddTransaction: function (data, Control) {
+                                onLoad           : resolve,
+                                onAddTransaction : function (data, Control) {
                                     Invoices.addPaymentToInvoice(
                                         self.getAttribute('data').hash,
                                         data.amount,
                                         data.payment_method,
                                         data.date
+                                    ).then(function () {
+                                        Control.refresh();
+                                    });
+                                },
+                                onLinkTransaction: (txId, Control) => {
+                                    Invoices.linkTransaction(
+                                        self.getAttribute('data').hash,
+                                        txId
                                     ).then(function () {
                                         Control.refresh();
                                     });
