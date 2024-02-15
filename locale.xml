@@ -1684,6 +1684,11 @@
 
     <groups name="quiqqer/invoice" datatype="php">
 
+        <locale name="message.ajax.backend.linkTransaction.error.tx_already_linked">
+            <de><![CDATA[Die Transaktion "[txId]" ist bereits mit Rechnung "[invoiceNo]" verknüpft.]]></de>
+            <en><![CDATA[Transaction "[txId]" is already linked to invoice "[invoiceNo]".]]></en>
+        </locale>
+
         <locale name="history.InvoiceTemporary.new_hash_on_post">
             <de>
                 <![CDATA[Bei Buchung der Rechnung musste eine neue Vorgangsnummer ("Hash") generiert werden, da bereits ein anderer Rechnungs-Entwurf mit identischer Vorgangsnummer vorlag. Vorherige Vorgangsnummer: [oldHash] | Neue Vorgangsnummer: [newHash]]]></de>
@@ -1976,6 +1981,10 @@
             <en><![CDATA[A credit note cannot create another credit note.]]></en>
         </locale>
 
+        <locale name="history.message.linkTransaction">
+            <de><![CDATA[Transaktion "[txId]" i.H.v. [txAmount] von [username] #[uid] mit Rechnung verknüpft.]]></de>
+            <en><![CDATA[Transaction "[txId]" in the amount of linked to invoice by [username] #[uid].]]></en>
+        </locale>
         <locale name="history.message.addPayment">
             <de><![CDATA[Zahlung hinzugefügt. Von [username] #[uid]. Zahlungsweise: [payment].]]></de>
             <en><![CDATA[Add payment. From [username] #[uid]. Payment method: [payment].]]></en>

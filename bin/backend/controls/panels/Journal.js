@@ -54,7 +54,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             '$onClickOpenInvoice',
             '$onClickCreateCredit',
             '$onClickReversal',
-            '$onSearchKeyUp'
+            '$onSearchKeyUp',
+            'linkTransaction'
         ],
 
         initialize: function (options) {
@@ -65,18 +66,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.parent(options);
 
-            this.$Grid = null;
-            this.$Status = null;
+            this.$Grid       = null;
+            this.$Status     = null;
             this.$TimeFilter = null;
-            this.$Total = null;
+            this.$Total      = null;
             this.$totalsOpen = false;
-            this.$Search = null;
-            this.$Currency = null;
+            this.$Search     = null;
+            this.$Currency   = null;
 
             this.$currentSearch = '';
-            this.$searchDelay = null;
-            this.$periodFilter = null;
-            this.$loaded = false;
+            this.$searchDelay   = null;
+            this.$periodFilter  = null;
+            this.$loaded        = false;
 
             this.addEvents({
                 onCreate: this.$onCreate,
@@ -117,8 +118,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 this.enableFilter();
 
                 status = this.$Status.getValue();
-                from = this.$TimeFilter.getValue().from;
-                to = this.$TimeFilter.getValue().to;
+                from   = this.$TimeFilter.getValue().from;
+                to     = this.$TimeFilter.getValue().to;
             }
 
             this.$Grid.setAttribute('exportName', this.$TimeFilter.$Select.$placeholderText);
@@ -179,7 +180,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     }
 
                     entry.display_type = Icon;
-                    entry.opener = '&nbsp;';
+                    entry.opener       = '&nbsp;';
 
                     if ("overdue" in entry && entry.overdue) {
                         entry.className = 'journal-grid-overdue';
@@ -858,6 +859,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                             });
                         },
 
+                        onSubmitExisting: (txId, Win) => {
+                            self.linkTransaction(hash, txId).then(function () {
+                                Button.setAttribute('textimage', 'fa fa-money');
+                                self.refresh();
+                            });
+                        },
+
                         onClose: function () {
                             Button.setAttribute('textimage', 'fa fa-money');
                         }
@@ -1126,6 +1134,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 return self.refresh();
             }).then(function () {
                 self.Loader.hide();
+            }).catch(function (err) {
+                console.error(err);
+            });
+        },
+
+        /**
+         * Link an existing transaction to an invoice.
+         *
+         * @param {String} invoiceHash
+         * @param {String} txId
+         *
+         * @return {Promise<void>}
+         */
+        linkTransaction: function (invoiceHash, txId) {
+            this.Loader.show();
+
+            return Invoices.linkTransaction(invoiceHash, txId).then(() => {
+                return this.refresh();
+            }).then(() => {
+                this.Loader.hide();
             }).catch(function (err) {
                 console.error(err);
             });
