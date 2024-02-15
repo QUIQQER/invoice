@@ -614,11 +614,20 @@ class Invoice
     /**
      * returns the threshold above which an address is mandatory, if addresses are not mandatory in principle
      *
-     * @return bool
+     * @return float
      * @throws QUI\Exception
      */
     public static function addressRequirementThreshold(): float
     {
-        return QUI::getPackage('quiqqer/invoice')->getConfig()->get('invoice', 'invoiceAddressRequirementThreshold');
+        $threshold = QUI::getPackage('quiqqer/invoice')->getConfig()->get(
+            'invoice',
+            'invoiceAddressRequirementThreshold'
+        );
+
+        if (empty($threshold)) {
+            return 0;
+        }
+
+        return floatval($threshold);
     }
 }
