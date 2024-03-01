@@ -666,7 +666,7 @@
             </ul>
             ]]></de>
             <en><![CDATA[
-            <p>Subject of the cancelletion Invoice mail. Available placeholders:</p>
+            <p>Subject of the cancellation invoice mail. Available placeholders:</p>
             <ul>
                 <li><b>[invoiceId]:</b> Invoice no.</li>
                 <li><b>[cancelledInvoiceId]:</b> Invoice no. of the <b>cancelled</b> invoice</li>
@@ -706,7 +706,7 @@
             </ul>
             ]]></de>
             <en><![CDATA[
-            <p>Content of the cancellation Invoice mail. Available placeholders:</p>
+            <p>Content of the cancellation invoice mail. Available placeholders:</p>
             <ul>
                 <li><b>[invoiceId]:</b> Invoice no.</li>
                 <li><b>[cancelledInvoiceId]:</b> Invoice no. of the <b>cancelled</b> invoice</li>
@@ -1739,9 +1739,25 @@
             <de><![CDATA[Gutschrift zu Rechnung #[id] vom [date]]]></de>
             <en><![CDATA[Credit Note to invoice #[id] from [date]]]></en>
         </locale>
+        <locale name="message.create.reversal.from">
+            <de><![CDATA[Storno-Rechnung erstellt aus Rechnung #[invoiceId]]]></de>
+            <en><![CDATA[Created cancellation invoice from Invoice #[invoiceId]]]></en>
+        </locale>
+        <locale name="message.invoice.reversal.additionalInvoiceText" html="true">
+            <de><![CDATA[Storno-Rechnung zu Rechnung #[id] vom [date]]]></de>
+            <en><![CDATA[Cancellation invoice to invoice #[id] from [date]]]></en>
+        </locale>
+        <locale name="message.invoice.reversal.additionalInvoiceText.creditNote" html="true">
+            <de><![CDATA[Storno-Rechnung zu Gutschrift #[id] vom [date]]]></de>
+            <en><![CDATA[Cancellation invoice to Credit Note #[id] from [date]]]></en>
+        </locale>
+        <locale name="message.create.reversal">
+            <de><![CDATA[Storno-Rechnung erstellt. Neue Storno-Rechnungs-ID #[invoiceId]]]></de>
+            <en><![CDATA[Cancellation invoice invoice. New Cancelletion invoice ID #[invoiceId]]]></en>
+        </locale>
         <locale name="message.invoice.cancellationInvoice.additionalInvoiceText" html="true">
             <de><![CDATA[Storno-Rechnung zu Rechnung #[id] vom [date]]]></de>
-            <en><![CDATA[Cancelletion invoice to invoice #[id] from [date]]]></en>
+            <en><![CDATA[Cancellation invoice to invoice #[id] from [date]]]></en>
         </locale>
         <locale name="message.add.history.sent.to">
             <de><![CDATA[Rechnung wurde versendet an [recipient]]]></de>
@@ -1765,7 +1781,7 @@
         </locale>
         <locale name="invoice.cancelled.title">
             <de><![CDATA[Storno-Rechnungsmail]]></de>
-            <en><![CDATA[Cancelletion Invoice mail]]></en>
+            <en><![CDATA[Cancellation invoice mail]]></en>
         </locale>
         <locale name="invoice.cancelled.description">
             <de><![CDATA[ ]]></de>
@@ -1821,7 +1837,7 @@
 
         <locale name="invoice.cancelled.send.mail.subject">
             <de><![CDATA[Ihre Storno-Rechnung - [invoiceId]]]></de>
-            <en><![CDATA[Your Cancelletion Invoice - [invoiceId]]]></en>
+            <en><![CDATA[Your cancellation invoice - [invoiceId]]]></en>
         </locale>
         <locale name="invoice.cancelled.send.mail.message">
             <de><![CDATA[
