@@ -603,6 +603,31 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             )
         );
 
+        if ($this->getInvoiceType() === Handler::TYPE_INVOICE_CREDIT_NOTE) {
+            // if already a credit note, only cancel it
+            $this->type = Handler::TYPE_INVOICE_CANCEL;
+
+            QUI::getDataBase()->update(
+                Handler::getInstance()->invoiceTable(),
+                [
+                    'type' => $this->type,
+                    'data' => json_encode($this->data),
+                    'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
+                ],
+                ['id' => $this->getCleanId()]
+            );
+
+            $this->addComment($reason, QUI::getUsers()->getSystemUser());
+
+            QUI::getEvents()->fireEvent(
+                'quiqqerInvoiceReversalEnd',
+                [$this, $this]
+            );
+
+            return $this->getCleanId();
+        }
+
+
         $CreditNote = $this->createCreditNote(
             QUI::getUsers()->getSystemUser(),
             $this->getGlobalProcessId()
