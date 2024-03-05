@@ -299,11 +299,11 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     //region Getter
 
     /**
-     * @return string
+     * @return int
      */
-    public function getId(): string
+    public function getId(): int
     {
-        return $this->prefix . $this->id;
+        return $this->id;
     }
 
     /**
@@ -317,13 +317,28 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     }
 
     /**
-     * Return the hash - it's the unique invoice id
-     *
-     * @return mixed
+     * @return string
+     * @deprecated use getUUID()
      */
-    public function getHash()
+    public function getHash(): string
+    {
+        return $this->getUUID();
+    }
+
+    /**
+     * @return string
+     */
+    public function getUUID(): string
     {
         return $this->getAttribute('hash');
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrefixedNumber(): string
+    {
+        return $this->prefix . $this->id;
     }
 
     /**
@@ -1388,11 +1403,32 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             ])
         );
 
+        // new invoice id
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $invoiceId = $Config->getValue('invoice', 'invoiceCurrentIdIndex');
+
+        if (empty($invoiceId)) {
+            $invoiceId = 0;
+            $invoiceTable = $Handler->invoiceTable();
+
+            $nextId = QUI::getDatabase()->fetchSQL(
+                "SELECT MAX(id) + 1 AS nextId FROM $invoiceTable;"
+            );
+
+            if (!empty($nextId)) {
+                $invoiceId = (int)$nextId[0]['nextId'];
+            }
+        } else {
+            $invoiceId = (int)$invoiceId + 1;
+        }
+
+        // new invoice database entry
         QUI::getDataBase()->insert(
             $Handler->invoiceTable(),
             [
                 'type' => $type,
                 'id_prefix' => $invoicePrefix,
+                'id_with_prefix' => $invoicePrefix . $invoiceId,
                 'global_process_id' => $this->getGlobalProcessId(),
 
                 // user relationships
@@ -1453,14 +1489,11 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             ]
         );
 
-        $newId = QUI::getDataBase()->getPDO()->lastInsertId('id');
+        // set new id index
+        $Config->set('invoice', 'invoiceCurrentIdIndex', $invoiceId);
+        $Config->save();
 
-        // Insert full id with prefix
-        QUI::getDataBase()->update(
-            $Handler->invoiceTable(),
-            ['id_with_prefix' => $invoicePrefix . $newId],
-            ['id' => $newId]
-        );
+        $newId = QUI::getDataBase()->getPDO()->lastInsertId('id');
 
         // if temporary invoice was a credit note
         // add history entry to original invoice
@@ -1472,7 +1505,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                         'quiqqer/invoice',
                         'message.create.credit.post',
                         [
-                            'invoiceId' => $this->getId()
+                            'invoiceId' => $this->getHash()
                         ]
                     )
                 );
@@ -2054,10 +2087,10 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function lock()
+    public function lock(): void
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key = 'temporary-invoice-' . $this->getId();
+        $key = 'temporary-invoice-' . $this->getHash();
 
         QUI\Lock\Locker::lock($Package, $key);
     }
@@ -2069,10 +2102,10 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function unlock()
+    public function unlock(): void
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key = 'temporary-invoice-' . $this->getId();
+        $key = 'temporary-invoice-' . $this->getHash();
 
         QUI\Lock\Locker::unlock($Package, $key);
     }
@@ -2080,14 +2113,14 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     /**
      * Is the invoice locked?
      *
-     * @return false|mixed
+     * @return bool
      *
      * @throws QUI\Exception
      */
     public function isLocked(): bool
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key = 'temporary-invoice-' . $this->getId();
+        $key = 'temporary-invoice-' . $this->getHash();
 
         return QUI\Lock\Locker::isLocked($Package, $key);
     }
@@ -2098,10 +2131,10 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function checkLocked()
+    public function checkLocked(): void
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $key = 'temporary-invoice-' . $this->getId();
+        $key = 'temporary-invoice-' . $this->getHash();
 
         QUI\Lock\Locker::checkLocked($Package, $key);
     }

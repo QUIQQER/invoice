@@ -6,12 +6,19 @@
 
 namespace QUI\ERP\Accounting\Invoice\Utils;
 
+use IntlDateFormatter;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
+use QUI\ERP\Currency\Currency;
 
+use function array_map;
+use function date;
+use function is_array;
+use function is_string;
 use function json_decode;
+use function strtotime;
 
 /**
  * Class Invoice
@@ -355,10 +362,10 @@ class Invoice
      */
     public static function formatArticlesArray($articles)
     {
-        $isString = \is_string($articles);
+        $isString = is_string($articles);
 
         if ($isString) {
-            $articles = \json_decode($articles, true);
+            $articles = json_decode($articles, true);
         }
 
         try {
@@ -434,23 +441,23 @@ class Invoice
             QUI::getLocale()->getCurrent()
         );
 
-        $Formatter = new \IntlDateFormatter(
+        $Formatter = new IntlDateFormatter(
             $localeCode[0],
-            \IntlDateFormatter::SHORT,
-            \IntlDateFormatter::NONE
+            IntlDateFormatter::SHORT,
+            IntlDateFormatter::NONE
         );
 
         $date = $Invoice->getAttribute('date');
-        $date = \strtotime($date);
+        $date = strtotime($date);
 
-        $year = \date('Y', $date);
-        $month = \date('m', $date);
-        $day = \date('d', $date);
+        $year = date('Y', $date);
+        $month = date('m', $date);
+        $day = date('d', $date);
 
         $placeholders = [
             '%HASH%' => $Invoice->getHash(),
             '%ID%' => $Invoice->getCleanId(),
-            '%INO%' => $Invoice->getId(),
+            '%INO%' => $Invoice->getPrefixedId(),
             '%DATE%' => $Formatter->format($date),
             '%YEAR%' => $year,
             '%MONTH%' => $month,
@@ -484,10 +491,13 @@ class Invoice
      * General rounding
      *
      * @param float|int $amount
+     * @param Currency|null $Currency
      * @return int|float
      */
-    public static function roundInvoiceSum($amount, QUI\ERP\Currency\Currency $Currency = null)
-    {
+    public static function roundInvoiceSum(
+        float|int $amount,
+        QUI\ERP\Currency\Currency $Currency = null
+    ): float|int {
         if ($Currency === null) {
             $Currency = QUI\ERP\Defaults::getCurrency();
 
@@ -502,11 +512,10 @@ class Invoice
     /**
      * Return the time for payment date as unix timestamp
      *
-     *
      * @param Invoice|InvoiceTemporary $Invoice
      * @return int - Unix Timestamp
      */
-    public static function getInvoiceTimeForPaymentDate($Invoice): int
+    public static function getInvoiceTimeForPaymentDate(InvoiceTemporary|Invoice $Invoice): int
     {
         $timeForPayment = $Invoice->getAttribute('time_for_payment');
 
@@ -514,50 +523,52 @@ class Invoice
             $timeForPayment = (int)$timeForPayment;
 
             if ($timeForPayment || $timeForPayment === 0) {
-                $timeForPayment = \strtotime('+' . $timeForPayment . ' day');
+                $timeForPayment = strtotime('+' . $timeForPayment . ' day');
             }
         } else {
-            $timeForPayment = \strtotime($timeForPayment);
+            $timeForPayment = strtotime($timeForPayment);
         }
 
         return $timeForPayment;
     }
 
     /**
-     * @param string|array $vatArray
+     * @param array|string $vatArray
      * @param QUI\ERP\Currency\Currency $Currency
      * @return array
      */
-    public static function getVatTextArrayFromVatArray($vatArray, QUI\ERP\Currency\Currency $Currency): array
-    {
-        if (\is_string($vatArray)) {
-            $vatArray = \json_decode($vatArray, true);
+    public static function getVatTextArrayFromVatArray(
+        array|string $vatArray,
+        QUI\ERP\Currency\Currency $Currency
+    ): array {
+        if (is_string($vatArray)) {
+            $vatArray = json_decode($vatArray, true);
         }
 
-        if (!\is_array($vatArray)) {
+        if (!is_array($vatArray)) {
             $vatArray = [];
         }
 
-        return \array_map(function ($data) use ($Currency) {
+        return array_map(function ($data) use ($Currency) {
             return $data['text'] . ': ' . $Currency->format($data['sum']);
         }, $vatArray);
     }
 
     /**
-     * @param string|array $vatArray
+     * @param array|string $vatArray
      * @return array
      */
-    public static function getVatSumArrayFromVatArray($vatArray): array
+    public static function getVatSumArrayFromVatArray(array|string $vatArray): array
     {
-        if (\is_string($vatArray)) {
-            $vatArray = \json_decode($vatArray, true);
+        if (is_string($vatArray)) {
+            $vatArray = json_decode($vatArray, true);
         }
 
-        if (!\is_array($vatArray)) {
+        if (!is_array($vatArray)) {
             $vatArray = [];
         }
 
-        return \array_map(function ($data) {
+        return array_map(function ($data) {
             return $data['sum'];
         }, $vatArray);
     }

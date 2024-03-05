@@ -763,7 +763,6 @@ class InvoiceSearch extends Singleton
                 $invoiceData['id_prefix'] = Settings::getInstance()->getInvoicePrefix();
             }
 
-            $invoiceData['id'] = $invoiceData['id_prefix'] . $invoiceData['id'];
             $invoiceAddress = json_decode($invoiceData['invoice_address'], true);
 
             if (!isset($invoiceAddress['salutation'])) {

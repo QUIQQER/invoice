@@ -10,6 +10,7 @@ use QUI;
 
 use function array_flip;
 use function explode;
+use function is_numeric;
 use function is_string;
 use function mb_strtoupper;
 use function str_replace;
@@ -89,7 +90,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @return string
      */
-    public function invoiceTable()
+    public function invoiceTable(): string
     {
         return QUI::getDBTableName(self::TABLE_INVOICE);
     }
@@ -100,7 +101,7 @@ class Handler extends QUI\Utils\Singleton
      * @param QUI\Users\User $User
      * @return Invoice[]
      */
-    public function getInvoicesByUser(QUI\Users\User $User)
+    public function getInvoicesByUser(QUI\Users\User $User): array
     {
         $result = [];
 
@@ -112,7 +113,7 @@ class Handler extends QUI\Utils\Singleton
                     'customer_id' => $User->getId()
                 ]
             ]);
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             return [];
         }
 
@@ -138,7 +139,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function delete($invoiceId, $User = null)
+    public function delete($invoiceId, $User = null): void
     {
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
 
@@ -383,21 +384,47 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return the data from an invoice
      *
-     * @param string|integer $id
+     * @param integer|string $id
      * @return array
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoiceData($id): array
+    public function getInvoiceData(int|string $id): array
     {
+        // check invoice via hash
+        $result = QUI::getDataBase()->fetch([
+            'from' => self::invoiceTable(),
+            'where' => [
+                'hash' => $id
+            ],
+            'limit' => 1
+        ]);
+
+        if (!empty($result)) {
+            $result[0]['id'] = (int)$result[0]['id'];
+            $result[0]['customer_id'] = (int)$result[0]['customer_id'];
+            $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
+            $result[0]['paid_status'] = (int)$result[0]['paid_status'];
+            $result[0]['canceled'] = (int)$result[0]['canceled'];
+            $result[0]['c_user'] = (int)$result[0]['c_user'];
+
+            $result[0]['nettosum'] = (float)$result[0]['nettosum'];
+            $result[0]['subsum'] = (float)$result[0]['subsum'];
+            $result[0]['sum'] = (float)$result[0]['sum'];
+            $result[0]['processing_status'] = (int)$result[0]['processing_status'];
+
+            return $result[0];
+        }
+
+        // check invoice via old ids
         $whereOr = [
             'id_with_prefix' => $id
         ];
 
-        $idSanitized = \str_replace(Settings::getInstance()->getInvoicePrefix(), '', $id);
+        $idSanitized = str_replace(Settings::getInstance()->getInvoicePrefix(), '', $id);
 
-        if (\is_numeric($idSanitized)) {
+        if (is_numeric($idSanitized)) {
             $whereOr['id'] = (int)$idSanitized;
         }
 
@@ -416,7 +443,6 @@ class Handler extends QUI\Utils\Singleton
 
         $result[0]['id'] = (int)$result[0]['id'];
         $result[0]['customer_id'] = (int)$result[0]['customer_id'];
-        $result[0]['order_id'] = (int)$result[0]['order_id'];
         $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
         $result[0]['paid_status'] = (int)$result[0]['paid_status'];
         $result[0]['canceled'] = (int)$result[0]['canceled'];
@@ -491,25 +517,34 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return the data from a temporary invoice
      *
-     * @param string|int $id
+     * @param int|string $id
      * @return array
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getTemporaryInvoiceData($id): array
+    public function getTemporaryInvoiceData(int|string $id): array
     {
-        $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
-
         $result = QUI::getDataBase()->fetch([
             'from' => self::temporaryInvoiceTable(),
             'where' => [
-                'id' => (int)str_replace($prefix, '', $id)
+                'hash' => $id
             ],
             'limit' => 1
         ]);
 
-        $id = QUI\Utils\Security\Orthos::clear($id);
+        if (empty($result)) {
+            $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
+            $id = QUI\Utils\Security\Orthos::clear($id);
+
+            $result = QUI::getDataBase()->fetch([
+                'from' => self::temporaryInvoiceTable(),
+                'where' => [
+                    'id' => (int)str_replace($prefix, '', $id)
+                ],
+                'limit' => 1
+            ]);
+        }
 
         if (!isset($result[0])) {
             throw new Exception(
@@ -526,7 +561,6 @@ class Handler extends QUI\Utils\Singleton
 
         $result[0]['id'] = (int)$result[0]['id'];
         $result[0]['customer_id'] = (int)$result[0]['customer_id'];
-        $result[0]['order_id'] = (int)$result[0]['order_id'];
         $result[0]['invoice_address_id'] = (int)$result[0]['invoice_address_id'];
         $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
         $result[0]['paid_status'] = (int)$result[0]['paid_status'];

@@ -18,7 +18,7 @@ QUI::$Ajax->registerFunction(
 
         try {
             $Invoice = $Invoices->get($invoiceId);
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             $Invoice = $Invoices->getInvoiceByHash($invoiceId);
         }
 
