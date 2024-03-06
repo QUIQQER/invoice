@@ -143,7 +143,8 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         $data = $Handler->getTemporaryInvoiceData($id);
 
         $this->prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
-        $this->id = (int)str_replace($this->prefix, '', $id);
+        $this->id = $data['id'];
+        $this->setAttribute('hash', $id);
 
         $this->Articles = new ArticleList();
         $this->History = new QUI\ERP\Comments();

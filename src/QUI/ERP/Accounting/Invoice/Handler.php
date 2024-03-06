@@ -14,7 +14,6 @@ use function is_numeric;
 use function is_string;
 use function mb_strtoupper;
 use function str_replace;
-use function strpos;
 
 /**
  * Class Handler
@@ -306,32 +305,31 @@ class Handler extends QUI\Utils\Singleton
      * Return an Invoice
      * Alias for getInvoice()
      *
-     * @param string|int $id - ID of the Invoice or InvoiceTemporary
+     * @param int|string $id - ID of the Invoice or InvoiceTemporary
      * @return InvoiceTemporary|Invoice
      *
      * @throws QUI\Exception
      */
-    public function get($id)
+    public function get(int|string $id): Invoice|InvoiceTemporary
     {
-        $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
-
-        if (strpos($id, $prefix) !== false) {
-            return $this->getTemporaryInvoice($id);
+        try {
+            return $this->getInvoice($id);
+        } catch (QUI\Exception) {
         }
 
-        return $this->getInvoice($id);
+        return $this->getTemporaryInvoice($id);
     }
 
     /**
      * Return an Invoice
      *
-     * @param string|int $id - ID of the Invoice
+     * @param int|string $id - ID of the Invoice
      * @return Invoice
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoice($id): Invoice
+    public function getInvoice(int|string $id): Invoice
     {
         return new Invoice($id, $this);
     }
@@ -471,7 +469,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return a temporary invoice
      *
-     * @param string|int $id - ID of the Invoice
+     * @param string|int $id - ID / Hash of the Invoice
      * @return InvoiceTemporary
      *
      * @throws Exception
