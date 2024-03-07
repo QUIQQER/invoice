@@ -131,14 +131,14 @@ class Handler extends QUI\Utils\Singleton
      * Delete a temporary invoice
      * Only temporary invoices are deletable
      *
-     * @param string $invoiceId - ID of a temporary Invoice
+     * @param string|int $invoiceId - ID of a temporary Invoice
      * @param QUI\Interfaces\Users\User|null $User
      *
      * @throws QUI\Permissions\Exception
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function delete($invoiceId, $User = null): void
+    public function delete(string|int $invoiceId, QUI\Interfaces\Users\User $User = null): void
     {
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
 
@@ -163,7 +163,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @throws QUI\DataBase\Exception
      */
-    public function search($params = [])
+    public function search(array $params = []): array
     {
         $query = [
             'from' => $this->invoiceTable(),
@@ -203,7 +203,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @throws QUI\DataBase\Exception
      */
-    public function count($queryParams = [])
+    public function count(array $queryParams = []): int
     {
         $query = [
             'from' => $this->invoiceTable(),
@@ -223,7 +223,7 @@ class Handler extends QUI\Utils\Singleton
 
         $data = QUI::getDataBase()->fetch($query);
 
-        if (isset($data[0]) && isset($data[0]['count'])) {
+        if (isset($data[0]['count'])) {
             return (int)$data[0]['count'];
         }
 
@@ -261,7 +261,7 @@ class Handler extends QUI\Utils\Singleton
 
         try {
             return QUI::getDataBase()->fetch($query);
-        } catch (QUi\Exception $Exception) {
+        } catch (QUi\Exception) {
             return [];
         }
     }
@@ -294,7 +294,7 @@ class Handler extends QUI\Utils\Singleton
 
         $data = QUI::getDataBase()->fetch($query);
 
-        if (isset($data[0]) && isset($data[0]['count'])) {
+        if (isset($data[0]['count'])) {
             return (int)$data[0]['count'];
         }
 
@@ -343,7 +343,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoiceByHash(string $hash)
+    public function getInvoiceByHash(string $hash): Invoice|InvoiceTemporary
     {
         $hash = QUI\Utils\Security\Orthos::clear($hash);
 
@@ -469,13 +469,13 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return a temporary invoice
      *
-     * @param string|int $id - ID / Hash of the Invoice
+     * @param int|string $id - ID / Hash of the Invoice
      * @return InvoiceTemporary
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getTemporaryInvoice($id): InvoiceTemporary
+    public function getTemporaryInvoice(int|string $id): InvoiceTemporary
     {
         return new InvoiceTemporary($id, $this);
     }
@@ -599,7 +599,7 @@ class Handler extends QUI\Utils\Singleton
         foreach ($data as $entry) {
             try {
                 $result[] = $this->get($entry['id']);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
         }
 
@@ -614,7 +614,7 @@ class Handler extends QUI\Utils\Singleton
         foreach ($data as $entry) {
             try {
                 $result[] = $this->getTemporaryInvoice($entry['id']);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
         }
 

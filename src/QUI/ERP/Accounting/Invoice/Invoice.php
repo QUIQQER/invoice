@@ -77,7 +77,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     /**
      * @var string
      */
-    protected $prefix;
+    protected mixed $prefix;
 
     /**
      * @var int
@@ -92,7 +92,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     /**
      * @var string
      */
-    protected $globalProcessId;
+    protected mixed $globalProcessId;
 
     /**
      * @var array

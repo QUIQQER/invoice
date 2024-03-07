@@ -14,8 +14,12 @@ use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Products\Handler\Fields;
 use QUI\ERP\Products\Handler\Search;
 use QUI\Package\Package;
-use Quiqqer\Engine\Collector;
+use QUI\Smarty\Collector;
 
+use function dirname;
+use function file_exists;
+use function file_get_contents;
+use function in_array;
 use function strtolower;
 use function strtotime;
 
@@ -218,11 +222,10 @@ class EventHandler
             'current' => $current
         ]);
 
-        $result = '';
-        $result .= '<style>';
-        $result .= \file_get_contents(\dirname(__FILE__) . '/FrontendUsers/userProfileAddressSelect.css');
+        $result = '<style>';
+        $result .= file_get_contents(dirname(__FILE__) . '/FrontendUsers/userProfileAddressSelect.css');
         $result .= '</style>';
-        $result .= $Engine->fetch(\dirname(__FILE__) . '/FrontendUsers/userProfileAddressSelect.html');
+        $result .= $Engine->fetch(dirname(__FILE__) . '/FrontendUsers/userProfileAddressSelect.html');
 
         $Collector->append($result);
     }
@@ -293,12 +296,12 @@ class EventHandler
             // created invoice
             $Comments->addComment(
                 QUI::getLocale()->get('quiqqer/invoice', 'erp.comment.invoice.created', [
-                    'invoiceId' => $Invoice->getPrefixedId()
+                    'invoiceId' => $Invoice->getPrefixedNumber()
                 ]),
                 strtotime($Invoice->getAttribute('c_date')),
                 'quiqqer/invoice',
                 'fa fa-file-text-o',
-                $Invoice->getHash()
+                $Invoice->getUUID()
             );
         }
     }
@@ -326,7 +329,7 @@ class EventHandler
             OutputProviderCreditNote::getEntityType()
         ];
 
-        if (!\in_array($entityType, $allowedEntityTypes)) {
+        if (!in_array($entityType, $allowedEntityTypes)) {
             return;
         }
 
@@ -349,7 +352,7 @@ class EventHandler
             if ($file) {
                 $filePath = $file['dirname'] . '/' . $file['basename'];
 
-                if (\file_exists($filePath)) {
+                if (file_exists($filePath)) {
                     $Mailer->addAttachment($filePath);
                 }
             }

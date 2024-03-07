@@ -9,6 +9,9 @@ namespace QUI\ERP\Accounting\Invoice;
 use QUI;
 use QUI\Utils\Singleton;
 
+use function reset;
+use function strftime;
+
 /**
  * Class Settings
  *
@@ -17,19 +20,19 @@ use QUI\Utils\Singleton;
 class Settings extends Singleton
 {
     /**
-     * @var string
+     * @var ?string
      */
-    protected $invoicePrefix = null;
+    protected ?string $invoicePrefix = null;
 
     /**
-     * @var string
+     * @var ?string
      */
-    protected $temporaryInvoicePrefix = null;
+    protected ?string $temporaryInvoicePrefix = null;
 
     /**
      * @var array
      */
-    protected $settings = [];
+    protected array $settings = [];
 
     /**
      * Settings constructor.
@@ -55,7 +58,7 @@ class Settings extends Singleton
      *
      * @return mixed
      */
-    public function get($section, $key)
+    public function get(string $section, string $key): mixed
     {
         if (isset($this->settings[$section][$key])) {
             return $this->settings[$section][$key];
@@ -69,9 +72,9 @@ class Settings extends Singleton
      *
      * @param string $section
      * @param string $key
-     * @param string|bool|integer|float $value
+     * @param mixed $value
      */
-    public function set($section, $key, $value)
+    public function set(string $section, string $key, mixed $value): void
     {
         $this->settings[$section][$key] = $value;
     }
@@ -83,7 +86,7 @@ class Settings extends Singleton
      *
      * @return bool
      */
-    public function sendMailAtInvoiceCreation()
+    public function sendMailAtInvoiceCreation(): bool
     {
         if (!isset($this->settings['invoice']['sendMailAtCreation'])) {
             return false;
@@ -102,15 +105,15 @@ class Settings extends Singleton
      *
      * @return string
      */
-    public function getInvoicePrefix()
+    public function getInvoicePrefix(): string
     {
         if ($this->invoicePrefix !== null) {
-            return \strftime($this->invoicePrefix);
+            return strftime($this->invoicePrefix);
         }
 
         try {
             $Package = QUI::getPackage('quiqqer/invoice');
-            $Config  = $Package->getConfig();
+            $Config = $Package->getConfig();
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
@@ -125,7 +128,7 @@ class Settings extends Singleton
             $this->invoicePrefix = $setting;
         }
 
-        return \strftime($this->invoicePrefix);
+        return strftime($this->invoicePrefix);
     }
 
     /**
@@ -134,15 +137,15 @@ class Settings extends Singleton
      *
      * @return string
      */
-    public function getTemporaryInvoicePrefix()
+    public function getTemporaryInvoicePrefix(): string
     {
         if ($this->temporaryInvoicePrefix !== null) {
-            return \strftime($this->temporaryInvoicePrefix);
+            return strftime($this->temporaryInvoicePrefix);
         }
 
         try {
             $Package = QUI::getPackage('quiqqer/invoice');
-            $Config  = $Package->getConfig();
+            $Config = $Package->getConfig();
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
@@ -157,7 +160,7 @@ class Settings extends Singleton
             $this->temporaryInvoicePrefix = $setting;
         }
 
-        return \strftime($this->temporaryInvoicePrefix);
+        return strftime($this->temporaryInvoicePrefix);
     }
 
     /**
@@ -167,16 +170,16 @@ class Settings extends Singleton
      *
      * @throws QUI\Exception
      */
-    public function getAvailableTemplates()
+    public function getAvailableTemplates(): array
     {
-        $result   = [];
+        $result = [];
         $packages = QUI::getPackageManager()->getInstalled();
-        $default  = Settings::get('invoice', 'template');
+        $default = Settings::get('invoice', 'template');
 
         $defaultIsDisabled = Settings::get('invoice', 'deactivateDefaultTemplate');
 
         foreach ($packages as $package) {
-            $Package  = QUI::getPackage($package['name']);
+            $Package = QUI::getPackage($package['name']);
             $composer = $Package->getComposerData();
 
             if ($defaultIsDisabled && $Package->getName() === 'quiqqer/invoice-accounting-template') {
@@ -192,8 +195,8 @@ class Settings extends Singleton
             }
 
             $result[] = [
-                'name'    => $Package->getName(),
-                'title'   => $Package->getTitle(),
+                'name' => $Package->getName(),
+                'title' => $Package->getTitle(),
                 'default' => $Package->getName() === $default ? 1 : 0
             ];
         }
@@ -208,10 +211,10 @@ class Settings extends Singleton
      *
      * @throws QUI\Exception
      */
-    public function getDefaultTemplate()
+    public function getDefaultTemplate(): string
     {
         $Package = QUI::getPackage('quiqqer/invoice');
-        $Config  = $Package->getConfig();
+        $Config = $Package->getConfig();
 
         $template = $Config->getValue('invoice', 'template');
 
@@ -225,7 +228,7 @@ class Settings extends Singleton
             return '';
         }
 
-        $first = \reset($available);
+        $first = reset($available);
 
         return $first['name'];
     }

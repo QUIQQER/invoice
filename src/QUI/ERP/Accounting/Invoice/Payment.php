@@ -8,6 +8,8 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 
+use function reset;
+
 /**
  * Class Payment
  * - This class represent an invoice payment
@@ -20,7 +22,7 @@ class Payment
     /**
      * @var array
      */
-    protected $attributes = [];
+    protected array $attributes = [];
 
     /**
      * Payment constructor.
@@ -62,7 +64,7 @@ class Payment
      * @param null|QUI\Locale $Locale
      * @return string
      */
-    public function getTitle($Locale = null)
+    public function getTitle(QUI\Locale $Locale = null): string
     {
         if (!isset($this->attributes['title'])) {
             return '';
@@ -78,7 +80,7 @@ class Payment
             return $this->attributes['title'][$current];
         }
 
-        return \reset($this->attributes['title']);
+        return reset($this->attributes['title']);
     }
 
     /**
@@ -87,7 +89,7 @@ class Payment
      * @param null|QUI\Locale $Locale
      * @return mixed|string
      */
-    public function getDescription($Locale = null)
+    public function getDescription(QUI\Locale $Locale = null): mixed
     {
         if (!isset($this->attributes['description'])) {
             return '';
@@ -103,7 +105,7 @@ class Payment
             return $this->attributes['description'][$current];
         }
 
-        return \reset($this->attributes['description']);
+        return reset($this->attributes['description']);
     }
 
     /**
@@ -111,7 +113,7 @@ class Payment
      *
      * @return mixed|string
      */
-    public function getPaymentType()
+    public function getPaymentType(): mixed
     {
         if (!isset($this->attributes['payment_type'])) {
             return '';
@@ -123,7 +125,7 @@ class Payment
     /**
      * @return QUI\ERP\Accounting\Payments\Types\Payment|null
      */
-    protected function getPayment()
+    protected function getPayment(): ?QUI\ERP\Accounting\Payments\Types\Payment
     {
         if (!isset($this->attributes['id'])) {
             return null;
@@ -141,10 +143,10 @@ class Payment
     }
 
     /**
-     * @param InvoiceTemporary|Invoice|InvoiceView
+     * @param Invoice|InvoiceTemporary|InvoiceView $Invoice
      * @return string
      */
-    public function getInvoiceInformationText($Invoice)
+    public function getInvoiceInformationText(Invoice|InvoiceTemporary|InvoiceView $Invoice): string
     {
         if ($Invoice instanceof InvoiceView) {
             $Invoice = $Invoice->getInvoice();

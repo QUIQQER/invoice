@@ -12,12 +12,20 @@ use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 use QUI\ERP\Currency\Currency;
+use QUI\ExceptionStack;
 
 use function array_map;
+use function array_merge;
+use function array_search;
+use function array_sum;
+use function array_unique;
 use function date;
+use function in_array;
 use function is_array;
 use function is_string;
 use function json_decode;
+use function json_encode;
+use function str_replace;
 use function strtotime;
 
 /**
@@ -31,12 +39,12 @@ class Invoice
     /**
      * Tries to get an invoice by string
      *
-     * @param $str
+     * @param int|string $str
      * @return QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary
      *
      * @throws QUI\Exception
      */
-    public static function getInvoiceByString($str)
+    public static function getInvoiceByString(int|string $str): QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary
     {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
@@ -99,6 +107,9 @@ class Invoice
      *
      * @param InvoiceTemporary $Invoice
      * @return array
+     *
+     * @throws ExceptionStack
+     * @throws QUI\Exception
      */
     public static function getMissingAttributes(InvoiceTemporary $Invoice): array
     {
@@ -108,7 +119,7 @@ class Invoice
         $missing = [];
 
         // address / customer fields
-        $missing = \array_merge(
+        $missing = array_merge(
             $missing,
             self::getMissingAddressFields($Invoice)
         );
@@ -122,7 +133,7 @@ class Invoice
         try {
             $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
             $Payments->getPayment($Invoice->getAttribute('payment_method'));
-        } catch (QUI\ERP\Accounting\Payments\Exception $Exception) {
+        } catch (QUI\ERP\Accounting\Payments\Exception) {
             $missing[] = 'payment';
         }
 
@@ -146,9 +157,7 @@ class Invoice
         // api
         QUI::getEvents()->fireEvent('onQuiqqerInvoiceMissingAttributes', [$Invoice, &$missing]);
 
-        $missing = \array_unique($missing);
-
-        return $missing;
+        return array_unique($missing);
     }
 
     /**
@@ -158,6 +167,7 @@ class Invoice
      * @param InvoiceTemporary $Invoice
      * @return array
      *
+     * @throws QUI\Exception
      * @todo better address check
      */
     protected static function getMissingAddressFields(InvoiceTemporary $Invoice): array
@@ -206,7 +216,7 @@ class Invoice
         if ($customerId) {
             try {
                 $Customer = QUI::getUsers()->get($customerId);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
                 $missing[] = 'customer_id';
             }
         }
@@ -219,7 +229,7 @@ class Invoice
                 } else {
                     $missing[] = 'invoice_address_id';
                 }
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
                 $missing[] = 'invoice_address_id';
             }
         }
@@ -233,7 +243,7 @@ class Invoice
             foreach ($addressNeedles as $addressNeedle) {
                 try {
                     self::verificateField($Address->getAttribute($addressNeedle));
-                } catch (QUI\Exception $Exception) {
+                } catch (QUI\Exception) {
                     $missing[] = 'invoice_address_' . $addressNeedle;
                 }
             }
@@ -241,8 +251,8 @@ class Invoice
 
         // company check
         // @todo better company check
-        if ($Customer && $Customer->isCompany() && \in_array('invoice_address_lastname', $missing)) {
-            unset($missing[\array_search('invoice_address_lastname', $missing)]);
+        if ($Customer && $Customer->isCompany() && in_array('invoice_address_lastname', $missing)) {
+            unset($missing[array_search('invoice_address_lastname', $missing)]);
         }
 
         return $missing;
@@ -250,8 +260,9 @@ class Invoice
 
     /**
      * @throws Exception
+     * @throws ExceptionStack
      */
-    public static function checkAddress(QUI\Users\Address $Address)
+    public static function checkAddress(QUI\Users\Address $Address): void
     {
         $missing = self::getMissingAddressData($Address->getAttributes());
 
@@ -287,7 +298,7 @@ class Invoice
 
             try {
                 self::verificateField($address[$addressNeedle]);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
                 $missing[] = 'invoice_address_' . $addressNeedle;
             }
         }
@@ -300,7 +311,7 @@ class Invoice
      *
      * @param string $missingAttribute - name of the missing field / attribute
      * @return string
-     * @throws Exception
+     * @throws Exception|ExceptionStack
      */
     public static function getMissingAttributeMessage(string $missingAttribute): string
     {
@@ -360,7 +371,7 @@ class Invoice
      * @param array|string $articles
      * @return array|string
      */
-    public static function formatArticlesArray($articles)
+    public static function formatArticlesArray(array|string $articles): array|string
     {
         $isString = is_string($articles);
 
@@ -371,7 +382,7 @@ class Invoice
         try {
             $currency = $articles['calculations']['currencyData'];
             $Currency = QUI\ERP\Currency\Handler::getCurrency($currency['code']);
-        } catch (\Exception $Exception) {
+        } catch (\Exception) {
             $Currency = QUI\ERP\Defaults::getCurrency();
         }
 
@@ -396,7 +407,7 @@ class Invoice
         }
 
         if ($isString) {
-            return \json_encode($articles);
+            return json_encode($articles);
         }
 
         return $articles;
@@ -412,8 +423,12 @@ class Invoice
      *
      * @throws Exception
      */
-    protected static function verificateField($value, $eMessage = 'Error occurred', $eCode = 0, $eContext = [])
-    {
+    protected static function verificateField(
+        $value,
+        array|string $eMessage = 'Error occurred',
+        int $eCode = 0,
+        array $eContext = []
+    ): void {
         if (empty($value)) {
             throw new Exception($eMessage, $eCode, $eContext);
         }
@@ -423,12 +438,15 @@ class Invoice
      * Return the file name for an invoice download
      *
      * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
-     * @param QUI\Locale $Locale
+     * @param QUI\Locale|null $Locale
      *
      * @return string
+     * @throws QUI\Exception
      */
-    public static function getInvoiceFilename($Invoice, $Locale = null): string
-    {
+    public static function getInvoiceFilename(
+        QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice,
+        QUI\Locale $Locale = null
+    ): string {
         if (
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary)
@@ -455,9 +473,9 @@ class Invoice
         $day = date('d', $date);
 
         $placeholders = [
-            '%HASH%' => $Invoice->getHash(),
+            '%HASH%' => $Invoice->getUUID(),
             '%ID%' => $Invoice->getCleanId(),
-            '%INO%' => $Invoice->getPrefixedId(),
+            '%INO%' => $Invoice->getPrefixedNumber(),
             '%DATE%' => $Formatter->format($date),
             '%YEAR%' => $year,
             '%MONTH%' => $month,
@@ -479,12 +497,10 @@ class Invoice
         $fileName = $Locale->get('quiqqer/invoice', 'pdf.download.name');
 
         foreach ($placeholders as $placeholder => $value) {
-            $fileName = \str_replace($placeholder, $value, $fileName);
+            $fileName = str_replace($placeholder, $value, $fileName);
         }
 
-        $fileName = QUI\Utils\Security\Orthos::clearFilename($fileName);
-
-        return $fileName;
+        return QUI\Utils\Security\Orthos::clearFilename($fileName);
     }
 
     /**
@@ -574,14 +590,14 @@ class Invoice
     }
 
     /**
-     * Return the vat sum from an var array from an invoice
+     * Return the vat sum from a var array of an invoice
      *
-     * @param string|array $vatArray
+     * @param array|string $vatArray
      * @return int|float
      */
-    public static function getVatSumFromVatArray($vatArray)
+    public static function getVatSumFromVatArray(array|string $vatArray): float|int
     {
-        return \array_sum(
+        return array_sum(
             self::getVatSumArrayFromVatArray($vatArray)
         );
     }
@@ -590,10 +606,10 @@ class Invoice
      * Return all transactions of an invoice
      * or returns all transactions related to an invoice
      *
-     * @param QUI\ERP\Accounting\Invoice\Invoice|integer $Invoice - Invoice or Invoice ID
+     * @param QUI\ERP\Accounting\Invoice\Invoice|integer|string $Invoice - Invoice or Invoice ID
      * @return array
      */
-    public static function getTransactionsByInvoice($Invoice): array
+    public static function getTransactionsByInvoice(QUI\ERP\Accounting\Invoice\Invoice|int|string $Invoice): array
     {
         if (!($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice)) {
             try {
@@ -606,9 +622,7 @@ class Invoice
         }
 
         $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
-        $transactions = $Transactions->getTransactionsByHash($Invoice->getHash());
-
-        return $transactions;
+        return $Transactions->getTransactionsByHash($Invoice->getUUID());
     }
 
     /**
