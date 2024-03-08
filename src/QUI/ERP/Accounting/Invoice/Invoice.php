@@ -448,7 +448,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         }
 
         if ($this->getInvoiceType() === Handler::TYPE_INVOICE_STORNO) {
-            $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_CANCELED);
+            //$this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_CANCELED);
         }
 
         return [
