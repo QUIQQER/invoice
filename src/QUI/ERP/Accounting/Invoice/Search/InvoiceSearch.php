@@ -804,12 +804,16 @@ class InvoiceSearch extends Singleton
                     $Status->getTitle() . '</span>';
             }
 
+            // if status is paid = invoice is paid
+            $invoiceData['paid_status'] = $Invoice->getAttribute('paid_status');
+
             // display totals
             $invoiceData['display_nettosum'] = $Currency->format($invoiceData['nettosum']);
             $invoiceData['display_sum'] = $Currency->format($invoiceData['sum']);
             $invoiceData['display_subsum'] = $Currency->format($invoiceData['subsum']);
             $invoiceData['display_paid'] = $Currency->format($invoiceData['paid']);
             $invoiceData['display_toPay'] = $Currency->format($invoiceData['toPay']);
+
 
             $invoiceData['calculated_nettosum'] = $invoiceData['nettosum'];
             $invoiceData['calculated_sum'] = $invoiceData['sum'];
@@ -844,6 +848,7 @@ class InvoiceSearch extends Singleton
             ) {
                 $invoiceData['overdue'] = 1;
             }
+
 
             // internal cache
             // wird genutzt damit calc und display nicht doppelt abfragen machen
