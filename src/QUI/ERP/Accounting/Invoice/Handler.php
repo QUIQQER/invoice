@@ -14,7 +14,6 @@ use function is_numeric;
 use function is_string;
 use function mb_strtoupper;
 use function str_replace;
-use function strpos;
 
 /**
  * Class Handler
@@ -90,7 +89,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @return string
      */
-    public function invoiceTable()
+    public function invoiceTable(): string
     {
         return QUI::getDBTableName(self::TABLE_INVOICE);
     }
@@ -101,7 +100,7 @@ class Handler extends QUI\Utils\Singleton
      * @param QUI\Users\User $User
      * @return Invoice[]
      */
-    public function getInvoicesByUser(QUI\Users\User $User)
+    public function getInvoicesByUser(QUI\Users\User $User): array
     {
         $result = [];
 
@@ -113,7 +112,7 @@ class Handler extends QUI\Utils\Singleton
                     'customer_id' => $User->getId()
                 ]
             ]);
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             return [];
         }
 
@@ -132,14 +131,14 @@ class Handler extends QUI\Utils\Singleton
      * Delete a temporary invoice
      * Only temporary invoices are deletable
      *
-     * @param string $invoiceId - ID of a temporary Invoice
+     * @param string|int $invoiceId - ID of a temporary Invoice
      * @param QUI\Interfaces\Users\User|null $User
      *
      * @throws QUI\Permissions\Exception
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function delete($invoiceId, $User = null)
+    public function delete(string|int $invoiceId, QUI\Interfaces\Users\User $User = null): void
     {
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
 
@@ -164,7 +163,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @throws QUI\DataBase\Exception
      */
-    public function search($params = [])
+    public function search(array $params = []): array
     {
         $query = [
             'from' => $this->invoiceTable(),
@@ -204,7 +203,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @throws QUI\DataBase\Exception
      */
-    public function count($queryParams = [])
+    public function count(array $queryParams = []): int
     {
         $query = [
             'from' => $this->invoiceTable(),
@@ -224,7 +223,7 @@ class Handler extends QUI\Utils\Singleton
 
         $data = QUI::getDataBase()->fetch($query);
 
-        if (isset($data[0]) && isset($data[0]['count'])) {
+        if (isset($data[0]['count'])) {
             return (int)$data[0]['count'];
         }
 
@@ -262,7 +261,7 @@ class Handler extends QUI\Utils\Singleton
 
         try {
             return QUI::getDataBase()->fetch($query);
-        } catch (QUi\Exception $Exception) {
+        } catch (QUi\Exception) {
             return [];
         }
     }
@@ -295,7 +294,7 @@ class Handler extends QUI\Utils\Singleton
 
         $data = QUI::getDataBase()->fetch($query);
 
-        if (isset($data[0]) && isset($data[0]['count'])) {
+        if (isset($data[0]['count'])) {
             return (int)$data[0]['count'];
         }
 
@@ -306,32 +305,31 @@ class Handler extends QUI\Utils\Singleton
      * Return an Invoice
      * Alias for getInvoice()
      *
-     * @param string|int $id - ID of the Invoice or InvoiceTemporary
+     * @param int|string $id - ID of the Invoice or InvoiceTemporary
      * @return InvoiceTemporary|Invoice
      *
      * @throws QUI\Exception
      */
-    public function get($id)
+    public function get(int|string $id): Invoice|InvoiceTemporary
     {
-        $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
-
-        if (strpos($id, $prefix) !== false) {
-            return $this->getTemporaryInvoice($id);
+        try {
+            return $this->getInvoice($id);
+        } catch (QUI\Exception) {
         }
 
-        return $this->getInvoice($id);
+        return $this->getTemporaryInvoice($id);
     }
 
     /**
      * Return an Invoice
      *
-     * @param string|int $id - ID of the Invoice
+     * @param int|string $id - ID of the Invoice
      * @return Invoice
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoice($id): Invoice
+    public function getInvoice(int|string $id): Invoice
     {
         return new Invoice($id, $this);
     }
@@ -345,7 +343,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoiceByHash(string $hash)
+    public function getInvoiceByHash(string $hash): Invoice|InvoiceTemporary
     {
         $hash = QUI\Utils\Security\Orthos::clear($hash);
 
@@ -404,7 +402,6 @@ class Handler extends QUI\Utils\Singleton
         if (!empty($result)) {
             $result[0]['id'] = (int)$result[0]['id'];
             $result[0]['customer_id'] = (int)$result[0]['customer_id'];
-            $result[0]['order_id'] = (int)$result[0]['order_id'];
             $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
             $result[0]['paid_status'] = (int)$result[0]['paid_status'];
             $result[0]['canceled'] = (int)$result[0]['canceled'];
@@ -444,7 +441,6 @@ class Handler extends QUI\Utils\Singleton
 
         $result[0]['id'] = (int)$result[0]['id'];
         $result[0]['customer_id'] = (int)$result[0]['customer_id'];
-        $result[0]['order_id'] = (int)$result[0]['order_id'];
         $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
         $result[0]['paid_status'] = (int)$result[0]['paid_status'];
         $result[0]['canceled'] = (int)$result[0]['canceled'];
@@ -473,13 +469,13 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return a temporary invoice
      *
-     * @param string|int $id - ID of the Invoice
+     * @param int|string $id - ID / Hash of the Invoice
      * @return InvoiceTemporary
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getTemporaryInvoice($id): InvoiceTemporary
+    public function getTemporaryInvoice(int|string $id): InvoiceTemporary
     {
         return new InvoiceTemporary($id, $this);
     }
@@ -527,17 +523,26 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getTemporaryInvoiceData(int|string $id): array
     {
-        $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
-
         $result = QUI::getDataBase()->fetch([
             'from' => self::temporaryInvoiceTable(),
             'where' => [
-                'id' => (int)str_replace($prefix, '', $id)
+                'hash' => $id
             ],
             'limit' => 1
         ]);
 
-        $id = QUI\Utils\Security\Orthos::clear($id);
+        if (empty($result)) {
+            $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
+            $id = QUI\Utils\Security\Orthos::clear($id);
+
+            $result = QUI::getDataBase()->fetch([
+                'from' => self::temporaryInvoiceTable(),
+                'where' => [
+                    'id' => (int)str_replace($prefix, '', $id)
+                ],
+                'limit' => 1
+            ]);
+        }
 
         if (!isset($result[0])) {
             throw new Exception(
@@ -554,7 +559,6 @@ class Handler extends QUI\Utils\Singleton
 
         $result[0]['id'] = (int)$result[0]['id'];
         $result[0]['customer_id'] = (int)$result[0]['customer_id'];
-        $result[0]['order_id'] = (int)$result[0]['order_id'];
         $result[0]['invoice_address_id'] = (int)$result[0]['invoice_address_id'];
         $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
         $result[0]['paid_status'] = (int)$result[0]['paid_status'];
@@ -595,7 +599,7 @@ class Handler extends QUI\Utils\Singleton
         foreach ($data as $entry) {
             try {
                 $result[] = $this->get($entry['id']);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
         }
 
@@ -610,7 +614,7 @@ class Handler extends QUI\Utils\Singleton
         foreach ($data as $entry) {
             try {
                 $result[] = $this->getTemporaryInvoice($entry['id']);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
         }
 

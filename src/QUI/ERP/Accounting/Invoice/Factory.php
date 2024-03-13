@@ -43,7 +43,7 @@ class Factory extends QUI\Utils\Singleton
 
             // if invoice hash exist, we need a new hash
             $hash = QUI\Utils\Uuid::get();
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             // nothing
         }
 

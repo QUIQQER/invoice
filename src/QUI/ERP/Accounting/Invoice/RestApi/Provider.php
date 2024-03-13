@@ -13,6 +13,10 @@ use QUI\REST\Server;
 use QUI\REST\Utils\RequestUtils;
 use Slim\Routing\RouteCollectorProxy;
 
+use function define;
+use function defined;
+use function in_array;
+
 /**
  * Class Provider
  *
@@ -30,7 +34,7 @@ class Provider implements QUI\REST\ProviderInterface
     /**
      * @param Server $Server
      */
-    public function register(Server $Server)
+    public function register(Server $Server): void
     {
         $Slim = $Server->getSlim();
 
@@ -140,8 +144,8 @@ class Provider implements QUI\REST\ProviderInterface
             }
         }
 
-        if (!\defined('SYSTEM_INTERN')) {
-            \define('SYSTEM_INTERN', true);
+        if (!defined('SYSTEM_INTERN')) {
+            define('SYSTEM_INTERN', true);
         }
 
         $Factory = InvoiceFactory::getInstance();
@@ -371,12 +375,12 @@ class Provider implements QUI\REST\ProviderInterface
         }
 
         // Post
-        $invoiceId = $InvoiceDraft->getId();
+        $invoiceId = $InvoiceDraft->getHash();
 
         if (!empty($invoiceData['post'])) {
             try {
                 $Invoice = $InvoiceDraft->post($SystemUser);
-                $invoiceId = $Invoice->getId();
+                $invoiceId = $Invoice->getHash();
             } catch (\Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
 
@@ -397,7 +401,7 @@ class Provider implements QUI\REST\ProviderInterface
                     QUI\ERP\Constants::PAYMENT_STATUS_PLAN
                 ];
 
-                if (\in_array((int)$invoiceData['paid_status'], $validStatusses)) {
+                if (in_array((int)$invoiceData['paid_status'], $validStatusses)) {
                     $Invoice->setPaymentStatus((int)$invoiceData['paid_status']);
                 }
             }

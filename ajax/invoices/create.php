@@ -15,7 +15,7 @@ QUI::$Ajax->registerFunction(
         $Factory = QUI\ERP\Accounting\Invoice\Factory::getInstance();
         $Invoice = $Factory->createInvoice();
 
-        return $Invoice->getId();
+        return $Invoice->getHash();
     },
     false,
     ['Permission::checkAdminUser', 'quiqqer.invoice.create']

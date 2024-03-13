@@ -7,7 +7,14 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
+use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Output\Output as ERPOutput;
+
+use function array_pop;
+use function date;
+use function dirname;
+use function file_get_contents;
+use function strtotime;
 
 /**
  * Class InvoiceView
@@ -20,7 +27,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @var Invoice|InvoiceTemporary
      */
-    protected $Invoice;
+    protected InvoiceTemporary|Invoice $Invoice;
 
     /**
      * InvoiceView constructor.
@@ -29,7 +36,7 @@ class InvoiceView extends QUI\QDOM
      *
      * @throws Exception
      */
-    public function __construct($Invoice)
+    public function __construct(Invoice|InvoiceTemporary $Invoice)
     {
         if ($Invoice instanceof Invoice || $Invoice instanceof InvoiceTemporary) {
             $this->Invoice = $Invoice;
@@ -43,9 +50,13 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return QUI\ERP\Accounting\ArticleList|QUI\ERP\Accounting\ArticleListUnique
      */
-    public function getArticles()
+    public function getArticles(): QUI\ERP\Accounting\ArticleList|QUI\ERP\Accounting\ArticleListUnique
     {
-        return $this->Invoice->getArticles();
+        try {
+            return $this->Invoice->getArticles();
+        } catch (\Exception) {
+            return new ArticleListUnique();
+        }
     }
 
     /**
@@ -53,7 +64,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function getId(): string
     {
-        return $this->Invoice->getId();
+        return $this->Invoice->getPrefixedNumber();
     }
 
     /**
@@ -61,7 +72,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function getHash(): string
     {
-        return $this->Invoice->getHash();
+        return $this->Invoice->getUUID();
     }
 
     /**
@@ -71,7 +82,7 @@ class InvoiceView extends QUI\QDOM
     {
         try {
             return $this->Invoice->getCurrency();
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             return QUI\ERP\Defaults::getCurrency();
         }
     }
@@ -79,20 +90,20 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return false|null|QUI\ERP\User|QUI\Users\Nobody|QUI\Users\SystemUser|QUI\Users\User
      */
-    public function getCustomer()
+    public function getCustomer(): bool|QUI\Users\SystemUser|QUI\Users\Nobody|QUI\ERP\User|QUI\Users\User|null
     {
         try {
             return $this->Invoice->getCustomer();
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             return null;
         }
     }
 
     /**
      * @param null|QUI\Locale $Locale
-     * @return mixed
+     * @return string|bool
      */
-    public function getDate($Locale = null)
+    public function getDate(QUI\Locale $Locale = null): string|bool
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
@@ -101,7 +112,7 @@ class InvoiceView extends QUI\QDOM
         $date = $this->Invoice->getAttribute('date');
         $Formatter = $Locale->getDateFormatter();
 
-        return $Formatter->format(\strtotime($date));
+        return $Formatter->format(strtotime($date));
     }
 
     /**
@@ -109,13 +120,13 @@ class InvoiceView extends QUI\QDOM
      * @param null $Locale
      * @return false|string
      */
-    public function formatDate($dateString, $Locale = null)
+    public function formatDate($dateString, $Locale = null): bool|string
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
         }
 
-        return $Locale->getDateFormatter()->format(\strtotime($dateString));
+        return $Locale->getDateFormatter()->format(strtotime($dateString));
     }
 
     /**
@@ -131,7 +142,11 @@ class InvoiceView extends QUI\QDOM
      */
     public function getPaidStatusInformation(): array
     {
-        return $this->Invoice->getPaidStatusInformation();
+        try {
+            return $this->Invoice->getPaidStatusInformation();
+        } catch (\Exception) {
+            return [];
+        }
     }
 
     /**
@@ -145,7 +160,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return Invoice|InvoiceTemporary
      */
-    public function getInvoice()
+    public function getInvoice(): Invoice|InvoiceTemporary
     {
         return $this->Invoice;
     }
@@ -153,7 +168,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return mixed
      */
-    public function isPaid()
+    public function isPaid(): mixed
     {
         return $this->Invoice->isPaid();
     }
@@ -191,9 +206,8 @@ class InvoiceView extends QUI\QDOM
     public function previewOnlyArticles(): string
     {
         try {
-            $output = '';
-            $output .= '<style>';
-            $output .= \file_get_contents(\dirname(__FILE__) . '/Utils/Template.Articles.Preview.css');
+            $output = '<style>';
+            $output .= file_get_contents(dirname(__FILE__) . '/Utils/Template.Articles.Preview.css');
             $output .= '</style>';
             $output .= $this->getArticles()->toHTML();
 
@@ -273,7 +287,7 @@ class InvoiceView extends QUI\QDOM
 
         // Temporary invoice (draft)
         $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
-        $transactions = $Transactions->getTransactionsByHash($this->Invoice->getHash());
+        $transactions = $Transactions->getTransactionsByHash($this->Invoice->getUUID());
 
         if (empty($transactions)) {
             // Time for payment text
@@ -289,15 +303,15 @@ class InvoiceView extends QUI\QDOM
                 }
 
                 if ($timeForPayment) {
-                    $timeForPayment = \strtotime('+' . $timeForPayment . ' day');
+                    $timeForPayment = strtotime('+' . $timeForPayment . ' day');
                     $timeForPayment = $Formatter->format($timeForPayment);
                 } else {
                     $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
                 }
             } else {
-                $timeForPayment = \strtotime($timeForPayment);
+                $timeForPayment = strtotime($timeForPayment);
 
-                if (\date('Y-m-d') === \date('Y-m-d', $timeForPayment)) {
+                if (date('Y-m-d') === date('Y-m-d', $timeForPayment)) {
                     $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
                 } else {
                     $timeForPayment = $Formatter->format($timeForPayment);
@@ -314,7 +328,7 @@ class InvoiceView extends QUI\QDOM
         }
 
         /* @var $Transaction QUI\ERP\Accounting\Payments\Transactions\Transaction */
-        $Transaction = \array_pop($transactions);
+        $Transaction = array_pop($transactions);
         $Payment = $Transaction->getPayment(); // payment method
         $PaymentType = $this->getPayment(); // payment method
 
@@ -326,7 +340,7 @@ class InvoiceView extends QUI\QDOM
         }
 
         return $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
-            'date' => $Formatter->format(\strtotime($Transaction->getDate())),
+            'date' => $Formatter->format(strtotime($Transaction->getDate())),
             'payment' => $payment
         ]);
     }
@@ -338,17 +352,11 @@ class InvoiceView extends QUI\QDOM
      */
     protected function getOutputType(): string
     {
-        switch ($this->Invoice->getInvoiceType()) {
-            case Handler::TYPE_INVOICE_CREDIT_NOTE:
-                return 'CreditNote';
-
-            case Handler::TYPE_INVOICE_CANCEL:
-            case Handler::TYPE_INVOICE_REVERSAL:
-                return 'Canceled';
-
-            default:
-                return 'Invoice';
-        }
+        return match ($this->Invoice->getInvoiceType()) {
+            Handler::TYPE_INVOICE_CREDIT_NOTE => 'CreditNote',
+            Handler::TYPE_INVOICE_CANCEL, Handler::TYPE_INVOICE_REVERSAL => 'Canceled',
+            default => 'Invoice',
+        };
     }
 
     /**

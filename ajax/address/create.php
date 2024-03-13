@@ -17,7 +17,7 @@ QUI::$Ajax->registerFunction(
         $User = QUI::getUsers()->get($userId);
 
         $Address = $User->addAddress(
-            \json_decode($data, true)
+            json_decode($data, true)
         );
 
         $User->setAttribute('quiqqer.erp.address', $Address->getId());
