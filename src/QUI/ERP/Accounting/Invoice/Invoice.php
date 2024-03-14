@@ -1912,13 +1912,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     public function addCustomerFile(string $fileHash, array $options = []): void
     {
         $Customer = $this->getCustomer();
-
-        if (empty($Customer)) {
-            throw new Exception(
-                QUI::getLocale()->get('quiqqer/invoice', 'exception.Invoice.addCustomerFile.no_customer')
-            );
-        }
-
         $file = CustomerFiles::getFileByHash($Customer->getId(), $fileHash);
 
         if (empty($file)) {

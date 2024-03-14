@@ -523,7 +523,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         }
 
         // use default advisor as editor
-        if (empty($editorId) && $Employees->getDefaultAdvisor()) {
+        if ($Employees->getDefaultAdvisor()) {
             return $Employees->getDefaultAdvisor();
         }
 

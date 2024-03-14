@@ -360,6 +360,7 @@ class Invoice
             [$missingAttribute, &$message]
         );
 
+        /* @phpstan-ignore-next-line */
         if (!empty($message)) {
             return $message;
         }
