@@ -578,14 +578,16 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @return int - ID of the new
+     * @return ?QUI\ERP\ErpEntityInterface
      *
      * @throws Exception
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function reversal(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int
-    {
+    public function reversal(
+        string $reason = '',
+        QUI\Interfaces\Users\User $PermissionUser = null
+    ): ?QUI\ERP\ErpEntityInterface {
         // is canceled / reversal possible?
         if (!Settings::getInstance()->get('invoice', 'storno')) {
             // @todo implement credit note
@@ -730,7 +732,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             [$this, $Reversal]
         );
 
-        return $Reversal->getId();
+        return $Reversal;
     }
 
     /**
@@ -746,7 +748,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      */
     public function cancellation(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int
     {
-        return $this->reversal($reason, $PermissionUser);
+        return $this->reversal($reason, $PermissionUser)->getId();
     }
 
     /**
@@ -762,7 +764,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      */
     public function storno(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int
     {
-        return $this->reversal($reason, $PermissionUser);
+        return $this->reversal($reason, $PermissionUser)->getId();
     }
 
     /**
@@ -1800,7 +1802,10 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     {
         $attributes = $this->getAttributes();
 
+        $attributes['uuid'] = $this->getUUID();
+        $attributes['entityType'] = $this->getType();
         $attributes['globalProcessId'] = $this->getGlobalProcessId();
+        $attributes['prefixedNumber'] = $this->getPrefixedNumber();
 
         return $attributes;
     }

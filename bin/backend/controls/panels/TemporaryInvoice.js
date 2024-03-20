@@ -73,6 +73,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
         options: {
             invoiceId: false,
+            uuid: false,
             customer_id: false,
             invoice_address: false,
             invoice_address_id: false,
@@ -89,6 +90,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             });
 
             this.parent(options);
+
+            if (this.getAttribute('uuid') && !this.getAttribute('hash')) {
+                this.setAttribute('hash', this.getAttribute('uuid'));
+            }
 
             this.$AdditionalText = null;
             this.$ArticleList = null;

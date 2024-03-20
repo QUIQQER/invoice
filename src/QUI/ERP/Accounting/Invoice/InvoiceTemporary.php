@@ -12,6 +12,7 @@ use QUI\ERP\Accounting\Calculations;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Customer\CustomerFiles;
+use QUI\ERP\ErpEntityInterface;
 use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Order\Handler as OrderHandler;
@@ -1068,6 +1069,16 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     }
 
     /**
+     * @param string $reason
+     * @param QUI\Interfaces\Users\User|null $PermissionUser
+     * @return ErpEntityInterface|null
+     */
+    public function reversal(string $reason = '', QUI\Interfaces\Users\User $PermissionUser = null): ?ErpEntityInterface
+    {
+        return null;
+    }
+
+    /**
      * Copy the temporary invoice
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
@@ -1588,9 +1599,12 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         $attributes = $this->getAttributes();
 
         $attributes['id'] = $this->getId();
+        $attributes['uuid'] = $this->getUUID();
+        $attributes['prefixedNumber'] = $this->getPrefixedNumber();
         $attributes['type'] = $this->getInvoiceType();
         $attributes['articles'] = $this->Articles->toArray();
 
+        $attributes['entityType'] = $this->getType();
         $attributes['globalProcessId'] = $this->getGlobalProcessId();
 
         return $attributes;

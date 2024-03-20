@@ -54,7 +54,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         ],
 
         options: {
-            hash: false
+            hash: false,
+            uuid: false
         },
 
         initialize: function(options) {
@@ -66,6 +67,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             if (this.getAttribute('invoiceId') && !this.getAttribute('hash')) {
                 this.setAttribute('hash', this.setAttribute('invoiceId'));
+            }
+
+            if (this.getAttribute('uuid') && !this.getAttribute('hash')) {
+                this.setAttribute('hash', this.getAttribute('uuid'));
             }
 
             this.$locked = false;
