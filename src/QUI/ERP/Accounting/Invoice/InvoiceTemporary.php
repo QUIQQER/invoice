@@ -46,7 +46,7 @@ use const PHP_INT_MAX;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
+class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
 {
     /**
      * Special attributes
@@ -1600,6 +1600,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         $attributes['id'] = $this->getId();
         $attributes['uuid'] = $this->getUUID();
+        $attributes['entityType'] = $this->getType();
         $attributes['prefixedNumber'] = $this->getPrefixedNumber();
         $attributes['type'] = $this->getInvoiceType();
         $attributes['articles'] = $this->Articles->toArray();
@@ -1610,6 +1611,60 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         return $attributes;
     }
 
+    /**
+     * @throws QUI\Exception
+     * @throws QUI\Database\Exception
+     */
+    public function linkTransaction(Transaction $Transaction): void
+    {
+        if ($this->isTransactionIdAdded($Transaction->getTxId())) {
+            return;
+        }
+
+        if ($Transaction->isHashLinked($this->getUUID())) {
+            return;
+        }
+
+        if (
+            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+        ) {
+            return;
+        }
+
+        $currentPaidStatus = $this->getAttribute('paid_status');
+        $this->calculatePayments();
+
+        if (
+            $currentPaidStatus === $this->getAttribute('paid_status')
+            && ($this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_PAID
+                || $this->getAttribute('paid_status') == QUI\ERP\Constants::PAYMENT_STATUS_CANCELED)
+        ) {
+            return;
+        }
+
+        QUI\ERP\Debug::getInstance()->log('Invoice :: link transaction');
+
+        $Transaction->addLinkedHash($this->getUUID());
+
+        $this->calculatePayments();
+
+        $User = QUI::getUserBySession();
+
+        $this->addHistory(
+            QUI::getLocale()->get(
+                'quiqqer/invoice',
+                'history.message.linkTransaction',
+                [
+                    'username' => $User->getName(),
+                    'uid' => $User->getId(),
+                    'txId' => $Transaction->getTxId(),
+                    'txAmount' => $Transaction->getAmountFormatted()
+                ]
+            )
+        );
+    }
 
     /**
      * @param Transaction $Transaction
@@ -1669,7 +1724,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             $paidData = json_decode($paidData, true);
         }
 
-        if ($date === false) {
+        if (!$date) {
             $date = time();
         }
 
@@ -1744,6 +1799,104 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 $date
             ]
         );
+    }
+
+    /**
+     * @param string $txId
+     * @return bool
+     */
+    protected function isTransactionIdAdded(string $txId): bool
+    {
+        $paidData = $this->getAttribute('paid_data');
+
+        if (is_string($paidData)) {
+            $paidData = json_decode($paidData, true);
+        }
+
+        if (!is_array($paidData)) {
+            $paidData = [];
+        }
+
+        foreach ($paidData as $paidEntry) {
+            if (!isset($paidEntry['txid'])) {
+                continue;
+            }
+
+            if ($paidEntry['txid'] == $txId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Calculates the payments and set the new part payments
+     *
+     * @throws
+     */
+    public function calculatePayments(): void
+    {
+        $User = QUI::getUserBySession();
+
+        // old status
+        $oldPaidStatus = $this->getAttribute('paid_status');
+
+        /**
+         * Do not change paid_status if invoice is paid via direct debit.
+         *
+         * In this case the paid_status has to be explicitly set via $this->setPaymentStatus()
+         */
+        if ($oldPaidStatus == QUI\ERP\Constants::PAYMENT_STATUS_DEBIT) {
+            return;
+        }
+
+        QUI\ERP\Accounting\Calc::calculatePayments($this);
+
+        switch ($this->getAttribute('paid_status')) {
+            case QUI\ERP\Constants::PAYMENT_STATUS_OPEN:
+            case QUI\ERP\Constants::PAYMENT_STATUS_PAID:
+            case QUI\ERP\Constants::PAYMENT_STATUS_PART:
+            case QUI\ERP\Constants::PAYMENT_STATUS_ERROR:
+            case QUI\ERP\Constants::PAYMENT_STATUS_CANCELED:
+                break;
+
+            default:
+                $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_ERROR);
+        }
+
+        QUI::getDataBase()->update(
+            Handler::getInstance()->temporaryInvoiceTable(),
+            [
+                'paid_data' => $this->getAttribute('paid_data'),
+                'paid_date' => $this->getAttribute('paid_date'),
+                'paid_status' => $this->getAttribute('paid_status')
+            ],
+            ['id' => $this->getId()]
+        );
+
+        // Payment Status has changed
+        if ($oldPaidStatus != $this->getAttribute('paid_status')) {
+            $this->addHistory(
+                QUI::getLocale()->get(
+                    'quiqqer/invoice',
+                    'history.message.edit',
+                    [
+                        'username' => $User->getName(),
+                        'uid' => $User->getId()
+                    ]
+                )
+            );
+
+            QUI::getEvents()->fireEvent(
+                'quiqqerInvoiceTemporaryPaymentStatusChanged',
+                [
+                    $this,
+                    $this->getAttribute('paid_status'),
+                    $oldPaidStatus
+                ]
+            );
+        }
     }
 
     //region Article Management

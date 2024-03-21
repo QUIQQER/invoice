@@ -37,7 +37,7 @@ use function time;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
+class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
 {
     /* @deprecated */
     const PAYMENT_STATUS_OPEN = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
@@ -1463,14 +1463,13 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         // old status
         $oldPaidStatus = $this->getAttribute('paid_status');
 
-        switch ($oldPaidStatus) {
-            /**
-             * Do not change paid_status if invoice is paid via direct debit.
-             *
-             * In this case the paid_status has to be explicitly set via $this->setPaymentStatus()
-             */
-            case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
-                return;
+        /**
+         * Do not change paid_status if invoice is paid via direct debit.
+         *
+         * In this case the paid_status has to be explicitly set via $this->setPaymentStatus()
+         */
+        if ($oldPaidStatus == QUI\ERP\Constants::PAYMENT_STATUS_DEBIT) {
+            return;
         }
 
         QUI\ERP\Accounting\Calc::calculatePayments($this);
