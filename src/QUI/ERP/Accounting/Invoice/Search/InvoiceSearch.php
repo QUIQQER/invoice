@@ -738,7 +738,7 @@ class InvoiceSearch extends Singleton
 
             $paidStatus = $Invoice->getAttribute('paid_status');
             $textStatus = $Locale->get(
-                'quiqqer/invoice',
+                'quiqqer/erp',
                 'payment.status.' . $paidStatus
             );
 

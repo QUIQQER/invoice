@@ -1572,8 +1572,8 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 [
                     'username' => $User->getName(),
                     'uid' => $User->getId(),
-                    'oldStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.' . $oldPaymentStatus),
-                    'newStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.' . $paymentStatus)
+                    'oldStatus' => QUI::getLocale()->get('quiqqer/erp', 'payment.status.' . $oldPaymentStatus),
+                    'newStatus' => QUI::getLocale()->get('quiqqer/erp', 'payment.status.' . $paymentStatus)
                 ]
             )
         );
@@ -1869,7 +1869,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
     public function getProcessingStatus(): ?ProcessingStatus\Status
     {
         try {
-            $Status = ProcessingStatus\Handler::getInstance()->getProcessingStatus(
+            return ProcessingStatus\Handler::getInstance()->getProcessingStatus(
                 $this->getAttribute('processing_status')
             );
         } catch (ProcessingStatus\Exception $Exception) {
@@ -1877,8 +1877,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
 
             return null;
         }
-
-        return $Status;
     }
 
     //endregion
