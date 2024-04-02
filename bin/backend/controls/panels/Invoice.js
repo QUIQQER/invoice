@@ -786,16 +786,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             disabled: self.$locked || self.getAttribute('data').paid_status === 1,
                             events: {
                                 onLoad: resolve,
-                                onAddTransaction: function(data, Control) {
-                                    Invoices.addPaymentToInvoice(
-                                        self.getAttribute('data').hash,
-                                        data.amount,
-                                        data.payment_method,
-                                        data.date
-                                    ).then(function() {
-                                        Control.refresh();
-                                    });
-                                },
                                 onLinkTransaction: (txId, Control) => {
                                     Invoices.linkTransaction(
                                         self.getAttribute('data').hash,
