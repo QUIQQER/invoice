@@ -94,7 +94,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.parent(options);
 
             if (this.getAttribute('invoiceId') && !this.getAttribute('hash')) {
-                this.setAttribute('hash', this.setAttribute('invoiceId'));
+                this.setAttribute('hash', this.getAttribute('invoiceId'));
             }
 
             if (this.getAttribute('uuid') && !this.getAttribute('hash')) {
@@ -460,7 +460,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                     // reset deliver address
                     if (self.$AddressDelivery) {
-                        self.$AddressDelivery.reset();
+                        //self.$AddressDelivery.reset();
                         self.$AddressDelivery.setAttribute('userId', userId);
                     }
 
