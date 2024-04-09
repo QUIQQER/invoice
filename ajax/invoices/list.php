@@ -17,13 +17,13 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_list',
     function ($params) {
         $Search = InvoiceSearch::getInstance();
-        $Grid   = new QUI\Utils\Grid();
+        $Grid = new QUI\Utils\Grid();
 
         // query params
-        $query = $Grid->parseDBParams(\json_decode($params, true));
+        $query = $Grid->parseDBParams(json_decode($params, true));
 
         if (isset($query['limit'])) {
-            $limit = \explode(',', $query['limit']);
+            $limit = explode(',', $query['limit']);
 
             $Search->limit($limit[0], $limit[1]);
         }

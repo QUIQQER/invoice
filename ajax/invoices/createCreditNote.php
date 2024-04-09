@@ -40,7 +40,7 @@ QUI::$Ajax->registerFunction(
 
         $Settings->set('invoice', 'sendMailAtCreation', $currentSetting);
 
-        return $CreditNote->getHash();
+        return $CreditNote->getUUID();
     },
     ['invoiceId', 'invoiceData'],
     'Permission::checkAdminUser'

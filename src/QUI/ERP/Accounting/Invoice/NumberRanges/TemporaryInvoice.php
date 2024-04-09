@@ -9,6 +9,8 @@ namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 use QUI;
 use QUI\ERP\Api\NumberRangeInterface;
 
+use function is_numeric;
+
 /**
  * Class TemporaryInvoice
  *
@@ -50,7 +52,7 @@ class TemporaryInvoice implements NumberRangeInterface
      */
     public function setRange($range)
     {
-        if (!\is_numeric($range)) {
+        if (!is_numeric($range)) {
             return;
         }
 
@@ -59,7 +61,7 @@ class TemporaryInvoice implements NumberRangeInterface
         $PDO = QUI::getDataBase()->getPDO();
 
         $Statement = $PDO->prepare(
-            "ALTER TABLE {$tableName} AUTO_INCREMENT = " . (int)$range
+            "ALTER TABLE $tableName AUTO_INCREMENT = " . (int)$range
         );
 
         $Statement->execute();

@@ -2,6 +2,7 @@
 
 namespace QUI\ERP\Accounting\Invoice\Output;
 
+use Exception;
 use QUI;
 use QUI\Locale;
 
@@ -68,7 +69,7 @@ class OutputProviderCreditNote extends OutputProviderInvoice
                 );
 
                 $cancelledInvoiceId = $CancelledInvoice->getId();
-            } catch (\Exception $Exception) {
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
         }
@@ -108,7 +109,7 @@ class OutputProviderCreditNote extends OutputProviderInvoice
                 );
 
                 $cancelledInvoiceId = $CancelledInvoice->getId();
-            } catch (\Exception $Exception) {
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
         }

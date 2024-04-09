@@ -10,7 +10,7 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_processingStatus_create',
     function ($id, $color, $title, $options) {
         if (!empty($options)) {
-            $options = \json_decode($options, true);
+            $options = json_decode($options, true);
         } else {
             $options = [];
         }
@@ -18,7 +18,7 @@ QUI::$Ajax->registerFunction(
         Factory::getInstance()->createProcessingStatus(
             $id,
             $color,
-            \json_decode($title, true),
+            json_decode($title, true),
             $options
         );
     },

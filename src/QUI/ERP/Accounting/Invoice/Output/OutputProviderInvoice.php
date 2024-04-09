@@ -145,7 +145,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $Address = $Customer->getStandardAddress();
             $Address->clearMail();
             $Address->clearPhone();
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             $Address = null;
 
             if ($Invoice->getAttribute('invoice_address')) {
@@ -203,7 +203,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             try {
                 $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById($InvoiceView->getAttribute('order_id'));
                 $orderNumber = $Order->getPrefixedId();
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
         }
 

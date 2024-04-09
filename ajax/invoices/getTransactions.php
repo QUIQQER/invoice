@@ -12,13 +12,16 @@
  *
  * @return array
  */
+
+use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_getTransactions',
     function ($invoiceId) {
         $transactions = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTransactionsByInvoice($invoiceId);
 
-        return \array_map(function ($Transaction) {
-            /* @var $Transaction \QUI\ERP\Accounting\Payments\Transactions\Transaction */
+        return array_map(function ($Transaction) {
+            /* @var $Transaction Transaction */
             return $Transaction->getAttributes();
         }, $transactions);
     },

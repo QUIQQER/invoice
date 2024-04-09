@@ -18,7 +18,7 @@ use function strtotime;
 
 /**
  * Class InvoiceView
- * View for a invoice
+ * View for an invoice
  *
  * @package QUI\ERP\Accounting\Invoice
  */
@@ -353,8 +353,8 @@ class InvoiceView extends QUI\QDOM
     protected function getOutputType(): string
     {
         return match ($this->Invoice->getInvoiceType()) {
-            Handler::TYPE_INVOICE_CREDIT_NOTE => 'CreditNote',
-            Handler::TYPE_INVOICE_CANCEL, Handler::TYPE_INVOICE_REVERSAL => 'Canceled',
+            QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE => 'CreditNote',
+            QUI\ERP\Constants::TYPE_INVOICE_CANCEL, QUI\ERP\Constants::TYPE_INVOICE_REVERSAL => 'Canceled',
             default => 'Invoice',
         };
     }

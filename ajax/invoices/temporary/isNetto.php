@@ -17,9 +17,9 @@ QUI::$Ajax->registerFunction(
         }
 
         try {
-            $User   = QUI::getUsers()->get($uid);
+            $User = QUI::getUsers()->get($uid);
             $status = QUI\ERP\Utils\User::getBruttoNettoUserStatus($User);
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             return QUI\ERP\Defaults::getBruttoNettoStatus() === QUI\ERP\Utils\User::IS_NETTO_USER;
         }
 

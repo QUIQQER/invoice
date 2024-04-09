@@ -16,7 +16,7 @@ QUI::$Ajax->registerFunction(
 
         try {
             $Temporary = $Invoices->getTemporaryInvoiceByHash($invoiceId);
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             $Temporary = $Invoices->getTemporaryInvoice($invoiceId);
         }
 

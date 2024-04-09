@@ -17,6 +17,8 @@ use QUI\ERP\Customer\CustomerFiles;
 use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Output\Output as ERPOutput;
+use QUI\ERP\Shipping\Api\ShippingInterface;
+use QUI\ExceptionStack;
 use QUI\Permissions\Permission;
 
 use function array_key_exists;
@@ -112,9 +114,9 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
     protected array $paymentData = [];
 
     /**
-     * @var null|integer
+     * @var null|ShippingInterface
      */
-    protected $Shipping = null;
+    protected ShippingInterface|null $Shipping = null;
 
     /**
      * Invoice constructor.
@@ -137,7 +139,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         }
 
         $this->id = (int)$invoiceData['id'];
-        $this->type = Handler::TYPE_INVOICE;
+        $this->type = QUI\ERP\Constants::TYPE_INVOICE;
 
         if (!empty($invoiceData['id_with_prefix'])) {
             $this->id_with_prefix = $invoiceData['id_with_prefix'];
@@ -146,11 +148,11 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         }
 
         switch ((int)$this->getAttribute('type')) {
-            case Handler::TYPE_INVOICE:
-            case Handler::TYPE_INVOICE_TEMPORARY:
-            case Handler::TYPE_INVOICE_CREDIT_NOTE:
-            case Handler::TYPE_INVOICE_REVERSAL:
-            case Handler::TYPE_INVOICE_CANCEL:
+            case QUI\ERP\Constants::TYPE_INVOICE:
+            case QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY:
+            case QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE:
+            case QUI\ERP\Constants::TYPE_INVOICE_REVERSAL:
+            case QUI\ERP\Constants::TYPE_INVOICE_CANCEL:
                 $this->type = (int)$this->getAttribute('type');
                 break;
         }
@@ -294,12 +296,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
      */
     public function getArticles(): ArticleListUnique
     {
-        try {
-            $Currency = $this->getCurrency();
-        } catch (QUI\Exception $Exception) {
-            $Currency = QUI\ERP\Defaults::getCurrency();
-        }
-
         $articles = $this->getAttribute('articles');
 
         if (is_string($articles)) {
@@ -323,7 +319,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
 
                 $List->setExchangeRate($accountingCurrencyData['rate']);
             }
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
         }
 
         return $List;
@@ -447,7 +443,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             $this->calculatePayments();
         }
 
-        if ($this->getInvoiceType() === Handler::TYPE_INVOICE_STORNO) {
+        if ($this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_STORNO) {
             //$this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_CANCELED);
         }
 
@@ -709,7 +705,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         );
 
         // set the invoice status
-        $this->type = Handler::TYPE_INVOICE_CANCEL;
+        $this->type = QUI\ERP\Constants::TYPE_INVOICE_CANCEL;
 
         $Reversal = $Reversal->post(QUI::getUsers()->getSystemUser());
 
@@ -847,7 +843,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             $Handler->temporaryInvoiceTable(),
             [
                 'global_process_id' => $globalProcessId,
-                'type' => Handler::TYPE_INVOICE_TEMPORARY,
+                'type' => QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY,
                 'customer_id' => $currentData['customer_id'],
                 'contact_person' => $currentData['contact_person'],
                 'invoice_address_id' => $invoiceAddressId,
@@ -909,7 +905,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         bool|string $globalProcessId = false
     ): InvoiceTemporary {
         // a credit node cant create a credit note
-        if ($this->getInvoiceType() === Handler::TYPE_INVOICE_CREDIT_NOTE) {
+        if ($this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE) {
             throw new Exception([
                 'quiqqer/invoice',
                 'exception.credit.note.cant.create.credit.note'
@@ -1035,7 +1031,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
-        $Copy->setInvoiceType(Handler::TYPE_INVOICE_CREDIT_NOTE);
+        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE);
 
         if ($this->getAttribute('invoice_address')) {
             try {
@@ -1179,7 +1175,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             $currentDate = strtotime($currentDate);
         }
 
-        if ($this->getInvoiceType() === Handler::TYPE_INVOICE_CREDIT_NOTE) {
+        if ($this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE) {
             $message = $this->getCustomer()->getLocale()->get(
                 'quiqqer/invoice',
                 'message.invoice.reversal.additionalInvoiceText.creditNote',
@@ -1215,7 +1211,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
-        $Copy->setInvoiceType(Handler::TYPE_INVOICE_REVERSAL);
+        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_REVERSAL);
 
         if ($this->getAttribute('invoice_address')) {
             try {
@@ -1269,9 +1265,9 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         }
 
         if (
-            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+            $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE
         ) {
             return;
         }
@@ -1327,9 +1323,9 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         $this->calculatePayments();
 
         if (
-            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+            $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE
         ) {
             return;
         }
@@ -1525,6 +1521,11 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
      *
      * @param int $paymentStatus
      * @return void
+     *
+     * @throws Exception
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
+     * @throws ExceptionStack
      */
     public function setPaymentStatus(int $paymentStatus): void
     {
@@ -1965,6 +1966,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
      * Clear customer files
      *
      * @return void
+     * @throws QUI\Database\Exception
      */
     public function clearCustomerFiles(): void
     {
@@ -2003,7 +2005,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
      * Get the price calculation
      *
      * @return Calculations
-     * @throws Exception
+     * @throws Exception|QUI\Exception
      */
     public function getPriceCalculation(): Calculations
     {

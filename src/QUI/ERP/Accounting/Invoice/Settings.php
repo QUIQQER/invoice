@@ -82,7 +82,7 @@ class Settings extends Singleton
     //region easier queries
 
     /**
-     * Should mails be send when a invoice is created?
+     * Should mails be sent when an invoice is created?
      *
      * @return bool
      */

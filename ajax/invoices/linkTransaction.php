@@ -23,12 +23,12 @@ QUI::$Ajax->registerFunction(
         $Invoice = $Invoices->getInvoiceByHash(Orthos::clear($invoiceHash));
         $Transaction = TransactionHandler::getInstance()->get(Orthos::clear($txId));
 
-        if ($Transaction->isHashLinked($Invoice->getHash())) {
+        if ($Transaction->isHashLinked($Invoice->getUUID())) {
             throw new Exception([
                 'quiqqer/invoice',
                 'message.ajax.invoices.linkTransaction.error.tx_already_linked',
                 [
-                    'invoiceNo' => $Invoice->getHash(),
+                    'invoiceNo' => $Invoice->getUUID(),
                     'txId' => $Transaction->getTxId()
                 ]
             ]);

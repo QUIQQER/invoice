@@ -41,17 +41,21 @@ class Handler extends QUI\Utils\Singleton
 
     /**
      * @var int
+     * @deprecated
      */
     const TYPE_INVOICE = QUI\ERP\Constants::TYPE_INVOICE;
 
     /**
      * @var int
+     * @deprecated
      */
     const TYPE_INVOICE_TEMPORARY = QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY;
 
     /**
-     * Gutschrift / Credit note
+     * Gutschrift / Credit not
+     *
      * @var int
+     * @deprecated
      */
     const TYPE_INVOICE_CREDIT_NOTE = QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE;
 
@@ -59,12 +63,16 @@ class Handler extends QUI\Utils\Singleton
 
     /**
      * Reversal, storno, cancellation
+     *
+     * @deprecated
      */
     const TYPE_INVOICE_REVERSAL = QUI\ERP\Constants::TYPE_INVOICE_REVERSAL;
 
     /**
      * Alias for reversal
+     *
      * @var int
+     * @deprecated
      */
     const TYPE_INVOICE_STORNO = QUI\ERP\Constants::TYPE_INVOICE_STORNO;
 
@@ -72,11 +80,14 @@ class Handler extends QUI\Utils\Singleton
      * Status für alte stornierte Rechnung
      *
      * @var int
+     * @deprecated
      */
     const TYPE_INVOICE_CANCEL = QUI\ERP\Constants::TYPE_INVOICE_CANCEL;
 
     /**
      * ID of the invoice product text field
+     *
+     * @deprecated
      */
     const INVOICE_PRODUCT_TEXT_ID = QUI\ERP\Constants::INVOICE_PRODUCT_TEXT_ID;
 
@@ -95,7 +106,7 @@ class Handler extends QUI\Utils\Singleton
     }
 
     /**
-     * Return all invoices by an user
+     * Return all invoices by a user
      *
      * @param QUI\Users\User $User
      * @return Invoice[]

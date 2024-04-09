@@ -10,6 +10,8 @@ use QUI;
 use QUI\Control;
 use QUI\FrontendUsers\Controls\Profile\ControlInterface;
 
+use function dirname;
+
 /**
  * Class UserInvoices
  * - Invoice list of
@@ -26,7 +28,7 @@ class UserInvoices extends Control implements ControlInterface
     public function __construct(array $attributes = [])
     {
         $this->addCSSClass('quiqqer-invoice-profile-invoices');
-        $this->addCSSFile(\dirname(__FILE__) . '/UserInvoices.css');
+        $this->addCSSFile(dirname(__FILE__) . '/UserInvoices.css');
 
         $this->setAttributes([
             // 'data-qui' => 'package/quiqqer/order/bin/frontend/controls/frontendusers/Orders',
@@ -79,7 +81,7 @@ class UserInvoices extends Control implements ControlInterface
             'invoices' => $invoices
         ]);
 
-        return $Engine->fetch(\dirname(__FILE__) . '/UserInvoices.html');
+        return $Engine->fetch(dirname(__FILE__) . '/UserInvoices.html');
     }
 
     /**

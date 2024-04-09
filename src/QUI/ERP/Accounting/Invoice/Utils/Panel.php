@@ -6,6 +6,7 @@
 
 namespace QUI\ERP\Accounting\Invoice\Utils;
 
+use Exception;
 use QUI;
 
 /**
@@ -27,7 +28,7 @@ class Panel
         foreach ($packages as $package) {
             try {
                 $Package = QUI::getPackage($package['name']);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
                 continue;
             }
 
@@ -46,22 +47,22 @@ class Panel
     }
 
     /**
-     * @return array|bool|object|string
+     * @return array
      */
-    public static function getPanelCategories()
+    public static function getPanelCategories(): array
     {
         $cache = 'package/quiqqer/invoice/panelCategories';
 
         try {
             return QUI\Cache\Manager::get($cache);
-        } catch (QUI\Exception $exception) {
+        } catch (QUI\Exception) {
         }
 
         $result = [];
         $packages = self::getInvoicePackages();
 
         try {
-            $Engine = QUI::getTemplateManager()->getEngine();
+            QUI::getTemplateManager()->getEngine();
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
@@ -93,7 +94,7 @@ class Panel
 
         try {
             QUI\Cache\Manager::set($cache, $result);
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
 

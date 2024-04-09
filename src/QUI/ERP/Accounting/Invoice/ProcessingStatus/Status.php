@@ -8,6 +8,10 @@ namespace QUI\ERP\Accounting\Invoice\ProcessingStatus;
 
 use QUI;
 
+use function array_key_exists;
+use function json_decode;
+use function mb_strpos;
+
 /**
  * Class Exception
  *
@@ -18,12 +22,12 @@ class Status
     /**
      * @var int
      */
-    protected $id;
+    protected int $id;
 
     /**
      * @var string
      */
-    protected $color;
+    protected mixed $color;
 
     /**
      * Default options.
@@ -37,10 +41,10 @@ class Status
     /**
      * Status constructor.
      *
-     * @param int|\string $id - Processing status id
+     * @param int|string $id - Processing status id
      * @throws Exception
      */
-    public function __construct($id)
+    public function __construct(int|string $id)
     {
         $list = Handler::getInstance()->getList();
 
@@ -55,10 +59,10 @@ class Status
         $data = $list[$id];
 
         // Fallback for old data structure
-        if (\mb_strpos($data, '#') === 0) {
+        if (mb_strpos($data, '#') === 0) {
             $this->color = $data;
         } else {
-            $data = \json_decode($data, true);
+            $data = json_decode($data, true);
 
             $this->color = $data['color'];
 
@@ -75,7 +79,7 @@ class Status
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -86,7 +90,7 @@ class Status
      * @param null|QUI\Locale $Locale
      * @return string
      */
-    public function getTitle($Locale = null)
+    public function getTitle(QUI\Locale $Locale = null): string
     {
         if (!($Locale instanceof QUI\Locale)) {
             $Locale = QUI::getLocale();
@@ -100,7 +104,7 @@ class Status
      *
      * @return string
      */
-    public function getColor()
+    public function getColor(): string
     {
         return $this->color;
     }
@@ -115,9 +119,9 @@ class Status
      * @param string $key - See $this->options for available options
      * @param $value
      */
-    public function setOption(string $key, $value)
+    public function setOption(string $key, $value): void
     {
-        if (\array_key_exists($key, $this->options)) {
+        if (array_key_exists($key, $this->options)) {
             $this->options[$key] = $value;
         }
     }
@@ -128,9 +132,9 @@ class Status
      * @param string $key
      * @return mixed|null - Option value or NULL if option does not exist
      */
-    public function getOption(string $key)
+    public function getOption(string $key): mixed
     {
-        if (\array_key_exists($key, $this->options)) {
+        if (array_key_exists($key, $this->options)) {
             return $this->options[$key];
         }
 
@@ -155,7 +159,7 @@ class Status
      * @param null|QUI\Locale $Locale - optional. if no locale, all translations would be returned
      * @return array
      */
-    public function toArray($Locale = null)
+    public function toArray(QUI\Locale $Locale = null): array
     {
         $title = $this->getTitle($Locale);
 

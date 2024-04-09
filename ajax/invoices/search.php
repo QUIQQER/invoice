@@ -31,7 +31,7 @@ QUI::$Ajax->registerFunction(
         $query = $Grid->parseDBParams(json_decode($params, true));
 
         if (isset($query['limit'])) {
-            $limit = \explode(',', $query['limit']);
+            $limit = explode(',', $query['limit']);
 
             $Search->limit($limit[0], $limit[1]);
         }
@@ -46,7 +46,7 @@ QUI::$Ajax->registerFunction(
 
         try {
             return $Search->searchForGrid();
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
             return [

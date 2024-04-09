@@ -7,7 +7,7 @@
 /**
  * Add a comment to an invoice
  *
- * @param string|integer invoiceId - ID of the invoice
+ * @param string|integer $invoiceId - ID of the invoice
  * @param string $comment - amount of the payment
  */
 QUI::$Ajax->registerFunction(
@@ -15,7 +15,7 @@ QUI::$Ajax->registerFunction(
     function ($invoiceId, $comment) {
         try {
             $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::addDebug($Exception->getMessage());
             throw $Exception;
         }

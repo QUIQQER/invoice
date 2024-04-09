@@ -22,7 +22,7 @@ QUI::$Ajax->registerFunction(
         } else {
             try {
                 $Invoice->setCustomer(QUI::getUsers()->get($data['customer_id']));
-            } catch (\Exception $exception) {
+            } catch (Exception) {
             }
         }
 
@@ -50,7 +50,7 @@ QUI::$Ajax->registerFunction(
             try {
                 $List = new QUI\ERP\Accounting\PriceFactors\FactorList($data['priceFactors']);
                 $Invoice->getArticles()->importPriceFactors($List);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
         }
 
@@ -86,7 +86,7 @@ QUI::$Ajax->registerFunction(
                     }
 
                     $Invoice->addCustomerFile($entry['hash'], $options);
-                } catch (\Exception $Exception) {
+                } catch (Exception $Exception) {
                     QUI\System\Log::writeException($Exception);
                 }
             }
