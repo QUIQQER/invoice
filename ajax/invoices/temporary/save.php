@@ -31,6 +31,10 @@ QUI::$Ajax->registerFunction(
             unset($data['addressDelivery']);
 
             try {
+                if (is_string($delivery)) {
+                    $delivery = json_decode($delivery, true) ?? [];
+                }
+
                 $Invoice->setDeliveryAddress($delivery);
             } catch (QUI\Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
