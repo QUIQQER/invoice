@@ -409,9 +409,7 @@ define(
                     name: 'actions',
                     text: QUILocale.get(lg, 'journal.btn.actions'),
                     menuCorner: 'topRight',
-                    styles: {
-                        'float': 'right'
-                    }
+                    position: 'right'
                 });
 
                 Actions.appendChild({

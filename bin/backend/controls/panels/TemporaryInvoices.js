@@ -23,7 +23,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 ], function(QUI, QUIPanel, QUIConfirm, QUIButton, QUIContextMenuItem, Grid, Invoices, Dialogs, QUILocale, QUIAjax) {
     'use strict';
 
-    var lg = 'quiqqer/invoice';
+    const lg = 'quiqqer/invoice';
 
     return new Class({
 
@@ -95,7 +95,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 currency: this.$Currency.getAttribute('value')
             }).then((result) => {
                 result.data = result.data.map(function(entry) {
-                    var Icon = new Element('span');
+                    const Icon = new Element('span');
 
                     switch (parseInt(entry.type)) {
                         // gutschrift
@@ -120,26 +120,26 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 this.$Grid.setData(result);
 
-                var Actions = this.$Grid.getButtons().filter(function(Btn) {
+                const Actions = this.$Grid.getButtons().filter(function(Btn) {
                         return Btn.getAttribute('name') === 'actions';
                     })[0],
 
                     children = Actions.getChildren();
 
 
-                var Copy = children.filter(function(Btn) {
+                const Copy = children.filter(function(Btn) {
                     return Btn.getAttribute('name') === 'copy';
                 })[0];
 
-                var Delete = children.filter(function(Btn) {
+                const Delete = children.filter(function(Btn) {
                     return Btn.getAttribute('name') === 'delete';
                 })[0];
 
-                var PDF = children.filter(function(Btn) {
+                const PDF = children.filter(function(Btn) {
                     return Btn.getAttribute('name') === 'pdf';
                 })[0];
 
-                var Post = children.filter(function(Btn) {
+                const Post = children.filter(function(Btn) {
                     return Btn.getAttribute('name') === 'post';
                 })[0];
 
@@ -166,7 +166,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
                     'utils/Panels'
                 ], function(TemporaryInvoice, PanelUtils) {
-                    var Panel = new TemporaryInvoice({
+                    const Panel = new TemporaryInvoice({
                         invoiceId: invoiceId,
                         '#id': invoiceId
                     });
@@ -184,7 +184,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          */
         downloadPdf: function(invoiceId) {
             return new Promise(function(resolve) {
-                var id = 'download-invoice-' + invoiceId;
+                const id = 'download-invoice-' + invoiceId;
 
                 new Element('iframe', {
                     src: URL_OPT_DIR + 'quiqqer/invoice/bin/backend/downloadInvoice.php?' + Object.toQueryString({
@@ -215,7 +215,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * event : on panel create
          */
         $onCreate: function() {
-            var self = this;
+            const self = this;
 
             // Buttons
 
@@ -225,13 +225,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 disabled: true,
                 showIcons: false,
                 menuCorner: 'topRight',
-                styles: {
-                    'float': 'right'
-                },
+                position: 'right',
+                order: 1,
                 events: {
                     onChange: function(Menu, Item) {
-                        var value = Item.getAttribute('value'),
-                            text = value;
+                        const value = Item.getAttribute('value');
+                        let text = value;
 
                         if (value === '') {
                             text = QUILocale.get(lg, 'currency.select.all');
@@ -249,18 +248,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 padding: 10
             });
 
-            var Container = new Element('div').inject(
+            const Container = new Element('div').inject(
                 this.getContent()
             );
 
 
-            var Actions = new QUIButton({
+            const Actions = new QUIButton({
                 name: 'actions',
                 text: QUILocale.get(lg, 'journal.btn.actions'),
                 menuCorner: 'topRight',
-                styles: {
-                    'float': 'right'
-                }
+                position: 'right',
+                order: 2
             });
 
             Actions.appendChild({
@@ -528,27 +526,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 onRefresh: this.refresh,
 
                 onClick: function() {
-                    var selected = this.getSelectedIndices();
+                    const selected = this.getSelectedIndices();
 
-                    var Actions = this.getButtons().filter(function(Btn) {
+                    const Actions = this.getButtons().filter(function(Btn) {
                             return Btn.getAttribute('name') === 'actions';
                         })[0],
 
                         children = Actions.getChildren();
 
-                    var Copy = children.filter(function(Btn) {
+                    const Copy = children.filter(function(Btn) {
                         return Btn.getAttribute('name') === 'copy';
                     })[0];
 
-                    var Delete = children.filter(function(Btn) {
+                    const Delete = children.filter(function(Btn) {
                         return Btn.getAttribute('name') === 'delete';
                     })[0];
 
-                    var PDF = children.filter(function(Btn) {
+                    const PDF = children.filter(function(Btn) {
                         return Btn.getAttribute('name') === 'pdf';
                     })[0];
 
-                    var Post = children.filter(function(Btn) {
+                    const Post = children.filter(function(Btn) {
                         return Btn.getAttribute('name') === 'post';
                     })[0];
 
@@ -579,7 +577,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         (data.cell.get('data-index') === 'customer_id' ||
                             data.cell.get('data-index') === 'customer_name')) {
 
-                        var Cell = data.cell,
+                        const Cell = data.cell,
                             position = Cell.getPosition(),
                             rowData = self.$Grid.getDataByRow(data.row);
 
@@ -588,7 +586,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                                 'qui/controls/contextmenu/Menu',
                                 'qui/controls/contextmenu/Item'
                             ], function(QUIMenu, QUIMenuItem) {
-                                var Menu = new QUIMenu({
+                                const Menu = new QUIMenu({
                                     events: {
                                         onBlur: function() {
                                             Menu.hide();
@@ -656,13 +654,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 return;
             }
 
-            var Body = this.getContent();
+            const Body = this.getContent();
 
             if (!Body) {
                 return;
             }
 
-            var size = Body.getSize();
+            const size = Body.getSize();
 
             this.$Grid.setHeight(size.y - 20);
             this.$Grid.setWidth(size.x - 20);
@@ -673,16 +671,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * event: on panel inject
          */
         $onInject: function() {
-            var self = this;
+            const self = this;
 
             QUIAjax.get([
                 'package_quiqqer_currency_ajax_getAllowedCurrencies',
                 'package_quiqqer_currency_ajax_getDefault'
             ], function(currencies, currency) {
-                var i, len, entry, text;
+                let i, len, entry, text;
 
                 if (!currencies.length || currencies.length === 1) {
-                    self.$Currency.hide();
+                    self.$Currency.destroy();
                     return;
                 }
 
@@ -770,7 +768,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * @param Button
          */
         $clickPostInvoice: function(Button) {
-            var selected = this.$Grid.getSelectedData(),
+            const selected = this.$Grid.getSelectedData(),
                 oldImage = Button.getAttribute('textimage');
 
             if (!selected.length) {
@@ -779,16 +777,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
-            var proms = [];
+            const proms = [];
 
-            for (var i = 0, len = selected.length; i < len; i++) {
+            for (let i = 0, len = selected.length; i < len; i++) {
                 proms.push(Invoices.getMissingAttributes(selected[i].id));
             }
 
             Promise.all(proms).then(function(result) {
                 Button.setAttribute('textimage', oldImage);
 
-                for (var i = 0, len = result.length; i < len; i++) {
+                for (let i = 0, len = result.length; i < len; i++) {
                     if (Object.getLength(result[i])) {
                         return false;
                     }
@@ -806,11 +804,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     return;
                 }
 
-                var invoices = '';
+                let invoices = '', Row;
 
-                for (var i = 0, len = selected.length; i < len; i++) {
-                    var Row = selected[i];
-
+                for (let i = 0, len = selected.length; i < len; i++) {
+                    Row = selected[i];
                     invoices += '<li>' + Row.id;
 
                     if (Row.customer_name) {
@@ -843,9 +840,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         onSubmit: function(Win) {
                             Win.Loader.show();
 
-                            var posts = [];
+                            const posts = [];
 
-                            for (var i = 0, len = selected.length; i < len; i++) {
+                            for (let i = 0, len = selected.length; i < len; i++) {
                                 posts.push(Invoices.postInvoice(selected[i].hash));
                             }
 
@@ -857,7 +854,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                                     return;
                                 }
 
-                                var entityType;
+                                let entityType;
 
                                 switch (parseInt(selected[0].type)) {
                                     case 3:
@@ -893,15 +890,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * opens the delete dialog
          */
         $clickDeleteInvoice: function() {
-            var selected = this.$Grid.getSelectedData();
+            const selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
                 return;
             }
 
-            var invoices = '';
+            let invoices = '';
 
-            for (var i = 0, len = selected.length; i < len; i++) {
+            for (let i = 0, len = selected.length; i < len; i++) {
                 invoices = invoices + '<li>' + selected[i].id + '</li>';
             }
 
@@ -924,9 +921,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     onSubmit: function(Win) {
                         Win.Loader.show();
 
-                        var posts = [];
+                        const posts = [];
 
-                        for (var i = 0, len = selected.length; i < len; i++) {
+                        for (let i = 0, len = selected.length; i < len; i++) {
                             posts.push(Invoices.deleteInvoice(selected[i].hash));
                         }
 
@@ -955,7 +952,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * Copy the temporary invoice and opens the invoice
          */
         $clickCopyInvoice: function() {
-            var self = this,
+            const self = this,
                 selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
@@ -1009,7 +1006,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * @param Button
          */
         $clickPDF: function(Button) {
-            var selected = this.$Grid.getSelectedData();
+            let selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
                 return;
@@ -1019,7 +1016,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             Button.setAttribute('textimage', 'fa fa-spinner fa-spin');
 
 
-            var entityType;
+            let entityType;
 
             switch (parseInt(selected.type)) {
                 case 3:
@@ -1053,7 +1050,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * @param {Object} data
          */
         $onClickInvoiceDetails: function(data) {
-            var row = data.row,
+            const row = data.row,
                 ParentNode = data.parent;
 
             ParentNode.setStyle('padding', 10);
