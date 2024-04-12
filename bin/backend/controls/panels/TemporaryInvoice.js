@@ -806,21 +806,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     return;
                 }
 
-                const FileControl = new CustomerFileSelect({
-                    userId: this.getAttribute('customer_id'),
-                    confirmItemDelete: true,
-                    events: {
-                        onChange: (FileSelectControl) => {
-                            FileSelectControl.getFiles().then((customerFiles) => {
-                                this.setAttribute('attached_customer_files', customerFiles);
-                            });
-                        }
-                    }
-                }).inject(Container);
+                return new Promise((resolve) => {
+                    require(['package/quiqqer/erp/bin/backend/controls/customerFiles/Grid'], (FileGrid) => {
+                        new FileGrid({
+                            hash: this.getAttribute('hash')
+                        }).inject(Container);
 
-                FileControl.getElm().addClass('quiqqer-invoice-files');
-
-                FileControl.importValue(this.getAttribute('attached_customer_files'));
+                        resolve();
+                    });
+                });
             }).then(() => {
                 return this.$openCategory();
             }).catch((err) => {
