@@ -11,7 +11,6 @@ use QUI\ERP\Accounting\ArticleList;
 use QUI\ERP\Accounting\Calculations;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
-use QUI\ERP\Customer\CustomerFiles;
 use QUI\ERP\ErpEntityInterface;
 use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
@@ -48,6 +47,8 @@ use const PHP_INT_MAX;
  */
 class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
 {
+    use QUI\ERP\ErpEntityCustomerFiles;
+
     /**
      * Special attributes
      */
@@ -284,6 +285,11 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             }
         } catch (QUI\Exception) {
         }
+    }
+
+    protected function databaseTable(): string
+    {
+        return Handler::getInstance()->temporaryInvoiceTable();
     }
 
     //region Getter
@@ -2453,92 +2459,6 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
     public function removeDeliveryAddress(): void
     {
         $this->addressDelivery = false;
-    }
-
-    // endregion
-
-    // region Attached customer files
-
-    /**
-     * Add a customer file to this invoice
-     *
-     * @param string $fileHash - SHA256 hash of the file basename
-     * @param array $options (optional) - File options; see $defaultOptions in code for what's possible
-     *
-     * @throws Exception
-     * @throws QUI\Exception
-     */
-    public function addCustomerFile(string $fileHash, array $options = []): void
-    {
-        $Customer = $this->getCustomer();
-
-        if (empty($Customer)) {
-            throw new Exception(
-                QUI::getLocale()->get('quiqqer/invoice', 'exception.Invoice.addCustomerFile.no_customer')
-            );
-        }
-
-        $file = CustomerFiles::getFileByHash($Customer->getId(), $fileHash);
-
-        if (empty($file)) {
-            throw new Exception(
-                QUI::getLocale()->get('quiqqer/invoice', 'exception.Invoice.addCustomerFile.file_not_found')
-            );
-        }
-
-        $defaultOptions = [
-            'attachToEmail' => false
-        ];
-
-        // set default options
-        foreach ($defaultOptions as $k => $v) {
-            if (!isset($options[$k])) {
-                $options[$k] = $v;
-            }
-        }
-
-        // cleanup
-        foreach ($options as $k => $v) {
-            if (!isset($defaultOptions[$k])) {
-                unset($options[$k]);
-            }
-        }
-
-        $fileEntry = [
-            'hash' => $fileHash,
-            'options' => $options
-        ];
-
-        $customerFiles = $this->getCustomerFiles();
-        $customerFiles[] = $fileEntry;
-
-        $this->setData('customer_files', $customerFiles);
-    }
-
-    /**
-     * Clear customer files
-     *
-     * @return void
-     */
-    public function clearCustomerFiles(): void
-    {
-        $this->setData('customer_files', null);
-    }
-
-    /**
-     * Get customer files that are attached to this invoice.
-     *
-     * @return array - Contains file hash and file options
-     */
-    public function getCustomerFiles(): array
-    {
-        $customerFiles = $this->getData('customer_files');
-
-        if (empty($customerFiles)) {
-            return [];
-        }
-
-        return $customerFiles;
     }
 
     // endregion

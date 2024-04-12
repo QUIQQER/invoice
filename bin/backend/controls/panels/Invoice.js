@@ -860,59 +860,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             this.getCategory('invoiceFiles').setActive();
 
-            const InvoiceAttributes = this.getAttribute('data');
-            let InvoiceData = InvoiceAttributes.data;
-
-            if (InvoiceData) {
-                InvoiceData = JSON.decode(InvoiceData);
-            }
-
             return this.$closeCategory().then((Container) => {
                 Container.setStyle('overflow', 'hidden');
                 Container.setStyle('padding', 20);
                 Container.setStyle('height', '100%');
 
-                const customerId = InvoiceAttributes.customer_id;
+                return new Promise((resolve) => {
+                    require([
+                        'package/quiqqer/erp/bin/backend/controls/customerFiles/Grid'
+                    ], (FileGrid) => {
+                        new FileGrid({
+                            hash: this.getAttribute('hash')
+                        }).inject(Container);
 
-                if (!customerId) {
-                    new Element('p', {
-                        html: QUILocale.get(lg, 'controls.panels.TemporaryInvoice.invoice_files_no_customer')
-                    }).inject(Container);
-
-                    return;
-                }
-
-                const FileControl = new CustomerFileSelect({
-                    userId: customerId,
-                    confirmItemDelete: true,
-                    events: {
-                        onChange: (FileSelectControl) => {
-                            this.Loader.show();
-
-                            FileSelectControl.getFiles().then((customerFiles) => {
-                                Invoices.setCustomerFiles(this.getAttribute('data').hash, customerFiles).then(() => {
-                                    InvoiceData.customer_files = customerFiles;
-
-                                    InvoiceAttributes.data = JSON.encode(InvoiceData);
-                                    this.setAttribute('data', InvoiceAttributes);
-
-                                    this.Loader.hide();
-                                }).catch(() => {
-                                    this.Loader.hide();
-                                });
-                            });
-                        }
-                    }
-                }).inject(Container);
-
-                FileControl.getElm().addClass('quiqqer-invoice-files');
-
-                if (InvoiceData && 'customer_files' in InvoiceData) {
-                    FileControl.importValue(InvoiceData.customer_files);
-                }
+                        resolve();
+                    });
+                });
             }).then(() => {
                 this.Loader.hide();
-
                 return this.$openCategory();
             }).catch((err) => {
                 console.error('ERROR');

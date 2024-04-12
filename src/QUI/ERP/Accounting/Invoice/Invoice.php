@@ -41,6 +41,8 @@ use function time;
  */
 class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
 {
+    use QUI\ERP\ErpEntityCustomerFiles;
+
     /* @deprecated */
     const PAYMENT_STATUS_OPEN = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
 
@@ -165,6 +167,11 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             $this->customData = json_decode($this->getAttribute('custom_data'), true) ?? [];
         }
 
+        // fallback customer files
+        if (!empty($this->data['customer_files']) && empty($this->customData['customer_files'])) {
+            $this->customData['customer_files'] = $this->data['customer_files'];
+        }
+
         if ($this->getAttribute('global_process_id')) {
             $this->globalProcessId = $this->getAttribute('global_process_id');
         }
@@ -199,6 +206,11 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
             $this->setAttribute('invoice_address', json_encode($invoiceAddress));
         }
+    }
+
+    protected function databaseTable(): string
+    {
+        return Handler::getInstance()->invoiceTable();
     }
 
     /**
@@ -1900,106 +1912,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
     }
 
     //endregion
-
-    // region Attached customer files
-
-    /**
-     * Add a customer file to this invoice
-     *
-     * @param string $fileHash - SHA256 hash of the file basename
-     * @param array $options (optional) - File options; see $defaultOptions in code for what's possible
-     *
-     * @throws Exception
-     * @throws QUI\Exception
-     */
-    public function addCustomerFile(string $fileHash, array $options = []): void
-    {
-        $Customer = $this->getCustomer();
-        $file = CustomerFiles::getFileByHash($Customer->getId(), $fileHash);
-
-        if (empty($file)) {
-            throw new Exception(
-                QUI::getLocale()->get('quiqqer/invoice', 'exception.Invoice.addCustomerFile.file_not_found')
-            );
-        }
-
-        $defaultOptions = [
-            'attachToEmail' => false
-        ];
-
-        // set default options
-        foreach ($defaultOptions as $k => $v) {
-            if (!isset($options[$k])) {
-                $options[$k] = $v;
-            }
-        }
-
-        // cleanup
-        foreach ($options as $k => $v) {
-            if (!isset($defaultOptions[$k])) {
-                unset($options[$k]);
-            }
-        }
-
-        $fileEntry = [
-            'hash' => $fileHash,
-            'options' => $options
-        ];
-
-        $customerFiles = $this->getCustomerFiles();
-        $customerFiles[] = $fileEntry;
-
-        $this->data['customer_files'] = $customerFiles;
-
-        QUI::getDataBase()->update(
-            Handler::getInstance()->invoiceTable(),
-            [
-                'data' => json_encode($this->data)
-            ],
-            [
-                'id' => $this->getId()
-            ]
-        );
-    }
-
-    /**
-     * Clear customer files
-     *
-     * @return void
-     * @throws QUI\Database\Exception
-     */
-    public function clearCustomerFiles(): void
-    {
-        $this->data['customer_files'] = [];
-
-        QUI::getDataBase()->update(
-            Handler::getInstance()->invoiceTable(),
-            [
-                'data' => json_encode($this->data)
-            ],
-            [
-                'id' => $this->getId()
-            ]
-        );
-    }
-
-    /**
-     * Get customer files that are attached to this invoice.
-     *
-     * @return array - Contains file hash and file options
-     */
-    public function getCustomerFiles(): array
-    {
-        $customerFiles = $this->getData('customer_files');
-
-        if (empty($customerFiles)) {
-            return [];
-        }
-
-        return $customerFiles;
-    }
-
-    // endregion
 
     /**
      * Get the price calculation

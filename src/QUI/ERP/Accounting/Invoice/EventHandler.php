@@ -340,6 +340,7 @@ class EventHandler
             return;
         }
 
+        // @todo
         $customerFiles = $Invoice->getCustomerFiles();
 
         foreach ($customerFiles as $entry) {
