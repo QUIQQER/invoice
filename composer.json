@@ -21,7 +21,7 @@
     "php": ">=8",
     "quiqqer\/quiqqer": "^1.5",
     "quiqqer\/erp": "^3.1",
-    "quiqqer/customer": "^1.4",
+    "quiqqer/customer": "^1.3.2",
     "quiqqer\/payments": "^2|^1",
     "quiqqer\/payment-transactions": "^2",
     "quiqqer\/htmltopdf": "^2",
