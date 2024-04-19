@@ -22,7 +22,6 @@ use function dirname;
 use function file_exists;
 use function file_get_contents;
 use function in_array;
-use function strpos;
 use function strtolower;
 use function strtotime;
 
@@ -48,49 +47,28 @@ class EventHandler
         // check order id field
         $alterOrderId = function ($table) {
             $tableInfo = QUI::getDatabase()->table()->getFieldsInfos($table);
-            $invoiceIsChar = false;
-            $customerIdChar = false;
-            $addressIdChar = false;
+            $hashFields = [
+                'c_user' => 'VARCHAR(50) NOT NULL',
+                'editor_id' => 'VARCHAR(50) NULL',
+                'customer_id' => 'VARCHAR(50) NOT NULL',
+                'invoice_address_id' => 'VARCHAR(50) NULL',
+                'ordered_by' => 'VARCHAR(50) NULL'
+            ];
 
             foreach ($tableInfo as $tableEntry) {
-                if (
-                    $tableEntry['Field'] === 'order_id'
-                    && str_contains(strtolower($tableEntry['Type']), 'varchar')
-                ) {
-                    $invoiceIsChar = true;
+                $tableField = $tableEntry['Field'];
+
+                if (!isset($hashFields[$tableField])) {
+                    continue;
                 }
 
-                if (
-                    $tableEntry['Field'] === 'customer_id'
-                    && str_contains(strtolower($tableEntry['Type']), 'varchar')
-                ) {
-                    $customerIdChar = true;
+                $swl = $hashFields[$tableField];
+
+                if (!str_contains(strtolower($tableEntry['Type']), 'varchar')) {
+                    QUI::getDatabase()->execSQL(
+                        "ALTER TABLE `$table` CHANGE `$tableField` `$tableField` $swl;"
+                    );
                 }
-
-                if (
-                    $tableEntry['Field'] === 'invoice_address_id'
-                    && str_contains(strtolower($tableEntry['Type']), 'varchar')
-                ) {
-                    $addressIdChar = true;
-                }
-            }
-
-            if ($invoiceIsChar === false) {
-                QUI::getDatabase()->execSQL(
-                    'ALTER TABLE `' . $table . '` CHANGE `order_id` `order_id` VARCHAR(250) NULL DEFAULT NULL;'
-                );
-            }
-
-            if ($customerIdChar === false) {
-                QUI::getDatabase()->execSQL(
-                    'ALTER TABLE `' . $table . '` CHANGE `customer_id` `customer_id` VARCHAR(250) NOT NULL;'
-                );
-            }
-
-            if (str_contains($table, 'invoice_temporary') && $addressIdChar === false) {
-                QUI::getDatabase()->execSQL(
-                    'ALTER TABLE `' . $table . '` CHANGE `invoice_address_id` `invoice_address_id` VARCHAR(250) NOT NULL;'
-                );
             }
         };
 
@@ -376,7 +354,7 @@ class EventHandler
                 continue;
             }
 
-            $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Invoice->getCustomer()->getId(), $entry['hash']);
+            $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Invoice->getCustomer()->getUUID(), $entry['hash']);
 
             if ($file) {
                 $filePath = $file['dirname'] . '/' . $file['basename'];

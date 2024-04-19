@@ -40,58 +40,6 @@ class Handler extends QUI\Utils\Singleton
     const TABLE_TEMPORARY_INVOICE = 'invoice_temporary';
 
     /**
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE = QUI\ERP\Constants::TYPE_INVOICE;
-
-    /**
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE_TEMPORARY = QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY;
-
-    /**
-     * Gutschrift / Credit not
-     *
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE_CREDIT_NOTE = QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE;
-
-    // Storno types
-
-    /**
-     * Reversal, storno, cancellation
-     *
-     * @deprecated
-     */
-    const TYPE_INVOICE_REVERSAL = QUI\ERP\Constants::TYPE_INVOICE_REVERSAL;
-
-    /**
-     * Alias for reversal
-     *
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE_STORNO = QUI\ERP\Constants::TYPE_INVOICE_STORNO;
-
-    /**
-     * Status für alte stornierte Rechnung
-     *
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE_CANCEL = QUI\ERP\Constants::TYPE_INVOICE_CANCEL;
-
-    /**
-     * ID of the invoice product text field
-     *
-     * @deprecated
-     */
-    const INVOICE_PRODUCT_TEXT_ID = QUI\ERP\Constants::INVOICE_PRODUCT_TEXT_ID;
-
-    /**
      * Tables
      */
 
@@ -113,6 +61,7 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getInvoicesByUser(QUI\Users\User $User): array
     {
+        // @todo customer uuid
         $result = [];
 
         try {

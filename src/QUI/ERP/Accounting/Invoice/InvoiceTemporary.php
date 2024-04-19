@@ -373,6 +373,10 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         try {
             $User = QUI::getUsers()->get($this->getAttribute('customer_id'));
+
+            if (is_numeric($this->getAttribute('customer_id')) && $User->getUUID()) {
+                $this->setAttribute('customer_id', $User->getUUID());
+            }
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
 
@@ -884,14 +888,14 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         // use default advisor as editor
         if ($OrderedBy) {
-            $orderedBy = $OrderedBy->getId();
+            $orderedBy = $OrderedBy->getUUID();
             $orderedByName = $OrderedBy->getInvoiceName();
         } elseif ($orderedBy) {
             try {
                 $User = QUI::getUsers()->get($orderedBy);
                 $User = QUI\ERP\User::convertUserToErpUser($User);
 
-                $orderedBy = $User->getId();
+                $orderedBy = $User->getUUID();
                 $orderedByName = $User->getInvoiceName();
             } catch (QUI\Exception) {
             }
@@ -1165,7 +1169,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             $PermissionUser = QUI::getUserBySession();
         }
 
-        if ($PermissionUser->getId() !== $this->getCustomer()->getId()) {
+        if ($PermissionUser->getUUID() !== $this->getCustomer()->getUUID()) {
             QUI\Permissions\Permission::checkPermission(
                 'quiqqer.invoice.post',
                 $PermissionUser
@@ -1243,21 +1247,21 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         // use default advisor as editor
         if ($OrderedBy) {
-            $orderedBy = $OrderedBy->getId();
+            $orderedBy = $OrderedBy->getUUID();
             $orderedByName = $OrderedBy->getInvoiceName();
         } elseif ($orderedBy) {
             try {
                 $User = QUI::getUsers()->get($orderedBy);
                 $User = QUI\ERP\User::convertUserToErpUser($User);
 
-                $orderedBy = $User->getId();
+                $orderedBy = $User->getUUID();
                 $orderedByName = $User->getInvoiceName();
             } catch (QUI\Exception) {
             }
         }
 
         // user is customer, then the customer is the creator
-        if ($User->getId() === $Customer->getId()) {
+        if ($User->getUUID() === $Customer->getUUID()) {
             $User = $Customer;
         }
 
@@ -1433,7 +1437,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'global_process_id' => $this->getGlobalProcessId(),
 
                 // user relationships
-                'c_user' => $User->getId(),
+                'c_user' => $User->getUUID(),
                 'c_username' => $User->getName(),
                 'editor_id' => $editorId,
                 'editor_name' => $editorName,
@@ -1442,7 +1446,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'ordered_by' => $orderedBy,
                 'ordered_by_name' => $orderedByName,
                 'contact_person' => $contactPerson,
-                'customer_id' => $this->getCustomer()->getUniqueId(),
+                'customer_id' => $this->getCustomer()->getUUID(),
                 'customer_data' => json_encode($customerData),
 
                 // addresses
@@ -2556,11 +2560,11 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 }
             }
 
-            $customerId = (new QUI\ERP\User($User))->getId();
+            $customerId = (new QUI\ERP\User($User))->getUUID();
         } elseif ($User instanceof QUI\ERP\User) {
-            $customerId = $User->getId();
+            $customerId = $User->getUUID();
         } elseif ($User instanceof QUI\Interfaces\Users\User) {
-            $customerId = $User->getId();
+            $customerId = $User->getUUID();
         }
 
 

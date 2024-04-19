@@ -172,6 +172,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          */
         doRefresh: function() {
             return Invoices.getTemporaryInvoice(this.getAttribute('hash')).then((data) => {
+                console.log(this.getAttribute('hash'), data);
+
                 this.setAttributes(data);
 
                 if (data.articles) {
