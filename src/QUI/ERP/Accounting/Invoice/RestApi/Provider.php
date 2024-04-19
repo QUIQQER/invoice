@@ -177,8 +177,8 @@ class Provider implements QUI\REST\ProviderInterface
 
                 if (!empty($invoiceData['invoice_address_id'])) {
                     try {
-                        $Address = $User->getAddress((int)$invoiceData['invoice_address_id']);
-                        $InvoiceDraft->setAttribute('invoice_address_id', $Address->getId());
+                        $Address = $User->getAddress($invoiceData['invoice_address_id']);
+                        $InvoiceDraft->setAttribute('invoice_address_id', $Address->getUUID());
                     } catch (Exception $Exception) {
                         QUI\System\Log::writeException($Exception);
                     }
@@ -187,7 +187,7 @@ class Provider implements QUI\REST\ProviderInterface
                 // Set default address
                 if (!$Address) {
                     try {
-                        $InvoiceDraft->setAttribute('invoice_address_id', $User->getStandardAddress()->getId());
+                        $InvoiceDraft->setAttribute('invoice_address_id', $User->getStandardAddress()->getUUID());
                     } catch (Exception $Exception) {
                         QUI\System\Log::writeException($Exception);
                     }

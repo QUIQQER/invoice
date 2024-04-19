@@ -16,6 +16,7 @@ use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Order\Handler as OrderHandler;
 use QUI\ERP\User;
+use QUI\ExceptionStack;
 use QUI\Utils\Security\Orthos;
 
 use function array_flip;
@@ -213,13 +214,13 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         $this->paymentData = json_decode($paymentData, true) ?? [];
 
         // invoice type
-        $this->type = Handler::TYPE_INVOICE_TEMPORARY;
+        $this->type = QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY;
 
         switch ((int)$data['type']) {
-            case Handler::TYPE_INVOICE:
-            case Handler::TYPE_INVOICE_TEMPORARY:
-            case Handler::TYPE_INVOICE_CREDIT_NOTE:
-            case Handler::TYPE_INVOICE_REVERSAL:
+            case QUI\ERP\Constants::TYPE_INVOICE:
+            case QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY:
+            case QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE:
+            case QUI\ERP\Constants::TYPE_INVOICE_REVERSAL:
                 $this->type = (int)$data['type'];
                 break;
         }
@@ -372,14 +373,14 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         try {
             $User = QUI::getUsers()->get($this->getAttribute('customer_id'));
-        } catch (QUI\Users\Exception $Exception) {
+        } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
 
             return null;
         }
 
         $userData = [
-            'id' => $User->getId(),
+            'id' => $User->getUUID(),
             'country' => $User->getCountry(),
             'username' => $User->getUsername(),
             'firstname' => $User->getAttribute('firstname'),
@@ -559,6 +560,8 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
      * Return all fields, attributes which are still missing to post the invoice
      *
      * @return array
+     * @throws QUI\Exception
+     * @throws ExceptionStack
      */
     public function getMissingAttributes(): array
     {
@@ -570,7 +573,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
      *
      * @return InvoiceView
      *
-     * @throws Exception
+     * @throws \QUI\ERP\Accounting\Invoice\Exception
      */
     public function getView(): InvoiceView
     {
@@ -669,9 +672,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         $type = (int)$type;
 
         switch ($type) {
-            case Handler::TYPE_INVOICE_TEMPORARY:
-            case Handler::TYPE_INVOICE_CREDIT_NOTE:
-            case Handler::TYPE_INVOICE_REVERSAL:
+            case QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY:
+            case QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE:
+            case QUI\ERP\Constants::TYPE_INVOICE_REVERSAL:
                 break;
 
             default:
@@ -773,10 +776,10 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         $invoiceAddressId = false;
 
         try {
-            $Customer = QUI::getUsers()->get((int)$this->getAttribute('customer_id'));
+            $Customer = QUI::getUsers()->get($this->getAttribute('customer_id'));
 
             $Address = $Customer->getAddress(
-                (int)$this->getAttribute('invoice_address_id')
+                $this->getAttribute('invoice_address_id')
             );
 
             $invoiceAddressData = $this->getAttribute('invoice_address');
@@ -791,7 +794,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             $invoiceAddress = $Address->toJSON();
             $this->Articles->setUser($Customer);
 
-            $invoiceAddressId = $Address->getId();
+            $invoiceAddressId = $Address->getUUID();
         } catch (QUI\Exception $Exception) {
             $invoiceAddress = $this->getAttribute('invoice_address');
             $invoiceAddressCheck = false;
@@ -876,7 +879,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         // Ordered By
         $OrderedBy = $this->getOrderedByUser();
-        $orderedBy = (int)$this->getAttribute('customer_id');
+        $orderedBy = $this->getAttribute('customer_id');
         $orderedByName = '';
 
         // use default advisor as editor
@@ -909,9 +912,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         $DeliveryAddress = $this->getDeliveryAddress();
 
         // Save delivery address separately only if it differs from invoice address
-        if ($DeliveryAddress && ($invoiceAddressId && $DeliveryAddress->getId() !== $invoiceAddressId)) {
+        if ($DeliveryAddress && ($invoiceAddressId && $DeliveryAddress->getUUID() !== $invoiceAddressId)) {
             $deliveryAddress = $DeliveryAddress->toJSON();
-            $deliveryAddressId = $DeliveryAddress->getId();
+            $deliveryAddressId = $DeliveryAddress->getUUID();
 
             if (empty($deliveryAddressId)) {
                 $deliveryAddressId = null;
@@ -980,7 +983,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'type' => $this->getInvoiceType(),
 
                 // user relationships
-                'customer_id' => (int)$this->getAttribute('customer_id'),
+                'customer_id' => $this->getAttribute('customer_id'),
                 'editor_id' => $editorId,
                 'editor_name' => $editorName,
                 'order_id' => $orderId,
@@ -995,7 +998,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'payment_time' => null,
 
                 // address
-                'invoice_address_id' => (int)$this->getAttribute('invoice_address_id'),
+                'invoice_address_id' => $this->getAttribute('invoice_address_id'),
                 'invoice_address' => $invoiceAddress,
                 'delivery_address_id' => $deliveryAddressId,
                 'delivery_address' => $deliveryAddress,
@@ -1203,10 +1206,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         // address
         try {
-            $Address = $Customer->getAddress(
-                (int)$this->getAttribute('invoice_address_id')
-            );
-
+            $Address = $Customer->getAddress($this->getAttribute('invoice_address_id'));
             $invoiceAddress = $Address->toJSON();
         } catch (QUI\Exception $Exception) {
             $invoiceAddress = $this->getAttribute('invoice_address');
@@ -1238,7 +1238,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         // Ordered By
         $OrderedBy = $this->getOrderedByUser();
-        $orderedBy = (int)$this->getAttribute('customer_id');
+        $orderedBy = $this->getAttribute('customer_id');
         $orderedByName = '';
 
         // use default advisor as editor
@@ -1285,8 +1285,8 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         $type = $this->getInvoiceType();
 
-        if ($type === Handler::TYPE_INVOICE_TEMPORARY) {
-            $type = Handler::TYPE_INVOICE;
+        if ($type === QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY) {
+            $type = QUI\ERP\Constants::TYPE_INVOICE;
         }
 
         // article calc
@@ -1442,7 +1442,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'ordered_by' => $orderedBy,
                 'ordered_by_name' => $orderedByName,
                 'contact_person' => $contactPerson,
-                'customer_id' => $this->getCustomer()->getId(),
+                'customer_id' => $this->getCustomer()->getUniqueId(),
                 'customer_data' => json_encode($customerData),
 
                 // addresses
@@ -1584,7 +1584,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
      * Can the invoice be posted?
      *
      * @throws QUI\ERP\Accounting\Invoice\Exception
-     * @throws Exception
+     * @throws Exception|QUI\ExceptionStack|QUI\Exception
      */
     public function validate(): void
     {
@@ -1606,11 +1606,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         $attributes['id'] = $this->getId();
         $attributes['uuid'] = $this->getUUID();
-        $attributes['entityType'] = $this->getType();
         $attributes['prefixedNumber'] = $this->getPrefixedNumber();
         $attributes['type'] = $this->getInvoiceType();
         $attributes['articles'] = $this->Articles->toArray();
-
         $attributes['entityType'] = $this->getType();
         $attributes['globalProcessId'] = $this->getGlobalProcessId();
 
@@ -1632,9 +1630,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         }
 
         if (
-            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+            $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE
         ) {
             return;
         }
@@ -1690,9 +1688,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         QUI\ERP\Accounting\Calc::calculatePayments($this);
 
         if (
-            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+            $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE
         ) {
             return;
         }
@@ -2311,10 +2309,6 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             return;
         }
 
-        if (!$Customer) {
-            return;
-        }
-
         $email = QUI\ERP\Customer\Utils::getInstance()->getEmailByCustomer($Customer);
 
         if (!empty($email)) {
@@ -2381,18 +2375,13 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         if (empty($delivery)) {
             try {
-                $Customer = QUI::getUsers()->get((int)$this->getAttribute('customer_id'));
+                $Customer = QUI::getUsers()->get($this->getAttribute('customer_id'));
+                $Address = $Customer->getAddress($this->getAttribute('invoice_address_id'));
 
-                $Address = $Customer->getAddress(
-                    (int)$this->getAttribute('invoice_address_id')
-                );
+                $addressData = $Address->getAttributes();
+                $addressData['id'] = $Address->getUUID();
 
-                if ($Address) {
-                    $addressData = $Address->getAttributes();
-                    $addressData['id'] = $Address->getId();
-
-                    return new QUI\ERP\Address($addressData, $this->getCustomer());
-                }
+                return new QUI\ERP\Address($addressData, $this->getCustomer());
             } catch (QUI\Exception $Exception) {
                 QUI\System\Log::addDebug($Exception->getMessage());
             }

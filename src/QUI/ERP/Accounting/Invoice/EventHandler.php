@@ -11,8 +11,10 @@ use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use QUI\ERP\Exception;
 use QUI\ERP\Products\Handler\Fields;
 use QUI\ERP\Products\Handler\Search;
+use QUI\Mail\Mailer;
 use QUI\Package\Package;
 use QUI\Smarty\Collector;
 
@@ -20,6 +22,7 @@ use function dirname;
 use function file_exists;
 use function file_get_contents;
 use function in_array;
+use function strpos;
 use function strtolower;
 use function strtotime;
 
@@ -46,19 +49,47 @@ class EventHandler
         $alterOrderId = function ($table) {
             $tableInfo = QUI::getDatabase()->table()->getFieldsInfos($table);
             $invoiceIsChar = false;
+            $customerIdChar = false;
+            $addressIdChar = false;
 
             foreach ($tableInfo as $tableEntry) {
-                if ($tableEntry['Field'] === 'order_id') {
-                    if (str_contains(strtolower($tableEntry['Type']), 'varchar')) {
-                        $invoiceIsChar = true;
-                    }
-                    break;
+                if (
+                    $tableEntry['Field'] === 'order_id'
+                    && str_contains(strtolower($tableEntry['Type']), 'varchar')
+                ) {
+                    $invoiceIsChar = true;
+                }
+
+                if (
+                    $tableEntry['Field'] === 'customer_id'
+                    && str_contains(strtolower($tableEntry['Type']), 'varchar')
+                ) {
+                    $customerIdChar = true;
+                }
+
+                if (
+                    $tableEntry['Field'] === 'invoice_address_id'
+                    && str_contains(strtolower($tableEntry['Type']), 'varchar')
+                ) {
+                    $addressIdChar = true;
                 }
             }
 
             if ($invoiceIsChar === false) {
                 QUI::getDatabase()->execSQL(
                     'ALTER TABLE `' . $table . '` CHANGE `order_id` `order_id` VARCHAR(250) NULL DEFAULT NULL;'
+                );
+            }
+
+            if ($customerIdChar === false) {
+                QUI::getDatabase()->execSQL(
+                    'ALTER TABLE `' . $table . '` CHANGE `customer_id` `customer_id` VARCHAR(250) NOT NULL;'
+                );
+            }
+
+            if (str_contains($table, 'invoice_temporary') && $addressIdChar === false) {
+                QUI::getDatabase()->execSQL(
+                    'ALTER TABLE `' . $table . '` CHANGE `invoice_address_id` `invoice_address_id` VARCHAR(250) NOT NULL;'
                 );
             }
         };
@@ -120,9 +151,8 @@ class EventHandler
         }
 
         try {
-            // if the Field exists, we doesn't needed to create it
+            // if the Field exists, we don't need to create it
             Fields::getField(QUI\ERP\Constants::INVOICE_PRODUCT_TEXT_ID);
-
             return;
         } catch (QUI\ERP\Products\Field\Exception) {
         }
@@ -200,17 +230,11 @@ class EventHandler
      *
      * @param Collector $Collector
      * @param QUI\Users\User $User
+     * @throws QUI\Database\Exception
      */
     public static function onFrontendUsersAddressTop(Collector $Collector, QUI\Users\User $User): void
     {
-        try {
-            $Engine = QUI::getTemplateManager()->getEngine();
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeDebugException($Exception);
-
-            return;
-        }
-
+        $Engine = QUI::getTemplateManager()->getEngine();
         $current = '';
 
         if ($User->getAttribute('quiqqer.erp.address')) {
@@ -314,8 +338,12 @@ class EventHandler
      * @param $entityId
      * @param string $entityType
      * @param string $recipient
-     * @param QUI\Mail\Mailer $Mailer
+     * @param Mailer $Mailer
      * @return void
+     *
+     * @throws Exception
+     * @throws QUI\Exception
+     * @throws QUI\Permissions\Exception
      */
     public static function onQuiqqerErpOutputSendMailBefore(
         $entityId,

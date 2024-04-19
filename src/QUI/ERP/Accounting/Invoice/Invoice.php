@@ -208,11 +208,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         }
     }
 
-    protected function databaseTable(): string
-    {
-        return Handler::getInstance()->invoiceTable();
-    }
-
     /**
      * Return the invoice id
      * (Rechnungs-ID)
@@ -844,7 +839,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
-                $invoiceAddressId = $Address->getId();
+                $invoiceAddressId = $Address->getUUID();
                 $invoiceAddress = $Address->toJSON();
             } catch (\Exception $Exception) {
                 QUI\System\Log::addDebug($Exception->getMessage());
@@ -1050,7 +1045,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
-                $invoiceAddressId = $Address->getId();
+                $invoiceAddressId = $Address->getUUID();
                 $invoiceAddress = $Address->toJSON();
 
                 $Copy->setAttribute('invoice_address_id', $invoiceAddressId);
@@ -1230,7 +1225,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
-                $invoiceAddressId = $Address->getId();
+                $invoiceAddressId = $Address->getUUID();
                 $invoiceAddress = $Address->toJSON();
 
                 $Copy->setAttribute('invoice_address_id', $invoiceAddressId);

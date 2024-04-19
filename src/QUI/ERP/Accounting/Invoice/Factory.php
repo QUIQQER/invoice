@@ -68,7 +68,7 @@ class Factory extends QUI\Utils\Singleton
                 'hash' => $hash,
                 'global_process_id' => $globalProcessId,
                 'customer_id' => 0,
-                'type' => Handler::TYPE_INVOICE_TEMPORARY,
+                'type' => QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY,
                 'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
                 'time_for_payment' => (int)Settings::getInstance()->get('invoice', 'time_for_payment'),
                 'currency' => QUI\ERP\Defaults::getCurrency()->getCode(),
