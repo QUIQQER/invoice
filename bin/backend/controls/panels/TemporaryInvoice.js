@@ -172,8 +172,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          */
         doRefresh: function() {
             return Invoices.getTemporaryInvoice(this.getAttribute('hash')).then((data) => {
-                console.log(this.getAttribute('hash'), data);
-
                 this.setAttributes(data);
 
                 if (data.articles) {
@@ -543,8 +541,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 }
 
-                if (parseInt(self.getAttribute('ordered_by'))) {
-                    OrderedBy.addItem(parseInt(self.getAttribute('ordered_by')));
+                if (self.getAttribute('ordered_by')) {
+                    OrderedBy.addItem(self.getAttribute('ordered_by'));
                 }
 
                 // invoice address
