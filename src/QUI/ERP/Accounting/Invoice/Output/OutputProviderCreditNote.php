@@ -23,7 +23,7 @@ class OutputProviderCreditNote extends OutputProviderInvoice
      *
      * @return string
      */
-    public static function getEntityType()
+    public static function getEntityType(): string
     {
         return 'CreditNote';
     }
@@ -34,7 +34,7 @@ class OutputProviderCreditNote extends OutputProviderInvoice
      * @param Locale $Locale (optional) - If ommitted use \QUI::getLocale()
      * @return mixed
      */
-    public static function getEntityTypeTitle(Locale $Locale = null)
+    public static function getEntityTypeTitle(Locale $Locale = null): mixed
     {
         if (empty($Locale)) {
             $Locale = QUI::getLocale();
@@ -46,12 +46,12 @@ class OutputProviderCreditNote extends OutputProviderInvoice
     /**
      * Get e-mail subject when document is sent via mail
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return string
      *
      * @throws QUI\Exception
      */
-    public static function getMailSubject($entityId)
+    public static function getMailSubject(int|string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -86,12 +86,12 @@ class OutputProviderCreditNote extends OutputProviderInvoice
     /**
      * Get e-mail body when document is sent via mail
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return string
      *
      * @throws QUI\Exception
      */
-    public static function getMailBody($entityId)
+    public static function getMailBody(int|string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();

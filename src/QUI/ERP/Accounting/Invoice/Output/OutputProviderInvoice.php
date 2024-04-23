@@ -48,7 +48,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @return string
      */
-    public static function getEntityType()
+    public static function getEntityType(): string
     {
         return 'Invoice';
     }
@@ -59,7 +59,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * @param Locale $Locale (optional) - If ommitted use \QUI::getLocale()
      * @return mixed
      */
-    public static function getEntityTypeTitle(Locale $Locale = null)
+    public static function getEntityTypeTitle(Locale $Locale = null): mixed
     {
         if (empty($Locale)) {
             $Locale = QUI::getLocale();
@@ -71,12 +71,12 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Get the entity the output is created for
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary
      *
      * @throws QUI\Exception
      */
-    public static function getEntity($entityId)
+    public static function getEntity(int|string $entityId): mixed
     {
         return InvoiceUtils::getInvoiceByString($entityId);
     }
@@ -84,12 +84,12 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Get download filename (without file extension)
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return string
      *
      * @throws QUI\Exception
      */
-    public static function getDownloadFileName($entityId)
+    public static function getDownloadFileName(int|string $entityId): string
     {
         return InvoiceUtils::getInvoiceFilename(self::getEntity($entityId));
     }
@@ -97,12 +97,12 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Get output Locale by entity
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return Locale
      *
      * @throws QUI\Exception
      */
-    public static function getLocale($entityId)
+    public static function getLocale(int|string $entityId): Locale
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -117,10 +117,10 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Fill the OutputTemplate with appropriate entity data
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return array
      */
-    public static function getTemplateData($entityId)
+    public static function getTemplateData(int|string $entityId): array
     {
         $Invoice = self::getEntity($entityId);
         $InvoiceView = $Invoice->getView();
@@ -234,11 +234,11 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Checks if $User has permission to download the document of $entityId
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @param User $User
      * @return bool
      */
-    public static function hasDownloadPermission($entityId, User $User)
+    public static function hasDownloadPermission(int|string $entityId, User $User): bool
     {
         if (!QUI::getUsers()->isAuth($User) || QUI::getUsers()->isNobodyUser($User)) {
             return false;
@@ -263,12 +263,12 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Get e-mail address of the document recipient
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return string|false - E-Mail address or false if no e-mail address available
      *
      * @throws QUI\Exception
      */
-    public static function getEmailAddress($entityId)
+    public static function getEmailAddress(int|string $entityId): bool|string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -287,12 +287,12 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Get e-mail subject when document is sent via mail
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return string
      *
      * @throws QUI\Exception
      */
-    public static function getMailSubject($entityId)
+    public static function getMailSubject(int|string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -307,12 +307,12 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Get e-mail body when document is sent via mail
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return string
      *
      * @throws QUI\Exception
      */
-    public static function getMailBody($entityId)
+    public static function getMailBody(int|string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();

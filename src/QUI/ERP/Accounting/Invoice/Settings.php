@@ -10,7 +10,6 @@ use QUI;
 use QUI\Utils\Singleton;
 
 use function reset;
-use function strftime;
 
 /**
  * Class Settings
