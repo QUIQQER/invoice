@@ -10,6 +10,7 @@ use QUI;
 use QUI\Utils\Singleton;
 
 use function reset;
+use function PHP81_BC\strftime;
 
 /**
  * Class Settings
