@@ -9,6 +9,8 @@ namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 use QUI;
 use QUI\ERP\Api\NumberRangeInterface;
 
+use QUI\Exception;
+
 use function is_numeric;
 
 /**
@@ -23,7 +25,7 @@ class Invoice implements NumberRangeInterface
      *
      * @return string
      */
-    public function getTitle($Locale = null): string
+    public function getTitle(?QUI\Locale $Locale = null): string
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
@@ -36,6 +38,7 @@ class Invoice implements NumberRangeInterface
      * Return the current start range value
      *
      * @return int
+     * @throws Exception
      */
     public function getRange(): int
     {
@@ -51,8 +54,9 @@ class Invoice implements NumberRangeInterface
 
     /**
      * @param int $range
+     * @throws Exception
      */
-    public function setRange($range): void
+    public function setRange(int $range): void
     {
         if (!is_numeric($range)) {
             return;
