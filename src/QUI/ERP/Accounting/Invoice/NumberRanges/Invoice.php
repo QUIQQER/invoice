@@ -8,7 +8,6 @@ namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 
 use QUI;
 use QUI\ERP\Api\NumberRangeInterface;
-
 use QUI\Exception;
 
 use function is_numeric;
