@@ -202,7 +202,7 @@ class OutputProviderInvoice implements OutputProviderInterface
         if ($InvoiceView->getAttribute('order_id')) {
             try {
                 $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById($InvoiceView->getAttribute('order_id'));
-                $orderNumber = $Order->getPrefixedId();
+                $orderNumber = $Order->getPrefixedNumber();
             } catch (QUI\Exception) {
             }
         }
