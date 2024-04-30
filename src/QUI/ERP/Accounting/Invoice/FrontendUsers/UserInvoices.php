@@ -31,7 +31,6 @@ class UserInvoices extends Control implements ControlInterface
         $this->addCSSFile(dirname(__FILE__) . '/UserInvoices.css');
 
         $this->setAttributes([
-            // 'data-qui' => 'package/quiqqer/order/bin/frontend/controls/frontendusers/Orders',
             'page' => 1,
             'limit' => 5
         ]);
@@ -44,7 +43,7 @@ class UserInvoices extends Control implements ControlInterface
      *
      * @throws QUI\Exception
      */
-    public function getBody()
+    public function getBody(): string
     {
         $Engine = QUI::getTemplateManager()->getEngine();
         $User = QUI::getUserBySession();
@@ -85,10 +84,10 @@ class UserInvoices extends Control implements ControlInterface
     }
 
     /**
-     * @return mixed|QUI\Projects\Site
+     * @return QUI\Interfaces\Projects\Site
      * @throws QUI\Exception
      */
-    public function getSite()
+    public function getSite(): QUI\Interfaces\Projects\Site
     {
         if ($this->getAttribute('Site')) {
             return $this->getAttribute('Site');
@@ -103,11 +102,11 @@ class UserInvoices extends Control implements ControlInterface
     /**
      * event: on save
      */
-    public function onSave()
+    public function onSave(): void
     {
     }
 
-    public function validate()
+    public function validate(): void
     {
     }
 }

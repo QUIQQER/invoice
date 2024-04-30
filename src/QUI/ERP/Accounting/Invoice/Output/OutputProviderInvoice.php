@@ -15,11 +15,11 @@ use QUI\ERP\Accounting\Payments\Methods\Invoice\Payment as InvoicePayment;
 use QUI\ERP\BankAccounts\Handler as BankAccounts;
 use QUI\ERP\Customer\Utils as CustomerUtils;
 use QUI\ERP\Output\OutputProviderInterface;
-use QUI\ERP\Payments\SEPA\Provider as SepaProvider;
 use QUI\Interfaces\Users\User;
 use QUI\Locale;
 
 use function array_merge;
+use function class_exists;
 use function get_class;
 use function implode;
 use function in_array;
@@ -252,7 +252,7 @@ class OutputProviderInvoice implements OutputProviderInterface
                 return false;
             }
 
-            return $User->getId() === $Customer->getId();
+            return $User->getUUID() === $Customer->getUUID();
         } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
@@ -464,7 +464,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * @param $date
      * @return false|string
      */
-    public static function dateFormat($date)
+    public static function dateFormat($date): bool|string
     {
         // date
         $localeCode = QUI::getLocale()->getLocalesByLang(
@@ -520,8 +520,11 @@ class OutputProviderInvoice implements OutputProviderInterface
 
 
         // Prefer bank account set in SEPA module if available
-        if (QUI::getPackageManager()->isInstalled('quiqqer/payment-sepa')) {
-            $creditorBankAccount = SepaProvider::getCreditorBankAccount();
+        if (
+            class_exists('QUI\ERP\Payments\SEPA\Provider')
+            && QUI::getPackageManager()->isInstalled('quiqqer/payment-sepa')
+        ) {
+            $creditorBankAccount = QUI\ERP\Payments\SEPA\Provider::getCreditorBankAccount();
         } else {
             $creditorBankAccount = BankAccounts::getCompanyBankAccount();
         }
