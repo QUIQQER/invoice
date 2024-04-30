@@ -31,10 +31,10 @@ class OutputProviderCreditNote extends OutputProviderInvoice
     /**
      * Get title for the output entity
      *
-     * @param Locale $Locale (optional) - If ommitted use \QUI::getLocale()
-     * @return mixed
+     * @param Locale|null $Locale $Locale (optional) - If omitted use \QUI::getLocale()
+     * @return string
      */
-    public static function getEntityTypeTitle(Locale $Locale = null): mixed
+    public static function getEntityTypeTitle(Locale $Locale = null): string
     {
         if (empty($Locale)) {
             $Locale = QUI::getLocale();

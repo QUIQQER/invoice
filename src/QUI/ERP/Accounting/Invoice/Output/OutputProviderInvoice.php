@@ -8,6 +8,7 @@ use Exception;
 use IntlDateFormatter;
 use QUI;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
+use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Methods\AdvancePayment\Payment as AdvancePayment;
@@ -56,10 +57,10 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Get title for the output entity
      *
-     * @param Locale $Locale (optional) - If ommitted use \QUI::getLocale()
-     * @return mixed
+     * @param Locale|null $Locale $Locale (optional) - If ommitted use \QUI::getLocale()
+     * @return string
      */
-    public static function getEntityTypeTitle(Locale $Locale = null): mixed
+    public static function getEntityTypeTitle(Locale $Locale = null): string
     {
         if (empty($Locale)) {
             $Locale = QUI::getLocale();
@@ -72,11 +73,11 @@ class OutputProviderInvoice implements OutputProviderInterface
      * Get the entity the output is created for
      *
      * @param int|string $entityId
-     * @return QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary
+     * @return Invoice|InvoiceTemporary
      *
      * @throws QUI\Exception
      */
-    public static function getEntity(int|string $entityId): mixed
+    public static function getEntity(int|string $entityId): Invoice|InvoiceTemporary
     {
         return InvoiceUtils::getInvoiceByString($entityId);
     }
@@ -119,6 +120,10 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @param int|string $entityId
      * @return array
+     *
+     * @throws QUI\ERP\Accounting\Invoice\Exception
+     * @throws QUI\ERP\Exception
+     * @throws QUI\Exception
      */
     public static function getTemplateData(int|string $entityId): array
     {
@@ -325,12 +330,14 @@ class OutputProviderInvoice implements OutputProviderInterface
     }
 
     /**
-     * @param $Invoice
+     * @param Invoice|InvoiceTemporary $Invoice
      * @param QUI\ERP\User $Customer
      * @return array
      */
-    protected static function getInvoiceLocaleVar($Invoice, $Customer): array
-    {
+    protected static function getInvoiceLocaleVar(
+        Invoice|InvoiceTemporary $Invoice,
+        QUI\ERP\User $Customer
+    ): array {
         $CustomerAddress = $Customer->getAddress();
         $user = $CustomerAddress->getAttribute('contactPerson');
 
@@ -489,10 +496,10 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Get raw base64 img src for EPC QR code.
      *
-     * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
+     * @param Invoice|InvoiceTemporary $Invoice
      * @return string|false - Raw <img> "src" attribute with base64 image data or false if code can or must not be generated.
      */
-    protected static function getEpcQrCodeImageImgSrc($Invoice)
+    protected static function getEpcQrCodeImageImgSrc(Invoice|InvoiceTemporary $Invoice): bool|string
     {
         try {
             // Check currency (must be EUR)
@@ -511,8 +518,6 @@ class OutputProviderInvoice implements OutputProviderInterface
             if (!in_array($paymentTypeClassName, $allowedPaymentTypeClasses)) {
                 return false;
             }
-
-            $varDir = QUI::getPackage('quiqqer/invoice')->getVarDir();
         } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             return false;

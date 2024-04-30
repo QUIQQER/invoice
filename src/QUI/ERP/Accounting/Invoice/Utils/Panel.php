@@ -61,14 +61,6 @@ class Panel
         $result = [];
         $packages = self::getInvoicePackages();
 
-        try {
-            QUI::getTemplateManager()->getEngine();
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeException($Exception);
-
-            return [];
-        }
-
         /** @var QUI\Package\Package $Package */
         foreach ($packages as $Package) {
             $Parser = new QUI\Utils\XML\Settings();

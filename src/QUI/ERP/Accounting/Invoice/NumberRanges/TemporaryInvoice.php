@@ -7,6 +7,7 @@
 namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 
 use QUI;
+use QUI\Database\Exception;
 use QUI\ERP\Api\NumberRangeInterface;
 
 use function is_numeric;
@@ -36,6 +37,7 @@ class TemporaryInvoice implements NumberRangeInterface
      * Return the current start range value
      *
      * @return int
+     * @throws Exception
      */
     public function getRange(): int
     {
