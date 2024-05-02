@@ -34,4 +34,8 @@
     <event on="onQuiqqerErpOutputSendMail"
            fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerErpOutputSendMail"
     />
+
+    <event on="onQuiqqerMigrationV2"
+           fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerMigrationV2"
+    />
 </events>
