@@ -68,7 +68,7 @@ class OutputProviderCancelled extends OutputProviderInvoice
                     $cancelledInvoiceId
                 );
 
-                $cancelledInvoiceId = $CancelledInvoice->getId();
+                $cancelledInvoiceId = $CancelledInvoice->getUUID();
             } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
@@ -108,7 +108,7 @@ class OutputProviderCancelled extends OutputProviderInvoice
                     $cancelledInvoiceId
                 );
 
-                $cancelledInvoiceId = $CancelledInvoice->getId();
+                $cancelledInvoiceId = $CancelledInvoice->getUUID();
             } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }

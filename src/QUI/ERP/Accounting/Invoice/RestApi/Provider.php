@@ -327,7 +327,7 @@ class Provider implements QUI\REST\ProviderInterface
 
         // Files
         if ($User && !empty($invoiceData['files'])) {
-            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir() . 'uploads/' . $InvoiceDraft->getId() . '/';
+            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir() . 'uploads/' . $InvoiceDraft->getUUID() . '/';
             QUI\Utils\System\File::mkdir($fileDir);
 
             $fileCounter = 0;

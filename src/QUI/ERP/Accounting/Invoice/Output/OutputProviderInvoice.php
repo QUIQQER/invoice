@@ -374,7 +374,7 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         return array_merge([
-            'invoiceId' => $Invoice->getId(),
+            'invoiceId' => $Invoice->getUUID(),
             'hash' => $Invoice->getAttribute('hash'),
             'date' => self::dateFormat($Invoice->getAttribute('date')),
             'systemCompany' => self::getCompanyName(),
@@ -564,7 +564,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             'quiqqer/invoice',
             'OutputProvider.epc_qr_code_purpose',
             [
-                'invoiceNo' => $Invoice->getId()
+                'invoiceNo' => $Invoice->getUUID()
             ]
         );
 

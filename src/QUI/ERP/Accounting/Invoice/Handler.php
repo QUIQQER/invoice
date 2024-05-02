@@ -61,7 +61,6 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getInvoicesByUser(QUI\Users\User $User): array
     {
-        // @todo customer uuid
         $result = [];
 
         try {
@@ -69,7 +68,7 @@ class Handler extends QUI\Utils\Singleton
                 'select' => 'id',
                 'from' => self::invoiceTable(),
                 'where' => [
-                    'customer_id' => $User->getId()
+                    'customer_id' => $User->getUUID()
                 ]
             ]);
         } catch (QUI\Exception) {

@@ -49,10 +49,10 @@ class Factory extends QUI\Utils\Singleton
 
 
         $editor = 0;
-        $c_user = $User->getId();
+        $c_user = $User->getUUID();
 
         if (!$c_user) {
-            $c_user = QUI::getUsers()->getSystemUser()->getId();
+            $c_user = QUI::getUsers()->getSystemUser()->getUUID();
         }
 
         if (QUI::isBackend()) {

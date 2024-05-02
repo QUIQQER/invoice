@@ -10,7 +10,7 @@ $Order = QUI\ERP\Order\Handler::getInstance()->get('115');
 echo $Order->getType();
 echo PHP_EOL;
 
-echo $Order->getId();
+echo $Order->getUUID();
 echo PHP_EOL;
 
 

@@ -8,7 +8,7 @@
     <label>
         <select name="quiqqer-frontendUsers-userdata-invoice-address">
             {foreach $addresses as $Address}
-            <option value="{$Address->getId()}" {if $current == $Address->getId()}selected{/if}>
+            <option value="{$Address->getUUID()}" {if $current == $Address->getUUID()}selected{/if}>
                 {$Address->getText()}
             </option>
             {/foreach}

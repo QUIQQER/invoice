@@ -63,7 +63,7 @@ class UserInvoices extends Control implements ControlInterface
         $start = ($sheetCurrent - 1) * $limit;
 
         $Search->limit($start, $start + $limit);
-        $Search->setFilter('customer_id', $User->getId());
+        $Search->setFilter('customer_id', $User->getUUID());
 
         $result = $Search->search();
         $invoices = [];

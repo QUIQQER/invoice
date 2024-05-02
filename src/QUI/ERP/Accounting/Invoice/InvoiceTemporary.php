@@ -877,7 +877,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         // use default advisor as editor
         if ($Editor) {
-            $editorId = $Editor->getId();
+            $editorId = $Editor->getUUID();
             $editorName = $Editor->getName();
         }
 
@@ -1142,7 +1142,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             ['id' => $New->getCleanId()]
         );
 
-        $Copy = $Handler->getTemporaryInvoice($New->getId());
+        $Copy = $Handler->getTemporaryInvoice($New->getUUID());
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceCopyEnd',
@@ -1236,7 +1236,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         // use default advisor as editor
         if ($Editor) {
-            $editorId = $Editor->getId();
+            $editorId = $Editor->getUUID();
             $editorName = $Editor->getName();
         }
 
@@ -1666,7 +1666,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'history.message.linkTransaction',
                 [
                     'username' => $User->getName(),
-                    'uid' => $User->getId(),
+                    'uid' => $User->getUUID(),
                     'txId' => $Transaction->getTxId(),
                     'txAmount' => $Transaction->getAmountFormatted()
                 ]
@@ -1778,7 +1778,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'history.message.addPayment',
                 [
                     'username' => $User->getName(),
-                    'uid' => $User->getId(),
+                    'uid' => $User->getUUID(),
                     'txid' => $Transaction->getTxId()
                 ]
             )
@@ -1880,7 +1880,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'paid_date' => $this->getAttribute('paid_date'),
                 'paid_status' => $this->getAttribute('paid_status')
             ],
-            ['id' => $this->getId()]
+            ['hash' => $this->getUUID()]
         );
 
         // Payment Status has changed
@@ -1891,7 +1891,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                     'history.message.edit',
                     [
                         'username' => $User->getName(),
-                        'uid' => $User->getId()
+                        'uid' => $User->getUUID()
                     ]
                 )
             );
@@ -2048,7 +2048,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'history.message.addComment',
                 [
                     'username' => $User->getName(),
-                    'uid' => $User->getId()
+                    'uid' => $User->getUUID()
                 ]
             )
         );
