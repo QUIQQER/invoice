@@ -23,9 +23,9 @@
     "quiqqer/core": "^2",
     "quiqqer/erp": "^3.2",
     "quiqqer/customer": "^2",
-    "quiqqer/payments": "^2",
+    "quiqqer/payments": "^3",
     "quiqqer/payment-transactions": "^2",
-    "quiqqer/htmltopdf": "^2",
+    "quiqqer/htmltopdf": "^3",
     "quiqqer/utils": "^2",
     "ramsey/uuid": "^3|^4",
     "chillerlan/php-qrcode": "^4.3"
