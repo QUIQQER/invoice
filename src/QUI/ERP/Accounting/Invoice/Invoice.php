@@ -19,6 +19,7 @@ use QUI\ERP\Money\Price;
 use QUI\ERP\Output\Output as ERPOutput;
 use QUI\ERP\Shipping\Api\ShippingInterface;
 use QUI\ExceptionStack;
+use QUI\Interfaces\Users\User;
 use QUI\Permissions\Permission;
 
 use function array_key_exists;
@@ -42,28 +43,6 @@ use function time;
 class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
 {
     use QUI\ERP\ErpEntityCustomerFiles;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_OPEN = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_PAID = QUI\ERP\Constants::PAYMENT_STATUS_PAID;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_PART = QUI\ERP\Constants::PAYMENT_STATUS_PART;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_ERROR = QUI\ERP\Constants::PAYMENT_STATUS_ERROR;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_CANCELED = QUI\ERP\Constants::PAYMENT_STATUS_CANCELED;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_DEBIT = QUI\ERP\Constants::PAYMENT_STATUS_DEBIT;
-
-    //    const PAYMENT_STATUS_CANCEL = 3;
-    //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
-    //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
 
     const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
     const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
@@ -206,11 +185,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
             $this->setAttribute('invoice_address', json_encode($invoiceAddress));
         }
-    }
-
-    protected function databaseTable(): string
-    {
-        return Handler::getInstance()->invoiceTable();
     }
 
     /**
@@ -542,7 +516,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
 
         if (!$data) {
             QUI\System\Log::addCritical(
-                'Error with invoice ' . $this->getId() . '. No payment Data available'
+                'Error with invoice ' . $this->getUUID() . '. No payment Data available'
             );
 
             return new Payment([]);
@@ -649,7 +623,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 'history.message.reversal',
                 [
                     'username' => $User->getName(),
-                    'uid' => $User->getId()
+                    'uid' => $User->getUUID()
                 ]
             )
         );
@@ -710,7 +684,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 'history.message.reversal.created',
                 [
                     'username' => $User->getName(),
-                    'uid' => $User->getId(),
+                    'uid' => $User->getUUID(),
                     'creditNoteId' => $Reversal->getUUID()
                 ]
             )
@@ -721,7 +695,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
 
         $Reversal = $Reversal->post(QUI::getUsers()->getSystemUser());
 
-        $this->data['canceledId'] = $Reversal->getId();
+        $this->data['canceledId'] = $Reversal->getUUID();
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
@@ -730,7 +704,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 'data' => json_encode($this->data),
                 'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
             ],
-            ['id' => $this->getId()]
+            ['hash' => $this->getUUID()]
         );
 
         $this->addComment($reason, QUI::getUsers()->getSystemUser());
@@ -748,31 +722,31 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
      *
      * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @return int - ID of the new
+     * @return int|string - ID of the new
      *
      * @throws Exception
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function cancellation(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int
+    public function cancellation(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int|string
     {
-        return $this->reversal($reason, $PermissionUser)->getId();
+        return $this->reversal($reason, $PermissionUser)->getUUID();
     }
 
     /**
      * Alias for reversal
      *
      * @param string $reason
-     * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @return int - ID of the new
+     * @param null|User $PermissionUser
+     * @return int|string - ID of the new
      *
      * @throws Exception
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function storno(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int
+    public function storno(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int|string
     {
-        return $this->reversal($reason, $PermissionUser)->getId();
+        return $this->reversal($reason, $PermissionUser)->getUUID();
     }
 
     /**
@@ -822,7 +796,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         $currentData = QUI::getDataBase()->fetch([
             'from' => $Handler->invoiceTable(),
             'where' => [
-                'id' => $this->getId()
+                'hash' => $this->getUUID()
             ],
             'limit' => 1
         ]);
@@ -844,7 +818,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
-                $invoiceAddressId = $Address->getId();
+                $invoiceAddressId = $Address->getUUID();
                 $invoiceAddress = $Address->toJSON();
             } catch (\Exception $Exception) {
                 QUI\System\Log::addDebug($Exception->getMessage());
@@ -995,8 +969,8 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
 
         $Copy->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', [
-                'invoiceParentId' => $this->getId(),
-                'invoiceId' => $this->getId()
+                'invoiceParentId' => $this->getUUID(),
+                'invoiceId' => $this->getUUID()
             ])
         );
 
@@ -1023,7 +997,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             'quiqqer/invoice',
             'message.invoice.creditNote.additionalInvoiceText',
             [
-                'id' => $this->getId(),
+                'id' => $this->getUUID(),
                 'date' => $Formatter->format($currentDate)
             ]
         );
@@ -1050,7 +1024,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
-                $invoiceAddressId = $Address->getId();
+                $invoiceAddressId = $Address->getUUID();
                 $invoiceAddress = $Address->toJSON();
 
                 $Copy->setAttribute('invoice_address_id', $invoiceAddressId);
@@ -1230,7 +1204,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
-                $invoiceAddressId = $Address->getId();
+                $invoiceAddressId = $Address->getUUID();
                 $invoiceAddress = $Address->toJSON();
 
                 $Copy->setAttribute('invoice_address_id', $invoiceAddressId);
@@ -1584,7 +1558,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 'history.message.set_payment_status',
                 [
                     'username' => $User->getName(),
-                    'uid' => $User->getId(),
+                    'uid' => $User->getUUID(),
                     'oldStatus' => QUI::getLocale()->get('quiqqer/erp', 'payment.status.' . $oldPaymentStatus),
                     'newStatus' => QUI::getLocale()->get('quiqqer/erp', 'payment.status.' . $paymentStatus)
                 ]
@@ -1626,7 +1600,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         }
 
         ERPOutput::sendPdfViaMail(
-            $this->getId(),
+            $this->getUUID(),
             $outputType,
             null,
             null,

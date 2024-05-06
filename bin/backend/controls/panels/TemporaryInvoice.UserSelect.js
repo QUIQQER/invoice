@@ -16,24 +16,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect.css'
 
-], function (QUI, QUIControl, QUIButton, AddressDisplay, UserSearch, Users, QUILocale) {
-    "use strict";
+], function(QUI, QUIControl, QUIButton, AddressDisplay, UserSearch, Users, QUILocale) {
+    'use strict';
 
     return new Class({
 
         Extends: QUIControl,
-        Type   : 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect',
+        Type: 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.UserSelect',
 
         Binds: [
             'openUserSearch'
         ],
 
         options: {
-            userId   : false,
+            userId: false,
             addressId: false
         },
 
-        initialize: function (options) {
+        initialize: function(options) {
             this.parent(options);
 
             this.addEvents({
@@ -48,7 +48,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          *
          * @return {Promise}
          */
-        refresh: function () {
+        refresh: function() {
             var self = this;
 
             if (!this.getAttribute('userId')) {
@@ -56,7 +56,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
             }
 
             if (!this.getAttribute('addressId')) {
-                return this.$displayAddressSelect().catch(function () {
+                return this.$displayAddressSelect().catch(function() {
                     console.error(arguments);
 
                     self.getAttribute('userId', false);
@@ -66,7 +66,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 });
             }
 
-            return this.$displayAddress().catch(function () {
+            return this.$displayAddress().catch(function() {
                 self.getAttribute('userId', false);
                 self.getAttribute('addressId', false);
 
@@ -78,7 +78,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          * Create the DOMNode Element
          * @returns {Promise}
          */
-        create: function () {
+        create: function() {
             this.$Elm = this.parent();
             this.$Elm.addClass('quiqqer-invoice-ti-userSelect');
 
@@ -94,18 +94,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          *
          * @returns {Promise}
          */
-        $displayUserSelect: function () {
+        $displayUserSelect: function() {
             var self = this;
 
-            return this.$hideContainer().then(function () {
+            return this.$hideContainer().then(function() {
 
                 self.$Container.set({
                     html: '<div class="fa fa-user"></div>' +
-                    '<div>Kunden auswählen</div>' // #locale
+                        '<div>Kunden auswählen</div>' // #locale
                 });
 
-                var click = function () {
-                    self.$hideContainer().then(function () {
+                var click = function() {
+                    self.$hideContainer().then(function() {
                         self.openUserSearch();
                         self.$Container.removeEvents('click', click);
 
@@ -125,14 +125,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          *
          * @returns {Promise}
          */
-        $displayAddressSelect: function () {
+        $displayAddressSelect: function() {
             var self = this;
 
-            return this.$hideContainer().then(function () {
+            return this.$hideContainer().then(function() {
                 return self.getUser();
-            }).then(function (User) {
+            }).then(function(User) {
                 return User.getAddressList();
-            }).then(function (address) {
+            }).then(function(address) {
                 if (!address.length) {
                     return Promise.reject('User has no address');
                 }
@@ -149,20 +149,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
 
                 for (var i = 0, len = address.length; i < len; i++) {
                     new Element('option', {
-                        html : address[i].text,
+                        html: address[i].text,
                         value: address[i].id
                     }).inject(Select);
                 }
 
                 new QUIButton({
-                    text  : QUILocale.get('quiqqer/system', 'accept'),
+                    text: QUILocale.get('quiqqer/system', 'accept'),
                     styles: {
                         'float': 'none'
                     },
                     events: {
-                        onClick: function () {
+                        onClick: function() {
                             self.setAttribute('addressId', Select.value);
-                            self.$hideContainer().then(function () {
+                            self.$hideContainer().then(function() {
                                 self.refresh();
                             });
                         }
@@ -178,31 +178,31 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          *
          * @returns {Promise}
          */
-        $displayAddress: function () {
+        $displayAddress: function() {
             var self = this;
 
-            return this.$hideContainer().then(function () {
-                return new Promise(function (resolve, reject) {
-                    require(['controls/users/address/Display'], function (Display) {
+            return this.$hideContainer().then(function() {
+                return new Promise(function(resolve, reject) {
+                    require(['controls/users/address/Display'], function(Display) {
 
                         var Address = new Display({
                             addressId: self.getAttribute('addressId'),
-                            userId   : self.getAttribute('userId'),
-                            events   : {
+                            userId: self.getAttribute('userId'),
+                            events: {
                                 onLoadError: reject,
-                                onLoad     : function () {
+                                onLoad: function() {
                                     var scrollSize = self.$Container.getScrollSize();
 
                                     moofx(self.getElm()).animate({
                                         height: scrollSize.y
                                     }, {
                                         duration: 200,
-                                        callback: function () {
+                                        callback: function() {
                                             self.$showContainer().then(resolve);
                                         }
                                     });
                                 },
-                                onClick    : function () {
+                                onClick: function() {
                                     self.getElm().setStyle('height', null);
                                     self.openUserSearch();
                                 }
@@ -221,9 +221,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          *
          * @return {Object}
          */
-        getValue: function () {
+        getValue: function() {
             return {
-                userId   : this.getAttribute('userId'),
+                userId: this.getAttribute('userId'),
                 addressId: this.getAttribute('addressId')
             };
         },
@@ -233,7 +233,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          *
          * @return {Promise}
          */
-        getUser: function () {
+        getUser: function() {
             if (!this.getAttribute('userId')) {
                 return Promise.reject('No User-ID');
             }
@@ -250,18 +250,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
         /**
          * Open the user search and set the user to the select
          */
-        openUserSearch: function () {
-            var self = this;
-
+        openUserSearch: function() {
             new UserSearch({
                 events: {
-                    onSubmit: function (Win, userIds) {
-                        self.setAttribute('userId', parseInt(userIds[0].id));
-                        self.setAttribute('addressId', false);
-                        self.refresh();
+                    onSubmit: (Win, userIds) => {
+                        console.log('openUserSearch', userIds);
+
+
+                        this.setAttribute('userId', userIds[0].id);
+                        this.setAttribute('addressId', false);
+                        this.refresh();
                     },
-                    onCancel: function () {
-                        self.refresh();
+                    onCancel: () => {
+                        this.refresh();
                     }
                 }
             }).open();
@@ -272,16 +273,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          *
          * @return {Promise}
          */
-        $hideContainer: function () {
+        $hideContainer: function() {
             var Container = this.$Container;
 
-            return new Promise(function (resolve) {
+            return new Promise(function(resolve) {
                 moofx(Container).animate({
                     opacity: 0,
-                    top    : -50
+                    top: -50
                 }, {
                     duration: 200,
-                    callback: function () {
+                    callback: function() {
                         Container.set('html', '');
                         Container.removeClass('quiqqer-invoice-ti-userSelect-addresses');
                         Container.removeClass('quiqqer-invoice-ti-userSelect-user');
@@ -296,13 +297,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
          *
          * @return {Promise}
          */
-        $showContainer: function () {
+        $showContainer: function() {
             var Container = this.$Container;
 
-            return new Promise(function (resolve) {
+            return new Promise(function(resolve) {
                 moofx(Container).animate({
                     opacity: 1,
-                    top    : 0
+                    top: 0
                 }, {
                     duration: 200,
                     callback: resolve

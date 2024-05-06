@@ -11,8 +11,10 @@ use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use QUI\ERP\Exception;
 use QUI\ERP\Products\Handler\Fields;
 use QUI\ERP\Products\Handler\Search;
+use QUI\Mail\Mailer;
 use QUI\Package\Package;
 use QUI\Smarty\Collector;
 
@@ -20,6 +22,7 @@ use function dirname;
 use function file_exists;
 use function file_get_contents;
 use function in_array;
+use function is_numeric;
 use function strtolower;
 use function strtotime;
 
@@ -41,31 +44,6 @@ class EventHandler
         if ($Package->getName() != 'quiqqer/invoice') {
             return;
         }
-
-        // check order id field
-        $alterOrderId = function ($table) {
-            $tableInfo = QUI::getDatabase()->table()->getFieldsInfos($table);
-            $invoiceIsChar = false;
-
-            foreach ($tableInfo as $tableEntry) {
-                if ($tableEntry['Field'] === 'order_id') {
-                    if (str_contains(strtolower($tableEntry['Type']), 'varchar')) {
-                        $invoiceIsChar = true;
-                    }
-                    break;
-                }
-            }
-
-            if ($invoiceIsChar === false) {
-                QUI::getDatabase()->execSQL(
-                    'ALTER TABLE `' . $table . '` CHANGE `order_id` `order_id` VARCHAR(250) NULL DEFAULT NULL;'
-                );
-            }
-        };
-
-        $alterOrderId(Handler::getInstance()->invoiceTable());
-        $alterOrderId(Handler::getInstance()->temporaryInvoiceTable());
-
 
         // Patches
         try {
@@ -120,9 +98,8 @@ class EventHandler
         }
 
         try {
-            // if the Field exists, we doesn't needed to create it
+            // if the Field exists, we don't need to create it
             Fields::getField(QUI\ERP\Constants::INVOICE_PRODUCT_TEXT_ID);
-
             return;
         } catch (QUI\ERP\Products\Field\Exception) {
         }
@@ -200,17 +177,11 @@ class EventHandler
      *
      * @param Collector $Collector
      * @param QUI\Users\User $User
+     * @throws QUI\Database\Exception
      */
     public static function onFrontendUsersAddressTop(Collector $Collector, QUI\Users\User $User): void
     {
-        try {
-            $Engine = QUI::getTemplateManager()->getEngine();
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeDebugException($Exception);
-
-            return;
-        }
-
+        $Engine = QUI::getTemplateManager()->getEngine();
         $current = '';
 
         if ($User->getAttribute('quiqqer.erp.address')) {
@@ -314,8 +285,12 @@ class EventHandler
      * @param $entityId
      * @param string $entityType
      * @param string $recipient
-     * @param QUI\Mail\Mailer $Mailer
+     * @param Mailer $Mailer
      * @return void
+     *
+     * @throws Exception
+     * @throws QUI\Exception
+     * @throws QUI\Permissions\Exception
      */
     public static function onQuiqqerErpOutputSendMailBefore(
         $entityId,
@@ -348,7 +323,7 @@ class EventHandler
                 continue;
             }
 
-            $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Invoice->getCustomer()->getId(), $entry['hash']);
+            $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Invoice->getCustomer()->getUUID(), $entry['hash']);
 
             if ($file) {
                 $filePath = $file['dirname'] . '/' . $file['basename'];
@@ -439,5 +414,86 @@ class EventHandler
 
         $Conf->setValue('patch', 'id_with_prefix', 1);
         $Conf->save();
+    }
+
+
+    /**
+     * @throws QUI\Database\Exception
+     */
+    public static function onQuiqqerMigrationV2(QUI\System\Console\Tools\MigrationV2 $Console): void
+    {
+        $Console->writeLn('- Migrate invoice');
+
+        $invoiceTable = Handler::getInstance()->invoiceTable();
+
+        // migrate database
+        $alterOrderId = function ($table) {
+            $tableInfo = QUI::getDatabase()->table()->getFieldsInfos($table);
+            $hashFields = [
+                'c_user' => 'VARCHAR(50) NOT NULL',
+                'editor_id' => 'VARCHAR(50) NULL',
+                'customer_id' => 'VARCHAR(50) NOT NULL',
+                'invoice_address_id' => 'VARCHAR(50) NULL',
+                'ordered_by' => 'VARCHAR(50) NULL',
+                'order_id' => 'VARCHAR(50) NULL',
+            ];
+
+            foreach ($tableInfo as $tableEntry) {
+                $tableField = $tableEntry['Field'];
+
+                if (!isset($hashFields[$tableField])) {
+                    continue;
+                }
+
+                $swl = $hashFields[$tableField];
+
+                if (!str_contains(strtolower($tableEntry['Type']), 'varchar')) {
+                    QUI::getDatabase()->execSQL(
+                        "ALTER TABLE `$table` CHANGE `$tableField` `$tableField` $swl;"
+                    );
+                }
+            }
+        };
+
+        $alterOrderId($invoiceTable);
+        $alterOrderId(Handler::getInstance()->temporaryInvoiceTable());
+
+
+        QUI\Utils\MigrationV1ToV2::migrateUsers(
+            Handler::getInstance()->invoiceTable(),
+            [
+                'customer_id',
+                'ordered_by',
+                'c_user',
+                'editor_id'
+            ]
+        );
+
+
+        // migrate order ids
+        $result = QUI::getDataBase()->fetch([
+            'from' => Handler::getInstance()->invoiceTable()
+        ]);
+
+        foreach ($result as $invoice) {
+            if (!is_numeric($invoice['order_id'])) {
+                continue;
+            }
+
+            if ($invoice['order_id'] == 0) {
+                continue;
+            }
+
+            try {
+                $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById($invoice['order_id']);
+
+                QUI::getDataBase()->update(
+                    $invoiceTable,
+                    ['order_id' => $Order->getUUID()],
+                    ['id' => $invoice['id']]
+                );
+            } catch (QUI\Exception) {
+            }
+        }
     }
 }

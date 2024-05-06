@@ -3,12 +3,14 @@
 namespace QUI\ERP\Accounting\Invoice\RestApi;
 
 use Exception;
+use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Factory as InvoiceFactory;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 use QUI\ERP\Currency\Handler as CurrencyHandler;
+use QUI\ExceptionStack;
 use QUI\REST\Response;
 use QUI\REST\Server;
 use QUI\REST\Utils\RequestUtils;
@@ -58,9 +60,16 @@ class Provider implements QUI\REST\ProviderInterface
      * @param ResponseInterface $Response
      * @param array $args
      *
-     * @return Response
+     * @return MessageInterface
+     * @throws QUI\Database\Exception
+     * @throws QUI\ERP\Exception
+     * @throws QUI\Exception
+     * @throws ExceptionStack
+     * @throws QUI\Lock\Exception
+     * @throws QUI\Permissions\Exception
+     * @throws QUI\Users\Exception
      */
-    public function createInvoice(RequestInterface $Request, ResponseInterface $Response, array $args): Response
+    public function createInvoice(RequestInterface $Request, ResponseInterface $Response, array $args): MessageInterface
     {
         $invoiceData = RequestUtils::getFieldFromRequest($Request, 'invoiceData');
 
@@ -167,7 +176,7 @@ class Provider implements QUI\REST\ProviderInterface
         if (!empty($invoiceData['customer_no'])) {
             try {
                 $User = QUI\ERP\Customer\Customers::getInstance()->getCustomerByCustomerNo($invoiceData['customer_no']);
-                $InvoiceDraft->setAttribute('customer_id', $User->getId());
+                $InvoiceDraft->setAttribute('customer_id', $User->getUUID());
             } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
@@ -177,8 +186,8 @@ class Provider implements QUI\REST\ProviderInterface
 
                 if (!empty($invoiceData['invoice_address_id'])) {
                     try {
-                        $Address = $User->getAddress((int)$invoiceData['invoice_address_id']);
-                        $InvoiceDraft->setAttribute('invoice_address_id', $Address->getId());
+                        $Address = $User->getAddress($invoiceData['invoice_address_id']);
+                        $InvoiceDraft->setAttribute('invoice_address_id', $Address->getUUID());
                     } catch (Exception $Exception) {
                         QUI\System\Log::writeException($Exception);
                     }
@@ -187,7 +196,7 @@ class Provider implements QUI\REST\ProviderInterface
                 // Set default address
                 if (!$Address) {
                     try {
-                        $InvoiceDraft->setAttribute('invoice_address_id', $User->getStandardAddress()->getId());
+                        $InvoiceDraft->setAttribute('invoice_address_id', $User->getStandardAddress()->getUUID());
                     } catch (Exception $Exception) {
                         QUI\System\Log::writeException($Exception);
                     }
@@ -318,7 +327,7 @@ class Provider implements QUI\REST\ProviderInterface
 
         // Files
         if ($User && !empty($invoiceData['files'])) {
-            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir() . 'uploads/' . $InvoiceDraft->getId() . '/';
+            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir() . 'uploads/' . $InvoiceDraft->getUUID() . '/';
             QUI\Utils\System\File::mkdir($fileDir);
 
             $fileCounter = 0;
@@ -343,7 +352,7 @@ class Provider implements QUI\REST\ProviderInterface
                 $fileHash = hash('sha256', $fileInfo['basename']);
 
                 try {
-                    QUI\ERP\Customer\CustomerFiles::addFileToCustomer($User->getId(), $localFile);
+                    QUI\ERP\Customer\CustomerFiles::addFileToCustomer($User->getUUID(), $localFile);
 
                     $fileOptions = [];
 
@@ -424,7 +433,7 @@ class Provider implements QUI\REST\ProviderInterface
      *
      * @return string|false - Absolute file path or false if no definition exists
      */
-    public function getOpenApiDefinitionFile()
+    public function getOpenApiDefinitionFile(): bool|string
     {
         // @todo
         return false;
@@ -471,9 +480,9 @@ class Provider implements QUI\REST\ProviderInterface
      *
      * @param string $msg
      * @param int $errorCode
-     * @return Response
+     * @return MessageInterface
      */
-    protected function getClientErrorResponse(string $msg, int $errorCode): Response
+    protected function getClientErrorResponse(string $msg, int $errorCode): MessageInterface
     {
         $Response = new Response(400);
 
@@ -492,10 +501,10 @@ class Provider implements QUI\REST\ProviderInterface
     /**
      * Get generic Response with Exception code and message
      *
-     * @param string|array $msg
-     * @return Response
+     * @param array|string $msg
+     * @return MessageInterface
      */
-    protected function getSuccessResponse($msg): Response
+    protected function getSuccessResponse(array|string $msg): MessageInterface
     {
         $Response = new Response(200);
 
@@ -514,9 +523,9 @@ class Provider implements QUI\REST\ProviderInterface
      * Get generic Response with Exception code and message
      *
      * @param string $msg (optional)
-     * @return Response
+     * @return MessageInterface
      */
-    protected function getServerErrorResponse(string $msg = ''): Response
+    protected function getServerErrorResponse(string $msg = ''): MessageInterface
     {
         $Response = new Response(500);
 

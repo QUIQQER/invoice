@@ -20,7 +20,7 @@ QUI::$Ajax->registerFunction(
             json_decode($data, true)
         );
 
-        $User->setAttribute('quiqqer.erp.address', $Address->getId());
+        $User->setAttribute('quiqqer.erp.address', $Address->getUUID());
         $User->save();
     },
     ['userId', 'data'],

@@ -453,14 +453,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     const Customer = Data.getValue();
                     let userId = Customer.userId;
 
-                    self.setAttribute('customer_id', parseInt(userId));
+                    self.setAttribute('customer_id', userId);
                     self.setAttribute('invoice_address_id', Customer.addressId);
                     self.setAttribute('contact_person', Customer.contactPerson);
                     self.setAttribute('contactEmail', Customer.contactEmail);
 
                     // reset deliver address
                     if (self.$AddressDelivery) {
-                        //self.$AddressDelivery.reset();
                         self.$AddressDelivery.setAttribute('userId', userId);
                     }
 
@@ -521,7 +520,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 }
 
-                if (parseInt(self.getAttribute('editor_id'))) {
+                if (self.getAttribute('editor_id')) {
                     EditorId.addItem(self.getAttribute('editor_id'));
                 } else {
                     EditorId.addItem(USER.id);
@@ -542,8 +541,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     });
                 }
 
-                if (parseInt(self.getAttribute('ordered_by'))) {
-                    OrderedBy.addItem(parseInt(self.getAttribute('ordered_by')));
+                if (self.getAttribute('ordered_by')) {
+                    OrderedBy.addItem(self.getAttribute('ordered_by'));
                 }
 
                 // invoice address

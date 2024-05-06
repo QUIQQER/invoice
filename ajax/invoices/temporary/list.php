@@ -86,7 +86,7 @@ QUI::$Ajax->registerFunction(
                 continue;
             }
 
-            $data[$key]['id'] = $TemporaryInvoice->getId();
+            $data[$key]['id'] = $TemporaryInvoice->getUUID();
 
             $Currency = $TemporaryInvoice->getCurrency();
 
@@ -135,7 +135,7 @@ QUI::$Ajax->registerFunction(
                             $customerId = Handler::EMPTY_VALUE;
                         }
 
-                        if (empty($customer) && $Address) {
+                        if (empty($customer)) {
                             $customer = $Address->getAttribute('firstname');
                             $customer .= ' ';
                             $customer .= $Address->getAttribute('lastname');
@@ -143,7 +143,7 @@ QUI::$Ajax->registerFunction(
                             $customer = trim($customer);
                         }
 
-                        if ($Customer->isCompany() && $Address && !empty($Address->getAttribute('company'))) {
+                        if ($Customer->isCompany() && !empty($Address->getAttribute('company'))) {
                             $oCustomer = $customer;
                             $customer = $Address->getAttribute('company');
 
@@ -166,7 +166,7 @@ QUI::$Ajax->registerFunction(
                 try {
                     $CUser = QUI::getUsers()->get($entry['c_user']);
 
-                    $data[$key]['c_username'] = $CUser->getName() . ' (' . $CUser->getId() . ')';
+                    $data[$key]['c_username'] = $CUser->getName() . ' (' . $CUser->getUUID() . ')';
                 } catch (QUI\Exception) {
                     $data[$key]['c_user'] = Handler::EMPTY_VALUE;
                     $data[$key]['c_username'] = Handler::EMPTY_VALUE;
@@ -184,8 +184,6 @@ QUI::$Ajax->registerFunction(
                 $defaultTimeFormat
             );
 
-            //$vatTextArray = InvoiceUtils::getVatTextArrayFromVatArray($invoiceData['vat_array'], $Currency);
-            //$vatSumArray  = InvoiceUtils::getVatSumArrayFromVatArray($invoiceData['vat_array']);
             $vatSum = InvoiceUtils::getVatSumFromVatArray($data[$key]['vat_array']);
 
             $data[$key]['display_vatsum'] = $Currency->format($vatSum);

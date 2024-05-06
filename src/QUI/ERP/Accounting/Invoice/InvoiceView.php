@@ -183,7 +183,7 @@ class InvoiceView extends QUI\QDOM
     {
         try {
             $previewHtml = ERPOutput::getDocumentHtml(
-                $this->Invoice->getCleanId(),
+                $this->Invoice->getUUID(),
                 $this->getOutputType(),
                 null,
                 null,

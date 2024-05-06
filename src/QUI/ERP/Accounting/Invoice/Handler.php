@@ -40,58 +40,6 @@ class Handler extends QUI\Utils\Singleton
     const TABLE_TEMPORARY_INVOICE = 'invoice_temporary';
 
     /**
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE = QUI\ERP\Constants::TYPE_INVOICE;
-
-    /**
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE_TEMPORARY = QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY;
-
-    /**
-     * Gutschrift / Credit not
-     *
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE_CREDIT_NOTE = QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE;
-
-    // Storno types
-
-    /**
-     * Reversal, storno, cancellation
-     *
-     * @deprecated
-     */
-    const TYPE_INVOICE_REVERSAL = QUI\ERP\Constants::TYPE_INVOICE_REVERSAL;
-
-    /**
-     * Alias for reversal
-     *
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE_STORNO = QUI\ERP\Constants::TYPE_INVOICE_STORNO;
-
-    /**
-     * Status für alte stornierte Rechnung
-     *
-     * @var int
-     * @deprecated
-     */
-    const TYPE_INVOICE_CANCEL = QUI\ERP\Constants::TYPE_INVOICE_CANCEL;
-
-    /**
-     * ID of the invoice product text field
-     *
-     * @deprecated
-     */
-    const INVOICE_PRODUCT_TEXT_ID = QUI\ERP\Constants::INVOICE_PRODUCT_TEXT_ID;
-
-    /**
      * Tables
      */
 
@@ -120,7 +68,7 @@ class Handler extends QUI\Utils\Singleton
                 'select' => 'id',
                 'from' => self::invoiceTable(),
                 'where' => [
-                    'customer_id' => $User->getId()
+                    'customer_id' => $User->getUUID()
                 ]
             ]);
         } catch (QUI\Exception) {
@@ -569,14 +517,11 @@ class Handler extends QUI\Utils\Singleton
         }
 
         $result[0]['id'] = (int)$result[0]['id'];
-        $result[0]['customer_id'] = (int)$result[0]['customer_id'];
-        $result[0]['invoice_address_id'] = (int)$result[0]['invoice_address_id'];
         $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
         $result[0]['paid_status'] = (int)$result[0]['paid_status'];
         $result[0]['processing_status'] = (int)$result[0]['processing_status'];
         $result[0]['time_for_payment'] = (int)$result[0]['time_for_payment'];
         $result[0]['canceled'] = $canceled;
-        $result[0]['c_user'] = (int)$result[0]['c_user'];
 
         $result[0]['nettosum'] = (float)$result[0]['nettosum'];
         $result[0]['subsum'] = (float)$result[0]['subsum'];

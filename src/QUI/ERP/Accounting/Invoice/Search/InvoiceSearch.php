@@ -28,7 +28,6 @@ use function is_numeric;
 use function json_decode;
 use function strip_tags;
 use function strlen;
-use function strpos;
 use function strtotime;
 use function substr;
 use function substr_replace;
@@ -82,6 +81,7 @@ class InvoiceSearch extends Singleton
      *
      * @param string $filter
      * @param array|string $value
+     * @throws QUI\Exception
      */
     public function setFilter(string $filter, array|string $value): void
     {
@@ -291,6 +291,7 @@ class InvoiceSearch extends Singleton
 
     /**
      * @return array
+     * @throws QUI\Exception
      */
     protected function getQueryCount(): array
     {
@@ -300,6 +301,7 @@ class InvoiceSearch extends Singleton
     /**
      * @param bool $count - Use count select, or not
      * @return array
+     * @throws QUI\Exception
      */
     protected function getQuery(bool $count = false): array
     {
@@ -594,6 +596,8 @@ class InvoiceSearch extends Singleton
     /**
      * @param array $data
      * @return array
+     * @throws QUI\ERP\Exception
+     * @throws QUI\Exception
      */
     protected function parseListForGrid(array $data): array
     {
