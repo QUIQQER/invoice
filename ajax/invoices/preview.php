@@ -13,7 +13,7 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_preview',
     function ($invoiceId, $onlyArticles) {
         $Invoice = InvoiceUtils::getInvoiceByString($invoiceId);
-        $View    = $Invoice->getView();
+        $View = $Invoice->getView();
 
         if (!isset($onlyArticles)) {
             $onlyArticles = false;

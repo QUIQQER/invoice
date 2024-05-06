@@ -11,6 +11,10 @@
  *
  * @return array
  */
+
+use QUI\ERP\Accounting\Invoice\Invoice;
+use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_getHistory',
     function ($invoiceId) {
@@ -18,48 +22,48 @@ QUI::$Ajax->registerFunction(
 
         try {
             $Invoice = $Invoices->get($invoiceId);
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             try {
                 $Invoice = $Invoices->getInvoiceByHash($invoiceId);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
                 $Invoice = $Invoices->getTemporaryInvoiceByHash($invoiceId);
             }
         }
 
-        /* @var $Invoice \QUI\ERP\Accounting\Invoice\Invoice */
+        /* @var $Invoice Invoice */
         QUI\ERP\Accounting\Calc::calculatePayments($Invoice);
 
         $History = $Invoice->getHistory();
-        $history = \array_map(function ($history) {
+        $history = array_map(function ($history) {
             $history['type'] = 'history';
 
             return $history;
         }, $History->toArray());
 
         $Comments = $Invoice->getComments();
-        $comments = \array_map(function ($comment) {
+        $comments = array_map(function ($comment) {
             $comment['type'] = 'comment';
 
             return $comment;
         }, $Comments->toArray());
 
-        $history = \array_merge($history, $comments);
+        $history = array_merge($history, $comments);
 
         // transactions
         $Transactions = QUI\ERP\Accounting\Payments\Transactions\Handler::getInstance();
-        $transactions = $Transactions->getTransactionsByHash($Invoice->getHash());
+        $transactions = $Transactions->getTransactionsByHash($Invoice->getUUID());
 
         foreach ($transactions as $Tx) {
-            /* @var $Tx \QUI\ERP\Accounting\Payments\Transactions\Transaction */
+            /* @var $Tx Transaction */
             $history[] = [
                 'message' => $Tx->parseToText(),
-                'time'    => \strtotime($Tx->getDate()),
-                'type'    => 'transaction',
+                'time' => strtotime($Tx->getDate()),
+                'type' => 'transaction',
             ];
         }
 
         // sort
-        \usort($history, function ($a, $b) {
+        usort($history, function ($a, $b) {
             if ($a['time'] == $b['time']) {
                 return 0;
             }

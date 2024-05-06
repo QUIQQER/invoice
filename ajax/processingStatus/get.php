@@ -14,6 +14,6 @@ QUI::$Ajax->registerFunction(
     function ($id) {
         return Handler::getInstance()->getProcessingStatus($id)->toArray();
     },
-    array('id'),
+    ['id'],
     'Permission::checkAdminUser'
 );

@@ -5,6 +5,7 @@
  */
 
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Status;
 
 /**
  * Returns processing list for a grid
@@ -14,16 +15,16 @@ use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler;
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_processingStatus_list',
     function () {
-        $Grid    = new QUI\Utils\Grid();
+        $Grid = new QUI\Utils\Grid();
         $Handler = Handler::getInstance();
 
-        $list   = $Handler->getProcessingStatusList();
-        $result = \array_map(function ($Status) {
-            /* @var $Status \QUI\ERP\Accounting\Invoice\ProcessingStatus\Status */
+        $list = $Handler->getProcessingStatusList();
+        $result = array_map(function ($Status) {
+            /* @var $Status Status */
             return $Status->toArray(QUI::getLocale());
         }, $list);
 
-        \usort($result, function ($a, $b) {
+        usort($result, function ($a, $b) {
             if ($a['id'] == $b['id']) {
                 return 0;
             }
@@ -31,7 +32,7 @@ QUI::$Ajax->registerFunction(
             return $a['id'] > $b['id'] ? 1 : -1;
         });
 
-        return $Grid->parseResult($result, \count($result));
+        return $Grid->parseResult($result, count($result));
     },
     false,
     'Permission::checkAdminUser'

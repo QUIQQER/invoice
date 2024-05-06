@@ -22,7 +22,7 @@ QUI::$Ajax->registerFunction(
         } else {
             try {
                 $Invoice->setCustomer(QUI::getUsers()->get($data['customer_id']));
-            } catch (\Exception $exception) {
+            } catch (Exception) {
             }
         }
 
@@ -31,6 +31,10 @@ QUI::$Ajax->registerFunction(
             unset($data['addressDelivery']);
 
             try {
+                if (is_string($delivery)) {
+                    $delivery = json_decode($delivery, true) ?? [];
+                }
+
                 $Invoice->setDeliveryAddress($delivery);
             } catch (QUI\Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
@@ -50,7 +54,7 @@ QUI::$Ajax->registerFunction(
             try {
                 $List = new QUI\ERP\Accounting\PriceFactors\FactorList($data['priceFactors']);
                 $Invoice->getArticles()->importPriceFactors($List);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
         }
 
@@ -66,26 +70,6 @@ QUI::$Ajax->registerFunction(
 
         $Invoice->setAttribute('invoice_address', false); // needed because of address reset
         $Invoice->setAttributes($data);
-
-        // Attached customer files
-        $Invoice->clearCustomerFiles();
-
-        if (!empty($data['attached_customer_files'])) {
-            if (is_string($data['attached_customer_files'])) {
-                $customerFiles = json_decode($data['attached_customer_files'], true);
-            } else {
-                $customerFiles = $data['attached_customer_files'];
-            }
-
-            foreach ($customerFiles as $entry) {
-                try {
-                    $Invoice->addCustomerFile($entry['hash'], $entry['options']);
-                } catch (\Exception $Exception) {
-                    QUI\System\Log::writeException($Exception);
-                }
-            }
-        }
-
         $Invoice->save();
 
         return $Invoice->toArray();

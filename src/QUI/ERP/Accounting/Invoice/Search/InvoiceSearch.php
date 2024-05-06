@@ -21,16 +21,18 @@ use QUI\Utils\Singleton;
 use function array_flip;
 use function array_map;
 use function count;
+use function date;
 use function implode;
 use function is_array;
+use function is_numeric;
 use function json_decode;
 use function strip_tags;
 use function strlen;
-use function strpos;
 use function strtotime;
 use function substr;
 use function substr_replace;
 use function time;
+use function trim;
 
 /**
  * Class Search
@@ -48,14 +50,14 @@ class InvoiceSearch extends Singleton
     /**
      * search value
      *
-     * @var null
+     * @var string
      */
-    protected $search = null;
+    protected string $search = '';
 
     /**
      * @var array|bool
      */
-    protected $limit = [0, 20];
+    protected array|bool $limit = [0, 20];
 
     /**
      * @var string
@@ -78,9 +80,10 @@ class InvoiceSearch extends Singleton
      * Set a filter
      *
      * @param string $filter
-     * @param string|array $value
+     * @param array|string $value
+     * @throws QUI\Exception
      */
-    public function setFilter(string $filter, $value)
+    public function setFilter(string $filter, array|string $value): void
     {
         if ($filter === 'search') {
             $this->search = $value;
@@ -95,12 +98,7 @@ class InvoiceSearch extends Singleton
                 return;
             }
 
-            try {
-                $allowed = QUI\ERP\Currency\Handler::getAllowedCurrencies();
-            } catch (QUI\Exception $Exception) {
-                return;
-            }
-
+            $allowed = QUI\ERP\Currency\Handler::getAllowedCurrencies();
             $allowed = array_map(function ($Currency) {
                 return $Currency->getCode();
             }, $allowed);
@@ -152,12 +150,12 @@ class InvoiceSearch extends Singleton
                 continue;
             }
 
-            if ($filter === 'from' && \is_numeric($val)) {
-                $val = \date('Y-m-d 00:00:00', $val);
+            if ($filter === 'from' && is_numeric($val)) {
+                $val = date('Y-m-d 00:00:00', $val);
             }
 
-            if ($filter === 'to' && \is_numeric($val)) {
-                $val = \date('Y-m-d 23:59:59', $val);
+            if ($filter === 'to' && is_numeric($val)) {
+                $val = date('Y-m-d 23:59:59', $val);
             }
 
             $this->filter[] = [
@@ -170,7 +168,7 @@ class InvoiceSearch extends Singleton
     /**
      * Clear all filters
      */
-    public function clearFilter()
+    public function clearFilter(): void
     {
         $this->filter = [];
     }
@@ -178,10 +176,10 @@ class InvoiceSearch extends Singleton
     /**
      * Set the limit
      *
-     * @param string|int $from
-     * @param string|int $to
+     * @param int|string $from
+     * @param int|string $to
      */
-    public function limit($from, $to)
+    public function limit(int|string $from, int|string $to): void
     {
         $this->limit = [(int)$from, (int)$to];
     }
@@ -190,7 +188,7 @@ class InvoiceSearch extends Singleton
      * Set no limit
      * return all results
      */
-    public function noLimit()
+    public function noLimit(): void
     {
         $this->limit = false;
     }
@@ -200,15 +198,15 @@ class InvoiceSearch extends Singleton
      *
      * @param $order
      */
-    public function order($order)
+    public function order($order): void
     {
         $allowed = [];
 
-        if (strpos($order, 'display_sum') !== false) {
+        if (str_contains($order, 'display_sum')) {
             $order = str_replace('display_sum', 'sum', $order);
         }
 
-        if (strpos($order, 'display_nettosum') !== false) {
+        if (str_contains($order, 'display_nettosum')) {
             $order = str_replace('display_nettosum', 'nettosum', $order);
         }
 
@@ -220,7 +218,7 @@ class InvoiceSearch extends Singleton
             $allowed[] = $field . ' desc';
         }
 
-        $order = \trim($order);
+        $order = trim($order);
         $allowed = array_flip($allowed);
 
         if (isset($allowed[$order])) {
@@ -276,7 +274,7 @@ class InvoiceSearch extends Singleton
         if (!empty($this->currency) && $this->currency !== '---') {
             try {
                 $Currency = QUI\ERP\Currency\Handler::getCurrency($this->currency);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
         }
 
@@ -293,6 +291,7 @@ class InvoiceSearch extends Singleton
 
     /**
      * @return array
+     * @throws QUI\Exception
      */
     protected function getQueryCount(): array
     {
@@ -302,8 +301,9 @@ class InvoiceSearch extends Singleton
     /**
      * @param bool $count - Use count select, or not
      * @return array
+     * @throws QUI\Exception
      */
-    protected function getQuery($count = false): array
+    protected function getQuery(bool $count = false): array
     {
         $Invoices = Handler::getInstance();
 
@@ -322,7 +322,7 @@ class InvoiceSearch extends Singleton
         if (empty($this->filter) && empty($this->search)) {
             if ($count) {
                 return [
-                    'query' => " SELECT COUNT(*)  AS count FROM {$table}",
+                    'query' => " SELECT COUNT(*)  AS count FROM $table",
                     'binds' => []
                 ];
             }
@@ -417,7 +417,7 @@ class InvoiceSearch extends Singleton
                             'customerNoPrefix'
                         );
 
-                        if (strpos($value, $prefix) === 0) {
+                        if (str_starts_with($value, $prefix)) {
                             $value = substr_replace($value, '', 0, strlen($value));
                         }
                     }
@@ -463,7 +463,7 @@ class InvoiceSearch extends Singleton
                     'customerNoPrefix'
                 );
 
-                if (strpos($customerIdSearch, $prefix) === 0) {
+                if (str_starts_with($customerIdSearch, $prefix)) {
                     $customerIdSearch = substr_replace($customerIdSearch, '', 0, strlen($prefix));
                 }
             }
@@ -508,14 +508,14 @@ class InvoiceSearch extends Singleton
             $prefix = Settings::getInstance()->getInvoicePrefix();
             $tempPrefix = Settings::getInstance()->getTemporaryInvoicePrefix();
 
-            if (strpos($this->search, $prefix) === 0) {
+            if (str_starts_with($this->search, $prefix)) {
                 $idSearch = substr($this->search, strlen($prefix));
 
                 $binds['searchId'] = [
                     'value' => $idSearch . '%',
                     'type' => PDO::PARAM_STR
                 ];
-            } elseif (strpos($this->search, $tempPrefix) === 0) {
+            } elseif (str_starts_with($this->search, $tempPrefix)) {
                 $idSearch = substr($this->search, strlen($tempPrefix));
 
                 $binds['searchId'] = [
@@ -596,6 +596,8 @@ class InvoiceSearch extends Singleton
     /**
      * @param array $data
      * @return array
+     * @throws QUI\ERP\Exception
+     * @throws QUI\Exception
      */
     protected function parseListForGrid(array $data): array
     {
@@ -666,7 +668,7 @@ class InvoiceSearch extends Singleton
 
             try {
                 $Invoice = $Invoices->getInvoice($entry['id']);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
                 continue;
             }
 
@@ -680,7 +682,7 @@ class InvoiceSearch extends Singleton
             try {
                 $currency = json_decode($Invoice->getAttribute('currency_data'), true);
                 $Currency = Currencies::getCurrency($currency['code']);
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
                 $Currency = QUI\ERP\Defaults::getCurrency();
             }
 
@@ -699,7 +701,7 @@ class InvoiceSearch extends Singleton
                 } else {
                     $invoiceData['order_date'] = Handler::EMPTY_VALUE;
                 }
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
 
             if (!$Invoice->getAttribute('order_id')) {
@@ -738,7 +740,7 @@ class InvoiceSearch extends Singleton
 
             $paidStatus = $Invoice->getAttribute('paid_status');
             $textStatus = $Locale->get(
-                'quiqqer/invoice',
+                'quiqqer/erp',
                 'payment.status.' . $paidStatus
             );
 
@@ -755,7 +757,7 @@ class InvoiceSearch extends Singleton
                 $invoiceData['payment_title'] = $Payments->getPayment(
                     $Invoice->getAttribute('payment_method')
                 )->getTitle();
-            } catch (QUI\Exception $Exception) {
+            } catch (QUI\Exception) {
             }
 
             // data preparation
@@ -763,7 +765,6 @@ class InvoiceSearch extends Singleton
                 $invoiceData['id_prefix'] = Settings::getInstance()->getInvoicePrefix();
             }
 
-            $invoiceData['id'] = $invoiceData['id_prefix'] . $invoiceData['id'];
             $invoiceAddress = json_decode($invoiceData['invoice_address'], true);
 
             if (!isset($invoiceAddress['salutation'])) {

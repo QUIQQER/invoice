@@ -409,9 +409,7 @@ define(
                     name: 'actions',
                     text: QUILocale.get(lg, 'journal.btn.actions'),
                     menuCorner: 'topRight',
-                    styles: {
-                        'float': 'right'
-                    }
+                    position: 'right'
                 });
 
                 Actions.appendChild({
@@ -517,7 +515,7 @@ define(
                         },
                         {
                             header: QUILocale.get(lg, 'journal.grid.invoiceNo'),
-                            dataIndex: 'id',
+                            dataIndex: 'id_with_prefix',
                             dataType: 'integer',
                             width: 100
                         },
@@ -698,6 +696,10 @@ define(
                             dataIndex: 'type',
                             dataType: 'number',
                             hidden: true
+                        }, {
+                            dataIndex: 'id',
+                            dataType: 'integer',
+                            hidden: true
                         }
                     ]
                 });
@@ -801,6 +803,10 @@ define(
              * event: on show
              */
             $onShow: function() {
+                if (this.$Search.value !== '') {
+                    return;
+                }
+
                 this.refresh();
             },
 
@@ -1120,18 +1126,18 @@ define(
             /**
              * Open an invoice panel
              *
-             * @param {Number} invoiceId - ID of the invoice
+             * @param {Number|String} hash - ID or hash of the invoice
              * @return {Promise}
              */
-            openInvoice: function(invoiceId) {
+            openInvoice: function(hash) {
                 return new Promise(function(resolve) {
                     require([
                         'package/quiqqer/invoice/bin/backend/controls/panels/Invoice',
                         'utils/Panels'
                     ], function(InvoicePanel, PanelUtils) {
                         const Panel = new InvoicePanel({
-                            invoiceId: invoiceId,
-                            '#id': 'invoice-' + invoiceId
+                            hash: hash,
+                            '#id': hash
                         });
 
                         PanelUtils.openPanelInTasks(Panel);

@@ -24,7 +24,7 @@ QUI::$Ajax->registerFunction(
             $invoiceData = [];
         }
 
-        $Settings       = QUI\ERP\Accounting\Invoice\Settings::getInstance();
+        $Settings = QUI\ERP\Accounting\Invoice\Settings::getInstance();
         $currentSetting = $Settings->sendMailAtInvoiceCreation();
         $Settings->set('invoice', 'sendMailAtCreation', false);
 
@@ -40,7 +40,7 @@ QUI::$Ajax->registerFunction(
 
         $Settings->set('invoice', 'sendMailAtCreation', $currentSetting);
 
-        return $CreditNote->getId();
+        return $CreditNote->getUUID();
     },
     ['invoiceId', 'invoiceData'],
     'Permission::checkAdminUser'

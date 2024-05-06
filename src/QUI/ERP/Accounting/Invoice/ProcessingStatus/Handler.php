@@ -8,6 +8,9 @@ namespace QUI\ERP\Accounting\Invoice\ProcessingStatus;
 
 use QUI;
 
+use function is_array;
+use function json_encode;
+
 /**
  * Class Handler
  * - Processing status management
@@ -24,16 +27,16 @@ class Handler extends QUI\Utils\Singleton
     const STATUS_OPTION_PREVENT_INVOICE_POSTING = 'preventInvoicePosting';
 
     /**
-     * @var array
+     * @var ?array
      */
-    protected $list = null;
+    protected ?array $list = null;
 
     /**
      * Return all processing status entries from the config
      *
      * @return array
      */
-    public function getList()
+    public function getList(): array
     {
         if ($this->list !== null) {
             return $this->list;
@@ -42,13 +45,13 @@ class Handler extends QUI\Utils\Singleton
         try {
             $Package = QUI::getPackage('quiqqer/invoice');
             $Config = $Package->getConfig();
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             return [];
         }
 
         $result = $Config->getSection('processing_status');
 
-        if (!$result || !\is_array($result)) {
+        if (!$result || !is_array($result)) {
             $this->list = [];
 
             return $this->list;
@@ -64,7 +67,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @return array
      */
-    public function getProcessingStatusList()
+    public function getProcessingStatusList(): array
     {
         $list = $this->getList();
         $result = [];
@@ -72,7 +75,7 @@ class Handler extends QUI\Utils\Singleton
         foreach ($list as $statusId => $v) {
             try {
                 $result[] = $this->getProcessingStatus($statusId);
-            } catch (Exception $Exception) {
+            } catch (Exception) {
             }
         }
 
@@ -87,7 +90,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @throws Exception
      */
-    public function getProcessingStatus($id)
+    public function getProcessingStatus($id): Status
     {
         return new Status($id);
     }
@@ -95,14 +98,14 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Delete / Remove a processing status
      *
-     * @param string|int $id
+     * @param int|string $id
      *
      * @throws Exception
      * @throws QUI\Exception
      *
      * @todo permissions
      */
-    public function deleteProcessingStatus($id)
+    public function deleteProcessingStatus(int|string $id): void
     {
         $Status = $this->getProcessingStatus($id);
 
@@ -135,8 +138,12 @@ class Handler extends QUI\Utils\Singleton
      *
      * @todo permissions
      */
-    public function updateProcessingStatus($id, $color, array $title, array $options = [])
-    {
+    public function updateProcessingStatus(
+        int|string $id,
+        int|string $color,
+        array $title,
+        array $options = []
+    ): void {
         $Status = $this->getProcessingStatus($id);
 
         // update translation
@@ -171,7 +178,7 @@ class Handler extends QUI\Utils\Singleton
         $Config->setValue(
             'processing_status',
             $Status->getId(),
-            \json_encode([
+            json_encode([
                 'color' => $color,
                 'options' => $options
             ])

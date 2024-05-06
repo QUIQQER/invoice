@@ -15,7 +15,7 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_articleHtml',
     function ($invoiceId) {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Invoice  = $Invoices->get($invoiceId);
+        $Invoice = $Invoices->get($invoiceId);
         $Articles = $Invoice->getArticles();
 
         return $Articles->toHTMLWithCSS();

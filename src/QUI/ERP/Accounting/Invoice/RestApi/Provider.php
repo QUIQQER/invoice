@@ -2,16 +2,29 @@
 
 namespace QUI\ERP\Accounting\Invoice\RestApi;
 
+use Exception;
+use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Factory as InvoiceFactory;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 use QUI\ERP\Currency\Handler as CurrencyHandler;
+use QUI\ExceptionStack;
 use QUI\REST\Response;
 use QUI\REST\Server;
 use QUI\REST\Utils\RequestUtils;
 use Slim\Routing\RouteCollectorProxy;
+
+use function define;
+use function defined;
+use function file_put_contents;
+use function hash;
+use function hex2bin;
+use function in_array;
+use function is_array;
+use function is_string;
+use function pathinfo;
 
 /**
  * Class Provider
@@ -30,7 +43,7 @@ class Provider implements QUI\REST\ProviderInterface
     /**
      * @param Server $Server
      */
-    public function register(Server $Server)
+    public function register(Server $Server): void
     {
         $Slim = $Server->getSlim();
 
@@ -47,9 +60,16 @@ class Provider implements QUI\REST\ProviderInterface
      * @param ResponseInterface $Response
      * @param array $args
      *
-     * @return Response
+     * @return MessageInterface
+     * @throws QUI\Database\Exception
+     * @throws QUI\ERP\Exception
+     * @throws QUI\Exception
+     * @throws ExceptionStack
+     * @throws QUI\Lock\Exception
+     * @throws QUI\Permissions\Exception
+     * @throws QUI\Users\Exception
      */
-    public function createInvoice(RequestInterface $Request, ResponseInterface $Response, array $args): Response
+    public function createInvoice(RequestInterface $Request, ResponseInterface $Response, array $args): MessageInterface
     {
         $invoiceData = RequestUtils::getFieldFromRequest($Request, 'invoiceData');
 
@@ -60,7 +80,7 @@ class Provider implements QUI\REST\ProviderInterface
             );
         }
 
-        if (!\is_array($invoiceData)) {
+        if (!is_array($invoiceData)) {
             return $this->getClientErrorResponse(
                 'Field "invoiceData" is invalid JSON string.',
                 self::ERROR_CODE_PARAMETER_INVALID
@@ -140,8 +160,8 @@ class Provider implements QUI\REST\ProviderInterface
             }
         }
 
-        if (!\defined('SYSTEM_INTERN')) {
-            \define('SYSTEM_INTERN', true);
+        if (!defined('SYSTEM_INTERN')) {
+            define('SYSTEM_INTERN', true);
         }
 
         $Factory = InvoiceFactory::getInstance();
@@ -156,8 +176,8 @@ class Provider implements QUI\REST\ProviderInterface
         if (!empty($invoiceData['customer_no'])) {
             try {
                 $User = QUI\ERP\Customer\Customers::getInstance()->getCustomerByCustomerNo($invoiceData['customer_no']);
-                $InvoiceDraft->setAttribute('customer_id', $User->getId());
-            } catch (\Exception $Exception) {
+                $InvoiceDraft->setAttribute('customer_id', $User->getUUID());
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
 
@@ -166,9 +186,9 @@ class Provider implements QUI\REST\ProviderInterface
 
                 if (!empty($invoiceData['invoice_address_id'])) {
                     try {
-                        $Address = $User->getAddress((int)$invoiceData['invoice_address_id']);
-                        $InvoiceDraft->setAttribute('invoice_address_id', $Address->getId());
-                    } catch (\Exception $Exception) {
+                        $Address = $User->getAddress($invoiceData['invoice_address_id']);
+                        $InvoiceDraft->setAttribute('invoice_address_id', $Address->getUUID());
+                    } catch (Exception $Exception) {
                         QUI\System\Log::writeException($Exception);
                     }
                 }
@@ -176,8 +196,8 @@ class Provider implements QUI\REST\ProviderInterface
                 // Set default address
                 if (!$Address) {
                     try {
-                        $InvoiceDraft->setAttribute('invoice_address_id', $User->getStandardAddress()->getId());
-                    } catch (\Exception $Exception) {
+                        $InvoiceDraft->setAttribute('invoice_address_id', $User->getStandardAddress()->getUUID());
+                    } catch (Exception $Exception) {
                         QUI\System\Log::writeException($Exception);
                     }
                 }
@@ -205,7 +225,7 @@ class Provider implements QUI\REST\ProviderInterface
             if (!empty($customerDefaultPaymentId)) {
                 try {
                     $Payment = $Payments->getPayment($customerDefaultPaymentId);
-                } catch (\Exception $Exception) {
+                } catch (Exception $Exception) {
                     QUI\System\Log::writeDebugException($Exception);
                 }
             }
@@ -214,7 +234,7 @@ class Provider implements QUI\REST\ProviderInterface
         if (!$Payment && !empty($invoiceData['payment_method'])) {
             try {
                 $Payment = $Payments->getPayment((int)$invoiceData['payment_method']);
-            } catch (\Exception $Exception) {
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
         }
@@ -248,12 +268,12 @@ class Provider implements QUI\REST\ProviderInterface
             ])
         );
 
-        if (!empty($invoiceData['comments']) && \is_array($invoiceData['comments'])) {
+        if (!empty($invoiceData['comments']) && is_array($invoiceData['comments'])) {
             foreach ($invoiceData['comments'] as $comment) {
-                if (\is_string($comment)) {
+                if (is_string($comment)) {
                     try {
                         $InvoiceDraft->addComment($comment);
-                    } catch (\Exception $Exception) {
+                    } catch (Exception $Exception) {
                         QUI\System\Log::writeException($Exception);
                     }
                 }
@@ -284,7 +304,7 @@ class Provider implements QUI\REST\ProviderInterface
                 $UniqueProduct->setQuantity((float)$article['quantity']);
 
                 $ProductList->addProduct($UniqueProduct);
-            } catch (\Exception $Exception) {
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
         }
@@ -307,13 +327,13 @@ class Provider implements QUI\REST\ProviderInterface
 
         // Files
         if ($User && !empty($invoiceData['files'])) {
-            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir() . 'uploads/' . $InvoiceDraft->getId() . '/';
+            $fileDir = QUI::getPackage('quiqqer/invoice')->getVarDir() . 'uploads/' . $InvoiceDraft->getUUID() . '/';
             QUI\Utils\System\File::mkdir($fileDir);
 
             $fileCounter = 0;
 
             foreach ($invoiceData['files'] as $file) {
-                if (!\is_array($file) || !isset($file['name']) || !isset($file['content'])) {
+                if (!is_array($file) || !isset($file['name']) || !isset($file['content'])) {
                     continue;
                 }
 
@@ -326,13 +346,13 @@ class Provider implements QUI\REST\ProviderInterface
                     $localFile .= 'file_' . ++$fileCounter;
                 }
 
-                \file_put_contents($localFile, \hex2bin($file['content']));
+                file_put_contents($localFile, hex2bin($file['content']));
 
-                $fileInfo = \pathinfo($localFile);
-                $fileHash = \hash('sha256', $fileInfo['basename']);
+                $fileInfo = pathinfo($localFile);
+                $fileHash = hash('sha256', $fileInfo['basename']);
 
                 try {
-                    QUI\ERP\Customer\CustomerFiles::addFileToCustomer($User->getId(), $localFile);
+                    QUI\ERP\Customer\CustomerFiles::addFileToCustomer($User->getUUID(), $localFile);
 
                     $fileOptions = [];
 
@@ -341,7 +361,7 @@ class Provider implements QUI\REST\ProviderInterface
                     }
 
                     $InvoiceDraft->addCustomerFile($fileHash, $fileOptions);
-                } catch (\Exception $Exception) {
+                } catch (Exception $Exception) {
                     QUI\System\Log::writeException($Exception);
                 }
             }
@@ -355,14 +375,14 @@ class Provider implements QUI\REST\ProviderInterface
             try {
                 $StatusHandler->getProcessingStatus($statusId);
                 $InvoiceDraft->setAttribute('processing_status', $statusId);
-            } catch (\Exception $Exception) {
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
         }
 
         try {
             $InvoiceDraft->update($SystemUser);
-        } catch (\Exception $Exception) {
+        } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
             return $this->getServerErrorResponse(
@@ -371,13 +391,13 @@ class Provider implements QUI\REST\ProviderInterface
         }
 
         // Post
-        $invoiceId = $InvoiceDraft->getId();
+        $invoiceId = $InvoiceDraft->getUUID();
 
         if (!empty($invoiceData['post'])) {
             try {
                 $Invoice = $InvoiceDraft->post($SystemUser);
-                $invoiceId = $Invoice->getId();
-            } catch (\Exception $Exception) {
+                $invoiceId = $Invoice->getUUID();
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
 
                 return $this->getServerErrorResponse(
@@ -397,7 +417,7 @@ class Provider implements QUI\REST\ProviderInterface
                     QUI\ERP\Constants::PAYMENT_STATUS_PLAN
                 ];
 
-                if (\in_array((int)$invoiceData['paid_status'], $validStatusses)) {
+                if (in_array((int)$invoiceData['paid_status'], $validStatusses)) {
                     $Invoice->setPaymentStatus((int)$invoiceData['paid_status']);
                 }
             }
@@ -413,7 +433,7 @@ class Provider implements QUI\REST\ProviderInterface
      *
      * @return string|false - Absolute file path or false if no definition exists
      */
-    public function getOpenApiDefinitionFile()
+    public function getOpenApiDefinitionFile(): bool|string
     {
         // @todo
         return false;
@@ -460,9 +480,9 @@ class Provider implements QUI\REST\ProviderInterface
      *
      * @param string $msg
      * @param int $errorCode
-     * @return Response
+     * @return MessageInterface
      */
-    protected function getClientErrorResponse(string $msg, int $errorCode): Response
+    protected function getClientErrorResponse(string $msg, int $errorCode): MessageInterface
     {
         $Response = new Response(400);
 
@@ -481,10 +501,10 @@ class Provider implements QUI\REST\ProviderInterface
     /**
      * Get generic Response with Exception code and message
      *
-     * @param string|array $msg
-     * @return Response
+     * @param array|string $msg
+     * @return MessageInterface
      */
-    protected function getSuccessResponse($msg): Response
+    protected function getSuccessResponse(array|string $msg): MessageInterface
     {
         $Response = new Response(200);
 
@@ -503,9 +523,9 @@ class Provider implements QUI\REST\ProviderInterface
      * Get generic Response with Exception code and message
      *
      * @param string $msg (optional)
-     * @return Response
+     * @return MessageInterface
      */
-    protected function getServerErrorResponse(string $msg = ''): Response
+    protected function getServerErrorResponse(string $msg = ''): MessageInterface
     {
         $Response = new Response(500);
 

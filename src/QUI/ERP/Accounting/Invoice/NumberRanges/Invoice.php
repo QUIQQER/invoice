@@ -8,6 +8,9 @@ namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 
 use QUI;
 use QUI\ERP\Api\NumberRangeInterface;
+use QUI\Exception;
+
+use function is_numeric;
 
 /**
  * Class Invoice
@@ -21,7 +24,7 @@ class Invoice implements NumberRangeInterface
      *
      * @return string
      */
-    public function getTitle($Locale = null)
+    public function getTitle(?QUI\Locale $Locale = null): string
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
@@ -34,34 +37,32 @@ class Invoice implements NumberRangeInterface
      * Return the current start range value
      *
      * @return int
+     * @throws Exception
      */
-    public function getRange()
+    public function getRange(): int
     {
-        $Table = QUI::getDataBase()->table();
-        $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $invoiceId = $Config->getValue('invoice', 'invoiceCurrentIdIndex');
 
-        return $Table->getAutoIncrementIndex(
-            $Handler->invoiceTable()
-        );
+        if (empty($invoiceId)) {
+            return 1;
+        }
+
+        return (int)$invoiceId + 1;
     }
 
     /**
      * @param int $range
+     * @throws Exception
      */
-    public function setRange($range)
+    public function setRange(int $range): void
     {
-        if (!\is_numeric($range)) {
+        if (!is_numeric($range)) {
             return;
         }
 
-        $PDO = QUI::getDataBase()->getPDO();
-        $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $tableName = $Handler->invoiceTable();
-
-        $Statement = $PDO->prepare(
-            "ALTER TABLE {$tableName} AUTO_INCREMENT = " . (int)$range
-        );
-
-        $Statement->execute();
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config->set('invoice', 'invoiceCurrentIdIndex', $range);
+        $Config->save();
     }
 }

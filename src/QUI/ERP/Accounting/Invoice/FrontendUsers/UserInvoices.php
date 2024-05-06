@@ -10,6 +10,8 @@ use QUI;
 use QUI\Control;
 use QUI\FrontendUsers\Controls\Profile\ControlInterface;
 
+use function dirname;
+
 /**
  * Class UserInvoices
  * - Invoice list of
@@ -26,10 +28,9 @@ class UserInvoices extends Control implements ControlInterface
     public function __construct(array $attributes = [])
     {
         $this->addCSSClass('quiqqer-invoice-profile-invoices');
-        $this->addCSSFile(\dirname(__FILE__) . '/UserInvoices.css');
+        $this->addCSSFile(dirname(__FILE__) . '/UserInvoices.css');
 
         $this->setAttributes([
-            // 'data-qui' => 'package/quiqqer/order/bin/frontend/controls/frontendusers/Orders',
             'page' => 1,
             'limit' => 5
         ]);
@@ -42,7 +43,7 @@ class UserInvoices extends Control implements ControlInterface
      *
      * @throws QUI\Exception
      */
-    public function getBody()
+    public function getBody(): string
     {
         $Engine = QUI::getTemplateManager()->getEngine();
         $User = QUI::getUserBySession();
@@ -62,7 +63,7 @@ class UserInvoices extends Control implements ControlInterface
         $start = ($sheetCurrent - 1) * $limit;
 
         $Search->limit($start, $start + $limit);
-        $Search->setFilter('customer_id', $User->getId());
+        $Search->setFilter('customer_id', $User->getUUID());
 
         $result = $Search->search();
         $invoices = [];
@@ -79,14 +80,14 @@ class UserInvoices extends Control implements ControlInterface
             'invoices' => $invoices
         ]);
 
-        return $Engine->fetch(\dirname(__FILE__) . '/UserInvoices.html');
+        return $Engine->fetch(dirname(__FILE__) . '/UserInvoices.html');
     }
 
     /**
-     * @return mixed|QUI\Projects\Site
+     * @return QUI\Interfaces\Projects\Site
      * @throws QUI\Exception
      */
-    public function getSite()
+    public function getSite(): QUI\Interfaces\Projects\Site
     {
         if ($this->getAttribute('Site')) {
             return $this->getAttribute('Site');
@@ -101,11 +102,11 @@ class UserInvoices extends Control implements ControlInterface
     /**
      * event: on save
      */
-    public function onSave()
+    public function onSave(): void
     {
     }
 
-    public function validate()
+    public function validate(): void
     {
     }
 }

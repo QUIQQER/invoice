@@ -8,6 +8,11 @@ namespace QUI\ERP\Accounting\Invoice\ProcessingStatus;
 
 use QUI;
 
+use function array_keys;
+use function count;
+use function json_encode;
+use function max;
+
 /**
  * Class Factory
  * - For processing status creation
@@ -19,15 +24,19 @@ class Factory extends QUI\Utils\Singleton
     /**
      * Create a new processing status
      *
-     * @param string|integer $id - processing ID
+     * @param integer|string $id - processing ID
      * @param string $color - color of the status
      * @param array $title - title
      * @param array $options (optional) - Status options
      * @throws Exception|QUI\Exception
      * @todo permissions
      */
-    public function createProcessingStatus($id, $color, array $title, array $options = [])
-    {
+    public function createProcessingStatus(
+        int|string $id,
+        string $color,
+        array $title,
+        array $options = []
+    ): void {
         $list = Handler::getInstance()->getList();
         $id = (int)$id;
         $data = [];
@@ -46,7 +55,7 @@ class Factory extends QUI\Utils\Singleton
         $Config->setValue(
             'processing_status',
             $id,
-            \json_encode([
+            json_encode([
                 'color' => $color,
                 'options' => $options
             ])
@@ -55,13 +64,11 @@ class Factory extends QUI\Utils\Singleton
         $Config->save();
 
         // translations
-        if (\is_array($title)) {
-            $languages = QUI::availableLanguages();
+        $languages = QUI::availableLanguages();
 
-            foreach ($languages as $language) {
-                if (isset($title[$language])) {
-                    $data[$language] = $title[$language];
-                }
+        foreach ($languages as $language) {
+            if (isset($title[$language])) {
+                $data[$language] = $title[$language];
             }
         }
 
@@ -83,15 +90,15 @@ class Factory extends QUI\Utils\Singleton
      *
      * @return int
      */
-    public function getNextId()
+    public function getNextId(): int
     {
         $list = Handler::getInstance()->getList();
 
-        if (!\count($list)) {
+        if (!count($list)) {
             return 1;
         }
 
-        $max = \max(\array_keys($list));
+        $max = max(array_keys($list));
 
         return $max + 1;
     }
