@@ -26,6 +26,7 @@ use function array_key_exists;
 use function class_exists;
 use function date;
 use function is_array;
+use function is_numeric;
 use function is_string;
 use function json_decode;
 use function json_encode;
@@ -397,8 +398,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
      */
     public function getEditor(): QUI\ERP\User
     {
-        return new QUI\ERP\User([
-            'id' => $this->getAttribute('editor_id'),
+        $params = [
             'country' => '',
             'username' => '',
             'firstname' => '',
@@ -406,7 +406,17 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             'lang' => '',
             'isCompany' => '',
             'isNetto' => ''
-        ]);
+        ];
+
+        if (is_numeric($this->getAttribute('editor_id'))) {
+            $params['id'] = $this->getAttribute('editor_id');
+        }
+
+        if (is_string($this->getAttribute('editor_id'))) {
+            $params['uuid'] = $this->getAttribute('editor_id');
+        }
+
+        return new QUI\ERP\User($params);
     }
 
     /**
