@@ -11,9 +11,9 @@
  * @throws QUI\Exception
  */
 
-use QUI\Exception;
-use QUI\ERP\Accounting\Payments\Transactions\Handler as TransactionHandler;
 use QUI\ERP\Accounting\Invoice\Handler as InvoiceHandler;
+use QUI\ERP\Accounting\Payments\Transactions\Handler as TransactionHandler;
+use QUI\Exception;
 use QUI\Utils\Security\Orthos;
 
 QUI::$Ajax->registerFunction(
@@ -23,12 +23,12 @@ QUI::$Ajax->registerFunction(
         $Invoice = $Invoices->getInvoiceByHash(Orthos::clear($invoiceHash));
         $Transaction = TransactionHandler::getInstance()->get(Orthos::clear($txId));
 
-        if ($Transaction->isHashLinked($Invoice->getHash())) {
+        if ($Transaction->isHashLinked($Invoice->getUUID())) {
             throw new Exception([
                 'quiqqer/invoice',
                 'message.ajax.invoices.linkTransaction.error.tx_already_linked',
                 [
-                    'invoiceNo' => $Invoice->getId(),
+                    'invoiceNo' => $Invoice->getUUID(),
                     'txId' => $Transaction->getTxId()
                 ]
             ]);

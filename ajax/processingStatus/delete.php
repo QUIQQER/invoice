@@ -16,6 +16,6 @@ QUI::$Ajax->registerFunction(
     function ($id) {
         Handler::getInstance()->deleteProcessingStatus($id);
     },
-    array('id'),
+    ['id'],
     'Permission::checkAdminUser'
 );

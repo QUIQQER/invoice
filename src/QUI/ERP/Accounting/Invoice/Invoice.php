@@ -17,6 +17,9 @@ use QUI\ERP\Customer\CustomerFiles;
 use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Output\Output as ERPOutput;
+use QUI\ERP\Shipping\Api\ShippingInterface;
+use QUI\ExceptionStack;
+use QUI\Interfaces\Users\User;
 use QUI\Permissions\Permission;
 
 use function array_key_exists;
@@ -26,7 +29,6 @@ use function is_array;
 use function is_string;
 use function json_decode;
 use function json_encode;
-use function str_replace;
 use function strip_tags;
 use function strtotime;
 use function time;
@@ -38,29 +40,9 @@ use function time;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
+class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
 {
-    /* @deprecated */
-    const PAYMENT_STATUS_OPEN = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_PAID = QUI\ERP\Constants::PAYMENT_STATUS_PAID;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_PART = QUI\ERP\Constants::PAYMENT_STATUS_PART;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_ERROR = QUI\ERP\Constants::PAYMENT_STATUS_ERROR;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_CANCELED = QUI\ERP\Constants::PAYMENT_STATUS_CANCELED;
-
-    /* @deprecated */
-    const PAYMENT_STATUS_DEBIT = QUI\ERP\Constants::PAYMENT_STATUS_DEBIT;
-
-    //    const PAYMENT_STATUS_CANCEL = 3;
-    //    const PAYMENT_STATUS_STORNO = 3; // Alias for cancel
-    //    const PAYMENT_STATUS_CREATE_CREDIT = 5;
+    use QUI\ERP\ErpEntityCustomerFiles;
 
     const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
     const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
@@ -78,7 +60,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     /**
      * @var string
      */
-    protected $prefix;
+    protected mixed $prefix;
 
     /**
      * @var int
@@ -88,29 +70,34 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     /**
      * @var string
      */
-    protected $globalProcessId;
+    protected string $id_with_prefix = '';
+
+    /**
+     * @var string
+     */
+    protected mixed $globalProcessId;
 
     /**
      * @var array
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * variable data for developers
      *
      * @var array
      */
-    protected $customData = [];
+    protected array $customData = [];
 
     /**
      * @var array
      */
-    protected $paymentData = [];
+    protected array $paymentData = [];
 
     /**
-     * @var null|integer
+     * @var null|ShippingInterface
      */
-    protected $Shipping = null;
+    protected ShippingInterface|null $Shipping = null;
 
     /**
      * Invoice constructor.
@@ -132,25 +119,36 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             $this->prefix = Settings::getInstance()->getInvoicePrefix();
         }
 
-        $this->id = (int)str_replace($this->prefix, '', $invoiceData['id']);
-        $this->type = Handler::TYPE_INVOICE;
+        $this->id = (int)$invoiceData['id'];
+        $this->type = QUI\ERP\Constants::TYPE_INVOICE;
+
+        if (!empty($invoiceData['id_with_prefix'])) {
+            $this->id_with_prefix = $invoiceData['id_with_prefix'];
+        } else {
+            $this->id_with_prefix = $this->prefix . $this->id;
+        }
 
         switch ((int)$this->getAttribute('type')) {
-            case Handler::TYPE_INVOICE:
-            case Handler::TYPE_INVOICE_TEMPORARY:
-            case Handler::TYPE_INVOICE_CREDIT_NOTE:
-            case Handler::TYPE_INVOICE_REVERSAL:
-            case Handler::TYPE_INVOICE_CANCEL:
+            case QUI\ERP\Constants::TYPE_INVOICE:
+            case QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY:
+            case QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE:
+            case QUI\ERP\Constants::TYPE_INVOICE_REVERSAL:
+            case QUI\ERP\Constants::TYPE_INVOICE_CANCEL:
                 $this->type = (int)$this->getAttribute('type');
                 break;
         }
 
         if ($this->getAttribute('data')) {
-            $this->data = json_decode($this->getAttribute('data'), true);
+            $this->data = json_decode($this->getAttribute('data'), true) ?? [];
         }
 
         if ($this->getAttribute('custom_data')) {
-            $this->customData = json_decode($this->getAttribute('custom_data'), true);
+            $this->customData = json_decode($this->getAttribute('custom_data'), true) ?? [];
+        }
+
+        // fallback customer files
+        if (!empty($this->data['customer_files']) && empty($this->customData['customer_files'])) {
+            $this->customData['customer_files'] = $this->data['customer_files'];
         }
 
         if ($this->getAttribute('global_process_id')) {
@@ -162,9 +160,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             $paymentData = QUI\Security\Encryption::decrypt($this->getAttribute('payment_data'));
             $paymentData = json_decode($paymentData, true);
 
-            if (is_array($paymentData)) {
-                $this->paymentData = $paymentData;
-            }
+            $this->paymentData = $paymentData ?? [];
         }
 
         // shipping
@@ -193,21 +189,53 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
     /**
      * Return the invoice id
+     * (Rechnungs-ID)
      *
-     * @return string
+     * @return int
      */
-    public function getId(): string
+    public function getId(): int
     {
-        return $this->prefix . $this->id;
+        return $this->id;
     }
 
     /**
-     * Return the hash
+     * @return string
+     * @deprecated use getPrefixedNumber()
+     */
+    public function getPrefixedId(): string
+    {
+        return $this->getPrefixedNumber();
+    }
+
+    /**
+     * Rechnungsnummer
+     *
+     * @return string
+     */
+    public function getPrefixedNumber(): string
+    {
+        return $this->id_with_prefix;
+    }
+
+    /**
+     * alias for getUUID()
+     * (Vorgangsnummer)
+     *
+     * @return string
+     * @deprecated use getUUID()
+     */
+    public function getHash(): string
+    {
+        return $this->getUUID();
+    }
+
+    /**
+     * Return the uuid of the invoice
      * (Vorgangsnummer)
      *
      * @return string
      */
-    public function getHash(): string
+    public function getUUID(): string
     {
         return $this->getAttribute('hash');
     }
@@ -226,10 +254,11 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * Returns only the integer id
      *
      * @return int
+     * @deprecated use getId()
      */
     public function getCleanId(): int
     {
-        return (int)str_replace($this->prefix, '', $this->getId());
+        return $this->getId();
     }
 
     /**
@@ -253,12 +282,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      */
     public function getArticles(): ArticleListUnique
     {
-        try {
-            $Currency = $this->getCurrency();
-        } catch (QUI\Exception $Exception) {
-            $Currency = QUI\ERP\Defaults::getCurrency();
-        }
-
         $articles = $this->getAttribute('articles');
 
         if (is_string($articles)) {
@@ -282,7 +305,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
                 $List->setExchangeRate($accountingCurrencyData['rate']);
             }
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
         }
 
         return $List;
@@ -406,7 +429,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             $this->calculatePayments();
         }
 
-        if ($this->getInvoiceType() === Handler::TYPE_INVOICE_STORNO) {
+        if ($this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_STORNO) {
             //$this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_CANCELED);
         }
 
@@ -424,7 +447,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @param string $key
      * @return mixed|null
      */
-    public function getPaymentDataEntry(string $key)
+    public function getPaymentDataEntry(string $key): mixed
     {
         if (array_key_exists($key, $this->paymentData)) {
             return $this->paymentData[$key];
@@ -439,7 +462,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @param string $key
      * @return mixed|null
      */
-    public function getPaymentData(string $key)
+    public function getPaymentData(string $key): mixed
     {
         return $this->getPaymentDataEntry($key);
     }
@@ -493,7 +516,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         if (!$data) {
             QUI\System\Log::addCritical(
-                'Error with invoice ' . $this->getId() . '. No payment Data available'
+                'Error with invoice ' . $this->getUUID() . '. No payment Data available'
             );
 
             return new Payment([]);
@@ -511,7 +534,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @return int|QUI\ERP\Shipping\Types\ShippingUnique|null
      */
-    public function getShipping()
+    public function getShipping(): int|QUI\ERP\Shipping\Types\ShippingUnique|null
     {
         return $this->Shipping;
     }
@@ -537,14 +560,16 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @return int - ID of the new
+     * @return ?QUI\ERP\ErpEntityInterface
      *
      * @throws Exception
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function reversal(string $reason, $PermissionUser = null): int
-    {
+    public function reversal(
+        string $reason = '',
+        QUI\Interfaces\Users\User $PermissionUser = null
+    ): ?QUI\ERP\ErpEntityInterface {
         // is canceled / reversal possible?
         if (!Settings::getInstance()->get('invoice', 'storno')) {
             // @todo implement credit note
@@ -598,7 +623,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 'history.message.reversal',
                 [
                     'username' => $User->getName(),
-                    'uid' => $User->getId()
+                    'uid' => $User->getUUID()
                 ]
             )
         );
@@ -633,7 +658,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             'quiqqer/invoice',
             'message.invoice.cancellationInvoice.additionalInvoiceText',
             [
-                'id' => $this->getId(),
+                'id' => $this->getUUID(),
                 'date' => $Formatter->format($currentDate)
             ]
         );
@@ -649,7 +674,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         try {
             Permission::checkPermission('quiqqer.invoice.canEditCancelInvoice', $PermissionUser);
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             $Reversal->post(QUI::getUsers()->getSystemUser());
         }
 
@@ -659,18 +684,18 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 'history.message.reversal.created',
                 [
                     'username' => $User->getName(),
-                    'uid' => $User->getId(),
-                    'creditNoteId' => $Reversal->getId()
+                    'uid' => $User->getUUID(),
+                    'creditNoteId' => $Reversal->getUUID()
                 ]
             )
         );
 
         // set the invoice status
-        $this->type = Handler::TYPE_INVOICE_CANCEL;
+        $this->type = QUI\ERP\Constants::TYPE_INVOICE_CANCEL;
 
         $Reversal = $Reversal->post(QUI::getUsers()->getSystemUser());
 
-        $this->data['canceledId'] = $Reversal->getCleanId();
+        $this->data['canceledId'] = $Reversal->getUUID();
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
@@ -679,7 +704,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 'data' => json_encode($this->data),
                 'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
             ],
-            ['id' => $this->getCleanId()]
+            ['hash' => $this->getUUID()]
         );
 
         $this->addComment($reason, QUI::getUsers()->getSystemUser());
@@ -689,7 +714,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             [$this, $Reversal]
         );
 
-        return $Reversal->getCleanId();
+        return $Reversal;
     }
 
     /**
@@ -697,31 +722,31 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @return int - ID of the new
+     * @return int|string - ID of the new
      *
      * @throws Exception
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function cancellation(string $reason, $PermissionUser = null): int
+    public function cancellation(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int|string
     {
-        return $this->reversal($reason, $PermissionUser);
+        return $this->reversal($reason, $PermissionUser)->getUUID();
     }
 
     /**
      * Alias for reversal
      *
      * @param string $reason
-     * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @return int - ID of the new
+     * @param null|User $PermissionUser
+     * @return int|string - ID of the new
      *
      * @throws Exception
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function storno(string $reason, $PermissionUser = null): int
+    public function storno(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int|string
     {
-        return $this->reversal($reason, $PermissionUser);
+        return $this->reversal($reason, $PermissionUser)->getUUID();
     }
 
     /**
@@ -771,7 +796,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         $currentData = QUI::getDataBase()->fetch([
             'from' => $Handler->invoiceTable(),
             'where' => [
-                'id' => $this->getCleanId()
+                'hash' => $this->getUUID()
             ],
             'limit' => 1
         ]);
@@ -793,7 +818,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
-                $invoiceAddressId = $Address->getId();
+                $invoiceAddressId = $Address->getUUID();
                 $invoiceAddress = $Address->toJSON();
             } catch (\Exception $Exception) {
                 QUI\System\Log::addDebug($Exception->getMessage());
@@ -804,7 +829,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             $Handler->temporaryInvoiceTable(),
             [
                 'global_process_id' => $globalProcessId,
-                'type' => Handler::TYPE_INVOICE_TEMPORARY,
+                'type' => QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY,
                 'customer_id' => $currentData['customer_id'],
                 'contact_person' => $currentData['contact_person'],
                 'invoice_address_id' => $invoiceAddressId,
@@ -839,7 +864,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             ['id' => $New->getCleanId()]
         );
 
-        $NewTemporaryInvoice = $Handler->getTemporaryInvoice($New->getId());
+        $NewTemporaryInvoice = $Handler->getTemporaryInvoice($New->getUUID());
 
         QUI::getEvents()->fireEvent('quiqqerInvoiceCopyEnd', [
             $this,
@@ -861,10 +886,12 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function createCreditNote($PermissionUser = null, $globalProcessId = false): InvoiceTemporary
-    {
+    public function createCreditNote(
+        QUI\Interfaces\Users\User $PermissionUser = null,
+        bool|string $globalProcessId = false
+    ): InvoiceTemporary {
         // a credit node cant create a credit note
-        if ($this->getInvoiceType() === Handler::TYPE_INVOICE_CREDIT_NOTE) {
+        if ($this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE) {
             throw new Exception([
                 'quiqqer/invoice',
                 'exception.credit.note.cant.create.credit.note'
@@ -942,8 +969,8 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         $Copy->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit.from', [
-                'invoiceParentId' => $this->getId(),
-                'invoiceId' => $this->getId()
+                'invoiceParentId' => $this->getUUID(),
+                'invoiceId' => $this->getUUID()
             ])
         );
 
@@ -970,7 +997,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             'quiqqer/invoice',
             'message.invoice.creditNote.additionalInvoiceText',
             [
-                'id' => $this->getId(),
+                'id' => $this->getUUID(),
                 'date' => $Formatter->format($currentDate)
             ]
         );
@@ -984,20 +1011,20 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         $additionalText .= $message;
 
         // saving copy
-        $Copy->setData('originalId', $this->getCleanId());
-        $Copy->setData('originalIdPrefixed', $this->getId());
+        $Copy->setData('originalId', $this->getId());
+        $Copy->setData('originalIdPrefixed', $this->getPrefixedNumber());
 
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
-        $Copy->setInvoiceType(Handler::TYPE_INVOICE_CREDIT_NOTE);
+        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE);
 
         if ($this->getAttribute('invoice_address')) {
             try {
                 $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
-                $invoiceAddressId = $Address->getId();
+                $invoiceAddressId = $Address->getUUID();
                 $invoiceAddress = $Address->toJSON();
 
                 $Copy->setAttribute('invoice_address_id', $invoiceAddressId);
@@ -1011,12 +1038,12 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         $this->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.credit', [
-                'invoiceParentId' => $this->getId(),
-                'invoiceId' => $Copy->getId()
+                'invoiceParentId' => $this->getUUID(),
+                'invoiceId' => $Copy->getUUID()
             ])
         );
 
-        $CreditNote = Handler::getInstance()->getTemporaryInvoice($Copy->getId());
+        $CreditNote = Handler::getInstance()->getTemporaryInvoice($Copy->getUUID());
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceCreateCreditNoteEnd',
@@ -1041,8 +1068,10 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function createReversal($PermissionUser = null, $globalProcessId = false): InvoiceTemporary
-    {
+    public function createReversal(
+        QUI\Interfaces\Users\User $PermissionUser = null,
+        bool|string $globalProcessId = false
+    ): InvoiceTemporary {
         Permission::checkPermission('quiqqer.invoice.reversal', $PermissionUser);
 
         QUI::getEvents()->fireEvent('quiqqerInvoiceCreateReversal', [$this]);
@@ -1108,8 +1137,8 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         $Copy->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.reversal.from', [
-                'invoiceParentId' => $this->getId(),
-                'invoiceId' => $this->getId()
+                'invoiceParentId' => $this->getUUID(),
+                'invoiceId' => $this->getUUID()
             ])
         );
 
@@ -1132,12 +1161,12 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             $currentDate = strtotime($currentDate);
         }
 
-        if ($this->getInvoiceType() === Handler::TYPE_INVOICE_CREDIT_NOTE) {
+        if ($this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE) {
             $message = $this->getCustomer()->getLocale()->get(
                 'quiqqer/invoice',
                 'message.invoice.reversal.additionalInvoiceText.creditNote',
                 [
-                    'id' => $this->getId(),
+                    'id' => $this->getUUID(),
                     'date' => $Formatter->format($currentDate)
                 ]
             );
@@ -1146,7 +1175,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 'quiqqer/invoice',
                 'message.invoice.reversal.additionalInvoiceText',
                 [
-                    'id' => $this->getId(),
+                    'id' => $this->getUUID(),
                     'date' => $Formatter->format($currentDate)
                 ]
             );
@@ -1162,20 +1191,20 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         $additionalText .= $message;
 
         // saving copy
-        $Copy->setData('originalId', $this->getCleanId());
-        $Copy->setData('originalIdPrefixed', $this->getId());
+        $Copy->setData('originalId', $this->getId());
+        $Copy->setData('originalIdPrefixed', $this->getPrefixedNumber());
 
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
-        $Copy->setInvoiceType(Handler::TYPE_INVOICE_REVERSAL);
+        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_REVERSAL);
 
         if ($this->getAttribute('invoice_address')) {
             try {
                 $address = json_decode($this->getAttribute('invoice_address'), true);
                 $Address = new QUI\ERP\Address($address);
 
-                $invoiceAddressId = $Address->getId();
+                $invoiceAddressId = $Address->getUUID();
                 $invoiceAddress = $Address->toJSON();
 
                 $Copy->setAttribute('invoice_address_id', $invoiceAddressId);
@@ -1189,12 +1218,12 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         $this->addHistory(
             QUI::getLocale()->get('quiqqer/invoice', 'message.create.reversal', [
-                'invoiceParentId' => $this->getId(),
-                'invoiceId' => $Copy->getId()
+                'invoiceParentId' => $this->getUUID(),
+                'invoiceId' => $Copy->getUUID()
             ])
         );
 
-        $Reversal = Handler::getInstance()->getTemporaryInvoice($Copy->getId());
+        $Reversal = Handler::getInstance()->getTemporaryInvoice($Copy->getUUID());
 
         QUI::getEvents()->fireEvent('quiqqerInvoiceCreateReversalEnd', [$this, $Reversal]);
 
@@ -1217,14 +1246,14 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             return;
         }
 
-        if ($Transaction->isHashLinked($this->getHash())) {
+        if ($Transaction->isHashLinked($this->getUUID())) {
             return;
         }
 
         if (
-            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+            $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE
         ) {
             return;
         }
@@ -1242,7 +1271,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
         QUI\ERP\Debug::getInstance()->log('Invoice :: link transaction');
 
-        $Transaction->addLinkedHash($this->getHash());
+        $Transaction->addLinkedHash($this->getUUID());
 
         $this->calculatePayments();
 
@@ -1267,11 +1296,11 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @throws QUI\Exception
      */
-    public function addTransaction(Transaction $Transaction)
+    public function addTransaction(Transaction $Transaction): void
     {
         QUI\ERP\Debug::getInstance()->log('Invoice:: add transaction');
 
-        if ($this->getHash() !== $Transaction->getHash()) {
+        if ($this->getUUID() !== $Transaction->getHash()) {
             return;
         }
 
@@ -1280,9 +1309,9 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         $this->calculatePayments();
 
         if (
-            $this->getInvoiceType() == Handler::TYPE_INVOICE_REVERSAL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CANCEL
-            || $this->getInvoiceType() == Handler::TYPE_INVOICE_CREDIT_NOTE
+            $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CANCEL
+            || $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE
         ) {
             return;
         }
@@ -1409,21 +1438,20 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @throws
      */
-    public function calculatePayments()
+    public function calculatePayments(): void
     {
         $User = QUI::getUserBySession();
 
         // old status
         $oldPaidStatus = $this->getAttribute('paid_status');
 
-        switch ($oldPaidStatus) {
-            /**
-             * Do not change paid_status if invoice is paid via direct debit.
-             *
-             * In this case the paid_status has be explicitly set via $this->setPaymentStatus()
-             */
-            case QUI\ERP\Constants::PAYMENT_STATUS_DEBIT:
-                return;
+        /**
+         * Do not change paid_status if invoice is paid via direct debit.
+         *
+         * In this case the paid_status has to be explicitly set via $this->setPaymentStatus()
+         */
+        if ($oldPaidStatus == QUI\ERP\Constants::PAYMENT_STATUS_DEBIT) {
+            return;
         }
 
         QUI\ERP\Accounting\Calc::calculatePayments($this);
@@ -1447,7 +1475,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 'paid_date' => $this->getAttribute('paid_date'),
                 'paid_status' => $this->getAttribute('paid_status')
             ],
-            ['id' => $this->getCleanId()]
+            ['id' => $this->getId()]
         );
 
         // Payment Status has changed
@@ -1479,6 +1507,11 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @param int $paymentStatus
      * @return void
+     *
+     * @throws Exception
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
+     * @throws ExceptionStack
      */
     public function setPaymentStatus(int $paymentStatus): void
     {
@@ -1513,7 +1546,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 'paid_date' => $this->getAttribute('paid_date'),
                 'paid_status' => $paymentStatus
             ],
-            ['id' => $this->getCleanId()]
+            ['id' => $this->getId()]
         );
 
         $this->setAttribute('paid_status', $paymentStatus);
@@ -1525,9 +1558,9 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
                 'history.message.set_payment_status',
                 [
                     'username' => $User->getName(),
-                    'uid' => $User->getId(),
-                    'oldStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.' . $oldPaymentStatus),
-                    'newStatus' => QUI::getLocale()->get('quiqqer/invoice', 'payment.status.' . $paymentStatus)
+                    'uid' => $User->getUUID(),
+                    'oldStatus' => QUI::getLocale()->get('quiqqer/erp', 'payment.status.' . $oldPaymentStatus),
+                    'newStatus' => QUI::getLocale()->get('quiqqer/erp', 'payment.status.' . $paymentStatus)
                 ]
             )
         );
@@ -1550,7 +1583,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @throws QUI\Exception
      */
-    public function sendTo(string $recipient, $template = false)
+    public function sendTo(string $recipient, bool|string $template = false): void
     {
         $type = $this->getInvoiceType();
         $outputType = 'Invoice';
@@ -1567,7 +1600,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         }
 
         ERPOutput::sendPdfViaMail(
-            $this->getId(),
+            $this->getUUID(),
             $outputType,
             null,
             null,
@@ -1586,7 +1619,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      *
      * @throws QUI\Exception
      */
-    public function addComment(string $comment, $PermissionUser = null)
+    public function addComment(string $comment, QUI\Interfaces\Users\User $PermissionUser = null): void
     {
         if (empty($comment)) {
             return;
@@ -1625,7 +1658,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
             ['comments' => $Comments->toJSON()],
-            ['id' => $this->getCleanId()]
+            ['id' => $this->getId()]
         );
 
         QUI::getEvents()->fireEvent(
@@ -1668,7 +1701,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
             ['history' => $History->toJSON()],
-            ['id' => $this->getCleanId()]
+            ['id' => $this->getId()]
         );
 
         QUI::getEvents()->fireEvent('onQuiqqerInvoiceAddHistory', [
@@ -1699,14 +1732,14 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @throws QUI\Exception
      * @throws QUI\ExceptionStack
      */
-    public function addCustomDataEntry(string $key, $value)
+    public function addCustomDataEntry(string $key, mixed $value): void
     {
         $this->customData[$key] = $value;
 
         QUI::getDataBase()->update(
             Handler::getInstance()->invoiceTable(),
             ['custom_data' => json_encode($this->customData)],
-            ['id' => $this->getCleanId()]
+            ['id' => $this->getId()]
         );
 
         QUI::getEvents()->fireEvent(
@@ -1727,7 +1760,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @param $key
      * @return mixed|null
      */
-    public function getCustomDataEntry($key)
+    public function getCustomDataEntry($key): mixed
     {
         if (isset($this->customData[$key])) {
             return $this->customData[$key];
@@ -1739,7 +1772,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     /**
      * Return all custom data
      *
-     * @return array|mixed
+     * @return array
      */
     public function getCustomData(): array
     {
@@ -1755,7 +1788,10 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     {
         $attributes = $this->getAttributes();
 
+        $attributes['uuid'] = $this->getUUID();
+        $attributes['entityType'] = $this->getType();
         $attributes['globalProcessId'] = $this->getGlobalProcessId();
+        $attributes['prefixedNumber'] = $this->getPrefixedNumber();
 
         return $attributes;
     }
@@ -1768,7 +1804,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @param integer $statusId
      * @throws QUI\Exception
      */
-    public function setProcessingStatus(int $statusId)
+    public function setProcessingStatus(int $statusId): void
     {
         try {
             $Status = ProcessingStatus\Handler::getInstance()->getProcessingStatus($statusId);
@@ -1784,7 +1820,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
             QUI::getDataBase()->update(
                 Handler::getInstance()->invoiceTable(),
                 ['processing_status' => $Status->getId()],
-                ['id' => $this->getCleanId()]
+                ['id' => $this->getId()]
             );
 
             $this->setAttribute('processing_status', $Status->getId());
@@ -1820,7 +1856,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
     public function getProcessingStatus(): ?ProcessingStatus\Status
     {
         try {
-            $Status = ProcessingStatus\Handler::getInstance()->getProcessingStatus(
+            return ProcessingStatus\Handler::getInstance()->getProcessingStatus(
                 $this->getAttribute('processing_status')
             );
         } catch (ProcessingStatus\Exception $Exception) {
@@ -1828,8 +1864,6 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
             return null;
         }
-
-        return $Status;
     }
 
     //endregion
@@ -1842,7 +1876,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
      * @param string $key
      * @return bool|array|mixed
      */
-    public function getData(string $key)
+    public function getData(string $key): mixed
     {
         if (isset($this->data[$key])) {
             return $this->data[$key];
@@ -1853,117 +1887,11 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface
 
     //endregion
 
-    // region Attached customer files
-
-    /**
-     * Add a customer file to this invoice
-     *
-     * @param string $fileHash - SHA256 hash of the file basename
-     * @param array $options (optional) - File options; see $defaultOptions in code for what's possible
-     *
-     * @throws Exception
-     * @throws QUI\Exception
-     */
-    public function addCustomerFile(string $fileHash, array $options = [])
-    {
-        $Customer = $this->getCustomer();
-
-        if (empty($Customer)) {
-            throw new Exception(
-                QUI::getLocale()->get('quiqqer/invoice', 'exception.Invoice.addCustomerFile.no_customer')
-            );
-        }
-
-        $file = CustomerFiles::getFileByHash($Customer->getId(), $fileHash);
-
-        if (empty($file)) {
-            throw new Exception(
-                QUI::getLocale()->get('quiqqer/invoice', 'exception.Invoice.addCustomerFile.file_not_found')
-            );
-        }
-
-        $defaultOptions = [
-            'attachToEmail' => false
-        ];
-
-        // set default options
-        foreach ($defaultOptions as $k => $v) {
-            if (!isset($options[$k])) {
-                $options[$k] = $v;
-            }
-        }
-
-        // cleanup
-        foreach ($options as $k => $v) {
-            if (!isset($defaultOptions[$k])) {
-                unset($options[$k]);
-            }
-        }
-
-        $fileEntry = [
-            'hash' => $fileHash,
-            'options' => $options
-        ];
-
-        $customerFiles = $this->getCustomerFiles();
-        $customerFiles[] = $fileEntry;
-
-        $this->data['customer_files'] = $customerFiles;
-
-        QUI::getDataBase()->update(
-            Handler::getInstance()->invoiceTable(),
-            [
-                'data' => json_encode($this->data)
-            ],
-            [
-                'id' => $this->getCleanId()
-            ]
-        );
-    }
-
-    /**
-     * Clear customer files
-     *
-     * @return void
-     */
-    public function clearCustomerFiles(): void
-    {
-        $this->data['customer_files'] = [];
-
-        QUI::getDataBase()->update(
-            Handler::getInstance()->invoiceTable(),
-            [
-                'data' => json_encode($this->data)
-            ],
-            [
-                'id' => $this->getCleanId()
-            ]
-        );
-    }
-
-    /**
-     * Get customer files that are attached to this invoice.
-     *
-     * @return array - Contains file hash and file options
-     */
-    public function getCustomerFiles(): array
-    {
-        $customerFiles = $this->getData('customer_files');
-
-        if (empty($customerFiles)) {
-            return [];
-        }
-
-        return $customerFiles;
-    }
-
-    // endregion
-
     /**
      * Get the price calculation
      *
      * @return Calculations
-     * @throws Exception
+     * @throws Exception|QUI\Exception
      */
     public function getPriceCalculation(): Calculations
     {

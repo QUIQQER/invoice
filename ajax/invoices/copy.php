@@ -14,7 +14,7 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_copy',
     function ($invoiceId) {
-        return InvoiceUtils::getInvoiceByString($invoiceId)->copy()->getId();
+        return InvoiceUtils::getInvoiceByString($invoiceId)->copy()->getUUID();
     },
     ['invoiceId'],
     'Permission::checkAdminUser'

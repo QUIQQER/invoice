@@ -13,7 +13,7 @@ QUI::$Ajax->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_html',
     function ($invoiceId, $data) {
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
-        $data    = \json_decode($data, true);
+        $data = json_decode($data, true);
 
         $Invoice->clearArticles();
 

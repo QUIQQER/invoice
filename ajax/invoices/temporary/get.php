@@ -17,11 +17,11 @@ QUI::$Ajax->registerFunction(
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
         $invoice = $Invoice->toArray();
 
-        if (isset($invoice['invoice_address']) && \is_string($invoice['invoice_address'])) {
-            $invoice['invoice_address'] = \json_decode($invoice['invoice_address'], true);
+        if (isset($invoice['invoice_address']) && is_string($invoice['invoice_address'])) {
+            $invoice['invoice_address'] = json_decode($invoice['invoice_address'], true);
         }
 
-        $invoice['currencyRate']            = $Invoice->getCurrency()->getExchangeRate();
+        $invoice['currencyRate'] = $Invoice->getCurrency()->getExchangeRate();
         $invoice['attached_customer_files'] = $Invoice->getCustomerFiles();
 
         return $invoice;

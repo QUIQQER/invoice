@@ -1388,8 +1388,8 @@
         </locale>
 
         <locale name="erp.panel.invoice.title">
-            <de><![CDATA[Rechnung: #[id]]]></de>
-            <en><![CDATA[Invoice: #[id]]]></en>
+            <de><![CDATA[Rechnung: [id] - [hash]]]></de>
+            <en><![CDATA[Invoice: [id] - [hash]]]></en>
         </locale>
 
         <locale name="erp.panel.invoice.data.title">

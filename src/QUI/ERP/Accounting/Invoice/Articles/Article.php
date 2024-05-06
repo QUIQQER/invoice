@@ -8,6 +8,9 @@ namespace QUI\ERP\Accounting\Invoice\Articles;
 
 use QUI;
 
+use function array_merge;
+use function get_class;
+
 /**
  * Article
  * An temporary invoice article
@@ -24,8 +27,8 @@ class Article extends QUI\ERP\Accounting\Article
      */
     public function toArray(): array
     {
-        return \array_merge(parent::toArray(), [
-            'class'   => \get_class($this),
+        return array_merge(parent::toArray(), [
+            'class' => get_class($this),
             'control' => 'package/quiqqer/invoice/bin/backend/controls/articles/Article'
         ]);
     }

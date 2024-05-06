@@ -2,6 +2,7 @@
 
 namespace QUI\ERP\Accounting\Invoice\Output;
 
+use Exception;
 use QUI;
 use QUI\Locale;
 
@@ -22,7 +23,7 @@ class OutputProviderCancelled extends OutputProviderInvoice
      *
      * @return string
      */
-    public static function getEntityType()
+    public static function getEntityType(): string
     {
         return 'Canceled';
     }
@@ -30,10 +31,10 @@ class OutputProviderCancelled extends OutputProviderInvoice
     /**
      * Get title for the output entity
      *
-     * @param Locale $Locale (optional) - If ommitted use \QUI::getLocale()
-     * @return mixed
+     * @param Locale|null $Locale $Locale (optional) - If omitted use \QUI::getLocale()
+     * @return string
      */
-    public static function getEntityTypeTitle(Locale $Locale = null)
+    public static function getEntityTypeTitle(Locale $Locale = null): string
     {
         if (empty($Locale)) {
             $Locale = QUI::getLocale();
@@ -45,12 +46,12 @@ class OutputProviderCancelled extends OutputProviderInvoice
     /**
      * Get e-mail subject when document is sent via mail
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return string
      *
      * @throws QUI\Exception
      */
-    public static function getMailSubject($entityId)
+    public static function getMailSubject(int|string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -67,8 +68,8 @@ class OutputProviderCancelled extends OutputProviderInvoice
                     $cancelledInvoiceId
                 );
 
-                $cancelledInvoiceId = $CancelledInvoice->getId();
-            } catch (\Exception $Exception) {
+                $cancelledInvoiceId = $CancelledInvoice->getUUID();
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
         }
@@ -85,12 +86,12 @@ class OutputProviderCancelled extends OutputProviderInvoice
     /**
      * Get e-mail body when document is sent via mail
      *
-     * @param string|int $entityId
+     * @param int|string $entityId
      * @return string
      *
      * @throws QUI\Exception
      */
-    public static function getMailBody($entityId)
+    public static function getMailBody(int|string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -107,8 +108,8 @@ class OutputProviderCancelled extends OutputProviderInvoice
                     $cancelledInvoiceId
                 );
 
-                $cancelledInvoiceId = $CancelledInvoice->getId();
-            } catch (\Exception $Exception) {
+                $cancelledInvoiceId = $CancelledInvoice->getUUID();
+            } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }
         }
