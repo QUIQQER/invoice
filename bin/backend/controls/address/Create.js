@@ -62,7 +62,7 @@ define('package/quiqqer/invoice/bin/backend/controls/address/Create', [
             this.$Elm = new Element('div', {
                 html: Mustache.render(template, {
                     message       : QUILocale.get(lg, 'invoice.create.address.message'),
-                    textData      : QUILocale.get('quiqqer/quiqqer', 'data'),
+                    textData      : QUILocale.get('quiqqer/core', 'data'),
                     textCompany   : QUILocale.get('quiqqer/system', 'company'),
                     textSalutation: QUILocale.get('quiqqer/system', 'salutation'),
                     textFirstName : QUILocale.get('quiqqer/system', 'firstname'),

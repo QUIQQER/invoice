@@ -549,7 +549,7 @@ define(
                             width: 90
                         },
                         {
-                            header: QUILocale.get('quiqqer/quiqqer', 'project'),
+                            header: QUILocale.get('quiqqer/core', 'project'),
                             dataIndex: 'project_name',
                             dataType: 'string',
                             width: 160
