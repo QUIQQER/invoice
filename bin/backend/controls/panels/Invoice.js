@@ -422,7 +422,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          */
         $showLockMessage: function() {
             const self = this;
-            let btnText = QUILocale.get('quiqqer/quiqqer', 'submit');
+            let btnText = QUILocale.get('quiqqer/core', 'submit');
 
             if (window.USER.isSU) {
                 btnText = QUILocale.get(lg, 'button.unlock.invoice.is.locked');
