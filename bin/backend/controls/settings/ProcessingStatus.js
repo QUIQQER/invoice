@@ -292,7 +292,7 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                 maxWidth : 600,
                 autoclose: false,
                 ok_button: {
-                    text     : QUILocale.get('quiqqer/quiqqer', 'edit'),
+                    text     : QUILocale.get('quiqqer/core', 'edit'),
                     textimage: 'fa fa-edit'
                 },
                 events   : {
@@ -392,7 +392,7 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                 maxWidth   : 600,
                 autoclose  : false,
                 ok_button  : {
-                    text     : QUILocale.get('quiqqer/quiqqer', 'remove'),
+                    text     : QUILocale.get('quiqqer/core', 'remove'),
                     textimage: 'fa fa-trash'
                 },
                 events     : {
