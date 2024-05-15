@@ -1038,7 +1038,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'vat_array' => json_encode($listCalculations['vatArray'])
             ],
             [
-                'id' => $this->getCleanId()
+                'id' => $this->getId()
             ]
         );
 
