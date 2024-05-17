@@ -169,7 +169,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             $shippingData = $this->getAttribute('shipping_data');
             $shippingData = json_decode($shippingData, true);
 
-            if (!class_exists('QUI\ERP\Shipping\Types\ShippingUnique')) {
+            if (class_exists('QUI\ERP\Shipping\Types\ShippingUnique')) {
                 $this->Shipping = new QUI\ERP\Shipping\Types\ShippingUnique($shippingData);
             }
         }

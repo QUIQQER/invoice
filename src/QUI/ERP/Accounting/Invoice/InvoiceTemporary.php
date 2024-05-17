@@ -119,9 +119,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
     protected ?int $shippingId = null;
 
     /**
-     * @var array
+     * @var array|false
      */
-    protected mixed $addressDelivery = [];
+    protected array|false $addressDelivery = [];
 
     /**
      * @var null|QUI\ERP\Currency\Currency
@@ -1038,7 +1038,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 'vat_array' => json_encode($listCalculations['vatArray'])
             ],
             [
-                'id' => $this->getCleanId()
+                'id' => $this->getId()
             ]
         );
 

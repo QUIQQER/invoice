@@ -66,7 +66,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             this.parent(options);
 
             if (this.getAttribute('invoiceId') && !this.getAttribute('hash')) {
-                this.setAttribute('hash', this.setAttribute('invoiceId'));
+                this.setAttribute('hash', this.getAttribute('invoiceId'));
             }
 
             if (this.getAttribute('uuid') && !this.getAttribute('hash')) {
