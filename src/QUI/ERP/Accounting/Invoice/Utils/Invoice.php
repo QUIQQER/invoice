@@ -133,7 +133,7 @@ class Invoice
         try {
             $Payments = QUI\ERP\Accounting\Payments\Payments::getInstance();
             $Payments->getPayment($Invoice->getAttribute('payment_method'));
-        } catch (QUI\ERP\Accounting\Payments\Exception) {
+        } catch (QUI\Exception) {
             $missing[] = 'payment';
         }
 

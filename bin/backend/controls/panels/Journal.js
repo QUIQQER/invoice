@@ -65,6 +65,7 @@ define(
                 '$onInject',
                 '$onInvoicesChange',
                 '$refreshButtonStatus',
+                '$onClickCreateInvoice',
                 '$onPDFExportButtonClick',
                 '$onAddPaymentButtonClick',
                 '$onClickCopyInvoice',
@@ -245,10 +246,7 @@ define(
                 })[0];
 
                 const PDF = this.$Grid.getButton('printPdf');
-
-                const Open = buttons.filter(function(Button) {
-                    return Button.getAttribute('name') === 'open';
-                })[0];
+                const Create = this.$Grid.getButton('create');
 
                 if (selected.length === 1 && parseInt(selected[0].type) === 3) {
                     CreditNote.disable(); // a credit note can't create a credit note
@@ -263,13 +261,11 @@ define(
                         Payment.enable();
                     }
 
-                    Open.enable();
                     PDF.enable();
                     Actions.enable();
                     return;
                 }
 
-                Open.disable();
                 Actions.disable();
                 PDF.disable();
             },
@@ -475,12 +471,11 @@ define(
                     },
                     buttons: [
                         {
-                            name: 'open',
-                            text: QUILocale.get(lg, 'journal.btn.open'),
-                            textimage: 'fa fa-file-o',
-                            disabled: true,
+                            name: 'create',
+                            text: QUILocale.get(lg, 'journal.btn.create'),
+                            textimage: 'fa fa-plus',
                             events: {
-                                onClick: this.$onClickOpenInvoice
+                                onClick: this.$onClickCreateInvoice
                             }
                         },
                         {
@@ -817,6 +812,31 @@ define(
             },
 
             //region Buttons events
+
+            $onClickCreateInvoice: function() {
+                return Invoices.createInvoice().then(function(invoiceId) {
+                    require([
+                        'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice',
+                        'utils/Panels'
+                    ], function(TemporaryInvoice, PanelUtils) {
+                        const Panel = new TemporaryInvoice({
+                            invoiceId: invoiceId,
+                            '#id': invoiceId
+                        });
+
+                        PanelUtils.openPanelInTasks(Panel);
+                    });
+                }.bind(this)).catch(function(Exception) {
+                    QUI.getMessageHandler().then(function(MH) {
+                        if (typeof Exception.getMessage !== 'undefined') {
+                            MH.addError(Exception.getMessage());
+                            return;
+                        }
+
+                        console.error(Exception);
+                    });
+                });
+            },
 
             /**
              * event : on PDF Export button click
