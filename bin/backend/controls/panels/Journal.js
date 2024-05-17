@@ -244,9 +244,7 @@ define(
                     return Button.getAttribute('name') === 'createCreditNote';
                 })[0];
 
-                const PDF = buttons.filter(function(Button) {
-                    return Button.getAttribute('name') === 'printPdf';
-                })[0];
+                const PDF = this.$Grid.getButton('printPdf');
 
                 const Open = buttons.filter(function(Button) {
                     return Button.getAttribute('name') === 'open';
@@ -476,7 +474,6 @@ define(
                         xls: true
                     },
                     buttons: [
-                        Actions,
                         {
                             name: 'open',
                             text: QUILocale.get(lg, 'journal.btn.open'),
@@ -491,10 +488,12 @@ define(
                             text: QUILocale.get(lg, 'journal.btn.pdf'),
                             textimage: 'fa fa-print',
                             disabled: true,
+                            position: 'right',
                             events: {
                                 onClick: this.$onPDFExportButtonClick
                             }
-                        }
+                        },
+                        Actions
                     ],
                     columnModel: [
                         {
