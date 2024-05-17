@@ -8,4 +8,26 @@ parameters:
         - ajax
     bootstrapFiles:
         - tests/phpstan-bootstrap.php
-
+    treatPhpDocTypesAsCertain: false
+    customRulesetUsed: true
+services:
+    -
+        class: \PHPStan\Rules\Properties\TypesAssignedToPropertiesRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \PHPStan\Rules\Functions\ArrowFunctionReturnTypeRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \PHPStan\Rules\Functions\ClosureReturnTypeRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \PHPStan\Rules\Functions\ReturnTypeRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: \PHPStan\Rules\Methods\ReturnTypeRule
+        tags:
+            - phpstan.rules.rule

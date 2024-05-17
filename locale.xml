@@ -850,6 +850,10 @@
             <de><![CDATA[Rechnung öffnen]]></de>
             <en><![CDATA[Open invoice]]></en>
         </locale>
+        <locale name="journal.btn.create">
+            <de><![CDATA[Neue Rechnung]]></de>
+            <en><![CDATA[New invoice]]></en>
+        </locale>
         <locale name="journal.btn.total">
             <de><![CDATA[Summe anzeigen]]></de>
             <en><![CDATA[Show sum]]></en>

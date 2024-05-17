@@ -120,11 +120,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 this.$Grid.setData(result);
 
+                const PDF = this.$Grid.getButtons('pdf')[0];
                 const Actions = this.$Grid.getButtons().filter(function(Btn) {
-                        return Btn.getAttribute('name') === 'actions';
-                    })[0],
+                    return Btn.getAttribute('name') === 'actions';
+                })[0];
 
-                    children = Actions.getChildren();
+                const children = Actions.getChildren();
 
 
                 const Copy = children.filter(function(Btn) {
@@ -133,10 +134,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 const Delete = children.filter(function(Btn) {
                     return Btn.getAttribute('name') === 'delete';
-                })[0];
-
-                const PDF = children.filter(function(Btn) {
-                    return Btn.getAttribute('name') === 'pdf';
                 })[0];
 
                 const Post = children.filter(function(Btn) {
@@ -257,8 +254,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 name: 'actions',
                 text: QUILocale.get(lg, 'journal.btn.actions'),
                 menuCorner: 'topRight',
-                position: 'right',
-                order: 2
+                position: 'right'
             });
 
             Actions.appendChild({
@@ -291,17 +287,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 }
             });
 
-            Actions.appendChild({
-                name: 'pdf',
-                disabled: true,
-                text: QUILocale.get(lg, 'journal.btn.pdf'),
-                icon: 'fa fa-file-pdf-o',
-                events: {
-                    onClick: this.$clickPDF
-                }
-            });
-
-
             this.$Grid = new Grid(Container, {
                 titleSort: true,
                 storageKey: 'quiqqer-invoice-grid-temporaryInvoices',
@@ -325,7 +310,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 },
 
                 buttons: [
-                    Actions,
                     this.$Currency,
                     {
                         name: 'create',
@@ -340,7 +324,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                                 });
                             }
                         }
-                    }
+                    },
+                    {
+                        name: 'pdf',
+                        disabled: true,
+                        text: QUILocale.get(lg, 'journal.btn.pdf'),
+                        textimage: 'fa fa-print',
+                        position: 'right',
+                        events: {
+                            onClick: this.$clickPDF
+                        }
+                    },
+                    Actions
                 ],
                 columnModel: [
                     {
@@ -527,7 +522,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 onClick: function() {
                     const selected = this.getSelectedIndices();
-
+                    const PDF = this.getButton('pdf');
                     const Actions = this.getButtons().filter(function(Btn) {
                             return Btn.getAttribute('name') === 'actions';
                         })[0],
@@ -540,10 +535,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                     const Delete = children.filter(function(Btn) {
                         return Btn.getAttribute('name') === 'delete';
-                    })[0];
-
-                    const PDF = children.filter(function(Btn) {
-                        return Btn.getAttribute('name') === 'pdf';
                     })[0];
 
                     const Post = children.filter(function(Btn) {
@@ -1033,7 +1024,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             Dialogs.openPrintDialog(selected.hash, entityType);
 
-            Button.setAttribute('textimage', 'fa fa-file-pdf-o');
+            Button.setAttribute('textimage', 'fa fa-print');
         },
 
         /**
