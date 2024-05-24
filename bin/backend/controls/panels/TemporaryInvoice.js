@@ -290,6 +290,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             return {
                 customer_id: this.getAttribute('customer_id'),
                 invoice_address_id: this.getAttribute('invoice_address_id'),
+                invoice_address: this.getAttribute('invoice_address'),
                 project_name: this.getAttribute('project_name'),
                 articles: this.getAttribute('articles'),
                 priceFactors: this.getAttribute('priceFactors'),
@@ -457,6 +458,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.setAttribute('invoice_address_id', Customer.addressId);
                     self.setAttribute('contact_person', Customer.contactPerson);
                     self.setAttribute('contactEmail', Customer.contactEmail);
+                    self.setAttribute('invoice_address', Data.getAddress());
 
                     // reset deliver address
                     if (self.$AddressDelivery) {
@@ -563,6 +565,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 return Data.setValue(address);
             }).then(function() {
+                // invoice address
+                const dataQUIID = self.getContent().getElement(
+                    '[data-qui="package/quiqqer/erp/bin/backend/controls/userData/UserData"]'
+                ).get('data-quiid');
+
+                let Data = QUI.Controls.getById(dataQUIID);
+
+                self.setAttribute('invoice_address', Data.getAddress());
+
                 // delivery address
                 self.$AddressDelivery = QUI.Controls.getById(
                     self.getContent().getElement(
