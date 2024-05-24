@@ -4,3 +4,5 @@ phpstan.neon
 phpunit.xml
 
 tools/
+
+phpstan.neon
