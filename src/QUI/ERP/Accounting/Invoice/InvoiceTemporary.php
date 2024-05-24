@@ -786,7 +786,10 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             );
 
             $invoiceAddressData = $this->getAttribute('invoice_address');
-            $invoiceAddressData = json_decode($invoiceAddressData, true);
+
+            if (!is_array($invoiceAddressData)) {
+                $invoiceAddressData = json_decode($invoiceAddressData, true);
+            }
 
             if ($invoiceAddressData) {
                 $Address->setAttributes($invoiceAddressData);
