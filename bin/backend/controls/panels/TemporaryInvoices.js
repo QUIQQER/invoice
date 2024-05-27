@@ -352,8 +352,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     },
                     {
                         header: QUILocale.get(lg, 'journal.grid.invoiceNo'),
-                        dataIndex: 'id',
-                        dataType: 'integer',
+                        dataIndex: 'prefixedNumber',
+                        dataType: 'string',
                         width: 100
                     },
                     {
@@ -512,6 +512,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     {
                         dataIndex: 'c_user',
                         dataType: 'integer',
+                        hidden: true
+                    },
+                    {
+                        dataIndex: 'id',
+                        dataType: 'string',
                         hidden: true
                     }
                 ]

@@ -777,7 +777,6 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         // address
         $contactEmail = $this->getAttribute('contactEmail') ?: false;
-        $invoiceAddressId = false;
 
         try {
             $Customer = QUI::getUsers()->get($this->getAttribute('customer_id'));
@@ -787,7 +786,10 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             );
 
             $invoiceAddressData = $this->getAttribute('invoice_address');
-            $invoiceAddressData = json_decode($invoiceAddressData, true);
+
+            if (!is_array($invoiceAddressData)) {
+                $invoiceAddressData = json_decode($invoiceAddressData, true);
+            }
 
             if ($invoiceAddressData) {
                 $Address->setAttributes($invoiceAddressData);
@@ -797,11 +799,8 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
             $invoiceAddress = $Address->toJSON();
             $this->Articles->setUser($Customer);
-
-            $invoiceAddressId = $Address->getUUID();
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             $invoiceAddress = $this->getAttribute('invoice_address');
-            $invoiceAddressCheck = false;
 
             if (is_string($invoiceAddress)) {
                 $invoiceAddressCheck = json_decode($invoiceAddress, true);
@@ -813,11 +812,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 $invoiceAddress = json_encode($invoiceAddress);
             }
 
-            if (empty($invoiceAddressCheck['id'])) {
-                QUI\System\Log::addNotice($Exception->getMessage());
-            } else {
-                $invoiceAddressId = $invoiceAddressCheck['id'];
-            }
+            $Address = new QUI\ERP\Address(
+                json_decode($invoiceAddress, true)
+            );
         }
 
         $this->Articles->calc();
@@ -916,7 +913,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         $DeliveryAddress = $this->getDeliveryAddress();
 
         // Save delivery address separately only if it differs from invoice address
-        if ($DeliveryAddress && ($invoiceAddressId && $DeliveryAddress->getUUID() !== $invoiceAddressId)) {
+        if ($DeliveryAddress && !$DeliveryAddress->equals($Address)) {
             $deliveryAddress = $DeliveryAddress->toJSON();
             $deliveryAddressId = $DeliveryAddress->getUUID();
 
