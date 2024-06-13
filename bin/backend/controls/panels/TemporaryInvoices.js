@@ -804,7 +804,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 for (let i = 0, len = selected.length; i < len; i++) {
                     Row = selected[i];
-                    invoices += '<li>' + Row.id;
+                    invoices += '<li><b>' + Row.prefixedNumber +'</b>';
 
                     if (Row.customer_name) {
                         invoices += ' - ' + Row.customer_name;
@@ -895,7 +895,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             let invoices = '';
 
             for (let i = 0, len = selected.length; i < len; i++) {
-                invoices = invoices + '<li>' + selected[i].id + '</li>';
+                invoices = invoices + '<li>' + selected[i].prefixedNumber + '</li>';
             }
 
             new QUIConfirm({
@@ -959,7 +959,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 title: QUILocale.get(lg, 'dialog.ti.copy.title'),
                 text: QUILocale.get(lg, 'dialog.ti.copy.text'),
                 information: QUILocale.get(lg, 'dialog.ti.copy.information', {
-                    id: selected[0].id
+                    id: selected[0].prefixedNumber
                 }),
                 icon: 'fa fa-copy',
                 texticon: 'fa fa-copy',
