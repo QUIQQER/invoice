@@ -88,7 +88,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
         initialize: function(options) {
             this.setAttributes({
-                icon: 'fa fa-money'
+                icon: 'fa fa-file-text-o'
             });
 
             this.parent(options);

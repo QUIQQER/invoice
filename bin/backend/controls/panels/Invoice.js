@@ -60,7 +60,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
         initialize: function(options) {
             this.setAttributes({
-                icon: 'fa fa-money'
+                icon: 'fa fa-file-text-o'
             });
 
             this.parent(options);
@@ -701,6 +701,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                                 self.Loader.show();
                                 self.setProcessingStatus(Processing.getValue()).then(function() {
                                     self.Loader.hide();
+                                    self.showSavedIconAnimation();
                                 });
                             });
 
@@ -958,6 +959,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         self.Loader.show();
                         self.setProcessingStatus(Processing.getValue()).then(function() {
                             self.Loader.hide();
+                            self.showSavedIconAnimation();
                         });
                     });
 
