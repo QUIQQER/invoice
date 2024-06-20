@@ -203,7 +203,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
 
         // invoice extra data
-        $this->data = json_decode($data['data'], true) ?? [];
+        if (!empty($data['data'])) {
+            $this->data = json_decode($data['data'], true) ?? [];
+        }
 
         if (isset($data['custom_data'])) {
             $this->customData = json_decode($data['custom_data'], true) ?? [];

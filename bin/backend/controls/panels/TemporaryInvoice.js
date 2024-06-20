@@ -1345,6 +1345,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         $onCreate: function() {
             const self = this;
 
+            require([
+                'package/quiqqer/erp/bin/backend/controls/process/ProcessWindowButton'
+            ], (ProcessWindowButton) => {
+                new ProcessWindowButton({
+                    hash: this.getAttribute('hash')
+                }).inject(this.getHeader());
+            });
+
             this.$AddProduct = new QUIButtonMultiple({
                 textimage: 'fa fa-plus',
                 text: QUILocale.get(lg, 'erp.panel.temporary.invoice.buttonAdd'),

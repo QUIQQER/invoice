@@ -139,6 +139,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          * event: on create
          */
         $onCreate: function() {
+            require([
+                'package/quiqqer/erp/bin/backend/controls/process/ProcessWindowButton'
+            ], (ProcessWindowButton) => {
+                new ProcessWindowButton({
+                    hash: this.getAttribute('hash')
+                }).inject(this.getHeader());
+            });
+
             // create the buttons (top bar)
             this.addButton({
                 textimage: 'fa fa-print',

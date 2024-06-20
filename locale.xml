@@ -1076,8 +1076,8 @@
             <en><![CDATA[Ordered by]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoiceText">
-            <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
-            <en><![CDATA[Additional invoice text]]></en>
+            <de><![CDATA[Zusätzliche Rechnungsinformationen]]></de>
+            <en><![CDATA[Additional invoice information]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textStatus">
             <de><![CDATA[Status]]></de>
@@ -1439,8 +1439,8 @@
         </locale>
 
         <locale name="erp.panel.invoice.data.invoiceText">
-            <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
-            <en><![CDATA[Additional invoice text]]></en>
+            <de><![CDATA[Zusätzliche Rechnungsinformationen]]></de>
+            <en><![CDATA[Additional invoice information]]></en>
         </locale>
         <locale name="erp.panel.invoice.preview">
             <de><![CDATA[Vorschau]]></de>
@@ -1648,7 +1648,7 @@
             Du besitzt nicht die nötigen Rechte das Rechnungsdatum zu setzen. Daher wird das heutige Datum verwendet.
             ]]></de>
             <en><![CDATA[
-            You do not have the necessary rights to set the invoice date. Therefore today's date is used.
+            You do not have the necessary rights to set the invoice date. Therefore, today's date is used.
             ]]></en>
         </locale>
 
