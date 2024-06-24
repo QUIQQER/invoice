@@ -374,7 +374,7 @@ class OutputProviderInvoice implements OutputProviderInterface
         }
 
         return array_merge([
-            'invoiceId' => $Invoice->getUUID(),
+            'invoiceId' => $Invoice->getPrefixedNumber(),
             'hash' => $Invoice->getAttribute('hash'),
             'date' => self::dateFormat($Invoice->getAttribute('date')),
             'systemCompany' => self::getCompanyName(),
