@@ -11,13 +11,15 @@ use QUI\ERP\Accounting\ArticleList;
 use QUI\ERP\Accounting\Calculations;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
-use QUI\ERP\ErpEntityInterface;
 use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Order\Handler as OrderHandler;
 use QUI\ERP\User;
 use QUI\ExceptionStack;
 use QUI\Utils\Security\Orthos;
+use QUI\ERP\ErpEntityInterface;
+use QUI\ERP\ErpTransactionsInterface;
+use QUI\ERP\ErpCopyInterface;
 
 use function array_flip;
 use function class_exists;
@@ -46,7 +48,7 @@ use const PHP_INT_MAX;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
+class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInterface, ErpCopyInterface
 {
     use QUI\ERP\ErpEntityCustomerFiles;
 
@@ -1094,14 +1096,19 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
      * Copy the temporary invoice
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
+     * @param bool|string $globalProcessId
      * @return InvoiceTemporary
      *
-     * @throws QUI\Permissions\Exception
+     * @throws ExceptionStack
+     * @throws QUI\Database\Exception
      * @throws QUI\Exception
+     * @throws QUI\Permissions\Exception
      * @throws Exception
      */
-    public function copy(QUI\Interfaces\Users\User $PermissionUser = null): InvoiceTemporary
-    {
+    public function copy(
+        QUI\Interfaces\Users\User $PermissionUser = null,
+        bool|string $globalProcessId = false
+    ): InvoiceTemporary {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
         }
@@ -1118,7 +1125,16 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
-        $New = $Factory->createInvoice($PermissionUser, $this->getGlobalProcessId());
+
+        if (empty($globalProcessId)) {
+            $globalProcessId = QUI\Utils\Uuid::get();
+            $newProcess = true;
+        } else {
+            $globalProcessId = $this->getGlobalProcessId();
+            $newProcess = false;
+        }
+
+        $New = $Factory->createInvoice($PermissionUser, $globalProcessId);
 
         $currentData = QUI::getDataBase()->fetch([
             'from' => $Handler->temporaryInvoiceTable(),
@@ -1129,11 +1145,17 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         ]);
 
         $currentData = $currentData[0];
-        $currentData['hash'] = QUI\Utils\Uuid::get();
+        $currentData['hash'] = $New->getUUID();
+        $currentData['global_process_id'] = $New->getGlobalProcessId();
 
         unset($currentData['id']);
         unset($currentData['c_user']);
         unset($currentData['date']);
+
+        if ($newProcess) {
+            unset($currentData['history']);
+        }
+
 
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
