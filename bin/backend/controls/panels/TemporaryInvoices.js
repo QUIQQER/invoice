@@ -804,7 +804,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 for (let i = 0, len = selected.length; i < len; i++) {
                     Row = selected[i];
-                    invoices += '<li><b>' + Row.prefixedNumber +'</b>';
+                    invoices += '<li><b>' + Row.prefixedNumber + '</b>';
 
                     if (Row.customer_name) {
                         invoices += ' - ' + Row.customer_name;
@@ -948,52 +948,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          * Copy the temporary invoice and opens the invoice
          */
         $clickCopyInvoice: function() {
-            const self = this,
-                selected = this.$Grid.getSelectedData();
+            const selected = this.$Grid.getSelectedData();
 
             if (!selected.length) {
                 return;
             }
 
-            new QUIConfirm({
-                title: QUILocale.get(lg, 'dialog.ti.copy.title'),
-                text: QUILocale.get(lg, 'dialog.ti.copy.text'),
-                information: QUILocale.get(lg, 'dialog.ti.copy.information', {
-                    id: selected[0].prefixedNumber
-                }),
-                icon: 'fa fa-copy',
-                texticon: 'fa fa-copy',
-                maxHeight: 400,
-                maxWidth: 600,
-                autoclose: false,
-                ok_button: {
-                    text: QUILocale.get('quiqqer/core', 'copy'),
-                    textimage: 'fa fa-copy'
-                },
-                events: {
-                    onSubmit: function(Win) {
-                        Win.Loader.show();
-
-                        Invoices.copyTemporaryInvoice(selected[0].hash).then(function(newId) {
-                            Win.close();
-                            return self.openInvoice(newId);
-                        }).then(function() {
-                            Win.Loader.show();
-                        }).catch(function(Exception) {
-                            QUI.getMessageHandler().then(function(MH) {
-                                if (typeof Exception.getMessage !== 'undefined') {
-                                    MH.addError(Exception.getMessage());
-                                    return;
-                                }
-
-                                console.error(Exception);
-                            });
-
-                            Win.Loader.hide();
-                        });
-                    }
-                }
-            }).open();
+            require([
+                'package/quiqqer/erp/bin/backend/controls/dialogs/CopyErpEntityDialog'
+            ], (CopyErpEntityDialog) => {
+                new CopyErpEntityDialog({
+                    hash: selected[0].hash
+                }).open();
+            });
         },
 
         /**

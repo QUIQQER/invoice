@@ -22,7 +22,7 @@
     "php81_bc/strftime": "^0.7",
     "quiqqer/core": "^2",
     "quiqqer/qui": "^1.6.7",
-    "quiqqer/erp": "^3.4",
+    "quiqqer/erp": "^3.5",
     "quiqqer/customer": "^2",
     "quiqqer/payments": "^3",
     "quiqqer/payment-transactions": "^2",
@@ -35,5 +35,6 @@
     "psr-4": {
       "QUI\\ERP\\": "src/QUI/ERP"
     }
-  }
+  },
+  "version": "2.1.1"
 }
