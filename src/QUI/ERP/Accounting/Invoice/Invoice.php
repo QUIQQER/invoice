@@ -13,13 +13,15 @@ use QUI\ERP\Accounting\Calculations;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Address as ErpAddress;
-use QUI\ERP\Customer\CustomerFiles;
 use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Output\Output as ERPOutput;
 use QUI\ERP\Shipping\Api\ShippingInterface;
 use QUI\ExceptionStack;
 use QUI\Interfaces\Users\User;
+use QUI\ERP\ErpEntityInterface;
+use QUI\ERP\ErpTransactionsInterface;
+use QUI\ERP\ErpCopyInterface;
 use QUI\Permissions\Permission;
 
 use function array_key_exists;
@@ -41,7 +43,7 @@ use function time;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
+class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInterface, ErpCopyInterface
 {
     use QUI\ERP\ErpEntityCustomerFiles;
 

@@ -927,22 +927,24 @@ define(
              * @return {Promise}
              */
             $onClickCopyInvoice: function() {
-                const self = this, selected = this.$Grid.getSelectedData();
+                const selected = this.$Grid.getSelectedData();
 
                 if (!selected.length) {
                     return Promise.resolve(false);
                 }
-
+console.log(selected[0]);
                 const hash = selected[0].hash;
 
                 return new Promise(function(resolve) {
                     require([
-                        'package/quiqqer/invoice/bin/backend/utils/Dialogs'
-                    ], function(Dialogs) {
-                        Dialogs.openCopyDialog(hash).then(function(newId) {
-                            self.openTemporaryInvoice(newId);
-                            resolve(newId);
-                        });
+                        'package/quiqqer/erp/bin/backend/controls/dialogs/CopyErpEntityDialog'
+                    ], (CopyErpEntityDialog) => {
+                        new CopyErpEntityDialog({
+                            hash: hash,
+                            events: {
+                                onSuccess: resolve
+                            }
+                        }).open();
                     });
                 });
             },

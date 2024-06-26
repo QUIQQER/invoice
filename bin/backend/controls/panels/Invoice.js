@@ -505,21 +505,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          * @return {Promise}
          */
         copy: function() {
-            const self = this;
-
-            return new Promise(function(resolve) {
+            return new Promise((resolve) => {
                 require([
-                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
-                ], function(Dialogs) {
-                    Dialogs.openCopyDialog(self.getAttribute('data').hash).then(function(invoiceId) {
-                        return new Promise(function(resolve) {
-                            require([
-                                'package/quiqqer/invoice/bin/backend/utils/Panels'
-                            ], function(PanelUtils) {
-                                PanelUtils.openTemporaryInvoice(invoiceId).then(resolve);
-                            });
-                        });
-                    }).then(resolve);
+                    'package/quiqqer/erp/bin/backend/controls/dialogs/CopyErpEntityDialog'
+                ], (CopyErpEntityDialog) => {
+                    new CopyErpEntityDialog({
+                        hash: this.getAttribute('hash'),
+                        events: {
+                            onSuccess: resolve
+                        }
+                    }).open();
                 });
             });
         },
