@@ -932,7 +932,7 @@ define(
                 if (!selected.length) {
                     return Promise.resolve(false);
                 }
-console.log(selected[0]);
+
                 const hash = selected[0].hash;
 
                 return new Promise(function(resolve) {
@@ -941,6 +941,7 @@ console.log(selected[0]);
                     ], (CopyErpEntityDialog) => {
                         new CopyErpEntityDialog({
                             hash: hash,
+                            entityPlugin: 'quiqqer/invoice',
                             events: {
                                 onSuccess: resolve
                             }

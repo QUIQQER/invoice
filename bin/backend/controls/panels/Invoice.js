@@ -511,6 +511,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 ], (CopyErpEntityDialog) => {
                     new CopyErpEntityDialog({
                         hash: this.getAttribute('hash'),
+                        entityPlugin: 'quiqqer/invoice',
                         events: {
                             onSuccess: resolve
                         }
