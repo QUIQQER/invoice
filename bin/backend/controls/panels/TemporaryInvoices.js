@@ -958,7 +958,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 'package/quiqqer/erp/bin/backend/controls/dialogs/CopyErpEntityDialog'
             ], (CopyErpEntityDialog) => {
                 new CopyErpEntityDialog({
-                    hash: selected[0].hash
+                    hash: selected[0].hash,
+                    entityPlugin: 'quiqqer/invoice'
                 }).open();
             });
         },
