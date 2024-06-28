@@ -527,6 +527,10 @@ define(
                             dataType: 'string',
                             width: 90,
                             className: 'clickable'
+                        }, {
+                            dataIndex: 'customer_id',
+                            dataType: 'string',
+                            hidden: true
                         },
                         {
                             header: QUILocale.get(lg, 'journal.grid.status'),
@@ -941,7 +945,6 @@ define(
                     ], (CopyErpEntityDialog) => {
                         new CopyErpEntityDialog({
                             hash: hash,
-                            entityPlugin: 'quiqqer/invoice',
                             events: {
                                 onSuccess: resolve
                             }

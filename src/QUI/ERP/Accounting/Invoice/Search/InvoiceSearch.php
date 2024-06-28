@@ -773,8 +773,10 @@ class InvoiceSearch extends Singleton
 
             if ($Customer->getAttribute('customerId')) {
                 $invoiceData['customer_id_display'] = $Customer->getAttribute('customerId');
+                $invoiceData['customer_id'] = $Customer->getUUID() ?? $Customer->getId();
             } else {
                 $invoiceData['customer_id_display'] = '';
+                $invoiceData['customer_id'] = '';
             }
 
             $invoiceData['customer_name'] = trim(
