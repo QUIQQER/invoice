@@ -899,8 +899,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * @throws QUI\Permissions\Exception
      */
     public function createCreditNote(
-        QUI\Interfaces\Users\User $PermissionUser = null,
-        bool|string $globalProcessId = false
+        QUI\Interfaces\Users\User $PermissionUser = null
     ): InvoiceTemporary {
         // a credit node cant create a credit note
         if ($this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE) {
@@ -920,7 +919,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             [$this]
         );
 
-        $Copy = $this->copy(QUI::getUsers()->getSystemUser(), $globalProcessId);
+        $Copy = $this->copy(QUI::getUsers()->getSystemUser(), $this->getGlobalProcessId());
         $articles = $Copy->getArticles()->getArticles();
 
         // change all prices
@@ -1029,7 +1028,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
-        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE);
+        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE, QUI::getUsers()->getSystemUser());
 
         if ($this->getAttribute('invoice_address')) {
             try {
@@ -1209,7 +1208,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
-        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_REVERSAL);
+        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_REVERSAL, QUI::getUsers()->getSystemUser());
 
         if ($this->getAttribute('invoice_address')) {
             try {
