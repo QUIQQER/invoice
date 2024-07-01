@@ -945,6 +945,7 @@ define(
                     ], (CopyErpEntityDialog) => {
                         new CopyErpEntityDialog({
                             hash: hash,
+                            entityPlugin: 'quiqqer/invoice',
                             events: {
                                 onSuccess: resolve
                             }
