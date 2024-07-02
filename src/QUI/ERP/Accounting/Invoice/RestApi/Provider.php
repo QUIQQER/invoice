@@ -391,12 +391,12 @@ class Provider implements QUI\REST\ProviderInterface
         }
 
         // Post
-        $invoiceId = $InvoiceDraft->getUUID();
+        $invoiceId = $InvoiceDraft->getPrefixedNumber();
 
         if (!empty($invoiceData['post'])) {
             try {
                 $Invoice = $InvoiceDraft->post($SystemUser);
-                $invoiceId = $Invoice->getUUID();
+                $invoiceId = $Invoice->getPrefixedNumber();
             } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
 
