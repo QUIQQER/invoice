@@ -1718,7 +1718,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 title: QUILocale.get(lg, 'dialog.ti.delete.title'),
                 text: QUILocale.get(lg, 'dialog.ti.delete.text'),
                 information: QUILocale.get(lg, 'dialog.ti.delete.information', {
-                    invoices: '<ul><li>' + this.getAttribute('hash') + '</li></ul>'
+                    invoices: '<ul><li>' + this.getAttribute('prefixedNumber') + '</li></ul>'
                 }),
                 icon: 'fa fa-trash',
                 texticon: 'fa fa-trash',
