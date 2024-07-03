@@ -51,6 +51,7 @@ use const PHP_INT_MAX;
 class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInterface, ErpCopyInterface
 {
     use QUI\ERP\ErpEntityCustomerFiles;
+    use QUI\ERP\ErpEntityData;
 
     /**
      * Special attributes
