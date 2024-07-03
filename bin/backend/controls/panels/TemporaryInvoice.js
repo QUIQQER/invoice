@@ -460,6 +460,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.setAttribute('contactEmail', Customer.contactEmail);
                     self.setAttribute('invoice_address', Data.getAddress());
 
+                    if (Customer['quiqqer.erp.standard.payment'] !== '') {
+                        self.getContent().getElement('[name="payment_method"]').value = Customer['quiqqer.erp.standard.payment'];
+                    }
+
                     // reset deliver address
                     if (self.$AddressDelivery) {
                         self.$AddressDelivery.setAttribute('userId', userId);
@@ -471,6 +475,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     ]).then(function(result) {
                         let paymentTime = result[0];
                         let isNetto = result[1];
+
+                        if (Customer['quiqqer.erp.customer.payment.term']) {
+                            paymentTime = Customer['quiqqer.erp.customer.payment.term'];
+                        }
 
                         Content.getElement('[name="time_for_payment"]').value = paymentTime;
 
@@ -556,14 +564,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 address.userId = self.getAttribute('customer_id');
                 address.addressId = self.getAttribute('invoice_address_id');
-                address.contactPerson = self.getAttribute('contact_person') ? self.getAttribute('contact_person') : '';
-                address.contactEmail = self.getAttribute('contactEmail') ? self.getAttribute('contactEmail') : '';
 
-                if (self.getAttribute('contactEmail')) {
-                    address.contactEmail = self.getAttribute('contactEmail');
-                }
+                return Data.setValue(address).then(() => {
+                    if (self.getAttribute('contactEmail')) {
+                        Data.setAttribute('contactEmail', self.getAttribute('contactEmail'));
+                    }
 
-                return Data.setValue(address);
+                    if (self.getAttribute('contact_person')) {
+                        Data.setAttribute('contact_person', self.getAttribute('contact_person'));
+                    }
+
+                    Data.refresh();
+                });
             }).then(function() {
                 // invoice address
                 const dataQUIID = self.getContent().getElement(
@@ -627,6 +639,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 let i, len, title;
                 let current = QUILocale.getCurrent();
+
+                // payment sort
+                payments.sort((a, b) => {
+                    let titleA = a.title[current] ? a.title[current].toLowerCase() : '';
+                    let titleB = b.title[current] ? b.title[current].toLowerCase() : '';
+
+                    if (titleA < titleB) {
+                        return -1;
+                    }
+
+                    if (titleA > titleB) {
+                        return 1;
+                    }
+
+                    return 0;
+                });
 
                 for (i = 0, len = payments.length; i < len; i++) {
                     title = payments[i].title;
