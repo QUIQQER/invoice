@@ -473,12 +473,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         width: 80
                     },
                     {
-                        header: QUILocale.get(lg, 'journal.grid.comments'),
-                        dataIndex: 'comments',
-                        dataType: 'string',
-                        width: 100
-                    },
-                    {
                         header: QUILocale.get(lg, 'journal.grid.paymentData'),
                         dataIndex: 'payment_data',
                         dataType: 'string',
