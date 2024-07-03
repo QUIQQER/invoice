@@ -46,6 +46,7 @@ use function time;
 class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInterface, ErpCopyInterface
 {
     use QUI\ERP\ErpEntityCustomerFiles;
+    use QUI\ERP\ErpEntityData;
 
     const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
     const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
@@ -1024,6 +1025,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         // saving copy
         $Copy->setData('originalId', $this->getId());
         $Copy->setData('originalIdPrefixed', $this->getPrefixedNumber());
+        $Copy->setData('originalInvoice', $this->getReferenceData());
 
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
@@ -1204,6 +1206,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         // saving copy
         $Copy->setData('originalId', $this->getId());
         $Copy->setData('originalIdPrefixed', $this->getPrefixedNumber());
+        $Copy->setData('originalInvoice', $this->getReferenceData());
 
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
