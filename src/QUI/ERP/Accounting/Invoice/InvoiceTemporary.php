@@ -255,14 +255,18 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
 
         // consider contact person in address
-        if (
-            !empty($this->getAttribute('invoice_address')) &&
-            !empty($this->getAttribute('contact_person'))
-        ) {
+        if (!empty($this->getAttribute('invoice_address'))) {
             $invoiceAddress = $this->getAttribute('invoice_address');
             $invoiceAddress = json_decode($invoiceAddress, true);
 
-            $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
+            if (!empty($this->getAttribute('contact_person'))) {
+                $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
+            }
+
+            if (!empty($invoiceAddress['contactEmail'])) {
+                $this->setAttribute('contactEmail', $invoiceAddress['contactEmail']);
+            }
+
             $this->setAttribute('invoice_address', json_encode($invoiceAddress));
         }
 
