@@ -683,7 +683,7 @@ define(
                             dataIndex: 'globalProcessId',
                             dataType: 'string',
                             width: 280,
-                            className: 'monospace'
+                            className: 'monospace clickable'
                         },
                         {
                             dataIndex: 'payment_method',
@@ -1036,6 +1036,22 @@ define(
                             resolve();
                         });
                     });
+                }
+
+                if (typeof data !== 'undefined' && data.cell.get('data-index') === 'globalProcessId') {
+                    const rowData = this.$Grid.getDataByRow(data.row);
+
+                    if (rowData.globalProcessId && rowData.globalProcessId !== '') {
+                        require([
+                            'package/quiqqer/erp/bin/backend/controls/process/ProcessWindow'
+                        ], function(ProcessWindow) {
+                            new ProcessWindow({
+                                globalProcessId: rowData.globalProcessId
+                            }).open();
+                        });
+
+                        return Promise.resolve();
+                    }
                 }
 
                 const selected = this.$Grid.getSelectedData();

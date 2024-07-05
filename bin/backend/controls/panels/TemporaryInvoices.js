@@ -473,6 +473,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         width: 80
                     },
                     {
+                        header: QUILocale.get(lg, 'journal.grid.comments'),
+                        dataIndex: 'comments',
+                        dataType: 'string',
+                        width: 100
+                    },
+                    {
                         header: QUILocale.get(lg, 'journal.grid.paymentData'),
                         dataIndex: 'payment_data',
                         dataType: 'string',
@@ -496,7 +502,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         dataIndex: 'global_process_id',
                         dataType: 'string',
                         width: 280,
-                        className: 'monospace'
+                        className: 'monospace clickable'
                     },
                     {
                         dataIndex: 'paidstatus',
@@ -623,6 +629,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                                 resolve();
                             });
                         });
+                    }
+
+                    if (typeof data !== 'undefined' && data.cell.get('data-index') === 'global_process_id') {
+                        const rowData = self.$Grid.getDataByRow(data.row);
+
+                        if (rowData.global_process_id && rowData.global_process_id !== '') {
+                            require([
+                                'package/quiqqer/erp/bin/backend/controls/process/ProcessWindow'
+                            ], function(ProcessWindow) {
+                                new ProcessWindow({
+                                    globalProcessId: rowData.global_process_id
+                                }).open();
+                            });
+
+                            return;
+                        }
                     }
 
                     if (!self.$Grid.getSelectedData().length) {
