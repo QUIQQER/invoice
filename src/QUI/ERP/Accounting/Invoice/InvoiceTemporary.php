@@ -965,7 +965,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $paidStatus = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
         $paidDate = null;
         $paidData = '';
-        $orderId = $this->getAttribute('order_id');
+        $orderId = $this->getAttribute('order_id') ?: null;
 
         if (!empty($orderId)) {
             $Orders = OrderHandler::getInstance();
