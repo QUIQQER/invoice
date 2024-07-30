@@ -564,7 +564,8 @@ class OutputProviderInvoice implements OutputProviderInterface
             'quiqqer/invoice',
             'OutputProvider.epc_qr_code_purpose',
             [
-                'invoiceNo' => $Invoice->getUUID()
+                'invoiceNo' => $Invoice->getPrefixedNumber(),
+                'customerNo' => $Invoice->getCustomer()->getCustomerNo(),
             ]
         );
 
