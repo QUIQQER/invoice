@@ -94,7 +94,7 @@
             <field type="INT NULL">delivery_address_id</field>
             <field type="TEXT NULL">delivery_address</field>
 
-            <field type="INT NULL">order_id</field>
+            <field type="VARCHAR(255) NULL">order_id</field>
             <field type="VARCHAR(50) NULL">ordered_by</field>
             <field type="DATETIME NULL DEFAULT NULL">order_date</field>
             <field type="VARCHAR(200) NULL">ordered_by_name</field>
