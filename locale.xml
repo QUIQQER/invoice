@@ -1701,8 +1701,8 @@
         </locale>
 
         <locale name="OutputProvider.epc_qr_code_purpose">
-            <de><![CDATA[Rechnung [invoiceNo]]]></de>
-            <en><![CDATA[Invoice [invoiceNo]]]></en>
+            <de><![CDATA[Rechnung [invoiceNo]; Kunden-Nr: [customerNo]]]></de>
+            <en><![CDATA[Invoice [invoiceNo]; Customer no: [customerNo]]]></en>
         </locale>
         <locale name="exception.Invoice.addCustomerFile.no_customer">
             <de>
