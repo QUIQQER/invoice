@@ -489,7 +489,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         header: '&nbsp;',
                         dataIndex: 'opener',
                         dataType: 'int',
-                        width: 30,
+                        width: 35,
                         showNotInExport: true,
                         export: false
                     },
@@ -497,9 +497,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         header: QUILocale.get(lg, 'journal.grid.type'),
                         dataIndex: 'display_type',
                         dataType: 'node',
-                        width: 30,
+                        width: 40,
                         showNotInExport: true,
-                        export: false
+                        export: false,
+                        className: 'grid-align-center'
+                    },
+                    {
+                        header: QUILocale.get(lg, 'journal.grid.processing'),
+                        dataIndex: 'processing_status_display',
+                        dataType: 'html',
+                        width: 150,
+                        className: 'grid-align-center clickable'
                     },
                     {
                         header: QUILocale.get(lg, 'journal.grid.invoiceNo'),
@@ -645,12 +653,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         dataIndex: 'dunning_level_display',
                         dataType: 'string',
                         width: 80
-                    },
-                    {
-                        header: QUILocale.get(lg, 'journal.grid.processing'),
-                        dataIndex: 'processing_status_display',
-                        dataType: 'html',
-                        width: 150
                     },
                     {
                         header: QUILocale.get('quiqqer/system', 'c_date'),
@@ -976,9 +978,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          * @return {Promise}
          */
         $onClickOpenInvoice: function(data) {
-            if (typeof data !== 'undefined' && typeof data.cell !== 'undefined' &&
-                (data.cell.get('data-index') === 'customer_id' || data.cell.get('data-index') === 'customer_name')) {
-
+            if (typeof data !== 'undefined'
+                && typeof data.cell !== 'undefined'
+                && (
+                    data.cell.get('data-index') === 'customer_id'
+                    || data.cell.get('data-index') === 'customer_name'
+                    || data.cell.get('data-index') === 'processing_status_display'
+                )
+            ) {
                 const self = this, Cell = data.cell, position = Cell.getPosition(),
                     rowData = this.$Grid.getDataByRow(data.row);
 
@@ -1020,6 +1027,29 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                                 }
                             }
                         }));
+
+                        Menu.appendChild(
+                            new QUIMenuItem({
+                                icon: 'fa fa-check',
+                                text: QUILocale.get(lg, 'journal.contextMenu.change.status'),
+                                events: {
+                                    onClick: function() {
+                                        require([
+                                            'package/quiqqer/invoice/bin/backend/controls/panels/status/StatusWindow'
+                                        ], function(StatusWindow) {
+                                            new StatusWindow({
+                                                hash: rowData.hash,
+                                                events: {
+                                                    statusChanged: function() {
+                                                        self.refresh();
+                                                    }
+                                                }
+                                            }).open();
+                                        });
+                                    }
+                                }
+                            })
+                        );
 
                         Menu.inject(document.body);
                         Menu.setPosition(position.x, position.y + 30);

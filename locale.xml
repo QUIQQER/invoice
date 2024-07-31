@@ -1684,6 +1684,27 @@
             <de><![CDATA[Heutiges Datum verwenden]]></de>
             <en><![CDATA[Use today's date]]></en>
         </locale>
+
+
+        <locale name="journal.contextMenu.change.status">
+            <de><![CDATA[Rechnungsstatus ändern]]></de>
+            <en><![CDATA[Change Invoice status]]></en>
+        </locale>
+        <locale name="window.status.title">
+            <de><![CDATA[Status Änderung für Rechnung: [invoiceId]]]></de>
+            <en><![CDATA[Status change for invoice: [invoiceId]]]></en>
+        </locale>
+        <locale name="window.status.text" html="true">
+            <de><![CDATA[
+            Wechsel den Status der Rechnung <strong>[invoiceId]</strong>.
+            Beachte, Statusänderungen können verschiedene Aktionen auslösen.
+            ]]></de>
+            <en><![CDATA[
+            Change the status of the invoice <strong>[invoiceId]</strong>.
+            Note, status changes can trigger different actions.
+            ]]></en>
+        </locale>
+
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
