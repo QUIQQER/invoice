@@ -1655,7 +1655,15 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         $comments = $this->getAttribute('comments');
         $Comments = QUI\ERP\Comments::unserialize($comments);
 
-        $Comments->addComment($comment);
+        $Comments->addComment(
+            $comment,
+            false,
+            'quiqqer/invoice',
+            Factory::ERP_INVOICE_ICON,
+            false,
+            $this->getUUID()
+        );
+
         $this->setAttribute('comments', $Comments->toJSON());
 
         $this->addHistory(
@@ -1712,7 +1720,8 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             $comment,
             false,
             'quiqqer/invoice',
-            'fa fa-file-text-o',
+            Factory::ERP_INVOICE_ICON,
+            false,
             $this->getUUID()
         );
 

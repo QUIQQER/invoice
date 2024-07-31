@@ -1416,7 +1416,12 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                             'oldHash' => $oldHash,
                             'newHash' => $this->getAttribute('hash')
                         ]
-                    )
+                    ),
+                    false,
+                    'quiqqer/invoice',
+                    Factory::ERP_INVOICE_ICON,
+                    false,
+                    $this->getUUID()
                 );
             }
         } catch (QUI\Exception $Exception) {
@@ -1431,7 +1436,12 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             QUI::getLocale()->get('quiqqer/invoice', 'history.invoiceTemporary.post', [
                 'userId' => QUI::getUserBySession()->getUniqueId(),
                 'username' => QUI::getUserBySession()->getUsername()
-            ])
+            ]),
+            false,
+            'quiqqer/invoice',
+            Factory::ERP_INVOICE_ICON,
+            false,
+            $this->getUUID()
         );
 
         // new invoice id
@@ -2058,7 +2068,15 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             <img><table><tbody><td><tfoot><th><thead><tr>'
         );
 
-        $this->Comments->addComment($message);
+        $this->Comments->addComment(
+            $message,
+            false,
+            'quiqqer/invoice',
+            Factory::ERP_INVOICE_ICON,
+           false,
+            $this->getUUID()
+        );
+
         $this->save();
 
         QUI::getEvents()->fireEvent(
@@ -2102,7 +2120,14 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      */
     public function addHistory(string $message): void
     {
-        $this->History->addComment($message);
+        $this->History->addComment(
+            $message,
+            false,
+            'quiqqer/invoice',
+            Factory::ERP_INVOICE_ICON,
+            false,
+            $this->getUUID()
+        );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceAddHistory',

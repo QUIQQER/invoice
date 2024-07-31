@@ -18,6 +18,8 @@ use function json_encode;
  */
 class Factory extends QUI\Utils\Singleton
 {
+    const ERP_INVOICE_ICON = 'fa fa-file-text-o';
+
     /**
      * Creates a new temporary invoice
      *

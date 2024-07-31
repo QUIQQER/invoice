@@ -271,7 +271,8 @@ class EventHandler
                 ]),
                 strtotime($Invoice->getAttribute('c_date')),
                 'quiqqer/invoice',
-                'fa fa-file-text-o',
+                Factory::ERP_INVOICE_ICON,
+                false,
                 $Invoice->getUUID()
             );
         }
