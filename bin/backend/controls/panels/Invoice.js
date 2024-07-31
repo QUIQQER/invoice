@@ -232,6 +232,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 }
             });
 
+            /*
             this.addCategory({
                 icon: 'fa fa-list',
                 name: 'articles',
@@ -241,6 +242,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     onClick: this.openArticles
                 }
             });
+            */
 
             this.addCategory({
                 icon: 'fa fa-money',
@@ -722,8 +724,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
         /**
          * open articles
+         * @deprecated
          */
         openArticles: function() {
+            return;
             const self = this;
 
             this.Loader.show();
