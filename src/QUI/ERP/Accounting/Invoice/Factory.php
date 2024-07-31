@@ -18,6 +18,8 @@ use function json_encode;
  */
 class Factory extends QUI\Utils\Singleton
 {
+    const ERP_INVOICE_ICON = 'fa fa-file-text-o';
+
     /**
      * Creates a new temporary invoice
      *
@@ -47,6 +49,9 @@ class Factory extends QUI\Utils\Singleton
             // nothing
         }
 
+        if (empty($globalProcessId)) {
+            $globalProcessId = QUI\Utils\Uuid::get();
+        }
 
         $editor = 0;
         $c_user = $User->getUUID();
