@@ -6,6 +6,9 @@ parameters:
     paths:
         - src
         - ajax
+    excludePaths:
+        # Requires the optional 'quiqqer/rest' package
+        - src/QUI/ERP/Accounting/Invoice/RestApi/Provider.php
     bootstrapFiles:
         - tests/phpstan-bootstrap.php
     treatPhpDocTypesAsCertain: false
