@@ -147,15 +147,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 }).inject(this.getHeader());
             });
 
-            // create the buttons (top bar)
-            this.addButton({
-                textimage: 'fa fa-print',
-                text: QUILocale.get(lg, 'erp.panel.invoice.button.print'),
-                events: {
-                    onClick: this.print
-                }
-            });
-
             this.addButton({
                 name: 'lock',
                 icon: 'fa fa-warning',
@@ -221,7 +212,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             this.addButton(Actions);
 
-            // create the categores (left bar)
+            // create the buttons (top bar)
+            this.addButton({
+                textimage: 'fa fa-print',
+                text: QUILocale.get(lg, 'erp.panel.invoice.button.print'),
+                events: {
+                    onClick: this.print
+                },
+                styles: {
+                    'float': 'right'
+                }
+            });
+
+            // create the categories (left bar)
             this.addCategory({
                 icon: 'fa fa-info',
                 name: 'info',
