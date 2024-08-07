@@ -6,11 +6,6 @@ parameters:
 			path: ajax/invoices/addPayment.php
 
 		-
-			message: "#^Parameter \\#1 \\$Calc of method QUI\\\\ERP\\\\Accounting\\\\ArticleList\\:\\:calc\\(\\) expects null, QUI\\\\ERP\\\\Accounting\\\\Calc given\\.$#"
-			count: 1
-			path: ajax/invoices/temporary/calc.php
-
-		-
 			message: "#^Call to static method getInstance\\(\\) on an unknown class QUI\\\\ERP\\\\Order\\\\Handler\\.$#"
 			count: 1
 			path: src/QUI/ERP/Accounting/Invoice/EventHandler.php
