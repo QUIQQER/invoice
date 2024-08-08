@@ -2073,7 +2073,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             false,
             'quiqqer/invoice',
             Factory::ERP_INVOICE_ICON,
-           false,
+            false,
             $this->getUUID()
         );
 
