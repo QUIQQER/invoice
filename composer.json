@@ -35,6 +35,5 @@
     "psr-4": {
       "QUI\\ERP\\": "src/QUI/ERP"
     }
-  },
-  "version": "2.1.1"
+  }
 }

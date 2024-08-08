@@ -39,6 +39,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                         new OutputDialog({
                             entityId: invoiceId,
                             entityType: entityType,
+                            entityPlugin: 'quiqqer/invoice',
                             comments: comments.length ? comments : false
                         }).open();
 
