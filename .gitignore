@@ -2,3 +2,11 @@ tools/
 phpstan.neon
 .phpunit.result.cache
 phpunit.xml
+
+tools/
+
+phpstan.neon
+
+.phpunit.result.cache
+
+phpunit.xml

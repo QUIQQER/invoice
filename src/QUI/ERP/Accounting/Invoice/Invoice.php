@@ -671,7 +671,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             'quiqqer/invoice',
             'message.invoice.cancellationInvoice.additionalInvoiceText',
             [
-                'id' => $this->getUUID(),
+                'id' => $this->getPrefixedNumber(),
                 'date' => $Formatter->format($currentDate)
             ]
         );
@@ -1179,7 +1179,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
                 'quiqqer/invoice',
                 'message.invoice.reversal.additionalInvoiceText.creditNote',
                 [
-                    'id' => $this->getUUID(),
+                    'id' => $this->getPrefixedNumber(),
                     'date' => $Formatter->format($currentDate)
                 ]
             );
@@ -1188,7 +1188,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
                 'quiqqer/invoice',
                 'message.invoice.reversal.additionalInvoiceText',
                 [
-                    'id' => $this->getUUID(),
+                    'id' => $this->getPrefixedNumber(),
                     'date' => $Formatter->format($currentDate)
                 ]
             );
