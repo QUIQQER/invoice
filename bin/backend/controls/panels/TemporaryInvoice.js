@@ -208,10 +208,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.Loader.show();
             this.$unloadCategory(false);
 
-            return Invoices.saveInvoice(
-                this.getAttribute('hash'),
-                this.getCurrentData()
-            ).then(function() {
+            const currentData = this.getCurrentData();
+
+            return Invoices.saveInvoice(this.getAttribute('hash'), currentData).then(function() {
                 this.Loader.hide();
                 this.showSavedIconAnimation();
             }.bind(this)).catch(function(err) {
@@ -564,18 +563,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 address.userId = self.getAttribute('customer_id');
                 address.addressId = self.getAttribute('invoice_address_id');
+                address.contactPerson = self.getAttribute('contact_person') ? self.getAttribute('contact_person') : '';
 
-                return Data.setValue(address).then(() => {
-                    if (self.getAttribute('contactEmail')) {
-                        Data.setAttribute('contactEmail', self.getAttribute('contactEmail'));
-                    }
+                if (self.getAttribute('contactEmail')) {
+                    address.contactEmail = self.getAttribute('contactEmail');
+                }
 
-                    if (self.getAttribute('contact_person')) {
-                        Data.setAttribute('contact_person', self.getAttribute('contact_person'));
-                    }
+                address.name = self.getAttribute('customer_name');
 
-                    Data.refresh();
-                });
+                return Data.setValue(address);
             }).then(function() {
                 // invoice address
                 const dataQUIID = self.getContent().getElement(
@@ -1309,6 +1305,21 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 if (destroyList) {
                     this.$ArticleList.destroy();
                     this.$ArticleList = null;
+                }
+            }
+
+            const UserData = Container.getElement(
+                '[data-qui="package/quiqqer/erp/bin/backend/controls/userData/UserData"]'
+            );
+
+            if (UserData) {
+                const Data = QUI.Controls.getById(UserData.get('data-quiid'));
+
+                if (Data) {
+                    const customer = Data.getValue();
+
+                    this.setAttribute('contactEmail', customer.contactEmail);
+                    this.setAttribute('contact_person', customer.contactPerson);
                 }
             }
 
