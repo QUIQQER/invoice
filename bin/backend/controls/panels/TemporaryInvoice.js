@@ -460,7 +460,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.setAttribute('contactEmail', Customer.contactEmail);
                     self.setAttribute('invoice_address', Data.getAddress());
 
-                    if (Customer['quiqqer.erp.standard.payment'] !== '') {
+                    if (Customer['quiqqer.erp.standard.payment'] !== '' && Customer['quiqqer.erp.standard.payment']) {
                         self.getContent().getElement('[name="payment_method"]').value = Customer['quiqqer.erp.standard.payment'];
                     }
 
