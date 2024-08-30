@@ -22,13 +22,14 @@ QUI::$Ajax->registerFunction(
 
         // filter
         $filter = json_decode($filter);
+        $params = json_decode($params, true);
 
         foreach ($filter as $entry => $value) {
             $Search->setFilter($entry, $value);
         }
 
         // query params
-        $query = $Grid->parseDBParams(json_decode($params, true));
+        $query = $Grid->parseDBParams($params);
 
         if (isset($query['limit'])) {
             $limit = explode(',', $query['limit']);
@@ -42,6 +43,12 @@ QUI::$Ajax->registerFunction(
 
         if (isset($query['sortOn']) && isset($query['sortBy'])) {
             $Search->order($query['sortOn'] . ' ' . $query['sortBy']);
+        }
+
+        if (!empty($params['calcTotal'])) {
+            $Search->enableCalcTotal();
+        } else {
+            $Search->disableCalcTotal();
         }
 
         try {

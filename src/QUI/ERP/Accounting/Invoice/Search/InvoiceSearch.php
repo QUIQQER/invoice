@@ -76,6 +76,8 @@ class InvoiceSearch extends Singleton
      */
     protected array $cache = [];
 
+    protected bool $calcTotal = true;
+
     /**
      * Set a filter
      *
@@ -174,6 +176,26 @@ class InvoiceSearch extends Singleton
     }
 
     /**
+     * Enables the calculation of the total value.
+     *
+     * @return void
+     */
+    public function enableCalcTotal(): void
+    {
+        $this->calcTotal = true;
+    }
+
+    /**
+     * Disables the calculation of the total value.
+     *
+     * @return void
+     */
+    public function disableCalcTotal(): void
+    {
+        $this->calcTotal = false;
+    }
+
+    /**
      * Set the limit
      *
      * @param int|string $from
@@ -258,17 +280,7 @@ class InvoiceSearch extends Singleton
         $count = $this->executeQueryParams($countQuery);
         $count = (int)$count[0]['count'];
 
-
-        // quiqqer/invoice#38
-        // total - calculation is without limit
-        $oldLimit = $this->limit;
-
-        $this->limit = false;
-        $calc = $this->parseListForGrid($this->executeQueryParams($this->getQuery()));
-
-        //$this->filter = $oldFiler;
-        $this->limit = $oldLimit;
-
+        // currency
         $Currency = null;
 
         if (!empty($this->currency) && $this->currency !== '---') {
@@ -278,15 +290,33 @@ class InvoiceSearch extends Singleton
             }
         }
 
-        // result
-        $result = $this->parseListForGrid($invoices);
+        $result = [];
+
+        // total calculation
+        if ($this->calcTotal) {
+            // quiqqer/invoice#38
+            // total - calculation is without limit
+            $oldLimit = $this->limit;
+
+            $this->limit = false;
+            $calc = $this->parseListForGrid($this->executeQueryParams($this->getQuery()));
+
+            //$this->filter = $oldFiler;
+            $this->limit = $oldLimit;
+
+            $result['total'] = QUI\ERP\Accounting\Calc::calculateTotal($calc, $Currency);
+        } else {
+            $result['total'] = QUI\ERP\Accounting\Calc::calculateTotal([], $Currency);
+        }
+
+        // grid data
         $Grid = new QUI\Utils\Grid();
         $Grid->setAttribute('page', ($this->limit[0] / $this->limit[1]) + 1);
 
-        return [
-            'grid' => $Grid->parseResult($result, $count),
-            'total' => QUI\ERP\Accounting\Calc::calculateTotal($calc, $Currency)
-        ];
+        $parsedInvoices = $this->parseListForGrid($invoices);
+        $result['grid'] = $Grid->parseResult($parsedInvoices, $count);
+
+        return $result;
     }
 
     /**

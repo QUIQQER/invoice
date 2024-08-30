@@ -157,6 +157,8 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
         if ($this->getAttribute('global_process_id')) {
             $this->globalProcessId = $this->getAttribute('global_process_id');
+        } else {
+            $this->globalProcessId = $this->getUUID();
         }
 
         // invoice payment data

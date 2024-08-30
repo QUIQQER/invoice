@@ -52,6 +52,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             'toggleTotal',
             'showTotal',
             'closeTotal',
+            'search',
             '$onCreate',
             '$onDestroy',
             '$onShow',
@@ -141,7 +142,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 perPage: this.$Grid.options.perPage,
                 page: this.$Grid.options.page,
                 sortBy: this.$Grid.options.sortBy,
-                sortOn: this.$Grid.options.sortOn
+                sortOn: this.$Grid.options.sortOn,
+                calcTotal: this.$totalsOpen ? 1 : 0
             }, {
                 from: from,
                 to: to,
@@ -362,7 +364,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                     'float': 'right'
                 },
                 events: {
-                    onClick: this.refresh
+                    onClick: this.search
                 }
             });
 
@@ -1295,6 +1297,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.getContent().setStyle('overflow', 'hidden');
 
             this.$totalsOpen = true;
+            this.refresh();
 
             return new Promise(function(resolve) {
                 this.$Total.setStyles({
@@ -1361,6 +1364,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$Status.enable();
         },
 
+        search: function() {
+            this.hideTotal().then(() => {
+                this.refresh();
+            });
+        },
+
         /**
          * key up event at the search input
          *
@@ -1380,7 +1389,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 (() => {
                     if (this.$currentSearch !== this.$Search.value) {
                         this.$searchDelay = (function() {
-                            this.refresh();
+                            this.search();
                         }).delay(250, this);
                     }
                 }).delay(100);
@@ -1392,7 +1401,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             if (event.key === 'enter') {
                 this.$searchDelay = (function() {
-                    this.refresh();
+                    this.search();
                 }).delay(250, this);
             }
         }
