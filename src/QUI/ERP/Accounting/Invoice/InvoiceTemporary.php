@@ -239,7 +239,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
         $this->setAttributes($data);
 
-        if ((!$this->getCustomer() || $this->getCustomer() === null) && !empty($data['customer_data'])) {
+        if ($this->getCustomer() === null && !empty($data['customer_data'])) {
             $customer = json_decode($data['customer_data'], true);
 
             if (!empty($customer['uuid'])) {
@@ -249,7 +249,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             }
         }
 
-        if (!$this->getCustomer() || $this->getCustomer() === null) {
+        if ($this->getCustomer() === null) {
             $this->setAttribute('invoice_address', false);
             $this->setAttribute('customer_id', false);
         } else {
