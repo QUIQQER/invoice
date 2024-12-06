@@ -6,13 +6,17 @@
 
 namespace QUI\ERP\Accounting\Invoice\Utils;
 
-use IntlDateFormatter;
+use DateTime;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 use QUI\ERP\Currency\Currency;
 use QUI\ExceptionStack;
+use QUI\ERP\Defaults;
+use IntlDateFormatter;
+use horstoeko\zugferd\ZugferdDocumentBuilder;
+use horstoeko\zugferd\ZugferdProfiles;
 
 use function array_map;
 use function array_merge;
@@ -656,5 +660,129 @@ class Invoice
         }
 
         return floatval($threshold);
+    }
+
+    public static function getElectronicInvoice(
+        InvoiceTemporary|QUI\ERP\Accounting\Invoice\Invoice $Invoice,
+        $type = ZugferdProfiles::PROFILE_EN16931
+    ): ZugferdDocumentBuilder {
+        $document = ZugferdDocumentBuilder::CreateNew($type);
+
+        $date = $Invoice->getAttribute('date');
+        $date = strtotime($date);
+        $date = (new DateTime())->setTimestamp($date);
+
+        $document->setDocumentInformation(
+            $Invoice->getPrefixedNumber(),
+            "380",
+            $date,
+            $Invoice->getCurrency()->getCode()
+        );
+
+        // seller / owner
+        $document
+            ->setDocumentSeller(Defaults::conf('company', 'name'))
+            ->addDocumentSellerGlobalId("4000001123452", "0088")
+            ->addDocumentSellerTaxRegistration("FC", "201/113/40209")
+            ->addDocumentSellerTaxRegistration("VA", "DE123456789")
+            ->setDocumentSellerAddress(
+                Defaults::conf('company', 'street'),
+                "",
+                "",
+                Defaults::conf('company', 'zip'),
+                Defaults::conf('company', 'city'),
+                Defaults::conf('company', 'country') // @todo country ->code<-
+            )
+            ->setDocumentSellerCommunication(
+                'EM',
+                Defaults::conf('company', 'email')
+            )
+            ->setDocumentSellerContact(
+                Defaults::conf('company', 'owner'), // @todo contact person
+                '',                                 // @todo contact department
+                Defaults::conf('company', 'phone'), // @todo contact phone
+                Defaults::conf('company', 'fax'),   // @todo contact fax
+                Defaults::conf('company', 'email')  // @todo contact email
+            );
+
+        // bank stuff
+        $bankAccount = QUI\ERP\BankAccounts\Handler::getCompanyBankAccount();
+
+        if (!empty($bankAccount)) {
+            $document->addDocumentPaymentMeanToDirectDebit(
+                $bankAccount['iban'],
+                $Invoice->getPrefixedNumber()
+            );
+        }
+
+        // customer
+        $Customer = $Invoice->getCustomer();
+
+        $document
+            ->setDocumentBuyer(
+                $Customer->getName(),
+                $Customer->getCustomerNo()
+            )
+            ->setDocumentBuyerAddress(
+                $Customer->getAddress()->getAttribute('street_no'),
+                "",
+                "",
+                $Customer->getAddress()->getAttribute('zip'),
+                $Customer->getAddress()->getAttribute('city'),
+                $Customer->getAddress()->getCountry()->getCode()
+            )
+            ->setDocumentBuyerCommunication('EM', $Customer->getAddress()->getAttribute('email'))
+            ->setDocumentBuyerReference($Customer->getUUID());
+
+        // total
+        $priceCalculation = $Invoice->getPriceCalculation();
+        $vatTotal = 0;
+
+        foreach ($priceCalculation->getVat() as $vat) {
+            $document->addDocumentTax(
+                "S",
+                "VAT",
+                $priceCalculation->getSum()->value(),
+                $vat->value(),
+                $vat->getVat()
+            );
+
+            $vatTotal = $vatTotal + $vat->value();
+        }
+
+        $document->setDocumentSummation(
+            $priceCalculation->getSum()->value(),
+            $priceCalculation->getSum()->value(),
+            $priceCalculation->getSum()->value(),
+            0.0,
+            0.0,
+            $priceCalculation->getSum()->value(),
+            $vatTotal,
+            null,
+            0.0
+        );
+
+        // products
+        foreach ($Invoice->getArticles() as $Article) {
+            /* @var $Article QUI\ERP\Accounting\Article */
+            $article = $Article->toArray();
+
+            $document
+                ->addNewPosition($article['position'])
+                ->setDocumentPositionProductDetails(
+                    $article['title'],
+                    $article['description'],
+                    null,
+                    null,
+                    null,
+                    null
+                )
+                ->setDocumentPositionNetPrice($article['calculated']['nettoPrice'])
+                ->setDocumentPositionQuantity($article['quantity'], "H87")
+                ->addDocumentPositionTax('S', 'VAT', $article['vat'])
+                ->setDocumentPositionLineSummation($article['sum']);
+        }
+
+        return $document;
     }
 }

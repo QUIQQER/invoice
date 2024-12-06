@@ -29,7 +29,8 @@
     "quiqqer/htmltopdf": "^3",
     "quiqqer/utils": "^2",
     "ramsey/uuid": "^3|^4",
-    "chillerlan/php-qrcode": "^4.3"
+    "chillerlan/php-qrcode": "^4.3",
+    "horstoeko/zugferd": "^1"
   },
   "autoload": {
     "psr-4": {

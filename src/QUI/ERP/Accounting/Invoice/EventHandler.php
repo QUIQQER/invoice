@@ -6,6 +6,9 @@
 
 namespace QUI\ERP\Accounting\Invoice;
 
+use horstoeko\zugferd\ZugferdDocumentBuilder;
+use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
+use horstoeko\zugferd\ZugferdDocumentPdfMerger;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
@@ -23,6 +26,7 @@ use function file_exists;
 use function file_get_contents;
 use function in_array;
 use function is_numeric;
+use function str_replace;
 use function strtolower;
 use function strtotime;
 
@@ -287,6 +291,7 @@ class EventHandler
      * @param string $entityType
      * @param string $recipient
      * @param Mailer $Mailer
+     * @param string $mailFile
      * @return void
      *
      * @throws Exception
@@ -297,7 +302,8 @@ class EventHandler
         $entityId,
         string $entityType,
         string $recipient,
-        QUI\Mail\Mailer $Mailer
+        QUI\Mail\Mailer $Mailer,
+        string $mailFile = ''
     ): void {
         $allowedEntityTypes = [
             OutputProviderInvoice::getEntityType(),
@@ -314,6 +320,29 @@ class EventHandler
         } catch (\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             return;
+        }
+
+        // extend pdf with e-invoice
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+
+        if ($Config->getValue('invoice', 'xInvoiceAttachment')) {
+            $xmlFile = str_replace('.pdf', '.xml', $mailFile);
+            $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
+                $Invoice,
+                $Config->getValue('invoice', 'xInvoiceAttachmentType')
+            );
+
+            $document->writeFile($xmlFile);
+            $Mailer->addAttachment($xmlFile);
+        }
+
+        if (file_exists($mailFile) && $Config->getValue('invoice', 'zugferdInvoiceAttachment')) {
+            $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
+                $Invoice,
+                $Config->getValue('invoice', 'xInvoiceAttachmentType')
+            );
+            $pdfBuilder = new ZugferdDocumentPdfBuilder($document, $mailFile);
+            $pdfBuilder->generateDocument()->saveDocument($mailFile);
         }
 
         // @todo

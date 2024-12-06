@@ -415,6 +415,43 @@
             <en><![CDATA[Edit Invoice status:]]></en>
         </locale>
 
+        <locale name="invoice.settings.e-invoice.xInvoiceAttachment.text">
+            <de><![CDATA[X-Rechnung anhängen]]></de>
+            <en><![CDATA[Attach X-bill]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.xInvoiceAttachment.description">
+            <de><![CDATA[
+            Bei Rechnungsmails werden Rechnungen automatisch auch als X-Rechnung XML angehängt,
+            um den Standard für elektronische Rechnungen zu erfüllen.
+            ]]></de>
+            <en><![CDATA[
+            Invoices are automatically attached to invoice e-mails as X-invoices xml format,
+            to comply with the standard for electronic invoices.
+            ]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.xInvoiceAttachmentType.text">
+            <de><![CDATA[X-Rechnung Profil]]></de>
+            <en><![CDATA[X-bill profile]]></en>
+        </locale>
+
+        <locale name="invoice.settings.e-invoice.zugferdInvoiceAttachment.text">
+            <de><![CDATA[Zugferd-Rechnung anhängen]]></de>
+            <en><![CDATA[Attach Zugferd-bill]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.zugferdInvoiceAttachment.description">
+            <de><![CDATA[
+            Bei Rechnungsmails werden Rechnungen automatisch im Zugferd PDF Format angehängt.
+            ]]></de>
+            <en><![CDATA[
+            Invoices are automatically attached to invoice emails in Zugferd PDF format.
+            ]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.zugferdInvoiceAttachmentType.text">
+            <de><![CDATA[Zugferd-Rechnung Profil]]></de>
+            <en><![CDATA[Zugferd-bill profile]]></en>
+        </locale>
+
+
         <locale name="invoice.type.creditNote">
             <de><![CDATA[Gutschrift]]></de>
             <en><![CDATA[Credit Note]]></en>
