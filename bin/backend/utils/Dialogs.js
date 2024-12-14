@@ -403,7 +403,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                 }).inject(document.body);
 
                                 (function () {
-                                    document.getElements('#' + id).destroy();
+                                    //document.getElements('#' + id).destroy();
                                 }).delay(1000, this);
                             });
                         });

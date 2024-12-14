@@ -3,7 +3,8 @@
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use horstoeko\zugferd\ZugferdProfiles;
-use QUI\ERP\Output\Output;
+use QUI\ERP\Defaults;
+use QUI\System\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 define('QUIQQER_SYSTEM', true);
@@ -43,25 +44,42 @@ $profileMap = [
 ];
 
 try {
-    if ($type === 'PDF') {
-        $OutputDocument = Output::getDocumentPdf(
-            $invoiceHash,
-            QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice::getEntityType()
-        );
-
-        $OutputDocument->download();
-        exit;
-    }
-
     $Invoice = Handler::getInstance()->getInvoiceByHash($invoiceHash);
-    $document = InvoiceUtils::getElectronicInvoice($Invoice, $profileMap[$type]);
-    $xmlContent = $document->getContent();
     $fileName = InvoiceUtils::getInvoiceFilename($Invoice);
 
-    $response = new Response($xmlContent);
-    $response->headers->set('Content-Type', 'application/xml');
-    $response->headers->set('Content-Disposition', 'attachment; filename="'. $fileName . '.xml"');
-    $response->headers->set('Content-Length', strlen($xmlContent));
-    $response->send();
+    if ($type === 'PDF') {
+        $defaultTemplates = Defaults::conf('output', 'default_templates');
+        $defaultTemplates = json_decode($defaultTemplates, true);
+
+        $templateProvider = '';
+        $templateId = '';
+
+        if (!empty($defaultTemplates['Invoice'])) {
+            $templateProvider = $defaultTemplates['Invoice']['provider'];
+            $templateId = $defaultTemplates['Invoice']['id'];
+        }
+
+        $Request = QUI::getRequest();
+
+        $Request->query->set('id', $invoiceHash);
+        $Request->query->set('t', 'Invoice');
+        $Request->query->set('ep', 'quiqqer/invoice');
+        $Request->query->set('tpl', $templateId);
+        $Request->query->set('tplpr', $templateProvider);
+
+        include dirname(__FILE__, 4) . '/erp/bin/output/backend/download.php';
+    } else {
+        $document = InvoiceUtils::getElectronicInvoice($Invoice, $profileMap[$type]);
+        $content = $document->getContent();
+        $contentType = 'application/xml';
+        $fileName .= '.xml';
+
+        $response = new Response($content);
+        $response->headers->set('Content-Type', $contentType);
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+        $response->headers->set('Content-Length', strlen($content));
+        $response->send();
+    }
 } catch (Exception $e) {
+    Log::writeException($e);
 }
