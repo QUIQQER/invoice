@@ -202,7 +202,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             Actions.appendChild({
                 icon: 'fa fa-download',
-                text: QUILocale.get(lg, 'erp.panel.invoice.button.download'),
+                text: QUILocale.get(lg, 'dialog.invoice.download.button'),
                 events: {
                     onClick: this.download
                 }
