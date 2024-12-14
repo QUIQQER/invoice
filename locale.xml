@@ -1282,6 +1282,19 @@
             <en><![CDATA[Please enter a reason for cancellation.]]></en>
         </locale>
 
+        <locale name="dialog.invoice.download.title">
+            <de><![CDATA[Lade die Rechnung in verschiedenen Formaten herunter]]></de>
+            <en><![CDATA[Download the invoice in various formats]]></en>
+        </locale>
+        <locale name="dialog.invoice.download.header">
+            <de><![CDATA[Rechnung herunterladen]]></de>
+            <en><![CDATA[Download invoice]]></en>
+        </locale>
+        <locale name="dialog.invoice.download.text" html="true">
+            <de><![CDATA[<p>Wähle das gewünschte Format aus, um deine Rechnung herunterzuladen.</p>]]></de>
+            <en><![CDATA[<p>Select the desired format to download your invoice.</p>]]></en>
+        </locale>
+
         <locale name="dialog.create.address.title">
             <de><![CDATA[Rechnungsadresse anlegen]]></de>
             <en><![CDATA[Create invoice address]]></en>
