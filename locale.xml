@@ -415,6 +415,10 @@
             <en><![CDATA[Edit Invoice status:]]></en>
         </locale>
 
+        <locale name="invoice.settings.e-invoice.title">
+            <de><![CDATA[Digitale Rechnung]]></de>
+            <en><![CDATA[Electronic invoice]]></en>
+        </locale>
         <locale name="invoice.settings.e-invoice.xInvoiceAttachment.text">
             <de><![CDATA[X-Rechnung anhängen]]></de>
             <en><![CDATA[Attach X-bill]]></en>
