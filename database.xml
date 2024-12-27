@@ -91,7 +91,7 @@
             <field type="VARCHAR(50) NULL">invoice_address_id</field>
             <field type="TEXT NULL">invoice_address</field>
 
-            <field type="INT NULL">delivery_address_id</field>
+            <field type="VARCHAR(50) NULL">delivery_address_id</field>
             <field type="TEXT NULL">delivery_address</field>
 
             <field type="VARCHAR(255) NULL">order_id</field>
