@@ -36,6 +36,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         Binds: [
             'print',
             'storno',
+            'download',
             'copy',
             'creditNote',
             'openInfo',
@@ -196,6 +197,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 text: QUILocale.get(lg, 'erp.panel.invoice.button.createCreditNote'),
                 events: {
                     onClick: this.creditNote
+                }
+            });
+
+            Actions.appendChild({
+                icon: 'fa fa-download',
+                text: QUILocale.get(lg, 'dialog.invoice.download.button'),
+                events: {
+                    onClick: this.download
                 }
             });
 
@@ -551,6 +560,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         });
                     }).then(resolve);
                 });
+            });
+        },
+
+        download: function()
+        {
+            require(['package/quiqqer/invoice/bin/backend/utils/Dialogs'], (Dialogs)=> {
+                Dialogs.openDownloadDialog(this.getAttribute('data').hash);
             });
         },
 
