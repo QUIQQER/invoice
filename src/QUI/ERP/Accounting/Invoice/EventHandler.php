@@ -325,7 +325,7 @@ class EventHandler
         // extend pdf with e-invoice
         $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
 
-        if ($Config->getValue('invoice', 'xInvoiceAttachment')) {
+        if (file_exists($mailFile) && $Config->getValue('invoice', 'xInvoiceAttachment')) {
             $xmlFile = str_replace('.pdf', '.xml', $mailFile);
             $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
                 $Invoice,
