@@ -44,7 +44,7 @@
 
                 <conf name="xInvoiceAttachment">
                     <type><![CDATA[bool]]></type>
-                    <defaultvalue><![CDATA[1]]></defaultvalue>
+                    <defaultvalue><![CDATA[0]]></defaultvalue>
                 </conf>
                 <conf name="xInvoiceAttachmentType">
                     <type><![CDATA[int]]></type>
