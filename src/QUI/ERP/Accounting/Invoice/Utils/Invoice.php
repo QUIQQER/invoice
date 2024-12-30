@@ -17,6 +17,14 @@ use QUI\ERP\Defaults;
 use IntlDateFormatter;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
+use horstoeko\zugferd\codelists\ZugferdCountryCodes;
+use horstoeko\zugferd\codelists\ZugferdCurrencyCodes;
+use horstoeko\zugferd\codelists\ZugferdElectronicAddressScheme;
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
+use horstoeko\zugferd\codelists\ZugferdReferenceCodeQualifiers;
+use horstoeko\zugferd\codelists\ZugferdUnitCodes;
+use horstoeko\zugferd\codelists\ZugferdVatCategoryCodes;
+use horstoeko\zugferd\codelists\ZugferdVatTypeCodes;
 
 use function array_map;
 use function array_merge;
@@ -747,11 +755,31 @@ class Invoice
         $bankAccount = QUI\ERP\BankAccounts\Handler::getCompanyBankAccount();
 
         if (!empty($bankAccount)) {
+            /* lastschrift
             $document->addDocumentPaymentMeanToDirectDebit(
                 $bankAccount['iban'],
-                $Invoice->getPrefixedNumber()
+                // @todo mandats nummer
+            );
+            */
+
+            $document->addDocumentPaymentMean(
+                '42', // TypeCode für Überweisung
+                $bankAccount['iban'] ?? '',
+                $bankAccount['bic'] ?? ''
+            );
+        } else {
+            $document->addDocumentPaymentMean(
+                '42', // TypeCode für Überweisung
+                '',
+                ''
             );
         }
+
+        $document->addDocumentPaymentMean(
+            '42', // TypeCode für Überweisung
+            $bankAccount['iban'] ?? '',
+            $bankAccount['bic'] ?? ''
+        );
 
         // customer
         $Customer = $Invoice->getCustomer();
@@ -774,9 +802,15 @@ class Invoice
         if ($Customer->getAddress()->getAttribute('email')) {
             $document->setDocumentBuyerCommunication('EM', $Customer->getAddress()->getAttribute('email'));
         } else {
-            //$document->setDocumentBuyerCommunication('UUID', $Customer->getAddress()->getUUID());
-            // fallback für
+            try {
+                $User = QUI::getUsers()->get($Customer->getUUID());
+                $document->setDocumentBuyerCommunication('EM', $User->getAttribute('email'));
+            } catch (QUI\Exception) {
+                // requirement -> workaround -> placeholder
+                $document->setDocumentBuyerCommunication('EM', 'unknown@example.com');
+            }
         }
+
         //->setDocumentBuyerOrderReferencedDocument($Invoice->getUUID());
 
         // total
@@ -798,13 +832,13 @@ class Invoice
         $document->setDocumentSummation(
             $priceCalculation->getSum()->value(),
             $priceCalculation->getSum()->value(),
-            $priceCalculation->getSum()->value(),
-            0.0,
-            0.0,
             $priceCalculation->getNettoSum()->value(),
-            $vatTotal,
-            null,
-            0.0
+            0.0, // zuschläge
+            0.0, // rabatte
+            $priceCalculation->getNettoSum()->value(), // Steuerbarer Betrag (BT-109)
+            $vatTotal, // Steuerbetrag
+            null, // Rundungsbetrag
+            0.0 // Vorauszahlungen
         );
 
         // products
@@ -828,6 +862,7 @@ class Invoice
                 ->setDocumentPositionLineSummation($article['sum']);
         }
 
+        // payment stuff
         $timeForPayment = null;
 
         try {
@@ -841,7 +876,6 @@ class Invoice
             $Invoice->getAttribute('additional_invoice_text'),
             $timeForPayment
         );
-
 
         return $document;
     }
