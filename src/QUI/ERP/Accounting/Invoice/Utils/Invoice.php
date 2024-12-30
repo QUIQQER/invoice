@@ -864,7 +864,7 @@ class Invoice
             $timeForPayment = strtotime($timeForPayment);
 
             if ($timeForPayment) {
-                $timeForPayment = new DateTime($timeForPayment);
+                $timeForPayment = new DateTime((int)$timeForPayment);
             }
 
             if (!($timeForPayment instanceof DateTime)) {
