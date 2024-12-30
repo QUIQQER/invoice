@@ -325,7 +325,7 @@ class EventHandler
         // extend pdf with e-invoice
         $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
 
-        if ($Config->getValue('invoice', 'xInvoiceAttachment')) {
+        if (file_exists($mailFile) && $Config->getValue('invoice', 'xInvoiceAttachment')) {
             $xmlFile = str_replace('.pdf', '.xml', $mailFile);
             $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
                 $Invoice,
@@ -334,15 +334,6 @@ class EventHandler
 
             $document->writeFile($xmlFile);
             $Mailer->addAttachment($xmlFile);
-        }
-
-        if (file_exists($mailFile) && $Config->getValue('invoice', 'zugferdInvoiceAttachment')) {
-            $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
-                $Invoice,
-                $Config->getValue('invoice', 'xInvoiceAttachmentType')
-            );
-            $pdfBuilder = new ZugferdDocumentPdfBuilder($document, $mailFile);
-            $pdfBuilder->generateDocument()->saveDocument($mailFile);
         }
 
         // @todo
@@ -362,6 +353,27 @@ class EventHandler
                     $Mailer->addAttachment($filePath);
                 }
             }
+        }
+    }
+
+    public static function onQuiqqerHtmlToPDFCreated(QUI\HtmlToPdf\Document $Document, $filename): void
+    {
+        $Entity = $Document->getAttribute('Entity');
+
+        if (!($Entity instanceof Invoice)) {
+            return;
+        }
+
+        // extend pdf with e-invoice
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+
+        if (file_exists($filename) && $Config->getValue('invoice', 'zugferdInvoiceAttachment')) {
+            $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
+                $Entity,
+                $Config->getValue('invoice', 'xInvoiceAttachmentType')
+            );
+            $pdfBuilder = new ZugferdDocumentPdfBuilder($document, $filename);
+            $pdfBuilder->generateDocument()->saveDocument($filename);
         }
     }
 

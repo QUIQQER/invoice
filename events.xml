@@ -35,6 +35,10 @@
            fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerErpOutputSendMail"
     />
 
+    <event on="onQuiqqerHtmlToPDFCreated"
+           fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerHtmlToPDFCreated"
+    />
+
     <event on="onQuiqqerMigrationV2"
            fire="\QUI\ERP\Accounting\Invoice\EventHandler::onQuiqqerMigrationV2"
     />
