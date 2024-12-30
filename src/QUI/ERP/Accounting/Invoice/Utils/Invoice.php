@@ -780,10 +780,7 @@ class Invoice
         $Customer = $Invoice->getCustomer();
 
         $document
-            ->setDocumentBuyer(
-                $Customer->getName(),
-                $Customer->getCustomerNo()
-            )
+            ->setDocumentBuyer($Customer->getInvoiceName(), $Customer->getCustomerNo())
             ->setDocumentBuyerAddress(
                 $Customer->getAddress()->getAttribute('street_no'),
                 "",
