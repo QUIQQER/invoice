@@ -433,7 +433,8 @@ class Invoice
         array|string $eMessage = 'Error occurred',
         int $eCode = 0,
         array $eContext = []
-    ): void {
+    ): void
+    {
         if (empty($value)) {
             throw new Exception($eMessage, $eCode, $eContext);
         }
@@ -450,8 +451,9 @@ class Invoice
      */
     public static function getInvoiceFilename(
         QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice,
-        QUI\Locale $Locale = null
-    ): string {
+        QUI\Locale                                          $Locale = null
+    ): string
+    {
         if (
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary)
@@ -516,9 +518,10 @@ class Invoice
      * @return int|float
      */
     public static function roundInvoiceSum(
-        float|int $amount,
+        float|int                 $amount,
         QUI\ERP\Currency\Currency $Currency = null
-    ): float|int {
+    ): float|int
+    {
         if ($Currency === null) {
             $Currency = QUI\ERP\Defaults::getCurrency();
 
@@ -559,9 +562,10 @@ class Invoice
      * @return array
      */
     public static function getVatTextArrayFromVatArray(
-        array|string $vatArray,
+        array|string              $vatArray,
         QUI\ERP\Currency\Currency $Currency
-    ): array {
+    ): array
+    {
         if (is_string($vatArray)) {
             $vatArray = json_decode($vatArray, true);
         }
@@ -664,8 +668,9 @@ class Invoice
 
     public static function getElectronicInvoice(
         InvoiceTemporary|QUI\ERP\Accounting\Invoice\Invoice $Invoice,
-        $type = ZugferdProfiles::PROFILE_EN16931
-    ): ZugferdDocumentBuilder {
+                                                            $type = ZugferdProfiles::PROFILE_EN16931
+    ): ZugferdDocumentBuilder
+    {
         $document = ZugferdDocumentBuilder::CreateNew($type);
 
         $date = $Invoice->getAttribute('date');
@@ -679,31 +684,64 @@ class Invoice
             $Invoice->getCurrency()->getCode()
         );
 
+        // ids
+        $taxId = Defaults::conf('company', 'taxId');
+        $taxNumber = Defaults::conf('company', 'taxNumber');
+
         // seller / owner
-        $document
-            ->setDocumentSeller(Defaults::conf('company', 'name'))
-            ->addDocumentSellerGlobalId("4000001123452", "0088")
-            ->addDocumentSellerTaxRegistration("FC", "201/113/40209")
-            ->addDocumentSellerTaxRegistration("VA", "DE123456789")
-            ->setDocumentSellerAddress(
-                Defaults::conf('company', 'street'),
-                "",
-                "",
-                Defaults::conf('company', 'zip'),
-                Defaults::conf('company', 'city'),
-                Defaults::conf('company', 'country') // @todo country ->code<-
-            )
-            ->setDocumentSellerCommunication(
-                'EM',
-                Defaults::conf('company', 'email')
-            )
-            ->setDocumentSellerContact(
-                Defaults::conf('company', 'owner'), // @todo contact person
-                '',                                 // @todo contact department
-                Defaults::conf('company', 'phone'), // @todo contact phone
-                Defaults::conf('company', 'fax'),   // @todo contact fax
-                Defaults::conf('company', 'email')  // @todo contact email
-            );
+        $document->setDocumentSeller(Defaults::conf('company', 'name'));
+
+        // @todo global seller id
+        //  ->addDocumentSellerGlobalId("4000001123452", "0088");
+
+        if (!empty($taxNumber)) {
+            $document->addDocumentSellerTaxRegistration("FC", $taxNumber);
+        }
+
+        if (!empty($taxId)) {
+            $document->addDocumentSellerTaxRegistration("VA", $taxId);
+        }
+
+        // address
+        $country = Defaults::conf('company', 'country');
+
+        if (strlen($country) !== 2) {
+            $DefaultLocale = QUI::getSystemLocale();
+
+            foreach (QUI\Countries\Manager::getCompleteList() as $Country) {
+                if ($Country->getName($DefaultLocale) === $country) {
+                    $country = $Country->getCode();
+                    break;
+                }
+            }
+        }
+
+        if (strlen($country) !== 2) {
+            $country = '';
+        }
+
+
+        $document->setDocumentSellerAddress(
+            Defaults::conf('company', 'street'),
+            "",
+            "",
+            Defaults::conf('company', 'zipCode'),
+            Defaults::conf('company', 'city'),
+            $country
+        );
+
+        $document->setDocumentSellerCommunication(
+            'EM',
+            Defaults::conf('company', 'email')
+        );
+
+        $document->setDocumentSellerContact(
+            Defaults::conf('company', 'owner'), // @todo contact person
+            '',                         // @todo contact department
+            Defaults::conf('company', 'phone'), // @todo contact phone
+            Defaults::conf('company', 'fax'),   // @todo contact fax
+            Defaults::conf('company', 'email')  // @todo contact email
+        );
 
         // bank stuff
         $bankAccount = QUI\ERP\BankAccounts\Handler::getCompanyBankAccount();
@@ -730,9 +768,16 @@ class Invoice
                 $Customer->getAddress()->getAttribute('zip'),
                 $Customer->getAddress()->getAttribute('city'),
                 $Customer->getAddress()->getCountry()->getCode()
-            )
-            ->setDocumentBuyerCommunication('EM', $Customer->getAddress()->getAttribute('email'))
-            ->setDocumentBuyerReference($Customer->getUUID());
+            )->setDocumentBuyerReference($Customer->getUUID());
+
+
+        if ($Customer->getAddress()->getAttribute('email')) {
+            $document->setDocumentBuyerCommunication('EM', $Customer->getAddress()->getAttribute('email'));
+        } else {
+            //$document->setDocumentBuyerCommunication('UUID', $Customer->getAddress()->getUUID());
+            // fallback für
+        }
+        //->setDocumentBuyerOrderReferencedDocument($Invoice->getUUID());
 
         // total
         $priceCalculation = $Invoice->getPriceCalculation();
@@ -742,7 +787,7 @@ class Invoice
             $document->addDocumentTax(
                 "S",
                 "VAT",
-                $priceCalculation->getSum()->value(),
+                $priceCalculation->getNettoSum()->value(),
                 $vat->value(),
                 $vat->getVat()
             );
@@ -756,7 +801,7 @@ class Invoice
             $priceCalculation->getSum()->value(),
             0.0,
             0.0,
-            $priceCalculation->getSum()->value(),
+            $priceCalculation->getNettoSum()->value(),
             $vatTotal,
             null,
             0.0
@@ -782,6 +827,21 @@ class Invoice
                 ->addDocumentPositionTax('S', 'VAT', $article['vat'])
                 ->setDocumentPositionLineSummation($article['sum']);
         }
+
+        $timeForPayment = null;
+
+        try {
+            $timeForPayment = $Invoice->getAttribute('time_for_payment');
+            $timeForPayment = strtotime($timeForPayment);
+            $timeForPayment = new DateTime($timeForPayment);
+        } catch (\Exception) {
+        }
+
+        $document->addDocumentPaymentTerm(
+            $Invoice->getAttribute('additional_invoice_text'),
+            $timeForPayment
+        );
+
 
         return $document;
     }
