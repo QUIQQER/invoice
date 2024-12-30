@@ -458,7 +458,7 @@ class Invoice
      */
     public static function getInvoiceFilename(
         QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice,
-        QUI\Locale $Locale = null
+        ?QUI\Locale $Locale = null
     ): string {
         if (
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
@@ -525,7 +525,7 @@ class Invoice
      */
     public static function roundInvoiceSum(
         float|int $amount,
-        QUI\ERP\Currency\Currency $Currency = null
+        ?QUI\ERP\Currency\Currency $Currency = null
     ): float|int {
         if ($Currency === null) {
             $Currency = QUI\ERP\Defaults::getCurrency();
@@ -858,25 +858,22 @@ class Invoice
         }
 
         // payment stuff
+        $PaymentDate = null;
 
         try {
             $timeForPayment = $Invoice->getAttribute('time_for_payment');
             $timeForPayment = strtotime($timeForPayment);
 
             if ($timeForPayment) {
-                $timeForPayment = new DateTime((int)$timeForPayment);
-            }
-
-            if (!($timeForPayment instanceof DateTime)) {
-                $timeForPayment = null;
+                $PaymentDate = new DateTime();
+                $PaymentDate->setTimestamp($timeForPayment);
             }
         } catch (\Exception) {
-            $timeForPayment = null;
         }
 
         $document->addDocumentPaymentTerm(
             $Invoice->getAttribute('additional_invoice_text'),
-            $timeForPayment
+            $PaymentDate
         );
 
         return $document;
