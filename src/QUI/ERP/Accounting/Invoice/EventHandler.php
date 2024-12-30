@@ -243,10 +243,9 @@ class EventHandler
      * @param QUI\ERP\Comments $Comments
      */
     public static function onQuiqqerErpGetCommentsByUser(
-        QUI\Users\User   $User,
+        QUI\Users\User $User,
         QUI\ERP\Comments $Comments
-    ): void
-    {
+    ): void {
         $Handler = Handler::getInstance();
         $invoices = $Handler->getInvoicesByUser($User);
 
@@ -262,10 +261,9 @@ class EventHandler
      * @param QUI\ERP\Comments $Comments
      */
     public static function onQuiqqerErpGetHistoryByUser(
-        QUI\Users\User   $User,
+        QUI\Users\User $User,
         QUI\ERP\Comments $Comments
-    ): void
-    {
+    ): void {
         $Handler = Handler::getInstance();
         $invoices = $Handler->getInvoicesByUser($User);
 
@@ -306,8 +304,7 @@ class EventHandler
         string $recipient,
         QUI\Mail\Mailer $Mailer,
         string $mailFile = ''
-    ): void
-    {
+    ): void {
         $allowedEntityTypes = [
             OutputProviderInvoice::getEntityType(),
             OutputProviderCancelled::getEntityType(),
@@ -362,7 +359,7 @@ class EventHandler
     public static function onQuiqqerHtmlToPDFCreated(QUI\HtmlToPdf\Document $Document, $filename): void
     {
         $Entity = $Document->getAttribute('Entity');
-        
+
         if (!($Entity instanceof Invoice)) {
             return;
         }
@@ -378,7 +375,6 @@ class EventHandler
             $pdfBuilder = new ZugferdDocumentPdfBuilder($document, $filename);
             $pdfBuilder->generateDocument()->saveDocument($filename);
         }
-
     }
 
     /**

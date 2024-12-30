@@ -441,8 +441,7 @@ class Invoice
         array|string $eMessage = 'Error occurred',
         int $eCode = 0,
         array $eContext = []
-    ): void
-    {
+    ): void {
         if (empty($value)) {
             throw new Exception($eMessage, $eCode, $eContext);
         }
@@ -459,9 +458,8 @@ class Invoice
      */
     public static function getInvoiceFilename(
         QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice,
-        QUI\Locale                                          $Locale = null
-    ): string
-    {
+        QUI\Locale $Locale = null
+    ): string {
         if (
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary)
@@ -526,10 +524,9 @@ class Invoice
      * @return int|float
      */
     public static function roundInvoiceSum(
-        float|int                 $amount,
+        float|int $amount,
         QUI\ERP\Currency\Currency $Currency = null
-    ): float|int
-    {
+    ): float|int {
         if ($Currency === null) {
             $Currency = QUI\ERP\Defaults::getCurrency();
 
@@ -570,10 +567,9 @@ class Invoice
      * @return array
      */
     public static function getVatTextArrayFromVatArray(
-        array|string              $vatArray,
+        array|string $vatArray,
         QUI\ERP\Currency\Currency $Currency
-    ): array
-    {
+    ): array {
         if (is_string($vatArray)) {
             $vatArray = json_decode($vatArray, true);
         }
@@ -676,9 +672,8 @@ class Invoice
 
     public static function getElectronicInvoice(
         InvoiceTemporary|QUI\ERP\Accounting\Invoice\Invoice $Invoice,
-                                                            $type = ZugferdProfiles::PROFILE_EN16931
-    ): ZugferdDocumentBuilder
-    {
+        $type = ZugferdProfiles::PROFILE_EN16931
+    ): ZugferdDocumentBuilder {
         $document = ZugferdDocumentBuilder::CreateNew($type);
 
         $date = $Invoice->getAttribute('date');
