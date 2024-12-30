@@ -858,13 +858,20 @@ class Invoice
         }
 
         // payment stuff
-        $timeForPayment = null;
 
         try {
             $timeForPayment = $Invoice->getAttribute('time_for_payment');
             $timeForPayment = strtotime($timeForPayment);
-            $timeForPayment = new DateTime($timeForPayment);
+
+            if ($timeForPayment) {
+                $timeForPayment = new DateTime($timeForPayment);
+            }
+
+            if (!($timeForPayment instanceof DateTime)) {
+                $timeForPayment = null;
+            }
         } catch (\Exception) {
+            $timeForPayment = null;
         }
 
         $document->addDocumentPaymentTerm(
