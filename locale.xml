@@ -53,6 +53,10 @@
             <en><![CDATA[Canceled invoice]]></en>
         </locale>
 
+        <locale name="permission.quiqqer.frontendUsers.profile.view.erp._header">
+            <de><![CDATA[Profil Kategorien: Rechnungssystem]]></de>
+            <en><![CDATA[Profile Categories: Invoice system]]></en>
+        </locale>
         <locale name="permission.quiqqer.invoice._header">
             <de><![CDATA[Shop - Rechnungssystem]]></de>
             <en><![CDATA[Shop - Invoice]]></en>
