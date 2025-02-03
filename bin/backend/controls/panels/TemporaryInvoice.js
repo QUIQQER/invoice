@@ -1706,34 +1706,39 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 btnText = QUILocale.get(lg, 'button.unlock.invoice.is.locked');
             }
 
-            new QUIConfirm({
-                title: QUILocale.get(lg, 'window.unlock.invoice.title'),
-                icon: 'fa fa-warning',
-                texticon: 'fa fa-warning',
-                text: QUILocale.get(lg, 'window.unlock.invoice.text', this.$locked),
-                information: QUILocale.get(lg, 'message.invoice.is.locked', this.$locked),
-                autoclose: false,
-                maxHeight: 400,
-                maxWidth: 600,
-                ok_button: {
-                    text: btnText
-                },
+            this.Loader.show();
 
-                events: {
-                    onSubmit: function(Win) {
-                        if (!window.USER.isSU) {
-                            Win.close();
-                            return;
+            Users.get(this.$locked).loadIfNotLoaded().then((user) => {
+                new QUIConfirm({
+                    title: QUILocale.get(lg, 'window.unlock.invoice.title'),
+                    icon: 'fa fa-warning',
+                    texticon: 'fa fa-warning',
+                    text: QUILocale.get(lg, 'window.unlock.invoice.text', user.getAttributes()),
+                    information: QUILocale.get(lg, 'message.invoice.is.locked', user.getAttributes()),
+                    autoclose: false,
+                    maxHeight: 400,
+                    maxWidth: 600,
+                    ok_button: {
+                        text: btnText
+                    },
+                    events: {
+                        onSubmit: function(Win) {
+                            if (!window.USER.isSU) {
+                                Win.close();
+                                return;
+                            }
+
+                            Win.Loader.show();
+
+                            self.unlockPanel().then(function() {
+                                Win.close();
+                            });
                         }
-
-                        Win.Loader.show();
-
-                        self.unlockPanel().then(function() {
-                            Win.close();
-                        });
                     }
-                }
-            }).open();
+                }).open();
+
+                this.Loader.hide();
+            });
         },
 
         /**

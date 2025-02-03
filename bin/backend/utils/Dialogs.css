@@ -10,16 +10,7 @@
     text-align: center;
 }
 
-.quiqqer-invoice-download-dialog-buttons {
-    display: flex;
-    width: 100%;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-top: 2rem;
-    justify-content: center;
+.quiqqer-invoice-download-dialog-select {
+    width: 70%;
+    margin: 2rem auto;
 }
-
-.quiqqer-invoice-download-dialog button {
-    width: 200px;
-}
-

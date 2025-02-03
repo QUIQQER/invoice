@@ -354,13 +354,16 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
         },
 
         openDownloadDialog: function (hash) {
-            new QUIPopup({
+            new QUIConfirm({
                 icon: 'fa fa-download',
                 title: QUILocale.get(lg, 'dialog.invoice.download.title'),
-                autoclose: false,
                 maxHeight: 400,
                 maxWidth: 600,
-                buttons: false,
+                autoclose: false,
+                ok_button: {
+                   text: QUILocale.get(lg, 'dialog.invoice.download.button'),
+                   textimage: 'fa fa-download'
+                },
                 events: {
                     onOpen: function (Win) {
                         Win.Loader.show();
@@ -373,42 +376,41 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
 
                             '<h3>' + QUILocale.get(lg, 'dialog.invoice.download.header') + '</h3>' +
                             QUILocale.get(lg, 'dialog.invoice.download.text') +
-                            '<div class="quiqqer-invoice-download-dialog-buttons">' +
-                            '   <button value="PDF" class="qui-button">PDF</button>' +
-                            '   <button value="PROFILE_BASIC" class="qui-button">ZUGFeRD Basic</button>' +
-                            '   <button value="PROFILE_EN16931" class="qui-button">ZUGFeRD EN16931</button>' +
-                            '   <button value="PROFILE_EXTENDED" class="qui-button">ZUGFeRD Extended</button>' +
-                            '   <button value="PROFILE_XRECHNUNG_2_3" class="qui-button">XRechnung 2.3</button>' +
-                            '   <button value="PROFILE_XRECHNUNG_3" class="qui-button">XRechnung 3</button>' +
-                            '</div>'
+                            '<select class="quiqqer-invoice-download-dialog-select">' +
+                            '   <option value="PDF">E-Rechnung (ZUGFeRD EN16931 - PDF)</option>' +
+                            '   <option value="PROFILE_BASIC">ZUGFeRD Basic (XML)</option>' +
+                            '   <option value="PROFILE_EN16931">ZUGFeRD EN16931 (XML)</option>' +
+                            '   <option value="PROFILE_EXTENDED">ZUGFeRD Extended (XML)</option>' +
+                            '   <option value="PROFILE_XRECHNUNG_2_3">XRechnung 2.3 (XML)</option>' +
+                            '   <option value="PROFILE_XRECHNUNG_3">XRechnung 3 (XML)</option>' +
+                            '</select>'
                         );
 
-                        Content.querySelectorAll('button').forEach(function (Button) {
-                            Button.addEventListener('click', function () {
-                                const id = 'download-invoice-' + hash + '-' + Button.value;
-
-                                new Element('iframe', {
-                                    src: URL_OPT_DIR + 'quiqqer/invoice/bin/backend/download.php?' + Object.toQueryString({
-                                        invoice: hash,
-                                        type: Button.value
-                                    }),
-                                    id: id,
-                                    styles: {
-                                        position: 'absolute',
-                                        top: -200,
-                                        left: -200,
-                                        width: 50,
-                                        height: 50
-                                    }
-                                }).inject(document.body);
-
-                                (function () {
-                                    //document.getElements('#' + id).destroy();
-                                }).delay(1000, this);
-                            });
-                        });
-
                         Win.Loader.hide();
+                    },
+
+                    onSubmit: function (Win) {
+                        const Select = Win.getElm().querySelector('select');
+                        const id = 'download-invoice-' + hash + '-' + Select.value;
+
+                        new Element('iframe', {
+                            src: URL_OPT_DIR + 'quiqqer/invoice/bin/backend/download.php?' + Object.toQueryString({
+                                invoice: hash,
+                                type: Button.value
+                            }),
+                            id: id,
+                            styles: {
+                                position: 'absolute',
+                                top: -200,
+                                left: -200,
+                                width: 50,
+                                height: 50
+                            }
+                        }).inject(document.body);
+
+                        (function () {
+                            document.getElements('#' + id).destroy();
+                        }).delay(10000, this);
                     }
                 }
             }).open();
