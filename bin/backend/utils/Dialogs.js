@@ -409,8 +409,8 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                         }).inject(document.body);
 
                         (function () {
-                            //document.getElements('#' + id).destroy();
-                        }).delay(1000, this);
+                            document.getElements('#' + id).destroy();
+                        }).delay(10000, this);
                     }
                 }
             }).open();
