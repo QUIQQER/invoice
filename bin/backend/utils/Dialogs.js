@@ -11,10 +11,11 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
     'Locale',
     'package/quiqqer/invoice/bin/Invoices',
     'qui/controls/windows/Confirm',
+    'qui/controls/windows/Popup',
 
     'css!package/quiqqer/invoice/bin/backend/utils/Dialogs.css'
 
-], function(QUI, QUILocale, Invoices, QUIConfirm) {
+], function (QUI, QUILocale, Invoices, QUIConfirm, QUIPopup) {
     'use strict';
 
     const lg = 'quiqqer/invoice';
@@ -28,17 +29,18 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
          * @param {String} [entityType]
          * @return {Promise}
          */
-        openPrintDialog: function(invoiceId, entityType) {
+        openPrintDialog: function (invoiceId, entityType) {
             entityType = entityType || 'Invoice';
 
-            return Invoices.getInvoiceHistory(invoiceId).then(function(comments) {
-                return new Promise(function(resolve) {
+            return Invoices.getInvoiceHistory(invoiceId).then(function (comments) {
+                return new Promise(function (resolve) {
                     require([
                         'package/quiqqer/erp/bin/backend/controls/OutputDialog'
-                    ], function(OutputDialog) {
+                    ], function (OutputDialog) {
                         new OutputDialog({
                             entityId: invoiceId,
                             entityType: entityType,
+                            entityPlugin: 'quiqqer/invoice',
                             comments: comments.length ? comments : false
                         }).open();
 
@@ -54,11 +56,11 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
          * @param {String} invoiceId - Invoice ID or Hash
          * @return {Promise}
          */
-        openStornoDialog: function(invoiceId) {
-            return Invoices.get(invoiceId).then(function(result) {
+        openStornoDialog: function (invoiceId) {
+            return Invoices.get(invoiceId).then(function (result) {
                 const id = result.id_prefix + result.id;
 
-                return new Promise(function(resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     new QUIConfirm({
                         icon: 'fa fa-ban',
                         texticon: 'fa fa-ban',
@@ -79,7 +81,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                         maxHeight: 500,
                         maxWidth: 750,
                         events: {
-                            onOpen: function(Win) {
+                            onOpen: function (Win) {
                                 const Container = Win.getContent().getElement('.textbody');
 
                                 // #locale
@@ -110,14 +112,14 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                 Reason.focus();
                             },
 
-                            onSubmit: function(Win) {
+                            onSubmit: function (Win) {
                                 const Reason = Win.getContent().getElement('[name="reason"]');
                                 const value = Reason.value;
 
                                 if (value === '') {
                                     Reason.focus();
                                     Reason.required = true;
-                                    
+
                                     if ('reportValidity' in Reason) {
                                         Reason.reportValidity();
                                     }
@@ -127,10 +129,10 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
 
                                 Win.Loader.show();
 
-                                Invoices.reversalInvoice(result.hash, value).then(function(result) {
+                                Invoices.reversalInvoice(result.hash, value).then(function (result) {
                                     Win.close();
                                     resolve(result);
-                                }).catch(function(Exception) {
+                                }).catch(function (Exception) {
                                     Win.close();
                                     reject(Exception);
                                 });
@@ -149,7 +151,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
          * @param {String} invoiceId - Invoice ID or Hash
          * @return {*|Promise}
          */
-        openCancellationDialog: function(invoiceId) {
+        openCancellationDialog: function (invoiceId) {
             return this.openStornoDialog(invoiceId);
         },
 
@@ -159,7 +161,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
          * @param {String} invoiceId - Invoice ID or Hash
          * @return {*|Promise}
          */
-        openReversalDialog: function(invoiceId) {
+        openReversalDialog: function (invoiceId) {
             return this.openStornoDialog(invoiceId);
         },
 
@@ -169,11 +171,11 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
          * @param {String} invoiceId - Invoice ID or Hash
          * @return {Promise}
          */
-        openCopyDialog: function(invoiceId) {
-            return Invoices.get(invoiceId).then(function(result) {
+        openCopyDialog: function (invoiceId) {
+            return Invoices.get(invoiceId).then(function (result) {
                 const id = result.id_prefix + result.id;
 
-                return new Promise(function(resolve) {
+                return new Promise(function (resolve) {
                     new QUIConfirm({
                         title: QUILocale.get(lg, 'dialog.invoice.copy.title'),
                         text: QUILocale.get(lg, 'dialog.invoice.copy.text'),
@@ -190,13 +192,13 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                             textimage: 'fa fa-copy'
                         },
                         events: {
-                            onSubmit: function(Win) {
+                            onSubmit: function (Win) {
                                 Win.Loader.show();
 
-                                Invoices.copyInvoice(result.hash).then(function(newId) {
+                                Invoices.copyInvoice(result.hash).then(function (newId) {
                                     Win.close();
                                     resolve(newId);
-                                }).then(function() {
+                                }).then(function () {
                                     Win.Loader.hide();
                                 });
                             }
@@ -212,14 +214,14 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
          * @param {String} invoiceId - Invoice ID or Hash
          * @return {Promise}
          */
-        openCreateCreditNoteDialog: function(invoiceId) {
+        openCreateCreditNoteDialog: function (invoiceId) {
             const self = this;
 
-            return Invoices.get(invoiceId).then(function(result) {
+            return Invoices.get(invoiceId).then(function (result) {
                 let paymentHasRefund = false;
                 const id = result.id_prefix + result.id;
 
-                return new Promise(function(resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     new QUIConfirm({
                         icon: 'fa fa-clipboard',
                         texticon: 'fa fa-clipboard',
@@ -240,10 +242,10 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                         maxHeight: 400,
                         maxWidth: 600,
                         events: {
-                            onOpen: function(Win) {
+                            onOpen: function (Win) {
                                 Win.Loader.show();
 
-                                Invoices.hasRefund(id).then(function(hasRefund) {
+                                Invoices.hasRefund(id).then(function (hasRefund) {
                                     paymentHasRefund = hasRefund;
 
                                     QUI.fireEvent('quiqqerInvoiceCreateCreditNoteDialogOpen', [id, Win]);
@@ -273,16 +275,16 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                 });
                             },
 
-                            onSubmit: function(Win) {
+                            onSubmit: function (Win) {
                                 Win.Loader.show();
 
                                 const Content = Win.getContent(),
                                     Refund = Content.getElement('[name="refund"]');
 
-                                const createInvoice = function(values) {
+                                const createInvoice = function (values) {
                                     values = values || {};
 
-                                    Invoices.createCreditNote(result.hash, values).then(function(newId) {
+                                    Invoices.createCreditNote(result.hash, values).then(function (newId) {
                                         QUI.fireEvent(
                                             'quiqqerInvoiceCreateCreditNoteDialogSubmit',
                                             [newId, Win]
@@ -290,7 +292,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
 
                                         resolve(newId);
                                         Win.close();
-                                    }).catch(function(Err) {
+                                    }).catch(function (Err) {
                                         Win.Loader.hide();
                                         console.error(Err);
 
@@ -299,7 +301,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                 };
 
                                 if (paymentHasRefund && Refund.checked) {
-                                    self.openRefundWindow(invoiceId).then(function(RefundWindow) {
+                                    self.openRefundWindow(invoiceId).then(function (RefundWindow) {
                                         if (!RefundWindow) {
                                             Win.Loader.hide();
                                             return;
@@ -308,7 +310,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                         createInvoice({
                                             refund: RefundWindow.getValues()
                                         });
-                                    }).catch(function(Err) {
+                                    }).catch(function (Err) {
                                         Win.Loader.hide();
                                         console.error(Err);
                                     });
@@ -318,7 +320,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                                 createInvoice();
                             },
 
-                            onCancel: function() {
+                            onCancel: function () {
                                 resolve(false);
                             }
                         }
@@ -332,23 +334,86 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
          * @param invoiceId
          * @return {Promise}
          */
-        openRefundWindow: function(invoiceId) {
-            return new Promise(function(resolve) {
+        openRefundWindow: function (invoiceId) {
+            return new Promise(function (resolve) {
                 require([
                     'package/quiqqer/invoice/bin/backend/controls/panels/refund/Window'
-                ], function(RefundWindow) {
+                ], function (RefundWindow) {
                     new RefundWindow({
                         invoiceId: invoiceId,
                         autoRefund: false,
                         events: {
                             onSubmit: resolve,
-                            onCancel: function() {
+                            onCancel: function () {
                                 resolve(false);
                             }
                         }
                     }).open();
                 });
             });
+        },
+
+        openDownloadDialog: function (hash) {
+            new QUIConfirm({
+                icon: 'fa fa-download',
+                title: QUILocale.get(lg, 'dialog.invoice.download.title'),
+                maxHeight: 400,
+                maxWidth: 600,
+                autoclose: false,
+                ok_button: {
+                   text: QUILocale.get(lg, 'dialog.invoice.download.button'),
+                   textimage: 'fa fa-download'
+                },
+                events: {
+                    onOpen: function (Win) {
+                        Win.Loader.show();
+
+                        const Content = Win.getContent();
+                        Content.classList.add('quiqqer-invoice-download-dialog');
+
+                        Content.set(
+                            'html',
+
+                            '<h3>' + QUILocale.get(lg, 'dialog.invoice.download.header') + '</h3>' +
+                            QUILocale.get(lg, 'dialog.invoice.download.text') +
+                            '<select class="quiqqer-invoice-download-dialog-select">' +
+                            '   <option value="PDF">E-Rechnung (ZUGFeRD EN16931 - PDF)</option>' +
+                            '   <option value="PROFILE_BASIC">ZUGFeRD Basic (XML)</option>' +
+                            '   <option value="PROFILE_EN16931">ZUGFeRD EN16931 (XML)</option>' +
+                            '   <option value="PROFILE_EXTENDED">ZUGFeRD Extended (XML)</option>' +
+                            '   <option value="PROFILE_XRECHNUNG_2_3">XRechnung 2.3 (XML)</option>' +
+                            '   <option value="PROFILE_XRECHNUNG_3">XRechnung 3 (XML)</option>' +
+                            '</select>'
+                        );
+
+                        Win.Loader.hide();
+                    },
+
+                    onSubmit: function (Win) {
+                        const Select = Win.getElm().querySelector('select');
+                        const id = 'download-invoice-' + hash + '-' + Select.value;
+
+                        new Element('iframe', {
+                            src: URL_OPT_DIR + 'quiqqer/invoice/bin/backend/download.php?' + Object.toQueryString({
+                                invoice: hash,
+                                type: Button.value
+                            }),
+                            id: id,
+                            styles: {
+                                position: 'absolute',
+                                top: -200,
+                                left: -200,
+                                width: 50,
+                                height: 50
+                            }
+                        }).inject(document.body);
+
+                        (function () {
+                            document.getElements('#' + id).destroy();
+                        }).delay(10000, this);
+                    }
+                }
+            }).open();
         }
     };
 });

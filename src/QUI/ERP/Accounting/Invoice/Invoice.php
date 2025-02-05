@@ -13,13 +13,15 @@ use QUI\ERP\Accounting\Calculations;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Address as ErpAddress;
-use QUI\ERP\Customer\CustomerFiles;
 use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Output\Output as ERPOutput;
 use QUI\ERP\Shipping\Api\ShippingInterface;
 use QUI\ExceptionStack;
 use QUI\Interfaces\Users\User;
+use QUI\ERP\ErpEntityInterface;
+use QUI\ERP\ErpTransactionsInterface;
+use QUI\ERP\ErpCopyInterface;
 use QUI\Permissions\Permission;
 
 use function array_key_exists;
@@ -41,9 +43,10 @@ use function time;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
+class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInterface, ErpCopyInterface
 {
     use QUI\ERP\ErpEntityCustomerFiles;
+    use QUI\ERP\ErpEntityData;
 
     const DUNNING_LEVEL_OPEN = 0; // No Dunning -> Keine Mahnung
     const DUNNING_LEVEL_REMIND = 1; // Payment reminding -> Zahlungserinnerung
@@ -154,6 +157,8 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
 
         if ($this->getAttribute('global_process_id')) {
             $this->globalProcessId = $this->getAttribute('global_process_id');
+        } else {
+            $this->globalProcessId = $this->getUUID();
         }
 
         // invoice payment data
@@ -668,7 +673,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             'quiqqer/invoice',
             'message.invoice.cancellationInvoice.additionalInvoiceText',
             [
-                'id' => $this->getUUID(),
+                'id' => $this->getPrefixedNumber(),
                 'date' => $Formatter->format($currentDate)
             ]
         );
@@ -845,7 +850,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 'invoice_address_id' => $invoiceAddressId,
                 'invoice_address' => $invoiceAddress,
                 'delivery_address' => $currentData['delivery_address'],
-                'order_id' => $currentData['order_id'],
+                'order_id' => $currentData['order_id'] ?: null,
                 'project_name' => $currentData['project_name'],
                 'payment_method' => $currentData['payment_method'],
                 'payment_data' => '',
@@ -897,8 +902,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
      * @throws QUI\Permissions\Exception
      */
     public function createCreditNote(
-        QUI\Interfaces\Users\User $PermissionUser = null,
-        bool|string $globalProcessId = false
+        QUI\Interfaces\Users\User $PermissionUser = null
     ): InvoiceTemporary {
         // a credit node cant create a credit note
         if ($this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE) {
@@ -918,7 +922,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
             [$this]
         );
 
-        $Copy = $this->copy(QUI::getUsers()->getSystemUser(), $globalProcessId);
+        $Copy = $this->copy(QUI::getUsers()->getSystemUser(), $this->getGlobalProcessId());
         $articles = $Copy->getArticles()->getArticles();
 
         // change all prices
@@ -1023,11 +1027,12 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         // saving copy
         $Copy->setData('originalId', $this->getId());
         $Copy->setData('originalIdPrefixed', $this->getPrefixedNumber());
+        $Copy->setData('originalInvoice', $this->getReferenceData());
 
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
-        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE);
+        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE, QUI::getUsers()->getSystemUser());
 
         if ($this->getAttribute('invoice_address')) {
             try {
@@ -1176,7 +1181,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 'quiqqer/invoice',
                 'message.invoice.reversal.additionalInvoiceText.creditNote',
                 [
-                    'id' => $this->getUUID(),
+                    'id' => $this->getPrefixedNumber(),
                     'date' => $Formatter->format($currentDate)
                 ]
             );
@@ -1185,7 +1190,7 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
                 'quiqqer/invoice',
                 'message.invoice.reversal.additionalInvoiceText',
                 [
-                    'id' => $this->getUUID(),
+                    'id' => $this->getPrefixedNumber(),
                     'date' => $Formatter->format($currentDate)
                 ]
             );
@@ -1203,11 +1208,12 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         // saving copy
         $Copy->setData('originalId', $this->getId());
         $Copy->setData('originalIdPrefixed', $this->getPrefixedNumber());
+        $Copy->setData('originalInvoice', $this->getReferenceData());
 
         $Copy->setAttribute('date', date('Y-m-d H:i:s'));
         $Copy->setAttribute('additional_invoice_text', $additionalText);
         $Copy->setAttribute('currency_data', $this->getAttribute('currency_data'));
-        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_REVERSAL);
+        $Copy->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_REVERSAL, QUI::getUsers()->getSystemUser());
 
         if ($this->getAttribute('invoice_address')) {
             try {
@@ -1651,7 +1657,15 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         $comments = $this->getAttribute('comments');
         $Comments = QUI\ERP\Comments::unserialize($comments);
 
-        $Comments->addComment($comment);
+        $Comments->addComment(
+            $comment,
+            false,
+            'quiqqer/invoice',
+            Factory::ERP_INVOICE_ICON,
+            false,
+            $this->getUUID()
+        );
+
         $this->setAttribute('comments', $Comments->toJSON());
 
         $this->addHistory(
@@ -1704,7 +1718,14 @@ class Invoice extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\Er
         $history = $this->getAttribute('history');
         $History = QUI\ERP\Comments::unserialize($history);
 
-        $History->addComment($comment);
+        $History->addComment(
+            $comment,
+            false,
+            'quiqqer/invoice',
+            Factory::ERP_INVOICE_ICON,
+            false,
+            $this->getUUID()
+        );
 
         $this->setAttribute('history', $History->toJSON());
 

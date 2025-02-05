@@ -16,9 +16,7 @@ QUI::$Ajax->registerFunction(
         $currentSetting = $Settings->sendMailAtInvoiceCreation();
         $Settings->set('invoice', 'sendMailAtCreation', false);
 
-        $result = InvoiceUtils::getInvoiceByString($invoiceId)->reversal($reason);
-        $Reversal = InvoiceUtils::getInvoiceByString($result);
-
+        $Reversal = InvoiceUtils::getInvoiceByString($invoiceId)->reversal($reason);
         $Settings->set('invoice', 'sendMailAtCreation', $currentSetting);
 
         return $Reversal->getUUID();

@@ -2,3 +2,15 @@
     float: left;
     margin-right: 10px;
 }
+
+/** invoice download dialog
+ ============================================================================== */
+
+.quiqqer-invoice-download-dialog  {
+    text-align: center;
+}
+
+.quiqqer-invoice-download-dialog-select {
+    width: 70%;
+    margin: 2rem auto;
+}

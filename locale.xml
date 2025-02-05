@@ -53,6 +53,10 @@
             <en><![CDATA[Canceled invoice]]></en>
         </locale>
 
+        <locale name="permission.quiqqer.frontendUsers.profile.view.erp._header">
+            <de><![CDATA[Profil Kategorien: Rechnungssystem]]></de>
+            <en><![CDATA[Profile Categories: Invoice system]]></en>
+        </locale>
         <locale name="permission.quiqqer.invoice._header">
             <de><![CDATA[Shop - Rechnungssystem]]></de>
             <en><![CDATA[Shop - Invoice]]></en>
@@ -414,6 +418,47 @@
             <de><![CDATA[Rechnungsstatus ändern:]]></de>
             <en><![CDATA[Edit Invoice status:]]></en>
         </locale>
+
+        <locale name="invoice.settings.e-invoice.title">
+            <de><![CDATA[Digitale Rechnung]]></de>
+            <en><![CDATA[Electronic invoice]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.xInvoiceAttachment.text">
+            <de><![CDATA[X-Rechnung anhängen]]></de>
+            <en><![CDATA[Attach X-bill]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.xInvoiceAttachment.description">
+            <de><![CDATA[
+            Bei Rechnungsmails werden Rechnungen automatisch auch als X-Rechnung XML angehängt,
+            um den Standard für elektronische Rechnungen zu erfüllen.
+            ]]></de>
+            <en><![CDATA[
+            Invoices are automatically attached to invoice e-mails as X-invoices xml format,
+            to comply with the standard for electronic invoices.
+            ]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.xInvoiceAttachmentType.text">
+            <de><![CDATA[X-Rechnung Profil]]></de>
+            <en><![CDATA[X-bill profile]]></en>
+        </locale>
+
+        <locale name="invoice.settings.e-invoice.zugferdInvoiceAttachment.text">
+            <de><![CDATA[Zugferd-Rechnung anhängen]]></de>
+            <en><![CDATA[Attach Zugferd-bill]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.zugferdInvoiceAttachment.description">
+            <de><![CDATA[
+            Bei Rechnungsmails werden Rechnungen automatisch im Zugferd PDF Format angehängt.
+            ]]></de>
+            <en><![CDATA[
+            Invoices are automatically attached to invoice emails in Zugferd PDF format.
+            ]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.zugferdInvoiceAttachmentType.text">
+            <de><![CDATA[Zugferd-Rechnung Profil]]></de>
+            <en><![CDATA[Zugferd-bill profile]]></en>
+        </locale>
+
 
         <locale name="invoice.type.creditNote">
             <de><![CDATA[Gutschrift]]></de>
@@ -1076,8 +1121,8 @@
             <en><![CDATA[Ordered by]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoiceText">
-            <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
-            <en><![CDATA[Additional invoice text]]></en>
+            <de><![CDATA[Zusätzliche Rechnungsinformationen]]></de>
+            <en><![CDATA[Additional invoice information]]></en>
         </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textStatus">
             <de><![CDATA[Status]]></de>
@@ -1243,6 +1288,23 @@
         <locale name="dialog.invoice.reversal.reason.placeholder">
             <de><![CDATA[Bitte geben Sie einen Stornierungsgrund ein.]]></de>
             <en><![CDATA[Please enter a reason for cancellation.]]></en>
+        </locale>
+
+        <locale name="dialog.invoice.download.button">
+            <de><![CDATA[Rechnung herunterladen]]></de>
+            <en><![CDATA[Download invoice]]></en>
+        </locale>
+        <locale name="dialog.invoice.download.title">
+            <de><![CDATA[Lade die Rechnung in verschiedenen Formaten herunter]]></de>
+            <en><![CDATA[Download the invoice in various formats]]></en>
+        </locale>
+        <locale name="dialog.invoice.download.header">
+            <de><![CDATA[Rechnung herunterladen]]></de>
+            <en><![CDATA[Download invoice]]></en>
+        </locale>
+        <locale name="dialog.invoice.download.text" html="true">
+            <de><![CDATA[<p>Wähle das gewünschte Format aus, um deine Rechnung herunterzuladen.</p>]]></de>
+            <en><![CDATA[<p>Select the desired format to download your invoice.</p>]]></en>
         </locale>
 
         <locale name="dialog.create.address.title">
@@ -1439,8 +1501,8 @@
         </locale>
 
         <locale name="erp.panel.invoice.data.invoiceText">
-            <de><![CDATA[Zusätzlicher Rechnungstext]]></de>
-            <en><![CDATA[Additional invoice text]]></en>
+            <de><![CDATA[Zusätzliche Rechnungsinformationen]]></de>
+            <en><![CDATA[Additional invoice information]]></en>
         </locale>
         <locale name="erp.panel.invoice.preview">
             <de><![CDATA[Vorschau]]></de>
@@ -1648,7 +1710,7 @@
             Du besitzt nicht die nötigen Rechte das Rechnungsdatum zu setzen. Daher wird das heutige Datum verwendet.
             ]]></de>
             <en><![CDATA[
-            You do not have the necessary rights to set the invoice date. Therefore today's date is used.
+            You do not have the necessary rights to set the invoice date. Therefore, today's date is used.
             ]]></en>
         </locale>
 
@@ -1684,6 +1746,27 @@
             <de><![CDATA[Heutiges Datum verwenden]]></de>
             <en><![CDATA[Use today's date]]></en>
         </locale>
+
+
+        <locale name="journal.contextMenu.change.status">
+            <de><![CDATA[Rechnungsstatus ändern]]></de>
+            <en><![CDATA[Change Invoice status]]></en>
+        </locale>
+        <locale name="window.status.title">
+            <de><![CDATA[Status Änderung für Rechnung: [invoiceId]]]></de>
+            <en><![CDATA[Status change for invoice: [invoiceId]]]></en>
+        </locale>
+        <locale name="window.status.text" html="true">
+            <de><![CDATA[
+            Wechsel den Status der Rechnung <strong>[invoiceId]</strong>.
+            Beachte, Statusänderungen können verschiedene Aktionen auslösen.
+            ]]></de>
+            <en><![CDATA[
+            Change the status of the invoice <strong>[invoiceId]</strong>.
+            Note, status changes can trigger different actions.
+            ]]></en>
+        </locale>
+
     </groups>
 
     <groups name="quiqqer/invoice" datatype="php">
@@ -1701,8 +1784,8 @@
         </locale>
 
         <locale name="OutputProvider.epc_qr_code_purpose">
-            <de><![CDATA[Rechnung [invoiceNo]]]></de>
-            <en><![CDATA[Invoice [invoiceNo]]]></en>
+            <de><![CDATA[Rechnung [invoiceNo]; Kunden-Nr: [customerNo]]]></de>
+            <en><![CDATA[Invoice [invoiceNo]; Customer no: [customerNo]]]></en>
         </locale>
         <locale name="exception.Invoice.addCustomerFile.no_customer">
             <de>

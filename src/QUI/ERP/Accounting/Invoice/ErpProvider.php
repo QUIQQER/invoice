@@ -38,7 +38,7 @@ class ErpProvider extends AbstractErpProvider
         }
 
         $Invoice = new Item([
-            'icon' => 'fa fa-file-text-o',
+            'icon' => Factory::ERP_INVOICE_ICON,
             'name' => 'invoice',
             'text' => ['quiqqer/invoice', 'erp.panel.invoice.text'],
             'opened' => true,
@@ -56,7 +56,7 @@ class ErpProvider extends AbstractErpProvider
 
         $Invoice->appendChild(
             new Item([
-                'icon' => 'fa fa-file-text-o',
+                'icon' => Factory::ERP_INVOICE_ICON,
                 'name' => 'invoice-drafts',
                 'text' => ['quiqqer/invoice', 'erp.panel.invoice.drafts.text'],
                 'require' => 'package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices'
@@ -65,7 +65,7 @@ class ErpProvider extends AbstractErpProvider
 
         $Invoice->appendChild(
             new Item([
-                'icon' => 'fa fa-file-text-o',
+                'icon' => Factory::ERP_INVOICE_ICON,
                 'name' => 'invoice-journal',
                 'text' => ['quiqqer/invoice', 'erp.panel.invoice.journal.text'],
                 'require' => 'package/quiqqer/invoice/bin/backend/controls/panels/Journal'

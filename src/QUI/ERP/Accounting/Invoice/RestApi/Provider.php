@@ -7,6 +7,7 @@ use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\ResponseInterface as ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use QUI;
+use QUI\ERP\Accounting\Invoice\Factory;
 use QUI\ERP\Accounting\Invoice\Factory as InvoiceFactory;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 use QUI\ERP\Currency\Handler as CurrencyHandler;
@@ -391,12 +392,12 @@ class Provider implements QUI\REST\ProviderInterface
         }
 
         // Post
-        $invoiceId = $InvoiceDraft->getUUID();
+        $invoiceId = $InvoiceDraft->getPrefixedNumber();
 
         if (!empty($invoiceData['post'])) {
             try {
                 $Invoice = $InvoiceDraft->post($SystemUser);
-                $invoiceId = $Invoice->getUUID();
+                $invoiceId = $Invoice->getPrefixedNumber();
             } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
 

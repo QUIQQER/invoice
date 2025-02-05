@@ -87,6 +87,7 @@ QUI::$Ajax->registerFunction(
             }
 
             $data[$key]['id'] = $TemporaryInvoice->getUUID();
+            $data[$key]['prefixedNumber'] = $TemporaryInvoice->getPrefixedNumber();
 
             $Currency = $TemporaryInvoice->getCurrency();
 

@@ -18,11 +18,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     'Locale',
     'Ajax',
     'Mustache',
+    'Users',
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.css'
 
-], function(QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Comments,
-    CustomerFileSelect, Sandbox, Locker, QUILocale, QUIAjax, Mustache
+], function (QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Comments,
+             CustomerFileSelect, Sandbox, Locker, QUILocale, QUIAjax, Mustache, Users
 ) {
     'use strict';
 
@@ -36,6 +37,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         Binds: [
             'print',
             'storno',
+            'download',
             'copy',
             'creditNote',
             'openInfo',
@@ -58,9 +60,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             uuid: false
         },
 
-        initialize: function(options) {
+        initialize: function (options) {
             this.setAttributes({
-                icon: 'fa fa-money'
+                icon: 'fa fa-file-text-o'
             });
 
             this.parent(options);
@@ -87,7 +89,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @return {string}
          */
-        $getLockKey: function() {
+        $getLockKey: function () {
             return 'lock-invoice-' + this.getAttribute('hash');
         },
 
@@ -95,20 +97,20 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          * Return the lock group
          * @return {string}
          */
-        $getLockGroups: function() {
+        $getLockGroups: function () {
             return 'quiqqer/invoice';
         },
 
         /**
          * Refresh the invoice data
          */
-        doRefresh: function() {
+        doRefresh: function () {
             const self = this;
 
             return Promise.all([
                 Invoices.get(this.getAttribute('hash')),
                 Invoices.hasRefund(this.getAttribute('hash'))
-            ]).then(function(response) {
+            ]).then(function (response) {
                 const data = response[0],
                     hasRefund = response[1];
 
@@ -138,14 +140,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * event: on create
          */
-        $onCreate: function() {
-            // create the buttons (top bar)
-            this.addButton({
-                textimage: 'fa fa-print',
-                text: QUILocale.get(lg, 'erp.panel.invoice.button.print'),
-                events: {
-                    onClick: this.print
-                }
+        $onCreate: function () {
+            require([
+                'package/quiqqer/erp/bin/backend/controls/process/ProcessWindowButton'
+            ], (ProcessWindowButton) => {
+                new ProcessWindowButton({
+                    hash: this.getAttribute('hash')
+                }).inject(this.getHeader());
             });
 
             this.addButton({
@@ -200,6 +201,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 }
             });
 
+            Actions.appendChild({
+                icon: 'fa fa-download',
+                text: QUILocale.get(lg, 'dialog.invoice.download.button'),
+                events: {
+                    onClick: this.download
+                }
+            });
+
             this.fireEvent('actionButtonCreate', [
                 this,
                 Actions
@@ -213,7 +222,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
             this.addButton(Actions);
 
-            // create the categores (left bar)
+            // create the buttons (top bar)
+            this.addButton({
+                textimage: 'fa fa-print',
+                text: QUILocale.get(lg, 'erp.panel.invoice.button.print'),
+                events: {
+                    onClick: this.print
+                },
+                styles: {
+                    'float': 'right'
+                }
+            });
+
+            // create the categories (left bar)
             this.addCategory({
                 icon: 'fa fa-info',
                 name: 'info',
@@ -224,6 +245,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 }
             });
 
+            /*
             this.addCategory({
                 icon: 'fa fa-list',
                 name: 'articles',
@@ -233,6 +255,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     onClick: this.openArticles
                 }
             });
+            */
 
             this.addCategory({
                 icon: 'fa fa-money',
@@ -327,7 +350,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * event: on inject
          */
-        $onInject: function() {
+        $onInject: function () {
             const self = this;
 
             this.Loader.show();
@@ -335,7 +358,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             Locker.isLocked(
                 this.$getLockKey(),
                 this.$getLockGroups()
-            ).then(function(isLocked) {
+            ).then(function (isLocked) {
                 if (isLocked) {
                     self.$locked = isLocked;
                     self.lockPanel();
@@ -346,14 +369,14 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     self.$getLockKey(),
                     self.$getLockGroups()
                 );
-            }).then(function() {
+            }).then(function () {
                 return self.doRefresh();
-            }).then(function() {
+            }).then(function () {
                 self.openPreview();
-            }).catch(function(e) {
+            }).catch(function (e) {
                 console.error(e);
 
-                QUI.getMessageHandler().then(function(MH) {
+                QUI.getMessageHandler().then(function (MH) {
                     MH.addError(e.getMessage());
                 });
 
@@ -364,7 +387,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * event: on destroy
          */
-        $onDestroy: function() {
+        $onDestroy: function () {
             Locker.unlock(
                 this.$getLockKey(),
                 this.$getLockGroups()
@@ -374,7 +397,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * lock the complete panel
          */
-        lockPanel: function() {
+        lockPanel: function () {
             this.getButtons('actions').disable();
             this.getButtons('lock').show();
         },
@@ -384,7 +407,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @return {Promise<T>}
          */
-        unlockPanel: function() {
+        unlockPanel: function () {
             const self = this;
 
             this.Loader.show();
@@ -392,12 +415,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             return Locker.unlock(
                 this.$getLockKey(),
                 this.$getLockGroups()
-            ).then(function() {
+            ).then(function () {
                 return Locker.isLocked(
                     self.$getLockKey(),
                     self.$getLockGroups()
                 );
-            }).then(function(isLocked) {
+            }).then(function (isLocked) {
                 if (isLocked) {
                     return;
                 }
@@ -412,7 +435,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 );
 
                 return self.refresh();
-            }).then(function() {
+            }).then(function () {
                 return self.openInfo();
             });
         },
@@ -420,7 +443,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * show the lock message window
          */
-        $showLockMessage: function() {
+        $showLockMessage: function () {
             const self = this;
             let btnText = QUILocale.get('quiqqer/core', 'submit');
 
@@ -428,34 +451,39 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 btnText = QUILocale.get(lg, 'button.unlock.invoice.is.locked');
             }
 
-            new QUIConfirm({
-                title: QUILocale.get(lg, 'window.unlock.invoice.title'),
-                icon: 'fa fa-warning',
-                texticon: 'fa fa-warning',
-                text: QUILocale.get(lg, 'window.unlock.invoice.text', this.$locked),
-                information: QUILocale.get(lg, 'message.invoice.is.locked', this.$locked),
-                autoclose: false,
-                maxHeight: 400,
-                maxWidth: 600,
-                ok_button: {
-                    text: btnText
-                },
+            this.Loader.show();
 
-                events: {
-                    onSubmit: function(Win) {
-                        if (!window.USER.isSU) {
-                            Win.close();
-                            return;
+            Users.get(this.$locked).loadIfNotLoaded().then((user) => {
+                new QUIConfirm({
+                    title: QUILocale.get(lg, 'window.unlock.invoice.title'),
+                    icon: 'fa fa-warning',
+                    texticon: 'fa fa-warning',
+                    text: QUILocale.get(lg, 'window.unlock.invoice.text', user.getAttributes()),
+                    information: QUILocale.get(lg, 'message.invoice.is.locked', user.getAttributes()),
+                    autoclose: false,
+                    maxHeight: 400,
+                    maxWidth: 600,
+                    ok_button: {
+                        text: btnText
+                    },
+                    events: {
+                        onSubmit: function (Win) {
+                            if (!window.USER.isSU) {
+                                Win.close();
+                                return;
+                            }
+
+                            Win.Loader.show();
+
+                            self.unlockPanel().then(function () {
+                                Win.close();
+                            });
                         }
-
-                        Win.Loader.show();
-
-                        self.unlockPanel().then(function() {
-                            Win.close();
-                        });
                     }
-                }
-            }).open();
+                }).open();
+
+                this.Loader.hide();
+            });
         },
 
         /**
@@ -463,7 +491,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @return {Promise}
          */
-        print: function() {
+        print: function () {
             const self = this,
                 Data = self.getAttribute('data');
 
@@ -482,10 +510,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     entityType = 'Invoice';
             }
 
-            return new Promise(function(resolve) {
+            return new Promise(function (resolve) {
                 require([
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
-                ], function(Dialogs) {
+                ], function (Dialogs) {
                     Dialogs.openPrintDialog(Data.hash, entityType).then(resolve);
                 });
             });
@@ -496,22 +524,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @return {Promise}
          */
-        copy: function() {
-            const self = this;
-
-            return new Promise(function(resolve) {
+        copy: function () {
+            return new Promise((resolve) => {
                 require([
-                    'package/quiqqer/invoice/bin/backend/utils/Dialogs'
-                ], function(Dialogs) {
-                    Dialogs.openCopyDialog(self.getAttribute('data').hash).then(function(invoiceId) {
-                        return new Promise(function(resolve) {
-                            require([
-                                'package/quiqqer/invoice/bin/backend/utils/Panels'
-                            ], function(PanelUtils) {
-                                PanelUtils.openTemporaryInvoice(invoiceId).then(resolve);
-                            });
-                        });
-                    }).then(resolve);
+                    'package/quiqqer/erp/bin/backend/controls/dialogs/CopyErpEntityDialog'
+                ], (CopyErpEntityDialog) => {
+                    new CopyErpEntityDialog({
+                        hash: this.getAttribute('hash'),
+                        entityPlugin: 'quiqqer/invoice',
+                        events: {
+                            onSuccess: resolve
+                        }
+                    }).open();
                 });
             });
         },
@@ -521,22 +545,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @return {Promise}
          */
-        creditNote: function() {
+        creditNote: function () {
             const self = this;
 
-            return new Promise(function(resolve) {
+            return new Promise(function (resolve) {
                 require([
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
-                ], function(Dialogs) {
-                    Dialogs.openCreateCreditNoteDialog(self.getAttribute('data').hash).then(function(invoiceId) {
+                ], function (Dialogs) {
+                    Dialogs.openCreateCreditNoteDialog(self.getAttribute('data').hash).then(function (invoiceId) {
                         if (!invoiceId) {
                             return;
                         }
 
-                        return new Promise(function(res) {
+                        return new Promise(function (res) {
                             require([
                                 'package/quiqqer/invoice/bin/backend/utils/Panels'
-                            ], function(PanelUtils) {
+                            ], function (PanelUtils) {
                                 PanelUtils.openTemporaryInvoice(invoiceId).then(res);
                             });
                         });
@@ -545,26 +569,32 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
             });
         },
 
+        download: function () {
+            require(['package/quiqqer/invoice/bin/backend/utils/Dialogs'], (Dialogs) => {
+                Dialogs.openDownloadDialog(this.getAttribute('data').hash);
+            });
+        },
+
         /**
          * Opens the storno / cancellation dialog
          *
          * @return {Promise}
          */
-        storno: function() {
+        storno: function () {
             const self = this;
 
-            return new Promise(function(resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 require([
                     'package/quiqqer/invoice/bin/backend/utils/Dialogs'
-                ], function(Dialogs) {
-                    Dialogs.openStornoDialog(self.getAttribute('data').hash).then(function() {
+                ], function (Dialogs) {
+                    Dialogs.openStornoDialog(self.getAttribute('data').hash).then(function () {
                         return self.refresh();
-                    }).then(function() {
+                    }).then(function () {
                         resolve();
-                    }).catch(function(Error) {
+                    }).catch(function (Error) {
                         reject(Error);
 
-                        QUI.getMessageHandler().then(function(MH) {
+                        QUI.getMessageHandler().then(function (MH) {
                             MH.addError(Error.getMessage());
                         });
                     });
@@ -577,17 +607,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * Open the information
          */
-        openInfo: function() {
+        openInfo: function () {
             const self = this;
 
             this.Loader.show();
             this.getCategory('info').setActive();
 
-            return this.$closeCategory().then(function(Container) {
-                return new Promise(function(resolve) {
+            return this.$closeCategory().then(function (Container) {
+                return new Promise(function (resolve) {
                     require([
                         'text!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.Data.html'
-                    ], function(template) {
+                    ], function (template) {
                         let data = self.getAttribute('data');
 
                         if (typeOf(data) !== 'object') {
@@ -692,15 +722,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             Form.elements.processing_status.value = data.processing_status;
                         }
 
-                        QUI.parse(Container).then(function() {
+                        QUI.parse(Container).then(function () {
                             const Processing = QUI.Controls.getById(
                                 Container.getElement('[name="processing_status"]').get('data-quiid')
                             );
 
-                            Processing.addEvent('onChange', function() {
+                            Processing.addEvent('onChange', function () {
                                 self.Loader.show();
-                                self.setProcessingStatus(Processing.getValue()).then(function() {
+                                self.setProcessingStatus(Processing.getValue()).then(function () {
                                     self.Loader.hide();
+                                    self.showSavedIconAnimation();
                                 });
                             });
 
@@ -708,17 +739,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         });
                     });
                 });
-            }).then(function() {
+            }).then(function () {
                 return self.$openCategory();
-            }).then(function() {
+            }).then(function () {
                 self.Loader.hide();
             });
         },
 
         /**
          * open articles
+         * @deprecated
          */
-        openArticles: function() {
+        openArticles: function () {
+            return;
             const self = this;
 
             this.Loader.show();
@@ -728,10 +761,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 this.$closeCategory(),
                 Invoices.getInvoicePreview(self.getAttribute('data').hash, true)
                 //Invoices.getArticlesHtml(self.getAttribute('data').id)
-            ]).then(function(result) {
+            ]).then(function (result) {
                 const Container = result[0];
 
-                return new Promise(function(resolve) {
+                return new Promise(function (resolve) {
                     Container.set('html', '');
                     Container.setStyle('padding', 0);
 
@@ -747,18 +780,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             width: '100%'
                         },
                         events: {
-                            onLoad: function(Box) {
+                            onLoad: function (Box) {
                                 Box.getElm().addClass('quiqqer-invoice-backend-invoice-preview');
                                 resolve();
                             }
                         }
                     }).inject(Pager);
                 });
-            }).then(function() {
+            }).then(function () {
                 return self.$openCategory();
-            }).then(function() {
+            }).then(function () {
                 self.Loader.hide();
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.error(err.getMessage());
                 console.error(err);
                 self.Loader.hide();
@@ -768,17 +801,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * Open payments list
          */
-        openPayments: function() {
+        openPayments: function () {
             const self = this;
 
             this.Loader.show();
             this.getCategory('payments').setActive();
 
-            return this.$closeCategory().then(function(Container) {
-                return new Promise(function(resolve) {
+            return this.$closeCategory().then(function (Container) {
+                return new Promise(function (resolve) {
                     require([
                         'package/quiqqer/payment-transactions/bin/backend/controls/IncomingPayments/TransactionList'
-                    ], function(TransactionList) {
+                    ], function (TransactionList) {
                         new TransactionList({
                             Panel: self,
                             hash: self.getAttribute('data').hash,
@@ -790,7 +823,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                                     Invoices.linkTransaction(
                                         self.getAttribute('data').hash,
                                         txId
-                                    ).then(function() {
+                                    ).then(function () {
                                         Control.refresh();
                                     });
                                 }
@@ -798,9 +831,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         }).inject(Container);
                     });
                 });
-            }).then(function() {
+            }).then(function () {
                 return self.$openCategory();
-            }).then(function() {
+            }).then(function () {
                 self.Loader.hide();
             });
         },
@@ -810,24 +843,24 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @return {Promise}
          */
-        openHistory: function() {
+        openHistory: function () {
             const self = this;
 
             this.Loader.show();
             this.getCategory('history').setActive();
 
-            return this.$closeCategory().then(function(Container) {
+            return this.$closeCategory().then(function (Container) {
                 return Promise.all([
                     Invoices.getInvoiceHistory(self.getAttribute('data').hash),
                     Container
                 ]);
-            }).then(function(result) {
+            }).then(function (result) {
                 new Comments({
                     comments: result[0]
                 }).inject(result[1]);
-            }).then(function() {
+            }).then(function () {
                 return self.$openCategory();
-            }).then(function() {
+            }).then(function () {
                 self.Loader.hide();
             });
         },
@@ -835,17 +868,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * open comments
          */
-        openComments: function() {
+        openComments: function () {
             const self = this;
 
             this.Loader.show();
             this.getCategory('comments').setActive();
 
-            return this.$closeCategory().then(function() {
+            return this.$closeCategory().then(function () {
                 self.refreshComments();
-            }).then(function() {
+            }).then(function () {
                 return self.$openCategory();
-            }).then(function() {
+            }).then(function () {
                 self.Loader.hide();
             });
         },
@@ -855,7 +888,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @returns {Promise}
          */
-        openInvoiceFiles: function() {
+        openInvoiceFiles: function () {
             this.Loader.show();
 
             this.getCategory('invoiceFiles').setActive();
@@ -890,7 +923,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * Refresh the comment display
          */
-        refreshComments: function() {
+        refreshComments: function () {
             const Container = this.getContent().getElement('.container');
 
             Container.set('html', '');
@@ -915,13 +948,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * open preview
          */
-        openPreview: function() {
+        openPreview: function () {
             const self = this;
 
             this.Loader.show();
             this.getCategory('preview').setActive();
 
-            return this.$closeCategory().then(function(Container) {
+            return this.$closeCategory().then(function (Container) {
                 const StatusContainer = new Element('div', {
                     'class': 'quiqqer-invoice-backend-invoice-statusContainer'
                 }).inject(Container);
@@ -949,21 +982,22 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     value: data.processing_status
                 }).inject(StatusContainer);
 
-                return QUI.parse(StatusContainer).then(function() {
+                return QUI.parse(StatusContainer).then(function () {
                     const Processing = QUI.Controls.getById(
                         Container.getElement('[name="processing_status"]').get('data-quiid')
                     );
 
-                    Processing.addEvent('onChange', function() {
+                    Processing.addEvent('onChange', function () {
                         self.Loader.show();
-                        self.setProcessingStatus(Processing.getValue()).then(function() {
+                        self.setProcessingStatus(Processing.getValue()).then(function () {
                             self.Loader.hide();
+                            self.showSavedIconAnimation();
                         });
                     });
 
                     return Container;
                 });
-            }).then(function(Container) {
+            }).then(function (Container) {
                 const FrameContainer = new Element('div', {
                     'class': 'quiqqer-invoice-backend-invoice-previewContainer',
                     styles: {
@@ -975,7 +1009,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 Container.setStyle('padding', 0);
                 Container.setStyle('height', '100%');
 
-                return Invoices.getInvoicePreview(self.getAttribute('data').hash).then(function(html) {
+                return Invoices.getInvoicePreview(self.getAttribute('data').hash).then(function (html) {
                     new Sandbox({
                         content: html,
                         styles: {
@@ -984,15 +1018,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                             width: '100%'
                         },
                         events: {
-                            onLoad: function(Box) {
+                            onLoad: function (Box) {
                                 Box.getElm().addClass('quiqqer-invoice-backend-invoice-preview');
                             }
                         }
                     }).inject(FrameContainer);
                 });
-            }).then(function() {
+            }).then(function () {
                 return self.$openCategory();
-            }).then(function() {
+            }).then(function () {
                 self.Loader.hide();
             });
         },
@@ -1002,10 +1036,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @returns {Promise}
          */
-        $openCategory: function() {
+        $openCategory: function () {
             const self = this;
 
-            return new Promise(function(resolve) {
+            return new Promise(function (resolve) {
                 const Container = self.getContent().getElement('.container');
 
                 if (!Container) {
@@ -1028,10 +1062,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @returns {Promise}
          */
-        $closeCategory: function() {
+        $closeCategory: function () {
             this.getContent().setStyle('padding', 0);
 
-            return new Promise(function(resolve) {
+            return new Promise(function (resolve) {
                 let Container = this.getContent().getElement('.container');
 
                 if (!Container) {
@@ -1053,7 +1087,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                     top: -50
                 }, {
                     duration: 200,
-                    callback: function() {
+                    callback: function () {
                         Container.set('html', '');
                         Container.setStyle('padding', 20);
 
@@ -1070,7 +1104,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * Open the add dialog window
          */
-        openAddCommentDialog: function() {
+        openAddCommentDialog: function () {
             const self = this;
 
             new QUIConfirm({
@@ -1079,17 +1113,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                 maxHeight: 600,
                 maxWidth: 800,
                 events: {
-                    onOpen: function(Win) {
+                    onOpen: function (Win) {
                         Win.getContent().set('html', '');
                         Win.Loader.show();
 
                         require([
                             'Editors'
-                        ], function(Editors) {
-                            Editors.getEditor(null).then(function(Editor) {
+                        ], function (Editors) {
+                            Editors.getEditor(null).then(function (Editor) {
                                 Win.$Editor = Editor;
 
-                                Win.$Editor.addEvent('onLoaded', function() {
+                                Win.$Editor.addEvent('onLoaded', function () {
                                     Win.$Editor.switchToWYSIWYG();
                                     Win.$Editor.showToolbar();
                                     Win.$Editor.setContent(self.getAttribute('content'));
@@ -1102,12 +1136,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                         });
                     },
 
-                    onSubmit: function(Win) {
+                    onSubmit: function (Win) {
                         Win.Loader.show();
 
-                        self.addComment(Win.$Editor.getContent()).then(function() {
+                        self.addComment(Win.$Editor.getContent()).then(function () {
                             return self.doRefresh();
-                        }).then(function() {
+                        }).then(function () {
                             Win.$Editor.destroy();
                             Win.close();
 
@@ -1123,7 +1157,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          *
          * @param {String} message
          */
-        addComment: function(message) {
+        addComment: function (message) {
             return Invoices.addComment(this.getAttribute('hash'), message);
         },
 
@@ -1135,12 +1169,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
          * @param {Number} processingStatus
          * @return {Promise}
          */
-        setProcessingStatus: function(processingStatus) {
+        setProcessingStatus: function (processingStatus) {
             const self = this;
 
-            return new Promise(function(resolve) {
-                require(['Ajax'], function(QUIAjax) {
-                    QUIAjax.post('package_quiqqer_invoice_ajax_invoices_setStatus', function() {
+            return new Promise(function (resolve) {
+                require(['Ajax'], function (QUIAjax) {
+                    QUIAjax.post('package_quiqqer_invoice_ajax_invoices_setStatus', function () {
                         let data = self.getAttribute('data');
 
                         if (typeOf(data) !== 'object') {
@@ -1166,7 +1200,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
         /**
          * @param Category
          */
-        $openXmlCategory: function(Category) {
+        $openXmlCategory: function (Category) {
             this.Loader.show();
 
             QUIAjax.get('package_quiqqer_invoice_ajax_invoices_panel_getCategory', (html) => {

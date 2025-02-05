@@ -11,13 +11,15 @@ use QUI\ERP\Accounting\ArticleList;
 use QUI\ERP\Accounting\Calculations;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
-use QUI\ERP\ErpEntityInterface;
 use QUI\ERP\Exception;
 use QUI\ERP\Money\Price;
 use QUI\ERP\Order\Handler as OrderHandler;
 use QUI\ERP\User;
 use QUI\ExceptionStack;
 use QUI\Utils\Security\Orthos;
+use QUI\ERP\ErpEntityInterface;
+use QUI\ERP\ErpTransactionsInterface;
+use QUI\ERP\ErpCopyInterface;
 
 use function array_flip;
 use function class_exists;
@@ -46,9 +48,10 @@ use const PHP_INT_MAX;
  *
  * @package QUI\ERP\Accounting\Invoice
  */
-class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, QUI\ERP\ErpTransactionsInterface
+class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInterface, ErpCopyInterface
 {
     use QUI\ERP\ErpEntityCustomerFiles;
+    use QUI\ERP\ErpEntityData;
 
     /**
      * Special attributes
@@ -203,7 +206,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
 
         // invoice extra data
-        $this->data = json_decode($data['data'], true) ?? [];
+        if (!empty($data['data'])) {
+            $this->data = json_decode($data['data'], true) ?? [];
+        }
 
         if (isset($data['custom_data'])) {
             $this->customData = json_decode($data['custom_data'], true) ?? [];
@@ -234,7 +239,17 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         $this->setAttributes($data);
 
-        if (!$this->getCustomer()) {
+        if ($this->getCustomer() === null && !empty($data['customer_data'])) {
+            $customer = json_decode($data['customer_data'], true);
+
+            if (!empty($customer['uuid'])) {
+                $this->setAttribute('customer_id', $customer['uuid']);
+            } elseif (!empty($customer['id'])) {
+                $this->setAttribute('customer_id', $customer['id']);
+            }
+        }
+
+        if ($this->getCustomer() === null) {
             $this->setAttribute('invoice_address', false);
             $this->setAttribute('customer_id', false);
         } else {
@@ -251,14 +266,18 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
 
         // consider contact person in address
-        if (
-            !empty($this->getAttribute('invoice_address')) &&
-            !empty($this->getAttribute('contact_person'))
-        ) {
+        if (!empty($this->getAttribute('invoice_address'))) {
             $invoiceAddress = $this->getAttribute('invoice_address');
             $invoiceAddress = json_decode($invoiceAddress, true);
 
-            $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
+            if (!empty($this->getAttribute('contact_person'))) {
+                $invoiceAddress['contactPerson'] = $this->getAttribute('contact_person');
+            }
+
+            if (!empty($invoiceAddress['contactEmail'])) {
+                $this->setAttribute('contactEmail', $invoiceAddress['contactEmail']);
+            }
+
             $this->setAttribute('invoice_address', json_encode($invoiceAddress));
         }
 
@@ -777,7 +796,6 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         // address
         $contactEmail = $this->getAttribute('contactEmail') ?: false;
-        $invoiceAddressId = false;
 
         try {
             $Customer = QUI::getUsers()->get($this->getAttribute('customer_id'));
@@ -787,7 +805,10 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             );
 
             $invoiceAddressData = $this->getAttribute('invoice_address');
-            $invoiceAddressData = json_decode($invoiceAddressData, true);
+
+            if (!is_array($invoiceAddressData)) {
+                $invoiceAddressData = json_decode($invoiceAddressData, true);
+            }
 
             if ($invoiceAddressData) {
                 $Address->setAttributes($invoiceAddressData);
@@ -797,11 +818,8 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
             $invoiceAddress = $Address->toJSON();
             $this->Articles->setUser($Customer);
-
-            $invoiceAddressId = $Address->getUUID();
-        } catch (QUI\Exception $Exception) {
+        } catch (QUI\Exception) {
             $invoiceAddress = $this->getAttribute('invoice_address');
-            $invoiceAddressCheck = false;
 
             if (is_string($invoiceAddress)) {
                 $invoiceAddressCheck = json_decode($invoiceAddress, true);
@@ -813,11 +831,9 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                 $invoiceAddress = json_encode($invoiceAddress);
             }
 
-            if (empty($invoiceAddressCheck['id'])) {
-                QUI\System\Log::addNotice($Exception->getMessage());
-            } else {
-                $invoiceAddressId = $invoiceAddressCheck['id'];
-            }
+            $Address = new QUI\ERP\Address(
+                json_decode($invoiceAddress, true)
+            );
         }
 
         $this->Articles->calc();
@@ -916,7 +932,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         $DeliveryAddress = $this->getDeliveryAddress();
 
         // Save delivery address separately only if it differs from invoice address
-        if ($DeliveryAddress && ($invoiceAddressId && $DeliveryAddress->getUUID() !== $invoiceAddressId)) {
+        if ($DeliveryAddress && !$DeliveryAddress->equals($Address)) {
             $deliveryAddress = $DeliveryAddress->toJSON();
             $deliveryAddressId = $DeliveryAddress->getUUID();
 
@@ -959,7 +975,7 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         $paidStatus = QUI\ERP\Constants::PAYMENT_STATUS_OPEN;
         $paidDate = null;
         $paidData = '';
-        $orderId = $this->getAttribute('order_id');
+        $orderId = $this->getAttribute('order_id') ?: null;
 
         if (!empty($orderId)) {
             $Orders = OrderHandler::getInstance();
@@ -1095,14 +1111,19 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
      * Copy the temporary invoice
      *
      * @param null|QUI\Interfaces\Users\User $PermissionUser
+     * @param bool|string $globalProcessId
      * @return InvoiceTemporary
      *
-     * @throws QUI\Permissions\Exception
+     * @throws ExceptionStack
+     * @throws QUI\Database\Exception
      * @throws QUI\Exception
+     * @throws QUI\Permissions\Exception
      * @throws Exception
      */
-    public function copy(QUI\Interfaces\Users\User $PermissionUser = null): InvoiceTemporary
-    {
+    public function copy(
+        QUI\Interfaces\Users\User $PermissionUser = null,
+        bool|string $globalProcessId = false
+    ): InvoiceTemporary {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
         }
@@ -1119,7 +1140,16 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
-        $New = $Factory->createInvoice($PermissionUser, $this->getGlobalProcessId());
+
+        if (empty($globalProcessId)) {
+            $globalProcessId = QUI\Utils\Uuid::get();
+            $newProcess = true;
+        } else {
+            $globalProcessId = $this->getGlobalProcessId();
+            $newProcess = false;
+        }
+
+        $New = $Factory->createInvoice($PermissionUser, $globalProcessId);
 
         $currentData = QUI::getDataBase()->fetch([
             'from' => $Handler->temporaryInvoiceTable(),
@@ -1130,11 +1160,17 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
         ]);
 
         $currentData = $currentData[0];
-        $currentData['hash'] = QUI\Utils\Uuid::get();
+        $currentData['hash'] = $New->getUUID();
+        $currentData['global_process_id'] = $New->getGlobalProcessId();
 
         unset($currentData['id']);
         unset($currentData['c_user']);
         unset($currentData['date']);
+
+        if ($newProcess) {
+            unset($currentData['history']);
+        }
+
 
         QUI::getDataBase()->update(
             $Handler->temporaryInvoiceTable(),
@@ -1390,7 +1426,12 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
                             'oldHash' => $oldHash,
                             'newHash' => $this->getAttribute('hash')
                         ]
-                    )
+                    ),
+                    false,
+                    'quiqqer/invoice',
+                    Factory::ERP_INVOICE_ICON,
+                    false,
+                    $this->getUUID()
                 );
             }
         } catch (QUI\Exception $Exception) {
@@ -1405,7 +1446,12 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             QUI::getLocale()->get('quiqqer/invoice', 'history.invoiceTemporary.post', [
                 'userId' => QUI::getUserBySession()->getUniqueId(),
                 'username' => QUI::getUserBySession()->getUsername()
-            ])
+            ]),
+            false,
+            'quiqqer/invoice',
+            Factory::ERP_INVOICE_ICON,
+            false,
+            $this->getUUID()
         );
 
         // new invoice id
@@ -2032,7 +2078,15 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
             <img><table><tbody><td><tfoot><th><thead><tr>'
         );
 
-        $this->Comments->addComment($message);
+        $this->Comments->addComment(
+            $message,
+            false,
+            'quiqqer/invoice',
+            Factory::ERP_INVOICE_ICON,
+            false,
+            $this->getUUID()
+        );
+
         $this->save();
 
         QUI::getEvents()->fireEvent(
@@ -2076,7 +2130,14 @@ class InvoiceTemporary extends QUI\QDOM implements QUI\ERP\ErpEntityInterface, Q
      */
     public function addHistory(string $message): void
     {
-        $this->History->addComment($message);
+        $this->History->addComment(
+            $message,
+            false,
+            'quiqqer/invoice',
+            Factory::ERP_INVOICE_ICON,
+            false,
+            $this->getUUID()
+        );
 
         QUI::getEvents()->fireEvent(
             'quiqqerInvoiceTemporaryInvoiceAddHistory',

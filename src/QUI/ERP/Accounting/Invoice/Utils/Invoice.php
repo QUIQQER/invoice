@@ -6,13 +6,25 @@
 
 namespace QUI\ERP\Accounting\Invoice\Utils;
 
-use IntlDateFormatter;
+use DateTime;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
 use QUI\ERP\Currency\Currency;
 use QUI\ExceptionStack;
+use QUI\ERP\Defaults;
+use IntlDateFormatter;
+use horstoeko\zugferd\ZugferdDocumentBuilder;
+use horstoeko\zugferd\ZugferdProfiles;
+use horstoeko\zugferd\codelists\ZugferdCountryCodes;
+use horstoeko\zugferd\codelists\ZugferdCurrencyCodes;
+use horstoeko\zugferd\codelists\ZugferdElectronicAddressScheme;
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
+use horstoeko\zugferd\codelists\ZugferdReferenceCodeQualifiers;
+use horstoeko\zugferd\codelists\ZugferdUnitCodes;
+use horstoeko\zugferd\codelists\ZugferdVatCategoryCodes;
+use horstoeko\zugferd\codelists\ZugferdVatTypeCodes;
 
 use function array_map;
 use function array_merge;
@@ -446,7 +458,7 @@ class Invoice
      */
     public static function getInvoiceFilename(
         QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice,
-        QUI\Locale $Locale = null
+        ?QUI\Locale $Locale = null
     ): string {
         if (
             !($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
@@ -513,7 +525,7 @@ class Invoice
      */
     public static function roundInvoiceSum(
         float|int $amount,
-        QUI\ERP\Currency\Currency $Currency = null
+        ?QUI\ERP\Currency\Currency $Currency = null
     ): float|int {
         if ($Currency === null) {
             $Currency = QUI\ERP\Defaults::getCurrency();
@@ -656,5 +668,211 @@ class Invoice
         }
 
         return floatval($threshold);
+    }
+
+    public static function getElectronicInvoice(
+        InvoiceTemporary|QUI\ERP\Accounting\Invoice\Invoice $Invoice,
+        $type = ZugferdProfiles::PROFILE_EN16931
+    ): ZugferdDocumentBuilder {
+        $document = ZugferdDocumentBuilder::CreateNew($type);
+
+        $date = $Invoice->getAttribute('date');
+        $date = strtotime($date);
+        $date = (new DateTime())->setTimestamp($date);
+
+        $document->setDocumentInformation(
+            $Invoice->getPrefixedNumber(),
+            "380",
+            $date,
+            $Invoice->getCurrency()->getCode()
+        );
+
+        // ids
+        $taxId = Defaults::conf('company', 'taxId');
+        $taxNumber = Defaults::conf('company', 'taxNumber');
+
+        // seller / owner
+        $document->setDocumentSeller(Defaults::conf('company', 'name'));
+
+        // @todo global seller id
+        //  ->addDocumentSellerGlobalId("4000001123452", "0088");
+
+        if (!empty($taxNumber)) {
+            $document->addDocumentSellerTaxRegistration("FC", $taxNumber);
+        }
+
+        if (!empty($taxId)) {
+            $document->addDocumentSellerTaxRegistration("VA", $taxId);
+        }
+
+        // address
+        $country = Defaults::conf('company', 'country');
+
+        if (strlen($country) !== 2) {
+            $DefaultLocale = QUI::getSystemLocale();
+
+            foreach (QUI\Countries\Manager::getCompleteList() as $Country) {
+                if ($Country->getName($DefaultLocale) === $country) {
+                    $country = $Country->getCode();
+                    break;
+                }
+            }
+        }
+
+        if (strlen($country) !== 2) {
+            $country = '';
+        }
+
+
+        $document->setDocumentSellerAddress(
+            Defaults::conf('company', 'street'),
+            "",
+            "",
+            Defaults::conf('company', 'zipCode'),
+            Defaults::conf('company', 'city'),
+            $country
+        );
+
+        $document->setDocumentSellerCommunication(
+            'EM',
+            Defaults::conf('company', 'email')
+        );
+
+        $document->setDocumentSellerContact(
+            Defaults::conf('company', 'owner'), // @todo contact person
+            '',                         // @todo contact department
+            Defaults::conf('company', 'phone'), // @todo contact phone
+            Defaults::conf('company', 'fax'),   // @todo contact fax
+            Defaults::conf('company', 'email')  // @todo contact email
+        );
+
+        // bank stuff
+        $bankAccount = QUI\ERP\BankAccounts\Handler::getCompanyBankAccount();
+
+        if (!empty($bankAccount)) {
+            /* lastschrift
+            $document->addDocumentPaymentMeanToDirectDebit(
+                $bankAccount['iban'],
+                // @todo mandats nummer
+            );
+            */
+
+            $document->addDocumentPaymentMean(
+                '42', // TypeCode für Überweisung
+                $bankAccount['iban'] ?? '',
+                $bankAccount['bic'] ?? ''
+            );
+        } else {
+            $document->addDocumentPaymentMean(
+                '42', // TypeCode für Überweisung
+                '',
+                ''
+            );
+        }
+
+        $document->addDocumentPaymentMean(
+            '42', // TypeCode für Überweisung
+            $bankAccount['iban'] ?? '',
+            $bankAccount['bic'] ?? ''
+        );
+
+        // customer
+        $Customer = $Invoice->getCustomer();
+
+        $document
+            ->setDocumentBuyer($Customer->getInvoiceName(), $Customer->getCustomerNo())
+            ->setDocumentBuyerAddress(
+                $Customer->getAddress()->getAttribute('street_no'),
+                "",
+                "",
+                $Customer->getAddress()->getAttribute('zip'),
+                $Customer->getAddress()->getAttribute('city'),
+                $Customer->getAddress()->getCountry()->getCode()
+            )->setDocumentBuyerReference($Customer->getUUID());
+
+
+        if ($Customer->getAddress()->getAttribute('email')) {
+            $document->setDocumentBuyerCommunication('EM', $Customer->getAddress()->getAttribute('email'));
+        } else {
+            try {
+                $User = QUI::getUsers()->get($Customer->getUUID());
+                $document->setDocumentBuyerCommunication('EM', $User->getAttribute('email'));
+            } catch (QUI\Exception) {
+                // requirement -> workaround -> placeholder
+                $document->setDocumentBuyerCommunication('EM', 'unknown@example.com');
+            }
+        }
+
+        //->setDocumentBuyerOrderReferencedDocument($Invoice->getUUID());
+
+        // total
+        $priceCalculation = $Invoice->getPriceCalculation();
+        $vatTotal = 0;
+
+        foreach ($priceCalculation->getVat() as $vat) {
+            $document->addDocumentTax(
+                "S",
+                "VAT",
+                $priceCalculation->getNettoSum()->value(),
+                $vat->value(),
+                $vat->getVat()
+            );
+
+            $vatTotal = $vatTotal + $vat->value();
+        }
+
+        $document->setDocumentSummation(
+            $priceCalculation->getSum()->value(),
+            $priceCalculation->getSum()->value(),
+            $priceCalculation->getNettoSum()->value(),
+            0.0, // zuschläge
+            0.0, // rabatte
+            $priceCalculation->getNettoSum()->value(), // Steuerbarer Betrag (BT-109)
+            $vatTotal, // Steuerbetrag
+            null, // Rundungsbetrag
+            0.0 // Vorauszahlungen
+        );
+
+        // products
+        foreach ($Invoice->getArticles() as $Article) {
+            /* @var $Article QUI\ERP\Accounting\Article */
+            $article = $Article->toArray();
+
+            $document
+                ->addNewPosition($article['position'])
+                ->setDocumentPositionProductDetails(
+                    $article['title'],
+                    $article['description'],
+                    null,
+                    null,
+                    null,
+                    null
+                )
+                ->setDocumentPositionNetPrice($article['calculated']['nettoPrice'])
+                ->setDocumentPositionQuantity($article['quantity'], "H87")
+                ->addDocumentPositionTax('S', 'VAT', $article['vat'])
+                ->setDocumentPositionLineSummation($article['sum']);
+        }
+
+        // payment stuff
+        $PaymentDate = null;
+
+        try {
+            $timeForPayment = $Invoice->getAttribute('time_for_payment');
+            $timeForPayment = strtotime($timeForPayment);
+
+            if ($timeForPayment) {
+                $PaymentDate = new DateTime();
+                $PaymentDate->setTimestamp($timeForPayment);
+            }
+        } catch (\Exception) {
+        }
+
+        $document->addDocumentPaymentTerm(
+            $Invoice->getAttribute('additional_invoice_text'),
+            $PaymentDate
+        );
+
+        return $document;
     }
 }

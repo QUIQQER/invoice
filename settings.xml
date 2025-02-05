@@ -41,6 +41,23 @@
                 <conf name="invoiceAddressRequirementThreshold">
                     <type><![CDATA[float]]></type>
                 </conf>
+
+                <conf name="xInvoiceAttachment">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[0]]></defaultvalue>
+                </conf>
+                <conf name="xInvoiceAttachmentType">
+                    <type><![CDATA[int]]></type>
+                    <defaultvalue><![CDATA[2]]></defaultvalue>
+                </conf>
+                <conf name="zugferdInvoiceAttachment">
+                    <type><![CDATA[bool]]></type>
+                    <defaultvalue><![CDATA[1]]></defaultvalue>
+                </conf>
+                <conf name="zugferdInvoiceAttachmentType">
+                    <type><![CDATA[int]]></type>
+                    <defaultvalue><![CDATA[2]]></defaultvalue>
+                </conf>
             </section>
 
             <section name="temporaryInvoice">
@@ -212,6 +229,74 @@
                                         var="invoice.invoiceAddressRequirementThreshold.description"/>
                             </description>
                         </input>
+                    </settings>
+
+
+                    <settings title="eInvoice" name="eInvoice">
+                        <title>
+                            <locale group="quiqqer/invoice" var="invoice.settings.e-invoice.title"/>
+                        </title>
+
+                        <input conf="invoice.xInvoiceAttachment" type="checkbox">
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.e-invoice.xInvoiceAttachment.text"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.e-invoice.xInvoiceAttachment.description"/>
+                            </description>
+                        </input>
+
+                        <select conf="invoice.xInvoiceAttachmentType">
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.e-invoice.xInvoiceAttachmentType.text"/>
+                            </text>
+
+                            <option value="0">Basic</option>
+                            <option value="1">Basic WL</option>
+                            <option value="2">EN16931</option>
+                            <option value="3">Extended</option>
+                            <option value="4">XRechnung (Germany only)</option>
+                            <option value="5">XRechnung 2.0 (Germany only)</option>
+                            <option value="6">XRechnung 2.1 (Germany only)</option>
+                            <option value="7">XRechnung 2.2 (Germany only)</option>
+                            <option value="8">Minimum</option>
+                            <option value="9">XRechnung 2.3 (Germany only)</option>
+                            <option value="10">XRechnung 3.0 (Germany only)</option>
+                        </select>
+
+                        <input conf="invoice.zugferdInvoiceAttachment" type="checkbox">
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.e-invoice.zugferdInvoiceAttachment.text"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.e-invoice.zugferdInvoiceAttachment.description"/>
+                            </description>
+                        </input>
+
+                        <select conf="invoice.zugferdInvoiceAttachmentType">
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.e-invoice.zugferdInvoiceAttachmentType.text"/>
+                            </text>
+
+                            <option value="0">Basic</option>
+                            <option value="1">Basic WL</option>
+                            <option value="2">EN16931</option>
+                            <option value="3">Extended</option>
+                            <option value="4">XRechnung (Germany only)</option>
+                            <option value="5">XRechnung 2.0 (Germany only)</option>
+                            <option value="6">XRechnung 2.1 (Germany only)</option>
+                            <option value="7">XRechnung 2.2 (Germany only)</option>
+                            <option value="8">Minimum</option>
+                            <option value="9">XRechnung 2.3 (Germany only)</option>
+                            <option value="10">XRechnung 3.0 (Germany only)</option>
+                        </select>
+
                     </settings>
 
                     <settings title="invoiceDownload" name="invoiceDownload">
