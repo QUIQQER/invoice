@@ -1,46 +1,48 @@
-<h1>
-    {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.title"}
-</h1>
+<section class="quiqqer-frontendUsers-profile-section quiqqer-frontendUsers-section--userInvoices">
+    <h2>
+        {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.title"}
+    </h2>
 
-<table class="quiqqer-invoice-profile-invoices-table">
-    {if count($invoices)}
-    <thead>
-    <tr>
-        <th>
-            {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.id"}
-        </th>
-        <th>
-            {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.date"}
-        </th>
-        <th>
-            {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.download"}
-        </th>
-    </tr>
-    </thead>
-    {/if}
-    <tbody>
-    {foreach $invoices as $Invoice}
-    <tr class="quiqqer-invoice-profile-invoices-table-invoice">
-        <td class="quiqqer-invoice-profile-invoices-table-invoice-id">
-            {$Invoice->getId()}
-        </td>
-        <td class="quiqqer-invoice-profile-invoices-table-invoice-date">
-            {$Invoice->getDate()}
-        </td>
-        <td class="quiqqer-invoice-profile-invoices-table-invoice-dl">
-            <a href="{$Invoice->getDownloadLink()}" target="_blank">
-                <span class="fa fa-file-pdf-o fa-file-pdf"></span>
-            </a>
-        </td>
-    </tr>
-    {foreachelse}
-    <tr>
-        <td colspan="3">
-            <div class="invoice-message-empty-invoices">
-                {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.empty.message"}
-            </div>
-        </td>
-    </tr>
-    {/foreach}
-    </tbody>
-</table>
+    <table class="quiqqer-invoice-profile-invoices-table">
+        {if count($invoices)}
+        <thead>
+        <tr>
+            <th>
+                {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.id"}
+            </th>
+            <th>
+                {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.date"}
+            </th>
+            <th class="quiqqer-invoice-profile-invoices-table-th-invoice-dl">
+                {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.download"}
+            </th>
+        </tr>
+        </thead>
+        {/if}
+        <tbody>
+        {foreach $invoices as $Invoice}
+        <tr class="quiqqer-invoice-profile-invoices-table-invoice">
+            <td class="quiqqer-invoice-profile-invoices-table-invoice-id">
+                {$Invoice->getId()}
+            </td>
+            <td class="quiqqer-invoice-profile-invoices-table-invoice-date">
+                {$Invoice->getDate()}
+            </td>
+            <td class="quiqqer-invoice-profile-invoices-table-invoice-dl">
+                <a href="{$Invoice->getDownloadLink()}" target="_blank">
+                    <span class="fa fa-file-pdf-o fa-file-pdf"></span>
+                </a>
+            </td>
+        </tr>
+        {foreachelse}
+        <tr>
+            <td colspan="3">
+                <div class="invoice-message-empty-invoices">
+                    {locale group="quiqqer/invoice" var="control.frontendUsers.invoices.table.empty.message"}
+                </div>
+            </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+</section>
