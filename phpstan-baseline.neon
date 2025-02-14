@@ -16,11 +16,6 @@ parameters:
 			path: src/QUI/ERP/Accounting/Invoice/Factory.php
 
 		-
-			message: "#^Class QUI\\\\Database\\\\Exception referenced with incorrect case\\: QUI\\\\DataBase\\\\Exception\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Invoice.php
-
-		-
 			message: "#^Method QUI\\\\ERP\\\\Accounting\\\\Invoice\\\\Invoice\\:\\:getShipping\\(\\) has invalid return type QUI\\\\ERP\\\\Shipping\\\\Types\\\\ShippingUnique\\.$#"
 			count: 2
 			path: src/QUI/ERP/Accounting/Invoice/Invoice.php
