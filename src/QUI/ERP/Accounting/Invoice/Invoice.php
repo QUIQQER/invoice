@@ -430,8 +430,8 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * - How many must be paid
      *
      * @return array
-     *
-     * @throws
+     * @throws Exception
+     * @throws QUI\Exception
      */
     public function getPaidStatusInformation(): array
     {
@@ -893,13 +893,15 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * Create a credit note, set the invoice to credit note
      * - Gutschrift
      *
-     * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @param bool|string $globalProcessId
+     * @param null|User $PermissionUser
      * @return InvoiceTemporary
      *
      * @throws Exception
+     * @throws ExceptionStack
      * @throws QUI\Exception
+     * @throws QUI\Lock\Exception
      * @throws QUI\Permissions\Exception
+     * @throws Exception
      */
     public function createCreditNote(
         null | QUI\Interfaces\Users\User $PermissionUser = null
@@ -1452,7 +1454,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     /**
      * Calculates the payments and set the new part payments
      *
-     * @throws
+     * @throws Exception
+     * @throws ExceptionStack
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
      */
     public function calculatePayments(): void
     {

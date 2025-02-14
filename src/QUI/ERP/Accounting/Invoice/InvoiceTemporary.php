@@ -1102,8 +1102,10 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @param QUI\Interfaces\Users\User|null $PermissionUser
      * @return ErpEntityInterface|null
      */
-    public function reversal(string $reason = '', null | QUI\Interfaces\Users\User $PermissionUser = null): ?ErpEntityInterface
-    {
+    public function reversal(
+        string $reason = '',
+        null | QUI\Interfaces\Users\User $PermissionUser = null
+    ): ?ErpEntityInterface {
         return null;
     }
 
@@ -1887,7 +1889,10 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Calculates the payments and set the new part payments
      *
-     * @throws
+     * @throws Exception
+     * @throws ExceptionStack
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
      */
     public function calculatePayments(): void
     {

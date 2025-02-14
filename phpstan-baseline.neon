@@ -1,19 +1,9 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Parameter \\#6 \\$User of static method QUI\\\\ERP\\\\Accounting\\\\Payments\\\\Transactions\\\\Factory\\:\\:createPaymentTransaction\\(\\) expects null, QUI\\\\Interfaces\\\\Users\\\\User given\\.$#"
-			count: 1
-			path: ajax/invoices/addPayment.php
-
-		-
 			message: "#^Call to static method getInstance\\(\\) on an unknown class QUI\\\\ERP\\\\Order\\\\Handler\\.$#"
 			count: 1
 			path: src/QUI/ERP/Accounting/Invoice/EventHandler.php
-
-		-
-			message: "#^PHPDoc tag @throws has invalid value \\(\\)\\: Unexpected token \"\\\\n     \", expected type at offset 212$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Factory.php
 
 		-
 			message: "#^Method QUI\\\\ERP\\\\Accounting\\\\Invoice\\\\Invoice\\:\\:getShipping\\(\\) has invalid return type QUI\\\\ERP\\\\Shipping\\\\Types\\\\ShippingUnique\\.$#"
@@ -23,21 +13,6 @@ parameters:
 		-
 			message: "#^Method QUI\\\\ERP\\\\Accounting\\\\Invoice\\\\Invoice\\:\\:getShipping\\(\\) should return int\\|QUI\\\\ERP\\\\Shipping\\\\Types\\\\ShippingUnique\\|null but returns QUI\\\\ERP\\\\Shipping\\\\Api\\\\ShippingInterface\\|null\\.$#"
 			count: 2
-			path: src/QUI/ERP/Accounting/Invoice/Invoice.php
-
-		-
-			message: "#^PHPDoc tag @param references unknown parameter\\: \\$globalProcessId$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Invoice.php
-
-		-
-			message: "#^PHPDoc tag @throws has invalid value \\(\\)\\: Unexpected token \"\\\\n     \", expected type at offset 174$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Invoice.php
-
-		-
-			message: "#^PHPDoc tag @throws has invalid value \\(\\)\\: Unexpected token \"\\\\n     \", expected type at offset 86$#"
-			count: 1
 			path: src/QUI/ERP/Accounting/Invoice/Invoice.php
 
 		-
@@ -76,11 +51,6 @@ parameters:
 			path: src/QUI/ERP/Accounting/Invoice/InvoiceTemporary.php
 
 		-
-			message: "#^PHPDoc tag @throws has invalid value \\(\\)\\: Unexpected token \"\\\\n     \", expected type at offset 86$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/InvoiceTemporary.php
-
-		-
 			message: "#^Parameter \\$Shipping of method QUI\\\\ERP\\\\Accounting\\\\Invoice\\\\InvoiceTemporary\\:\\:setShipping\\(\\) has invalid type QUI\\\\ERP\\\\Shipping\\\\Api\\\\ShippingInterface\\.$#"
 			count: 2
 			path: src/QUI/ERP/Accounting/Invoice/InvoiceTemporary.php
@@ -111,51 +81,6 @@ parameters:
 			path: src/QUI/ERP/Accounting/Invoice/Output/OutputProviderInvoice.php
 
 		-
-			message: "#^Parameter \\#2 \\$key of method QUI\\\\Config\\:\\:setValue\\(\\) expects string\\|null, int given\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/ProcessingStatus/Factory.php
-
-		-
-			message: "#^Parameter \\#2 \\$key of method QUI\\\\Config\\:\\:del\\(\\) expects string\\|null, int given\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/ProcessingStatus/Handler.php
-
-		-
-			message: "#^Parameter \\#2 \\$key of method QUI\\\\Config\\:\\:setValue\\(\\) expects string\\|null, int given\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/ProcessingStatus/Handler.php
-
-		-
 			message: "#^Call to static method getInstance\\(\\) on an unknown class QUI\\\\ERP\\\\Order\\\\Handler\\.$#"
 			count: 1
 			path: src/QUI/ERP/Accounting/Invoice/Search/InvoiceSearch.php
-
-		-
-			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Search/InvoiceSearch.php
-
-		-
-			message: "#^Parameter \\#1 \\$haystack of function str_starts_with expects string, int given\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Search/InvoiceSearch.php
-
-		-
-			message: "#^Parameter \\#1 \\$string of function strlen expects string, int given\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Search/InvoiceSearch.php
-
-		-
-			message: "#^Parameter \\#1 \\$string of function substr_replace expects array\\|string, int given\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Search/InvoiceSearch.php
-
-		-
-			message: "#^Result of && is always false\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Utils/Invoice.php
-
-		-
-			message: "#^Result of \\|\\| is always true\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Utils/Invoice.php

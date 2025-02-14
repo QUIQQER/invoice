@@ -121,7 +121,7 @@ class Handler extends QUI\Utils\Singleton
         $Package = QUI::getPackage('quiqqer/invoice');
         $Config = $Package->getConfig();
 
-        $Config->del('processing_status', $Status->getId());
+        $Config->del('processing_status', (string)$Status->getId());
         $Config->save();
     }
 
@@ -177,7 +177,7 @@ class Handler extends QUI\Utils\Singleton
 
         $Config->setValue(
             'processing_status',
-            $Status->getId(),
+            (string)$Status->getId(),
             json_encode([
                 'color' => $color,
                 'options' => $options

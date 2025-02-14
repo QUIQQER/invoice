@@ -32,7 +32,7 @@ class Factory extends QUI\Utils\Singleton
      * @todo permissions
      */
     public function createProcessingStatus(
-        int|string $id,
+        int | string $id,
         string $color,
         array $title,
         array $options = []
@@ -54,7 +54,7 @@ class Factory extends QUI\Utils\Singleton
 
         $Config->setValue(
             'processing_status',
-            $id,
+            (string)$id,
             json_encode([
                 'color' => $color,
                 'options' => $options

@@ -56,7 +56,7 @@ class Invoice
      *
      * @throws QUI\Exception
      */
-    public static function getInvoiceByString(int|string $str): QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary
+    public static function getInvoiceByString(int | string $str): QUI\ERP\Accounting\Invoice\Invoice | InvoiceTemporary
     {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
@@ -384,7 +384,7 @@ class Invoice
      * @param array|string $articles
      * @return array|string
      */
-    public static function formatArticlesArray(array|string $articles): array|string
+    public static function formatArticlesArray(array | string $articles): array | string
     {
         $isString = is_string($articles);
 
@@ -438,7 +438,7 @@ class Invoice
      */
     protected static function verificateField(
         $value,
-        array|string $eMessage = 'Error occurred',
+        array | string $eMessage = 'Error occurred',
         int $eCode = 0,
         array $eContext = []
     ): void {
@@ -457,16 +457,9 @@ class Invoice
      * @throws QUI\Exception
      */
     public static function getInvoiceFilename(
-        QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice,
+        QUI\ERP\Accounting\Invoice\Invoice | InvoiceTemporary $Invoice,
         ?QUI\Locale $Locale = null
     ): string {
-        if (
-            !($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) &&
-            !($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary)
-        ) {
-            return '';
-        }
-
         // date
         $localeCode = QUI::getLocale()->getLocalesByLang(
             QUI::getLocale()->getCurrent()
@@ -524,9 +517,9 @@ class Invoice
      * @return int|float
      */
     public static function roundInvoiceSum(
-        float|int $amount,
+        float | int $amount,
         ?QUI\ERP\Currency\Currency $Currency = null
-    ): float|int {
+    ): float | int {
         if ($Currency === null) {
             $Currency = QUI\ERP\Defaults::getCurrency();
 
@@ -544,14 +537,14 @@ class Invoice
      * @param Invoice|InvoiceTemporary $Invoice
      * @return int - Unix Timestamp
      */
-    public static function getInvoiceTimeForPaymentDate(InvoiceTemporary|Invoice $Invoice): int
+    public static function getInvoiceTimeForPaymentDate(InvoiceTemporary | Invoice $Invoice): int
     {
         $timeForPayment = $Invoice->getAttribute('time_for_payment');
 
         if ($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
             $timeForPayment = (int)$timeForPayment;
 
-            if ($timeForPayment || $timeForPayment === 0) {
+            if ($timeForPayment >= 0) {
                 $timeForPayment = strtotime('+' . $timeForPayment . ' day');
             }
         } else {
@@ -567,7 +560,7 @@ class Invoice
      * @return array
      */
     public static function getVatTextArrayFromVatArray(
-        array|string $vatArray,
+        array | string $vatArray,
         QUI\ERP\Currency\Currency $Currency
     ): array {
         if (is_string($vatArray)) {
@@ -587,7 +580,7 @@ class Invoice
      * @param array|string $vatArray
      * @return array
      */
-    public static function getVatSumArrayFromVatArray(array|string $vatArray): array
+    public static function getVatSumArrayFromVatArray(array | string $vatArray): array
     {
         if (is_string($vatArray)) {
             $vatArray = json_decode($vatArray, true);
@@ -608,7 +601,7 @@ class Invoice
      * @param array|string $vatArray
      * @return int|float
      */
-    public static function getVatSumFromVatArray(array|string $vatArray): float|int
+    public static function getVatSumFromVatArray(array | string $vatArray): float | int
     {
         return array_sum(
             self::getVatSumArrayFromVatArray($vatArray)
@@ -622,7 +615,7 @@ class Invoice
      * @param QUI\ERP\Accounting\Invoice\Invoice|integer|string $Invoice - Invoice or Invoice ID
      * @return array
      */
-    public static function getTransactionsByInvoice(QUI\ERP\Accounting\Invoice\Invoice|int|string $Invoice): array
+    public static function getTransactionsByInvoice(QUI\ERP\Accounting\Invoice\Invoice | int | string $Invoice): array
     {
         if (!($Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice)) {
             try {
@@ -671,7 +664,7 @@ class Invoice
     }
 
     public static function getElectronicInvoice(
-        InvoiceTemporary|QUI\ERP\Accounting\Invoice\Invoice $Invoice,
+        InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice,
         $type = ZugferdProfiles::PROFILE_EN16931
     ): ZugferdDocumentBuilder {
         $document = ZugferdDocumentBuilder::CreateNew($type);

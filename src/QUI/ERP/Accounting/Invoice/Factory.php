@@ -8,6 +8,10 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 
+use QUI\Database\Exception;
+
+use QUI\Interfaces\Users\User;
+
 use function json_encode;
 
 /**
@@ -23,10 +27,9 @@ class Factory extends QUI\Utils\Singleton
     /**
      * Creates a new temporary invoice
      *
-     * @param QUI\Interfaces\Users\User|null $User
-     * @param bool|string $globalProcessId - hash of the process
-     * @return InvoiceTemporary
-     * @throws
+     * @throws QUI\Exception
+     * @throws QUI\Lock\Exception
+     * @throws Exception
      */
     public function createInvoice(
         null | QUI\Interfaces\Users\User $User = null,
