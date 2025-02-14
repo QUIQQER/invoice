@@ -1855,7 +1855,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             );
 
             $this->setAttribute('processing_status', $Status->getId());
-        } catch (QUI\DataBase\Exception $Exception) {
+        } catch (QUI\Database\Exception $Exception) {
             QUI\System\Log::addDebug($Exception->getMessage());
         }
 
