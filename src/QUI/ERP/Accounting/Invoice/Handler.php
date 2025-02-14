@@ -97,7 +97,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function delete(string|int $invoiceId, QUI\Interfaces\Users\User $User = null): void
+    public function delete(string | int $invoiceId, null | QUI\Interfaces\Users\User $User = null): void
     {
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceByString($invoiceId);
 
@@ -269,7 +269,7 @@ class Handler extends QUI\Utils\Singleton
      *
      * @throws QUI\Exception
      */
-    public function get(int|string $id): Invoice|InvoiceTemporary
+    public function get(int | string $id): Invoice | InvoiceTemporary
     {
         try {
             return $this->getInvoice($id);
@@ -288,7 +288,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoice(int|string $id): Invoice
+    public function getInvoice(int | string $id): Invoice
     {
         return new Invoice($id, $this);
     }
@@ -302,7 +302,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoiceByHash(string $hash): Invoice|InvoiceTemporary
+    public function getInvoiceByHash(string $hash): Invoice | InvoiceTemporary
     {
         $hash = QUI\Utils\Security\Orthos::clear($hash);
 
@@ -347,7 +347,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getInvoiceData(int|string $id): array
+    public function getInvoiceData(int | string $id): array
     {
         // check invoice via hash
         $result = QUI::getDataBase()->fetch([
@@ -434,7 +434,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getTemporaryInvoice(int|string $id): InvoiceTemporary
+    public function getTemporaryInvoice(int | string $id): InvoiceTemporary
     {
         return new InvoiceTemporary($id, $this);
     }
@@ -480,7 +480,7 @@ class Handler extends QUI\Utils\Singleton
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function getTemporaryInvoiceData(int|string $id): array
+    public function getTemporaryInvoiceData(int | string $id): array
     {
         $result = QUI::getDataBase()->fetch([
             'from' => self::temporaryInvoiceTable(),

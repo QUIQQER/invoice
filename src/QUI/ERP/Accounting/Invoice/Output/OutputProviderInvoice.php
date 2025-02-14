@@ -60,7 +60,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * @param Locale|null $Locale $Locale (optional) - If ommitted use \QUI::getLocale()
      * @return string
      */
-    public static function getEntityTypeTitle(Locale $Locale = null): string
+    public static function getEntityTypeTitle(null | Locale $Locale = null): string
     {
         if (empty($Locale)) {
             $Locale = QUI::getLocale();
@@ -77,7 +77,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @throws QUI\Exception
      */
-    public static function getEntity(int|string $entityId): Invoice|InvoiceTemporary
+    public static function getEntity(int | string $entityId): Invoice | InvoiceTemporary
     {
         return InvoiceUtils::getInvoiceByString($entityId);
     }
@@ -90,7 +90,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @throws QUI\Exception
      */
-    public static function getDownloadFileName(int|string $entityId): string
+    public static function getDownloadFileName(int | string $entityId): string
     {
         return InvoiceUtils::getInvoiceFilename(self::getEntity($entityId));
     }
@@ -103,7 +103,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @throws QUI\Exception
      */
-    public static function getLocale(int|string $entityId): Locale
+    public static function getLocale(int | string $entityId): Locale
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -125,7 +125,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * @throws QUI\ERP\Exception
      * @throws QUI\Exception
      */
-    public static function getTemplateData(int|string $entityId): array
+    public static function getTemplateData(int | string $entityId): array
     {
         $Invoice = self::getEntity($entityId);
         $InvoiceView = $Invoice->getView();
@@ -243,7 +243,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * @param User $User
      * @return bool
      */
-    public static function hasDownloadPermission(int|string $entityId, User $User): bool
+    public static function hasDownloadPermission(int | string $entityId, User $User): bool
     {
         if (!QUI::getUsers()->isAuth($User) || QUI::getUsers()->isNobodyUser($User)) {
             return false;
@@ -273,7 +273,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @throws QUI\Exception
      */
-    public static function getEmailAddress(int|string $entityId): bool|string
+    public static function getEmailAddress(int | string $entityId): bool | string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -297,7 +297,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @throws QUI\Exception
      */
-    public static function getMailSubject(int|string $entityId): string
+    public static function getMailSubject(int | string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -317,7 +317,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      *
      * @throws QUI\Exception
      */
-    public static function getMailBody(int|string $entityId): string
+    public static function getMailBody(int | string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -335,7 +335,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * @return array
      */
     protected static function getInvoiceLocaleVar(
-        Invoice|InvoiceTemporary $Invoice,
+        Invoice | InvoiceTemporary $Invoice,
         QUI\ERP\User $Customer
     ): array {
         $CustomerAddress = $Customer->getAddress();
@@ -471,7 +471,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * @param $date
      * @return false|string
      */
-    public static function dateFormat($date): bool|string
+    public static function dateFormat($date): bool | string
     {
         // date
         $localeCode = QUI::getLocale()->getLocalesByLang(
@@ -499,7 +499,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * @param Invoice|InvoiceTemporary $Invoice
      * @return string|false - Raw <img> "src" attribute with base64 image data or false if code can or must not be generated.
      */
-    protected static function getEpcQrCodeImageImgSrc(Invoice|InvoiceTemporary $Invoice): bool|string
+    protected static function getEpcQrCodeImageImgSrc(Invoice | InvoiceTemporary $Invoice): bool | string
     {
         try {
             // Check currency (must be EUR)

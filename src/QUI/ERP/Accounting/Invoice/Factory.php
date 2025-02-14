@@ -29,8 +29,8 @@ class Factory extends QUI\Utils\Singleton
      * @throws
      */
     public function createInvoice(
-        QUI\Interfaces\Users\User $User = null,
-        bool|string $globalProcessId = false
+        null | QUI\Interfaces\Users\User $User = null,
+        bool | string $globalProcessId = false
     ): InvoiceTemporary {
         if ($User === null) {
             $User = QUI::getUserBySession();
