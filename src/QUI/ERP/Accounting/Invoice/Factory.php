@@ -7,10 +7,7 @@
 namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
-
 use QUI\Database\Exception;
-
-use QUI\Interfaces\Users\User;
 
 use function json_encode;
 
