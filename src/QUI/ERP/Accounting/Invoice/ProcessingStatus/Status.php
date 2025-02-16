@@ -44,7 +44,7 @@ class Status
      * @param int|string $id - Processing status id
      * @throws Exception
      */
-    public function __construct(int|string $id)
+    public function __construct(int | string $id)
     {
         $list = Handler::getInstance()->getList();
 
@@ -90,7 +90,7 @@ class Status
      * @param null|QUI\Locale $Locale
      * @return string
      */
-    public function getTitle(QUI\Locale $Locale = null): string
+    public function getTitle(null | QUI\Locale $Locale = null): string
     {
         if (!($Locale instanceof QUI\Locale)) {
             $Locale = QUI::getLocale();
@@ -159,7 +159,7 @@ class Status
      * @param null|QUI\Locale $Locale - optional. if no locale, all translations would be returned
      * @return array
      */
-    public function toArray(QUI\Locale $Locale = null): array
+    public function toArray(null | QUI\Locale $Locale = null): array
     {
         $title = $this->getTitle($Locale);
 

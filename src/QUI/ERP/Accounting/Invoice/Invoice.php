@@ -101,7 +101,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     /**
      * @var null|ShippingInterface
      */
-    protected ShippingInterface|null $Shipping = null;
+    protected ShippingInterface | null $Shipping = null;
 
     /**
      * Invoice constructor.
@@ -430,8 +430,8 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * - How many must be paid
      *
      * @return array
-     *
-     * @throws
+     * @throws Exception
+     * @throws QUI\Exception
      */
     public function getPaidStatusInformation(): array
     {
@@ -549,7 +549,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      *
      * @return int|QUI\ERP\Shipping\Types\ShippingUnique|null
      */
-    public function getShipping(): int|QUI\ERP\Shipping\Types\ShippingUnique|null
+    public function getShipping(): int | QUI\ERP\Shipping\Types\ShippingUnique | null
     {
         return $this->Shipping;
     }
@@ -583,7 +583,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      */
     public function reversal(
         string $reason = '',
-        QUI\Interfaces\Users\User $PermissionUser = null
+        null | QUI\Interfaces\Users\User $PermissionUser = null
     ): ?QUI\ERP\ErpEntityInterface {
         // is canceled / reversal possible?
         if (!Settings::getInstance()->get('invoice', 'storno')) {
@@ -743,7 +743,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function cancellation(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int|string
+    public function cancellation(string $reason, null | QUI\Interfaces\Users\User $PermissionUser = null): int | string
     {
         return $this->reversal($reason, $PermissionUser)->getUUID();
     }
@@ -759,7 +759,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * @throws QUI\Exception
      * @throws QUI\Permissions\Exception
      */
-    public function storno(string $reason, QUI\Interfaces\Users\User $PermissionUser = null): int|string
+    public function storno(string $reason, null | QUI\Interfaces\Users\User $PermissionUser = null): int | string
     {
         return $this->reversal($reason, $PermissionUser)->getUUID();
     }
@@ -776,8 +776,8 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * @throws QUI\Permissions\Exception
      */
     public function copy(
-        QUI\Interfaces\Users\User $PermissionUser = null,
-        bool|string $globalProcessId = false
+        null | QUI\Interfaces\Users\User $PermissionUser = null,
+        bool | string $globalProcessId = false
     ): InvoiceTemporary {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
@@ -893,16 +893,18 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * Create a credit note, set the invoice to credit note
      * - Gutschrift
      *
-     * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @param bool|string $globalProcessId
+     * @param null|User $PermissionUser
      * @return InvoiceTemporary
      *
      * @throws Exception
+     * @throws ExceptionStack
      * @throws QUI\Exception
+     * @throws QUI\Lock\Exception
      * @throws QUI\Permissions\Exception
+     * @throws Exception
      */
     public function createCreditNote(
-        QUI\Interfaces\Users\User $PermissionUser = null
+        null | QUI\Interfaces\Users\User $PermissionUser = null
     ): InvoiceTemporary {
         // a credit node cant create a credit note
         if ($this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE) {
@@ -1084,8 +1086,8 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * @throws QUI\Permissions\Exception
      */
     public function createReversal(
-        QUI\Interfaces\Users\User $PermissionUser = null,
-        bool|string $globalProcessId = false
+        null | QUI\Interfaces\Users\User $PermissionUser = null,
+        bool | string $globalProcessId = false
     ): InvoiceTemporary {
         Permission::checkPermission('quiqqer.invoice.reversal', $PermissionUser);
 
@@ -1452,7 +1454,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     /**
      * Calculates the payments and set the new part payments
      *
-     * @throws
+     * @throws Exception
+     * @throws ExceptionStack
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
      */
     public function calculatePayments(): void
     {
@@ -1599,7 +1604,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      *
      * @throws QUI\Exception
      */
-    public function sendTo(string $recipient, bool|string $template = false): void
+    public function sendTo(string $recipient, bool | string $template = false): void
     {
         $type = $this->getInvoiceType();
         $outputType = 'Invoice';
@@ -1635,7 +1640,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      *
      * @throws QUI\Exception
      */
-    public function addComment(string $comment, QUI\Interfaces\Users\User $PermissionUser = null): void
+    public function addComment(string $comment, null | QUI\Interfaces\Users\User $PermissionUser = null): void
     {
         if (empty($comment)) {
             return;
@@ -1855,7 +1860,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             );
 
             $this->setAttribute('processing_status', $Status->getId());
-        } catch (QUI\DataBase\Exception $Exception) {
+        } catch (QUI\Database\Exception $Exception) {
             QUI\System\Log::addDebug($Exception->getMessage());
         }
 
