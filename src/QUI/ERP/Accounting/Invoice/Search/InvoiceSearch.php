@@ -57,7 +57,7 @@ class InvoiceSearch extends Singleton
     /**
      * @var array|bool
      */
-    protected array|bool $limit = [0, 20];
+    protected array | bool $limit = [0, 20];
 
     /**
      * @var string
@@ -85,7 +85,7 @@ class InvoiceSearch extends Singleton
      * @param array|string $value
      * @throws QUI\Exception
      */
-    public function setFilter(string $filter, array|string $value): void
+    public function setFilter(string $filter, array | string $value): void
     {
         if ($filter === 'search') {
             $this->search = $value;
@@ -201,7 +201,7 @@ class InvoiceSearch extends Singleton
      * @param int|string $from
      * @param int|string $to
      */
-    public function limit(int|string $from, int|string $to): void
+    public function limit(int | string $from, int | string $to): void
     {
         $this->limit = [(int)$from, (int)$to];
     }
@@ -437,7 +437,7 @@ class InvoiceSearch extends Singleton
                     break;
 
                 case 'customer_id':
-                    $value = (int)$filter['value'];
+                    $value = (string)$filter['value'];
                     $where[] = $flr . ' = ' . $bind;
 
                     // remove customer prefix, for better search
@@ -453,7 +453,7 @@ class InvoiceSearch extends Singleton
                     }
 
                     $binds[$bind] = [
-                        'value' => $value,
+                        'value' => (int)$value,
                         'type' => PDO::PARAM_INT
                     ];
 
@@ -803,7 +803,7 @@ class InvoiceSearch extends Singleton
 
             if ($Customer->getAttribute('customerId')) {
                 $invoiceData['customer_id_display'] = $Customer->getAttribute('customerId');
-                $invoiceData['customer_id'] = $Customer->getUUID() ?? $Customer->getId();
+                $invoiceData['customer_id'] = $Customer->getUUID() ?: $Customer->getId();
             } else {
                 $invoiceData['customer_id_display'] = '';
                 $invoiceData['customer_id'] = '';

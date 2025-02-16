@@ -34,7 +34,7 @@ class OutputProviderCancelled extends OutputProviderInvoice
      * @param Locale|null $Locale $Locale (optional) - If omitted use \QUI::getLocale()
      * @return string
      */
-    public static function getEntityTypeTitle(Locale $Locale = null): string
+    public static function getEntityTypeTitle(null | Locale $Locale = null): string
     {
         if (empty($Locale)) {
             $Locale = QUI::getLocale();
@@ -51,7 +51,7 @@ class OutputProviderCancelled extends OutputProviderInvoice
      *
      * @throws QUI\Exception
      */
-    public static function getMailSubject(int|string $entityId): string
+    public static function getMailSubject(int | string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
@@ -91,7 +91,7 @@ class OutputProviderCancelled extends OutputProviderInvoice
      *
      * @throws QUI\Exception
      */
-    public static function getMailBody(int|string $entityId): string
+    public static function getMailBody(int | string $entityId): string
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();

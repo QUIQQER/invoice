@@ -124,7 +124,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * @var array|false
      */
-    protected array|false $addressDelivery = [];
+    protected array | false $addressDelivery = [];
 
     /**
      * @var null|QUI\ERP\Currency\Currency
@@ -477,7 +477,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @param string|QUI\ERP\Currency\Currency $currency
      * @throws QUI\Exception
      */
-    public function setCurrency(QUI\ERP\Currency\Currency|string $currency): void
+    public function setCurrency(QUI\ERP\Currency\Currency | string $currency): void
     {
         if (is_string($currency)) {
             try {
@@ -685,7 +685,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @throws QUI\Permissions\Exception
      * @throws QUI\Exception
      */
-    public function setInvoiceType(int|string $type, QUI\Interfaces\Users\User $PermissionUser = null): void
+    public function setInvoiceType(int | string $type, null | QUI\Interfaces\Users\User $PermissionUser = null): void
     {
         QUI\Permissions\Permission::checkPermission(
             'quiqqer.invoice.temporary.edit',
@@ -729,7 +729,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function save(QUI\Interfaces\Users\User $PermissionUser = null): void
+    public function save(null | QUI\Interfaces\Users\User $PermissionUser = null): void
     {
         $this->update($PermissionUser);
     }
@@ -743,7 +743,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function update(QUI\Interfaces\Users\User $PermissionUser = null): void
+    public function update(null | QUI\Interfaces\Users\User $PermissionUser = null): void
     {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
@@ -1073,7 +1073,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @throws QUI\Lock\Exception
      * @throws QUI\Exception
      */
-    public function delete(QUI\Interfaces\Users\User $PermissionUser = null): void
+    public function delete(null | QUI\Interfaces\Users\User $PermissionUser = null): void
     {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
@@ -1102,8 +1102,10 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @param QUI\Interfaces\Users\User|null $PermissionUser
      * @return ErpEntityInterface|null
      */
-    public function reversal(string $reason = '', QUI\Interfaces\Users\User $PermissionUser = null): ?ErpEntityInterface
-    {
+    public function reversal(
+        string $reason = '',
+        null | QUI\Interfaces\Users\User $PermissionUser = null
+    ): ?ErpEntityInterface {
         return null;
     }
 
@@ -1121,8 +1123,8 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @throws Exception
      */
     public function copy(
-        QUI\Interfaces\Users\User $PermissionUser = null,
-        bool|string $globalProcessId = false
+        null | QUI\Interfaces\Users\User $PermissionUser = null,
+        bool | string $globalProcessId = false
     ): InvoiceTemporary {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
@@ -1199,7 +1201,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @throws QUI\Permissions\Exception
      * @throws QUI\Exception
      */
-    public function post(QUI\Interfaces\Users\User $PermissionUser = null): Invoice
+    public function post(null | QUI\Interfaces\Users\User $PermissionUser = null): Invoice
     {
         if ($PermissionUser === null) {
             $PermissionUser = QUI::getUserBySession();
@@ -1624,7 +1626,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * @throws QUI\Permissions\Exception
      * @throws QUI\Exception
      */
-    public function createInvoice(QUI\Interfaces\Users\User $PermissionUser = null): Invoice
+    public function createInvoice(null | QUI\Interfaces\Users\User $PermissionUser = null): Invoice
     {
         return $this->post($PermissionUser);
     }
@@ -1887,7 +1889,10 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Calculates the payments and set the new part payments
      *
-     * @throws
+     * @throws Exception
+     * @throws ExceptionStack
+     * @throws QUI\Database\Exception
+     * @throws QUI\Exception
      */
     public function calculatePayments(): void
     {
@@ -2464,7 +2469,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      *
      * @param array|QUI\ERP\Address $address
      */
-    public function setDeliveryAddress(array|QUI\ERP\Address $address): void
+    public function setDeliveryAddress(array | QUI\ERP\Address $address): void
     {
         if ($address instanceof QUI\ERP\Address) {
             $this->addressDelivery = $address->getAttributes();

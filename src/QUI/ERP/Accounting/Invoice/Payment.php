@@ -64,7 +64,7 @@ class Payment
      * @param null|QUI\Locale $Locale
      * @return string
      */
-    public function getTitle(QUI\Locale $Locale = null): string
+    public function getTitle(null | QUI\Locale $Locale = null): string
     {
         if (!isset($this->attributes['title'])) {
             return '';
@@ -89,7 +89,7 @@ class Payment
      * @param null|QUI\Locale $Locale
      * @return mixed|string
      */
-    public function getDescription(QUI\Locale $Locale = null): mixed
+    public function getDescription(null | QUI\Locale $Locale = null): mixed
     {
         if (!isset($this->attributes['description'])) {
             return '';
@@ -146,7 +146,7 @@ class Payment
      * @param Invoice|InvoiceTemporary|InvoiceView $Invoice
      * @return string
      */
-    public function getInvoiceInformationText(Invoice|InvoiceTemporary|InvoiceView $Invoice): string
+    public function getInvoiceInformationText(Invoice | InvoiceTemporary | InvoiceView $Invoice): string
     {
         if ($Invoice instanceof InvoiceView) {
             $Invoice = $Invoice->getInvoice();

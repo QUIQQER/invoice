@@ -27,30 +27,22 @@ class InvoiceView extends QUI\QDOM
     /**
      * @var Invoice|InvoiceTemporary
      */
-    protected InvoiceTemporary|Invoice $Invoice;
+    protected InvoiceTemporary | Invoice $Invoice;
 
     /**
      * InvoiceView constructor.
      *
      * @param Invoice|InvoiceTemporary $Invoice
-     *
-     * @throws Exception
      */
-    public function __construct(Invoice|InvoiceTemporary $Invoice)
+    public function __construct(Invoice | InvoiceTemporary $Invoice)
     {
-        if ($Invoice instanceof Invoice || $Invoice instanceof InvoiceTemporary) {
-            $this->Invoice = $Invoice;
-
-            return;
-        }
-
-        throw new Exception('$Invoice must be an instance of Invoice or InvoiceTemporary');
+        $this->Invoice = $Invoice;
     }
 
     /**
      * @return QUI\ERP\Accounting\ArticleList|QUI\ERP\Accounting\ArticleListUnique
      */
-    public function getArticles(): QUI\ERP\Accounting\ArticleList|QUI\ERP\Accounting\ArticleListUnique
+    public function getArticles(): QUI\ERP\Accounting\ArticleList | QUI\ERP\Accounting\ArticleListUnique
     {
         try {
             return $this->Invoice->getArticles();
@@ -90,7 +82,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return false|null|QUI\ERP\User|QUI\Users\Nobody|QUI\Users\SystemUser|QUI\Users\User
      */
-    public function getCustomer(): bool|QUI\Users\SystemUser|QUI\Users\Nobody|QUI\ERP\User|QUI\Users\User|null
+    public function getCustomer(): bool | QUI\Users\SystemUser | QUI\Users\Nobody | QUI\ERP\User | QUI\Users\User | null
     {
         try {
             return $this->Invoice->getCustomer();
@@ -103,7 +95,7 @@ class InvoiceView extends QUI\QDOM
      * @param null|QUI\Locale $Locale
      * @return string|bool
      */
-    public function getDate(QUI\Locale $Locale = null): string|bool
+    public function getDate(null | QUI\Locale $Locale = null): string | bool
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
@@ -120,7 +112,7 @@ class InvoiceView extends QUI\QDOM
      * @param null $Locale
      * @return false|string
      */
-    public function formatDate($dateString, $Locale = null): bool|string
+    public function formatDate($dateString, $Locale = null): bool | string
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
@@ -160,7 +152,7 @@ class InvoiceView extends QUI\QDOM
     /**
      * @return Invoice|InvoiceTemporary
      */
-    public function getInvoice(): Invoice|InvoiceTemporary
+    public function getInvoice(): Invoice | InvoiceTemporary
     {
         return $this->Invoice;
     }
@@ -308,7 +300,11 @@ class InvoiceView extends QUI\QDOM
                 } else {
                     $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
                 }
-            } else {
+            }
+
+            /*
+             // Else is unreachable because previous condition is always true.
+             else {
                 $timeForPayment = strtotime($timeForPayment);
 
                 if (date('Y-m-d') === date('Y-m-d', $timeForPayment)) {
@@ -317,6 +313,7 @@ class InvoiceView extends QUI\QDOM
                     $timeForPayment = $Formatter->format($timeForPayment);
                 }
             }
+            */
 
             return $Locale->get(
                 'quiqqer/invoice',
