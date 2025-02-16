@@ -168,8 +168,13 @@ class OutputProviderInvoice implements OutputProviderInterface
         $Articles = $Invoice->getArticles();
 
         if (get_class($Articles) !== QUI\ERP\Accounting\ArticleListUnique::class) {
-            $Articles->setUser($Customer);
-            $Articles = $Articles->toUniqueList();
+            if (method_exists($Articles, 'setUser')) {
+                $Articles->setUser($Customer);
+            }
+
+            if (method_exists($Articles, 'toUniqueList')) {
+                $Articles = $Articles->toUniqueList();
+            }
         }
 
         // Delivery address

@@ -56,26 +56,6 @@ parameters:
 			path: src/QUI/ERP/Accounting/Invoice/InvoiceTemporary.php
 
 		-
-			message: "#^Else branch is unreachable because previous condition is always true\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/InvoiceView.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/InvoiceView.php
-
-		-
-			message: "#^Call to an undefined method QUI\\\\ERP\\\\Accounting\\\\ArticleListUnique\\:\\:setUser\\(\\)\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Output/OutputProviderInvoice.php
-
-		-
-			message: "#^Call to an undefined method QUI\\\\ERP\\\\Accounting\\\\ArticleListUnique\\:\\:toUniqueList\\(\\)\\.$#"
-			count: 1
-			path: src/QUI/ERP/Accounting/Invoice/Output/OutputProviderInvoice.php
-
-		-
 			message: "#^Call to static method getInstance\\(\\) on an unknown class QUI\\\\ERP\\\\Order\\\\Handler\\.$#"
 			count: 1
 			path: src/QUI/ERP/Accounting/Invoice/Output/OutputProviderInvoice.php

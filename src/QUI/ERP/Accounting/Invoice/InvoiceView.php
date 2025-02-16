@@ -33,18 +33,10 @@ class InvoiceView extends QUI\QDOM
      * InvoiceView constructor.
      *
      * @param Invoice|InvoiceTemporary $Invoice
-     *
-     * @throws Exception
      */
     public function __construct(Invoice | InvoiceTemporary $Invoice)
     {
-        if ($Invoice instanceof Invoice || $Invoice instanceof InvoiceTemporary) {
-            $this->Invoice = $Invoice;
-
-            return;
-        }
-
-        throw new Exception('$Invoice must be an instance of Invoice or InvoiceTemporary');
+        $this->Invoice = $Invoice;
     }
 
     /**
@@ -308,7 +300,11 @@ class InvoiceView extends QUI\QDOM
                 } else {
                     $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
                 }
-            } else {
+            }
+
+            /*
+             // Else is unreachable because previous condition is always true.
+             else {
                 $timeForPayment = strtotime($timeForPayment);
 
                 if (date('Y-m-d') === date('Y-m-d', $timeForPayment)) {
@@ -317,6 +313,7 @@ class InvoiceView extends QUI\QDOM
                     $timeForPayment = $Formatter->format($timeForPayment);
                 }
             }
+            */
 
             return $Locale->get(
                 'quiqqer/invoice',
