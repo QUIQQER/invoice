@@ -673,6 +673,7 @@ class Invoice
         $type = ZugferdProfiles::PROFILE_EN16931
     ): ZugferdDocumentBuilder {
         $document = ZugferdDocumentBuilder::CreateNew($type);
+        $Articles = $Invoice->getArticles();
 
         $date = $Invoice->getAttribute('date');
         $date = strtotime($date);
@@ -819,6 +820,12 @@ class Invoice
             $vatTotal = $vatTotal + $vat->value();
         }
 
+        $isNetInvoice = false;
+
+        if ($Customer->getAttribute('isNetto') || $Articles->getCalculations()['isNetto']) {
+            $isNetInvoice = true;
+        }
+
         $document->setDocumentSummation(
             $priceCalculation->getSum()->value(),
             $priceCalculation->getSum()->value(),
@@ -826,13 +833,13 @@ class Invoice
             0.0, // zuschläge
             0.0, // rabatte
             $priceCalculation->getNettoSum()->value(), // Steuerbarer Betrag (BT-109)
-            $vatTotal, // Steuerbetrag
+            $isNetInvoice ? $vatTotal : 0, // ausgewiesene steuer
             null, // Rundungsbetrag
             0.0 // Vorauszahlungen
         );
 
         // products
-        foreach ($Invoice->getArticles() as $Article) {
+        foreach ($Articles as $Article) {
             $article = $Article->toArray();
 
             $nettoPreis = $article['calculated']['nettoPrice']; // Netto-Einzelpreis

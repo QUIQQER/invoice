@@ -14,15 +14,30 @@ require_once dirname(__FILE__, 5) . '/header.php';
 
 $User = QUI::getUserBySession();
 
+$jsClose = '
+<script>
+console.log(1);
+    if (window.parent) {
+        console.log(2);
+        window.parent.require(["qui/QUI"], function(QUI) {
+            console.log("fire");
+            QUI.fireEvent("quiqqerInvoiceDownloadDone");
+        });
+    }
+</script>';
+
 if (!$User->canUseBackend()) {
+    echo $jsClose;
     exit;
 }
 
 if (empty($_REQUEST['invoice'])) {
+    echo $jsClose;
     exit;
 }
 
 if (empty($_REQUEST['type'])) {
+    echo $jsClose;
     exit;
 }
 
@@ -83,3 +98,6 @@ try {
 } catch (Exception $e) {
     Log::writeException($e);
 }
+
+echo $jsClose;
+exit;
