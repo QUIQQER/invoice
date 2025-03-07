@@ -663,11 +663,17 @@ class Invoice
         return floatval($threshold);
     }
 
+    /**
+     * @throws QUI\ERP\Exception
+     * @throws QUI\Exception
+     * @throws QUI\Users\Exception
+     */
     public static function getElectronicInvoice(
         InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice,
         $type = ZugferdProfiles::PROFILE_EN16931
     ): ZugferdDocumentBuilder {
         $document = ZugferdDocumentBuilder::CreateNew($type);
+        $Articles = $Invoice->getArticles();
 
         $date = $Invoice->getAttribute('date');
         $date = strtotime($date);
@@ -814,6 +820,12 @@ class Invoice
             $vatTotal = $vatTotal + $vat->value();
         }
 
+        $isNetInvoice = false;
+
+        if ($Customer->getAttribute('isNetto') || $Articles->getCalculations()['isNetto']) {
+            $isNetInvoice = true;
+        }
+
         $document->setDocumentSummation(
             $priceCalculation->getSum()->value(),
             $priceCalculation->getSum()->value(),
@@ -821,15 +833,23 @@ class Invoice
             0.0, // zuschläge
             0.0, // rabatte
             $priceCalculation->getNettoSum()->value(), // Steuerbarer Betrag (BT-109)
-            $vatTotal, // Steuerbetrag
+            $isNetInvoice ? $vatTotal : 0, // ausgewiesene steuer
             null, // Rundungsbetrag
             0.0 // Vorauszahlungen
         );
 
         // products
-        foreach ($Invoice->getArticles() as $Article) {
-            /* @var $Article QUI\ERP\Accounting\Article */
+        foreach ($Articles as $Article) {
             $article = $Article->toArray();
+
+            $nettoPreis = $article['calculated']['nettoPrice']; // Netto-Einzelpreis
+            $vatSum = $article['calculated']['vatArray']['sum'];
+            $bruttoPreis = $nettoPreis;
+
+            if ($vatSum) {
+                $bruttoPreis = $nettoPreis + ($vatSum / $article['quantity']);
+            }
+
 
             $document
                 ->addNewPosition($article['position'])
@@ -841,9 +861,10 @@ class Invoice
                     null,
                     null
                 )
-                ->setDocumentPositionNetPrice($article['calculated']['nettoPrice'])
+                ->setDocumentPositionNetPrice($article['calculated']['nettoPrice'], 1, "C62") // C62 = Stück
+                ->setDocumentPositionGrossPrice($bruttoPreis, 1, "C62") // C62 = Stück
                 ->setDocumentPositionQuantity($article['quantity'], "H87")
-                ->addDocumentPositionTax('S', 'VAT', $article['vat'])
+                ->addDocumentPositionTax('S', 'VAT', $article['vat'], $article['calculated']['vatArray']['sum'])
                 ->setDocumentPositionLineSummation($article['sum']);
         }
 
