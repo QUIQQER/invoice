@@ -361,8 +361,8 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                 maxWidth: 600,
                 autoclose: false,
                 ok_button: {
-                   text: QUILocale.get(lg, 'dialog.invoice.download.button'),
-                   textimage: 'fa fa-download'
+                    text: QUILocale.get(lg, 'dialog.invoice.download.button'),
+                    textimage: 'fa fa-download'
                 },
                 events: {
                     onOpen: function (Win) {
@@ -390,27 +390,42 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                     },
 
                     onSubmit: function (Win) {
+                        Win.Loader.show();
+
                         const Select = Win.getElm().querySelector('select');
-                        const id = 'download-invoice-' + hash + '-' + Select.value;
 
-                        new Element('iframe', {
-                            src: URL_OPT_DIR + 'quiqqer/invoice/bin/backend/download.php?' + Object.toQueryString({
-                                invoice: hash,
-                                type: Button.value
-                            }),
-                            id: id,
-                            styles: {
-                                position: 'absolute',
-                                top: -200,
-                                left: -200,
-                                width: 50,
-                                height: 50
-                            }
-                        }).inject(document.body);
+                        require([
+                            URL_OPT_DIR + 'bin/quiqqer-asset/downloadjs/downloadjs/download.js'
+                        ], function (download) {
+                            const url = URL_OPT_DIR + 'quiqqer/invoice/bin/backend/download.php?' +
+                                new URLSearchParams({
+                                    invoice: hash,
+                                    type: Select.value
+                                }).toString();
 
-                        (function () {
-                            document.getElements('#' + id).destroy();
-                        }).delay(10000, this);
+                            fetch(url).then(response => {
+                                if (!response.ok) {
+                                    throw new Error("Fehler beim Download: " + response.statusText);
+                                }
+
+                                let filename = "invoice.pdf"; // Fallback-Dateiname
+                                const contentDisposition = response.headers.get("Content-Disposition");
+
+                                if (contentDisposition) {
+                                    const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                                    if (match) {
+                                        filename = match[1];
+                                    }
+                                }
+
+                                return response.blob().then(blob => ({blob, filename}));
+                            }).then(({blob, filename}) => {
+                                download(blob, filename);
+                                Win.Loader.hide();
+                            }).catch(error => {
+                                Win.Loader.hide();
+                            });
+                        });
                     }
                 }
             }).open();
