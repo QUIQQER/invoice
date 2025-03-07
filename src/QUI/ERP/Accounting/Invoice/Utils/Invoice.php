@@ -663,6 +663,11 @@ class Invoice
         return floatval($threshold);
     }
 
+    /**
+     * @throws QUI\ERP\Exception
+     * @throws QUI\Exception
+     * @throws QUI\Users\Exception
+     */
     public static function getElectronicInvoice(
         InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice,
         $type = ZugferdProfiles::PROFILE_EN16931
@@ -828,8 +833,16 @@ class Invoice
 
         // products
         foreach ($Invoice->getArticles() as $Article) {
-            /* @var $Article QUI\ERP\Accounting\Article */
             $article = $Article->toArray();
+
+            $nettoPreis = $article['calculated']['nettoPrice']; // Netto-Einzelpreis
+            $vatSum = $article['calculated']['vatArray']['sum'];
+            $bruttoPreis = $nettoPreis;
+
+            if ($vatSum) {
+                $bruttoPreis = $nettoPreis + ($vatSum / $article['quantity']);
+            }
+
 
             $document
                 ->addNewPosition($article['position'])
@@ -841,9 +854,10 @@ class Invoice
                     null,
                     null
                 )
-                ->setDocumentPositionNetPrice($article['calculated']['nettoPrice'])
+                ->setDocumentPositionNetPrice($article['calculated']['nettoPrice'], 1, "C62") // C62 = Stück
+                ->setDocumentPositionGrossPrice($bruttoPreis, 1, "C62") // C62 = Stück
                 ->setDocumentPositionQuantity($article['quantity'], "H87")
-                ->addDocumentPositionTax('S', 'VAT', $article['vat'])
+                ->addDocumentPositionTax('S', 'VAT', $article['vat'], $article['calculated']['vatArray']['sum'])
                 ->setDocumentPositionLineSummation($article['sum']);
         }
 
