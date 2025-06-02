@@ -598,11 +598,15 @@ class Invoice
     /**
      * Return the vat sum from a var array of an invoice
      *
-     * @param array|string $vatArray
+     * @param array|string|null $vatArray
      * @return int|float
      */
-    public static function getVatSumFromVatArray(array | string $vatArray): float | int
+    public static function getVatSumFromVatArray(array | string | null $vatArray): float | int
     {
+        if (empty($vatArray)) {
+            return 0;
+        }
+
         return array_sum(
             self::getVatSumArrayFromVatArray($vatArray)
         );
