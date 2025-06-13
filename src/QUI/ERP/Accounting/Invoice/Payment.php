@@ -122,6 +122,30 @@ class Payment
         return $this->attributes['payment_type'];
     }
 
+    public function getTypeCode(): QUI\ERP\Enums\Payments\EN16931
+    {
+        if (!isset($this->attributes['payment_code'])) {
+            // try to get it via payment method
+            try {
+                $paymentType = $this->getPayment()->getPaymentType();
+                $this->attributes['payment_code'] = $paymentType->getTypeCode();
+                return $paymentType->getTypeCode();
+            } catch (QUI\Exception) {
+                return QUI\ERP\Enums\Payments\EN16931::NOT_DEFINED;
+            }
+        }
+
+        $code = QUI\ERP\Enums\Payments\EN16931::tryFrom(
+            $this->attributes['payment_code']
+        );
+
+        if ($code !== null) {
+            return $code;
+        }
+
+        return QUI\ERP\Enums\Payments\EN16931::NOT_DEFINED;
+    }
+
     /**
      * @return QUI\ERP\Accounting\Payments\Types\Payment|null
      */
