@@ -764,6 +764,7 @@ class Invoice
 
         if (
             class_exists('QUI\ERP\Payments\SEPA\Payment')
+            && class_exists('QUI\ERP\Payments\SEPA\Transactions')
             && QUI\ERP\Payments\SEPA\Payment::class === $paymentType
         ) {
             $paymentData = QUI\ERP\Payments\SEPA\Transactions::parsePaymentData($Invoice->getCustomer(), $Invoice);
