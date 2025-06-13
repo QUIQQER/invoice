@@ -751,32 +751,45 @@ class Invoice
 
         // bank stuff
         $bankAccount = QUI\ERP\BankAccounts\Handler::getCompanyBankAccount();
+        $payment = $Invoice->getPayment();
+        $paymentType = $payment->getPaymentType();
+        $paymentTypeCode = $payment->getTypeCode();
 
-        if (!empty($bankAccount)) {
-            /* lastschrift
+        $payeeIban = $bankAccount['iban'] ?? '';
+        $payeeIban = str_replace(' ', '', $payeeIban);
+        $payeeIban = trim($payeeIban);
+
+        // sepa
+        $buyerIban = '';
+
+        if (
+            class_exists('QUI\ERP\Payments\SEPA\Payment')
+            && QUI\ERP\Payments\SEPA\Payment::class === $paymentType
+        ) {
+            $paymentData = QUI\ERP\Payments\SEPA\Transactions::parsePaymentData($Invoice->getCustomer(), $Invoice);
+
             $document->addDocumentPaymentMeanToDirectDebit(
-                $bankAccount['iban'],
-                // @todo mandats nummer
+                $paymentData['account']['iban'],
+                $paymentData['account']['id']
             );
-            */
 
-            $document->addDocumentPaymentMean(
-                '42', // TypeCode für Überweisung
-                $bankAccount['iban'] ?? '',
-                $bankAccount['bic'] ?? ''
-            );
-        } else {
-            $document->addDocumentPaymentMean(
-                '42', // TypeCode für Überweisung
-                '',
-                ''
-            );
+            $buyerIban = $paymentData['account']['iban'];
+            $buyerIban = str_replace(' ', '', $buyerIban);
+            $buyerIban = trim($buyerIban);
         }
 
+
         $document->addDocumentPaymentMean(
-            '42', // TypeCode für Überweisung
-            $bankAccount['iban'] ?? '',
-            $bankAccount['bic'] ?? ''
+            $paymentTypeCode->value,        // typeCode
+            $payment->getTitle(),       // information
+            null,                  // cardType
+            null,                    // cardId
+            null,            // cardHolderName
+            $buyerIban,                    // buyerIban
+            $payeeIban,                    // payeeIban (Empfänger)
+            $bankAccount['name'] ?? '', // payeeAccountName
+            null,                    // payeePropId
+            $bankAccount['bic'] ?? ''   // payeeBic
         );
 
         // customer
