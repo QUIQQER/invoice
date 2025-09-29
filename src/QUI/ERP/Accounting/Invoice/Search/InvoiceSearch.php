@@ -804,8 +804,11 @@ class InvoiceSearch extends Singleton
             if ($Customer->getAttribute('customerId')) {
                 $invoiceData['customer_id_display'] = $Customer->getAttribute('customerId');
                 $invoiceData['customer_id'] = $Customer->getUUID() ?: $Customer->getId();
+            } elseif($Customer->getUUID()) {
+                $invoiceData['customer_id_display'] = Handler::EMPTY_VALUE;
+                $invoiceData['customer_id'] = $Customer->getUUID();
             } else {
-                $invoiceData['customer_id_display'] = '';
+                $invoiceData['customer_id_display'] = Handler::EMPTY_VALUE;
                 $invoiceData['customer_id'] = '';
             }
 
