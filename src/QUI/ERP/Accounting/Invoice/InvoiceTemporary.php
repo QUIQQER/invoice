@@ -765,6 +765,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
         // attributes
         $projectName = '';
+        $customerReference = '';
         $date = '';
 
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
@@ -775,6 +776,10 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
         if ($this->getAttribute('project_name')) {
             $projectName = $this->getAttribute('project_name');
+        }
+
+        if ($this->getAttribute('customer_reference')) {
+            $customerReference = $this->getAttribute('customer_reference');
         }
 
         if ($this->getAttribute('time_for_payment') || $this->getAttribute('time_for_payment') === 0) {
@@ -1043,6 +1048,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 'comments' => $this->Comments->toJSON(),
                 'additional_invoice_text' => $invoiceText,
                 'project_name' => $projectName,
+                'customer_reference' => $customerReference,
 
                 // Calc data
                 'isbrutto' => $isBrutto,
@@ -1521,6 +1527,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 // data
                 'hash' => $this->getAttribute('hash'),
                 'project_name' => $this->getAttribute('project_name'),
+                'customer_reference' => $this->getAttribute('customer_reference'),
                 'date' => $date,
                 'data' => json_encode($this->data),
                 'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),

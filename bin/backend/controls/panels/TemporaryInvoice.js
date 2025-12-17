@@ -80,6 +80,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             invoice_address: false,
             invoice_address_id: false,
             project_name: '',
+            customer_reference: '',
             date: '',
             time_for_payment: '',
             data: {},
@@ -291,6 +292,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 invoice_address_id: this.getAttribute('invoice_address_id'),
                 invoice_address: this.getAttribute('invoice_address'),
                 project_name: this.getAttribute('project_name'),
+                customer_reference: this.getAttribute('customer_reference'),
                 articles: this.getAttribute('articles'),
                 priceFactors: this.getAttribute('priceFactors'),
                 date: this.getAttribute('date'),
@@ -348,6 +350,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             'erp.panel.temporary.invoice.category.data.textTermOfPayment'
                         ),
                         textProjectName: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textProjectName'),
+                        textCustomerReference: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textCustomerReference'),
                         textOrderedBy: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textOrderedBy'),
                         textEditor: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textEditor'),
                         textInvoicePayment: QUILocale.get(
@@ -389,6 +392,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     date: dateDate,
                     time_for_payment: self.getAttribute('time_for_payment'),
                     project_name: self.getAttribute('project_name'),
+                    customer_reference: self.getAttribute('customer_reference'),
                     editor_id: self.getAttribute('editor_id'),
                     processing_status: self.getAttribute('processing_status'),
                     contact_person: self.getAttribute('contact_person'),
@@ -451,6 +455,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     }
 
                     const Customer = Data.getValue();
+                    const contentNode = self.getContent();
+                    const customerReference = contentNode.querySelector('[name="customer_reference"]');
+
                     let userId = Customer.userId;
 
                     self.setAttribute('customer_id', userId);
@@ -460,7 +467,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.setAttribute('invoice_address', Data.getAddress());
 
                     if (Customer['quiqqer.erp.standard.payment'] !== '' && Customer['quiqqer.erp.standard.payment']) {
-                        self.getContent().getElement('[name="payment_method"]').value = Customer['quiqqer.erp.standard.payment'];
+                        contentNode.getElement('[name="payment_method"]').value = Customer['quiqqer.erp.standard.payment'];
+                    }
+
+                    if (
+                        typeof Customer['quiqqer.erp.customer.referenceCode'] !== 'undefined'
+                        && Customer['quiqqer.erp.customer.referenceCode'] !== ''
+                        && customerReference
+                        && customerReference.value === ''
+                    ) {
+                        customerReference.value = Customer['quiqqer.erp.customer.referenceCode'];
                     }
 
                     // reset deliver address
@@ -1353,6 +1369,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 'processing_status',
                 'time_for_payment',
                 'project_name',
+                'customer_reference',
                 'payment_method',
                 'editor_id',
                 'ordered_by',
