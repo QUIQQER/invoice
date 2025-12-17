@@ -202,6 +202,13 @@ class Provider implements QUI\REST\ProviderInterface
                         QUI\System\Log::writeException($Exception);
                     }
                 }
+
+                if (
+                    empty($invoiceData['customer_reference'])
+                    && !empty($User->getAttribute('quiqqer.erp.customer.referenceCode'))
+                ) {
+                    $invoiceData['customer_reference'] = $User->getAttribute('quiqqer.erp.customer.referenceCode');
+                }
             }
         }
 
@@ -213,6 +220,10 @@ class Provider implements QUI\REST\ProviderInterface
         // Project name
         if (!empty($invoiceData['project_name'])) {
             $InvoiceDraft->setAttribute('project_name', $invoiceData['project_name']);
+        }
+
+        if (!empty($invoiceData['customer_reference'])) {
+            $InvoiceDraft->setAttribute('customer_reference', $invoiceData['customer_reference']);
         }
 
         // Payment method
