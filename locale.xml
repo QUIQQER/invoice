@@ -1116,6 +1116,10 @@
             <de><![CDATA[Projektname]]></de>
             <en><![CDATA[Projectname]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textCustomerReference">
+            <de><![CDATA[Kundenreferenz / Kundenzeichen]]></de>
+            <en><![CDATA[Customer Reference / Reference Code]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textOrderedBy">
             <de><![CDATA[Bestellt durch]]></de>
             <en><![CDATA[Ordered by]]></en>

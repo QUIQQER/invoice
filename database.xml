@@ -8,6 +8,7 @@
             <field type="VARCHAR(10)">id_prefix</field>
             <field type="VARCHAR(255) NULL DEFAULT NULL">id_with_prefix</field>
             <field type="VARCHAR(50) NOT NULL">customer_id</field>
+            <field type="VARCHAR(250) NULL DEFAULT NULL">customer_reference</field>
             <field type="VARCHAR(250) NOT NULL">hash</field>
             <field type="VARCHAR(250) NOT NULL">global_process_id</field>
             <field type="INT(3) NOT NULL">type</field>
@@ -84,6 +85,7 @@
         <table name="invoice_temporary">
             <field type="INT NOT NULL">id</field>
             <field type="VARCHAR(50) NOT NULL">customer_id</field>
+            <field type="VARCHAR(250) NULL DEFAULT NULL">customer_reference</field>
             <field type="VARCHAR(40) NOT NULL">hash</field>
             <field type="VARCHAR(250) NOT NULL">global_process_id</field>
             <field type="INT(3) NOT NULL">type</field>
