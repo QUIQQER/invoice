@@ -470,13 +470,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         contentNode.getElement('[name="payment_method"]').value = Customer['quiqqer.erp.standard.payment'];
                     }
 
+                    const referenceCode = Customer['quiqqer.erp.customer.referenceCode'];
+
                     if (
-                        typeof Customer['quiqqer.erp.customer.referenceCode'] !== 'undefined'
-                        && Customer['quiqqer.erp.customer.referenceCode'] !== ''
+                        typeof referenceCode !== 'undefined'
+                        && referenceCode !== ''
+                        && referenceCode !== false
+                        && referenceCode !== 'false'
                         && customerReference
                         && customerReference.value === ''
                     ) {
-                        customerReference.value = Customer['quiqqer.erp.customer.referenceCode'];
+                        customerReference.value = referenceCode;
                     }
 
                     // reset deliver address
