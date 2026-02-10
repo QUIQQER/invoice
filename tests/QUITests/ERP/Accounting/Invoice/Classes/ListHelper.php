@@ -21,6 +21,8 @@ class ListHelper
      */
     public static function outputList(QUI\ERP\Accounting\ArticleList $List)
     {
+        return '';
+
         $data = $List->toArray();
         $User = $List->getUser();
         $Locale = $User->getLocale();

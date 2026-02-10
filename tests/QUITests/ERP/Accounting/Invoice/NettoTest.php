@@ -4,20 +4,21 @@ namespace QUITests\ERP\Accounting\Invoice;
 
 require_once dirname(__FILE__) . '/Classes/ListHelper.php';
 
+use PHPUnit\Framework\TestCase;
 use QUI;
 use QUITests\ERP\Accounting\Invoice\Classes\ListHelper;
 
 /**
  * Class BruttoUserTest
  */
-class NettoTest extends \PHPUnit_Framework_TestCase
+class NettoTest extends TestCase
 {
-    public function testNetto()
+    public function testNetto(): void
     {
-        writePhpUnitMessage('/*********************************/');
-        writePhpUnitMessage('      Netto Nutzer');
-        writePhpUnitMessage('/*********************************/');
-        writePhpUnitMessage();
+        // writePhpUnitMessage('/*********************************/');
+        // writePhpUnitMessage('      Netto Nutzer');
+        // writePhpUnitMessage('/*********************************/');
+        // writePhpUnitMessage();
 
         $NettoUser = new QUI\ERP\User([
             'id' => 0,
@@ -62,6 +63,9 @@ class NettoTest extends \PHPUnit_Framework_TestCase
 
         $List->calc();
 
-        ListHelper::outputList($List);
+        $result = $List->toArray();
+
+        $this->assertEquals($result['calculations']['sum'], 55.9);
+        $this->assertEquals($result['calculations']['nettoSum'], 50);
     }
 }
