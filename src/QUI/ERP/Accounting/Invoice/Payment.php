@@ -127,6 +127,10 @@ class Payment
         if (!isset($this->attributes['payment_code'])) {
             // try to get it via payment method
             try {
+                if (!$this->getPayment()) {
+                    return QUI\ERP\Enums\Payments\EN16931::NOT_DEFINED;
+                }
+
                 $paymentType = $this->getPayment()->getPaymentType();
                 $this->attributes['payment_code'] = $paymentType->getTypeCode();
                 return $paymentType->getTypeCode();
