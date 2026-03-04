@@ -5,14 +5,7 @@
   "license": [
     "PCSG QEL-1.0"
   ],
-  "authors": [
-    {
-      "name": "Henning Leutz",
-      "email": "leutz@pcsg.de",
-      "homepage": "https://www.pcsg.de",
-      "role": "Developer"
-    }
-  ],
+  "authors": [],
   "support": {
     "email": "support@pcsg.de",
     "url": "https://www.pcsg.de"
@@ -22,7 +15,7 @@
     "php81_bc/strftime": "^0.7",
     "quiqqer/core": "^2",
     "quiqqer/qui": "^1.6.7",
-    "quiqqer/erp": "^3.13",
+    "quiqqer/erp": "^3.14",
     "quiqqer/customer": "^2.4",
     "quiqqer/payments": "^3",
     "quiqqer/payment-transactions": "^2",

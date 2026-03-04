@@ -385,7 +385,8 @@ class OutputProviderInvoice implements OutputProviderInterface
             'systemCompany' => self::getCompanyName(),
 
             'contactPerson' => $contactPerson,
-            'contactPersonOrName' => $contactPersonOrName
+            'contactPersonOrName' => $contactPersonOrName,
+            'salutationText' => QUI\ERP\Utils\User::getUserSalutation($Customer)
         ], self::getCustomerVariables($Customer));
     }
 
