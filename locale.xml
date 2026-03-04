@@ -627,6 +627,7 @@
                 <li><b>[contactPerson]:</b> - Ansprechpartner</li>
                 <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
                 <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutationText]:</b> - Komplette Anrede</li>
                 <li><b>[salutation]:</b> - Anrede des Kunden</li>
                 <li><b>[firstname]:</b> - Vorname des Kunden</li>
                 <li><b>[lastname]:</b> - Nachname des Kunden</li>
@@ -645,6 +646,7 @@
                 <li><b>[contactPerson]:</b> - Contact person</li>
                 <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
                 <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutationText]:</b> - Complete salutation</li>
                 <li><b>[salutation]:</b> - Salutation of the customer</li>
                 <li><b>[firstname]:</b> - Firstname of the customer/li>
                 <li><b>[lastname]:</b> - Lastname of the customer</li>
@@ -665,6 +667,7 @@
                 <li><b>[contactPerson]:</b> - Ansprechpartner</li>
                 <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
                 <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutationText]:</b> - Komplette Anrede</li>
                 <li><b>[salutation]:</b> - Anrede des Kunden</li>
                 <li><b>[firstname]:</b> - Vorname des Kunden</li>
                 <li><b>[lastname]:</b> - Nachname des Kunden</li>
@@ -683,6 +686,7 @@
                 <li><b>[contactPerson]:</b> - Contact person</li>
                 <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
                 <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutationText]:</b> - Complete salutation</li>
                 <li><b>[salutation]:</b> - Salutation of the customer</li>
                 <li><b>[firstname]:</b> - Firstname of the customer/li>
                 <li><b>[lastname]:</b> - Lastname of the customer</li>
@@ -705,6 +709,7 @@
                 <li><b>[contactPerson]:</b> - Ansprechpartner</li>
                 <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
                 <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutationText]:</b> - Komplette Anrede</li>
                 <li><b>[salutation]:</b> - Anrede des Kunden</li>
                 <li><b>[firstname]:</b> - Vorname des Kunden</li>
                 <li><b>[lastname]:</b> - Nachname des Kunden</li>
@@ -724,6 +729,7 @@
                 <li><b>[contactPerson]:</b> - Contact person</li>
                 <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
                 <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutationText]:</b> - Complete salutation</li>
                 <li><b>[salutation]:</b> - Salutation of the customer</li>
                 <li><b>[firstname]:</b> - Firstname of the customer/li>
                 <li><b>[lastname]:</b> - Lastname of the customer</li>
@@ -745,6 +751,7 @@
                 <li><b>[contactPerson]:</b> - Ansprechpartner</li>
                 <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
                 <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutationText]:</b> - Komplette Anrede</li>
                 <li><b>[salutation]:</b> - Anrede des Kunden</li>
                 <li><b>[firstname]:</b> - Vorname des Kunden</li>
                 <li><b>[lastname]:</b> - Nachname des Kunden</li>
@@ -764,6 +771,7 @@
                 <li><b>[contactPerson]:</b> - Contact person</li>
                 <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
                 <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutationText]:</b> - Complete salutation</li>
                 <li><b>[salutation]:</b> - Salutation of the customer</li>
                 <li><b>[firstname]:</b> - Firstname of the customer/li>
                 <li><b>[lastname]:</b> - Lastname of the customer</li>
@@ -787,6 +795,7 @@
                 <li><b>[contactPerson]:</b> - Ansprechpartner</li>
                 <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
                 <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutationText]:</b> - Komplette Anrede</li>
                 <li><b>[salutation]:</b> - Anrede des Kunden</li>
                 <li><b>[firstname]:</b> - Vorname des Kunden</li>
                 <li><b>[lastname]:</b> - Nachname des Kunden</li>
@@ -806,6 +815,7 @@
                 <li><b>[contactPerson]:</b> - Contact person</li>
                 <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
                 <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutationText]:</b> - Complete salutation</li>
                 <li><b>[salutation]:</b> - Salutation of the customer</li>
                 <li><b>[firstname]:</b> - Firstname of the customer/li>
                 <li><b>[lastname]:</b> - Lastname of the customer</li>
@@ -827,6 +837,7 @@
                 <li><b>[contactPerson]:</b> - Ansprechpartner</li>
                 <li><b>[contactPersonOrName]:</b> - Ansprechpartner, falls diese leer ist wird [name] verwendet</li>
                 <li><b>[email]:</b> - E-Mail des Kunden</li>
+                <li><b>[salutationText]:</b> - Komplette Anrede</li>
                 <li><b>[salutation]:</b> - Anrede des Kunden</li>
                 <li><b>[firstname]:</b> - Vorname des Kunden</li>
                 <li><b>[lastname]:</b> - Nachname des Kunden</li>
@@ -846,6 +857,7 @@
                 <li><b>[contactPerson]:</b> - Contact person</li>
                 <li><b>[contactPersonOrName]:</b> - Contact person, if this is empty [name] is used</li>
                 <li><b>[email]:</b> - Customer email</li>
+                <li><b>[salutationText]:</b> - Complete salutation</li>
                 <li><b>[salutation]:</b> - Salutation of the customer</li>
                 <li><b>[firstname]:</b> - Firstname of the customer/li>
                 <li><b>[lastname]:</b> - Lastname of the customer</li>
@@ -1888,7 +1900,7 @@
         </locale>
         <locale name="invoice.send.mail.message">
             <de><![CDATA[
-            <h1>Hallo [user],</h1>
+            <h1>[salutationText],</h1>
             <p>mit dieser E-Mail erhalten Sie Ihre Rechnung mit Rechnungsnummer [invoiceId].
             Klicken Sie auf die angehängte PDF-Datei, um die Rechnung zu öffnen.</p>
 
@@ -1905,7 +1917,7 @@
             [systemCompany]</p>
             ]]></de>
             <en><![CDATA[
-            <h1>Hello [user],</h1>
+            <h1>[salutationText],</h1>
             <p>Your invoice (reference ID [invoiceId]) is attached to this e-mail as a PDF;
             just click on the attachment to access it.</p>
 
@@ -1932,7 +1944,7 @@
         </locale>
         <locale name="invoice.cancelled.send.mail.message">
             <de><![CDATA[
-            <h1>Hallo [user],</h1>
+            <h1>[salutationText],</h1>
             <p>mit dieser E-Mail erhalten Sie Ihre Storno-Rechnung mit Rechnungsnummer [invoiceId].
             Klicken Sie auf die angehängte PDF-Datei, um die Rechnung zu öffnen.</p>
 
@@ -1949,7 +1961,7 @@
             [systemCompany]</p>
             ]]></de>
             <en><![CDATA[
-            <h1>Hello [user],</h1>
+            <h1>[salutationText],</h1>
             <p>Your cancellation invoice (reference ID [invoiceId]) is attached to this e-mail as a PDF;
             just click on the attachment to access it.</p>
 
@@ -1975,7 +1987,7 @@
         </locale>
         <locale name="invoice.credit_note.send.mail.message">
             <de><![CDATA[
-            <h1>Hallo [user],</h1>
+            <h1>[salutationText],</h1>
             <p>mit dieser E-Mail erhalten Sie Ihre Gutschrift mit Nummer [invoiceId].
             Klicken Sie auf die angehängte PDF-Datei, um die Gutschrift zu öffnen.</p>
 
@@ -1989,7 +2001,7 @@
             [systemCompany]</p>
             ]]></de>
             <en><![CDATA[
-            <h1>Hello [user],</h1>
+            <h1>[salutationText],</h1>
             <p>Your credit note (reference ID [invoiceId]) is attached to this e-mail as a PDF;
             just click on the attachment to access it.</p>
 

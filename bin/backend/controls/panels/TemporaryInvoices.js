@@ -1,7 +1,4 @@
 /**
- * @module package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices
- * @author www.pcsg.de (Henning Leutz)
- *
  * Zeigt alle Rechnungsentwürfe an
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', [
