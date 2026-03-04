@@ -1,7 +1,4 @@
 /**
- * @module package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice
- * @author www.pcsg.de (Henning Leutz)
- *
  * Edit a Temporary Invoice and created a posted invoice
  */
 define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
@@ -336,9 +333,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.renderDataDone = false;
             this.Loader.show();
 
-            return this.$closeCategory().then(function() {
+            return this.$closeCategory().then(() => {
                 const Container = self.getContent().getElement('.container');
-
                 Container.setStyle('height', null);
 
                 Container.set({
@@ -377,6 +373,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         textInvoiceDeliveryAddress: QUILocale.get(lg, 'deliveryAddress')
                     })
                 });
+
+                this.Loader.show(); // workaround -> set html destroys loader w(^^)w
 
                 const Form = Container.getElement('form');
 
@@ -691,7 +689,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 return self.$loadAdditionalInvoiceText();
             }).then(function() {
                 self.getCategory('data').setActive();
-
                 return self.Loader.hide();
             }).then(function() {
                 return self.$openCategory();
@@ -1404,6 +1401,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          */
         $onCreate: function() {
             const self = this;
+
+            this.Loader.show();
 
             require([
                 'package/quiqqer/erp/bin/backend/controls/process/ProcessWindowButton'
