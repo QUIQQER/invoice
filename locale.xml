@@ -383,14 +383,14 @@
         <locale name="invoice.settings.invoice.prefix.description">
             <de><![CDATA[
             Präfixe können auch mit Datumsformatierungen umgehen. Mögliche Datumsformate finden Sie unter:
-            <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
-                http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
+            <a href="https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
+                https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
             </a>
             ]]></de>
             <en><![CDATA[
             Prefixes can also handle date formatting. For possible date formats, see:
-            <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
-                http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
+            <a href="https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
+                https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
             </a>
             ]]></en>
         </locale>
@@ -1925,7 +1925,7 @@
             If you do not yet have a reader installed, you can download one quickly, easily,
             and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
             the following URL to your browser's address bar:<br />
-            http://get.adobe.com/reader/</p>
+            https://get.adobe.com/reader/</p>
 
             <p>Your invoice is also available online in your account. Just click on "My invoices" or "My orders" to access them.</p>
 
@@ -1969,7 +1969,7 @@
             If you do not yet have a reader installed, you can download one quickly, easily,
             and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
             the following URL to your browser's address bar:<br />
-            http://get.adobe.com/reader/</p>
+            https://get.adobe.com/reader/</p>
 
             <p>Your invoice is also available online in your account. Just click on "My invoices" or "My orders" to access them.</p>
 
@@ -2009,7 +2009,7 @@
             If you do not yet have a reader installed, you can download one quickly, easily,
             and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
             the following URL to your browser's address bar:<br />
-            http://get.adobe.com/reader/</p>
+            https://get.adobe.com/reader/</p>
 
             <p>If you have any questions or remarks, please contact us by answering this e-mail.
             Our support team will contact you shortly.</p>
