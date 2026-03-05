@@ -1900,7 +1900,7 @@
         </locale>
         <locale name="invoice.send.mail.message">
             <de><![CDATA[
-            <h1>[salutationText],</h1>
+            <h1>[salutationText]</h1>
             <p>mit dieser E-Mail erhalten Sie Ihre Rechnung mit Rechnungsnummer [invoiceId].
             Klicken Sie auf die angehängte PDF-Datei, um die Rechnung zu öffnen.</p>
 
@@ -1917,7 +1917,7 @@
             [systemCompany]</p>
             ]]></de>
             <en><![CDATA[
-            <h1>[salutationText],</h1>
+            <h1>[salutationText]</h1>
             <p>Your invoice (reference ID [invoiceId]) is attached to this e-mail as a PDF;
             just click on the attachment to access it.</p>
 
@@ -1944,7 +1944,7 @@
         </locale>
         <locale name="invoice.cancelled.send.mail.message">
             <de><![CDATA[
-            <h1>[salutationText],</h1>
+            <h1>[salutationText]</h1>
             <p>mit dieser E-Mail erhalten Sie Ihre Storno-Rechnung mit Rechnungsnummer [invoiceId].
             Klicken Sie auf die angehängte PDF-Datei, um die Rechnung zu öffnen.</p>
 
@@ -1961,7 +1961,7 @@
             [systemCompany]</p>
             ]]></de>
             <en><![CDATA[
-            <h1>[salutationText],</h1>
+            <h1>[salutationText]</h1>
             <p>Your cancellation invoice (reference ID [invoiceId]) is attached to this e-mail as a PDF;
             just click on the attachment to access it.</p>
 
@@ -1987,7 +1987,7 @@
         </locale>
         <locale name="invoice.credit_note.send.mail.message">
             <de><![CDATA[
-            <h1>[salutationText],</h1>
+            <h1>[salutationText]</h1>
             <p>mit dieser E-Mail erhalten Sie Ihre Gutschrift mit Nummer [invoiceId].
             Klicken Sie auf die angehängte PDF-Datei, um die Gutschrift zu öffnen.</p>
 
@@ -2001,7 +2001,7 @@
             [systemCompany]</p>
             ]]></de>
             <en><![CDATA[
-            <h1>[salutationText],</h1>
+            <h1>[salutationText]</h1>
             <p>Your credit note (reference ID [invoiceId]) is attached to this e-mail as a PDF;
             just click on the attachment to access it.</p>
 
