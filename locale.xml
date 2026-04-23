@@ -586,14 +586,13 @@
         </locale>
         <locale name="invoice.settings.invoice.invoiceAddressRequirement.description">
             <de><![CDATA[
-            (Standard: JA!)
-            Diese Option ermöglicht es, ob generell eine Adresse des Rechnungsempfängers für alle Rechnungen erforderlich ist,
-            unabhängig vom Betrag. Durch Aktivieren dieser Einstellung wird die Adressangabe für alle Rechnungen verlangt.
+            Wenn diese Option angehakt ist, ist die Adresse des Rechnungsempfängers für alle Rechnungen Pflicht,
+            unabhängig vom Betrag. Wenn diese Option nicht angehakt ist, gilt die Adresspflicht erst ab dem unten
+            definierten Schwellenwert.
             ]]></de>
             <en><![CDATA[
-            (Default: YES!)
-            This option allows you to specify whether an address of the invoice recipient is generally required for all invoices,
-            regardless of the amount. By activating this setting, the address details are required for all invoices.
+            If this option is checked, the invoice recipient address is required for all invoices, regardless of the amount.
+            If this option is not checked, the address is only required once the threshold defined below is reached.
             ]]></en>
         </locale>
         <locale name="invoice.invoiceAddressRequirementThreshold">
