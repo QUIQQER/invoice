@@ -126,6 +126,10 @@
             <de><![CDATA[Darf Rechnungsdatum setzen.]]></de>
             <en><![CDATA[Is allowed to set invoice date.]]></en>
         </locale>
+        <locale name="permission.quiqqer.invoice.mcp">
+            <de><![CDATA[Darf die Rechnungs-MCP-Schnittstelle nutzen.]]></de>
+            <en><![CDATA[Is allowed to use the invoice MCP interface.]]></en>
+        </locale>
 
         <locale name="paidstatus.open">
             <de><![CDATA[offen]]></de>
