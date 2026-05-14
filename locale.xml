@@ -383,14 +383,14 @@
         <locale name="invoice.settings.invoice.prefix.description">
             <de><![CDATA[
             Präfixe können auch mit Datumsformatierungen umgehen. Mögliche Datumsformate finden Sie unter:
-            <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
-                http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
+            <a href="https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
+                https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
             </a>
             ]]></de>
             <en><![CDATA[
             Prefixes can also handle date formatting. For possible date formats, see:
-            <a href="http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
-                http://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
+            <a href="https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">
+                https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters
             </a>
             ]]></en>
         </locale>
@@ -586,14 +586,13 @@
         </locale>
         <locale name="invoice.settings.invoice.invoiceAddressRequirement.description">
             <de><![CDATA[
-            (Standard: JA!)
-            Diese Option ermöglicht es, ob generell eine Adresse des Rechnungsempfängers für alle Rechnungen erforderlich ist,
-            unabhängig vom Betrag. Durch Aktivieren dieser Einstellung wird die Adressangabe für alle Rechnungen verlangt.
+            Wenn diese Option angehakt ist, ist die Adresse des Rechnungsempfängers für alle Rechnungen Pflicht,
+            unabhängig vom Betrag. Wenn diese Option nicht angehakt ist, gilt die Adresspflicht erst ab dem unten
+            definierten Schwellenwert.
             ]]></de>
             <en><![CDATA[
-            (Default: YES!)
-            This option allows you to specify whether an address of the invoice recipient is generally required for all invoices,
-            regardless of the amount. By activating this setting, the address details are required for all invoices.
+            If this option is checked, the invoice recipient address is required for all invoices, regardless of the amount.
+            If this option is not checked, the address is only required once the threshold defined below is reached.
             ]]></en>
         </locale>
         <locale name="invoice.invoiceAddressRequirementThreshold">
@@ -1925,7 +1924,7 @@
             If you do not yet have a reader installed, you can download one quickly, easily,
             and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
             the following URL to your browser's address bar:<br />
-            http://get.adobe.com/reader/</p>
+            https://get.adobe.com/reader/</p>
 
             <p>Your invoice is also available online in your account. Just click on "My invoices" or "My orders" to access them.</p>
 
@@ -1969,7 +1968,7 @@
             If you do not yet have a reader installed, you can download one quickly, easily,
             and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
             the following URL to your browser's address bar:<br />
-            http://get.adobe.com/reader/</p>
+            https://get.adobe.com/reader/</p>
 
             <p>Your invoice is also available online in your account. Just click on "My invoices" or "My orders" to access them.</p>
 
@@ -2009,7 +2008,7 @@
             If you do not yet have a reader installed, you can download one quickly, easily,
             and at no cost at all. To install the Acrobat Reader, just go to Acrobat's free download site or copy
             the following URL to your browser's address bar:<br />
-            http://get.adobe.com/reader/</p>
+            https://get.adobe.com/reader/</p>
 
             <p>If you have any questions or remarks, please contact us by answering this e-mail.
             Our support team will contact you shortly.</p>

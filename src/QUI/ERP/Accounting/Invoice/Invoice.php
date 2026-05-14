@@ -1307,6 +1307,11 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
                 ]
             )
         );
+
+        QUI::getEvents()->fireEvent('quiqqerInvoiceLinkTransaction', [
+            $this,
+            $Transaction
+        ]);
     }
 
     /**
