@@ -10,6 +10,8 @@ use QUI;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Output\Output as ERPOutput;
 
+use QUI\Locale;
+
 use function array_pop;
 use function date;
 use function dirname;
@@ -80,9 +82,9 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
-     * @return false|null|QUI\ERP\User|QUI\Users\Nobody|QUI\Users\SystemUser|QUI\Users\User
+     * @return ?QUI\ERP\User
      */
-    public function getCustomer(): bool | QUI\Users\SystemUser | QUI\Users\Nobody | QUI\ERP\User | QUI\Users\User | null
+    public function getCustomer(): ?QUI\ERP\User
     {
         try {
             return $this->Invoice->getCustomer();
@@ -109,10 +111,10 @@ class InvoiceView extends QUI\QDOM
 
     /**
      * @param $dateString
-     * @param null $Locale
+     * @param Locale|null $Locale
      * @return false|string
      */
-    public function formatDate($dateString, $Locale = null): bool | string
+    public function formatDate($dateString, null | QUI\Locale $Locale = null): bool | string
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
