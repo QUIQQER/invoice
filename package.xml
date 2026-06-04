@@ -40,6 +40,8 @@
             <paymentReceiver src="\QUI\ERP\Accounting\Invoice\PaymentReceiver"/>
 
             <rest src="\QUI\ERP\Accounting\Invoice\RestApi\Provider"/>
+
+            <mcp src="\QUI\ERP\Accounting\Invoice\McpProvider"/>
         </provider>
 
     </package>

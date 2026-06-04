@@ -381,7 +381,7 @@ class OutputProviderInvoice implements OutputProviderInterface
         return array_merge([
             'invoiceId' => $Invoice->getPrefixedNumber(),
             'hash' => $Invoice->getAttribute('hash'),
-            'date' => self::dateFormat($Invoice->getAttribute('date')),
+            'date' => self::dateFormat($Invoice->getAttribute('date'), $Customer->getLocale()),
             'systemCompany' => self::getCompanyName(),
 
             'contactPerson' => $contactPerson,
@@ -474,14 +474,12 @@ class OutputProviderInvoice implements OutputProviderInterface
     }
 
     /**
-     * @param $date
-     * @return false|string
+     * Format dates for invoice mails using the target locale with SHORT date and no time.
      */
-    public static function dateFormat($date): bool | string
+    public static function dateFormat($date, Locale $Locale): bool | string
     {
-        // date
-        $localeCode = QUI::getLocale()->getLocalesByLang(
-            QUI::getLocale()->getCurrent()
+        $localeCode = $Locale->getLocalesByLang(
+            $Locale->getCurrent()
         );
 
         $Formatter = new IntlDateFormatter(
