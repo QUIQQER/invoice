@@ -488,11 +488,6 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 return;
             }
         }
-
-        if (!($currency instanceof QUI\ERP\Currency\Currency)) {
-            return;
-        }
-
         $this->Currency = $currency;
         $this->setAttribute('currency_data', $currency->toArray());
         $this->Articles->setCurrency($this->Currency);
@@ -962,7 +957,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         // contact person
         $contactPerson = '';
 
-        if ($this->getAttribute('contact_person') && $this->getAttribute('contact_person') !== '') {
+        if ($this->getAttribute('contact_person')) {
             $contactPerson = Orthos::clear($this->getAttribute('contact_person'));
         }
 
@@ -1400,7 +1395,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         // contact person
         $contactPerson = '';
 
-        if ($this->getAttribute('contact_person') && $this->getAttribute('contact_person') !== '') {
+        if ($this->getAttribute('contact_person')) {
             $contactPerson = Orthos::clear($this->getAttribute('contact_person'));
         }
 

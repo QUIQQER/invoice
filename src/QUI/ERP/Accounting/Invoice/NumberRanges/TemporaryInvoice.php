@@ -54,10 +54,6 @@ class TemporaryInvoice implements NumberRangeInterface
      */
     public function setRange(int $range): void
     {
-        if (!is_numeric($range)) {
-            return;
-        }
-
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $tableName = $Handler->temporaryInvoiceTable();
         $PDO = QUI::getDataBase()->getPDO();

@@ -9,6 +9,7 @@ namespace QUI\ERP\Accounting\Invoice;
 use QUI;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Output\Output as ERPOutput;
+use QUI\Locale;
 
 use function array_pop;
 use function date;
@@ -80,9 +81,9 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
-     * @return false|null|QUI\ERP\User|QUI\Users\Nobody|QUI\Users\SystemUser|QUI\Users\User
+     * @return ?QUI\ERP\User
      */
-    public function getCustomer(): bool | QUI\Users\SystemUser | QUI\Users\Nobody | QUI\ERP\User | QUI\Users\User | null
+    public function getCustomer(): ?QUI\ERP\User
     {
         try {
             return $this->Invoice->getCustomer();
@@ -109,10 +110,10 @@ class InvoiceView extends QUI\QDOM
 
     /**
      * @param $dateString
-     * @param null $Locale
+     * @param Locale|null $Locale
      * @return false|string
      */
-    public function formatDate($dateString, $Locale = null): bool | string
+    public function formatDate($dateString, null | QUI\Locale $Locale = null): bool | string
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
@@ -287,19 +288,17 @@ class InvoiceView extends QUI\QDOM
             $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
 
             // temporary invoice, the time for payment are days
-            if ($this->Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
                 $timeForPayment = (int)$timeForPayment;
 
-                if ($timeForPayment < 0) {
-                    $timeForPayment = 0;
-                }
+            if ($timeForPayment < 0) {
+                $timeForPayment = 0;
+            }
 
-                if ($timeForPayment) {
-                    $timeForPayment = strtotime('+' . $timeForPayment . ' day');
-                    $timeForPayment = $Formatter->format($timeForPayment);
-                } else {
-                    $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
-                }
+            if ($timeForPayment) {
+                $timeForPayment = strtotime('+' . $timeForPayment . ' day');
+                $timeForPayment = $Formatter->format($timeForPayment);
+            } else {
+                $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
             }
 
             /*

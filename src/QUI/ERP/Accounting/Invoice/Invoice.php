@@ -99,9 +99,9 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     protected array $paymentData = [];
 
     /**
-     * @var null|ShippingInterface
+     * @var null|QUI\ERP\Shipping\Types\ShippingUnique
      */
-    protected ShippingInterface | null $Shipping = null;
+    protected QUI\ERP\Shipping\Types\ShippingUnique | null $Shipping = null;
 
     /**
      * Invoice constructor.
