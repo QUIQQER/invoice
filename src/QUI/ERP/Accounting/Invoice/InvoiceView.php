@@ -9,7 +9,6 @@ namespace QUI\ERP\Accounting\Invoice;
 use QUI;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Output\Output as ERPOutput;
-
 use QUI\Locale;
 
 use function array_pop;
@@ -289,19 +288,17 @@ class InvoiceView extends QUI\QDOM
             $timeForPayment = $this->Invoice->getAttribute('time_for_payment');
 
             // temporary invoice, the time for payment are days
-            if ($this->Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
                 $timeForPayment = (int)$timeForPayment;
 
-                if ($timeForPayment < 0) {
-                    $timeForPayment = 0;
-                }
+            if ($timeForPayment < 0) {
+                $timeForPayment = 0;
+            }
 
-                if ($timeForPayment) {
-                    $timeForPayment = strtotime('+' . $timeForPayment . ' day');
-                    $timeForPayment = $Formatter->format($timeForPayment);
-                } else {
-                    $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
-                }
+            if ($timeForPayment) {
+                $timeForPayment = strtotime('+' . $timeForPayment . ' day');
+                $timeForPayment = $Formatter->format($timeForPayment);
+            } else {
+                $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
             }
 
             /*

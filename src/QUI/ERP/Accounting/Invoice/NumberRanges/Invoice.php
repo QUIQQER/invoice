@@ -57,10 +57,6 @@ class Invoice implements NumberRangeInterface
      */
     public function setRange(int $range): void
     {
-        if (!is_numeric($range)) {
-            return;
-        }
-
         $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
         $Config->set('invoice', 'invoiceCurrentIdIndex', $range);
         $Config->save();

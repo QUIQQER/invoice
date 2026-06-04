@@ -105,9 +105,7 @@ class Handler extends QUI\Utils\Singleton
             $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);
         }
 
-        if ($Invoice instanceof InvoiceTemporary) {
-            $Invoice->delete($User);
-        }
+        $Invoice->delete($User);
     }
 
     /**
