@@ -478,6 +478,12 @@
             <li><strong>%YEAR%</strong> - Jahr des Rechnungsdatums</li>
             <li><strong>%MONTH%</strong> - Monat des Rechnungsdatums</li>
             <li><strong>%DAY%</strong> - Tag des Rechnungsdatums</li>
+            <li><strong>%CUSTOMER_ID%</strong> - Kunden-ID</li>
+            <li><strong>%CUSTOMER_NO%</strong> - Kundennummer</li>
+            <li><strong>%CUSTOMER_NAME%</strong> - Rechnungsname des Kunden</li>
+            <li><strong>%COMPANY%</strong> - Firma</li>
+            <li><strong>%FIRSTNAME%</strong> - Vorname</li>
+            <li><strong>%LASTNAME%</strong> - Nachname</li>
             </ul>
             Beispiel: <strong>invoice-%INO%@example.com</strong>
             ]]></de>
@@ -492,6 +498,12 @@
             <li><strong>%YEAR%</strong> - Year of the invoice date</li>
             <li><strong>%MONTH%</strong> - Month of the invoice date</li>
             <li><strong>%DAY%</strong> - Day of the invoice date</li>
+            <li><strong>%CUSTOMER_ID%</strong> - Customer ID</li>
+            <li><strong>%CUSTOMER_NO%</strong> - Customer number</li>
+            <li><strong>%CUSTOMER_NAME%</strong> - Customer invoice name</li>
+            <li><strong>%COMPANY%</strong> - Company</li>
+            <li><strong>%FIRSTNAME%</strong> - First name</li>
+            <li><strong>%LASTNAME%</strong> - Last name</li>
             </ul>
             Example: <strong>invoice-%INO%@example.com</strong>
             ]]></en>
@@ -2276,6 +2288,12 @@
             <li><strong>%YEAR%</strong>  - Jahr des Rechnungsdatums</li>
             <li><strong>%MONTH%</strong> - Monat des Rechnungsdatums</li>
             <li><strong>%DAY%</strong>   - Tag des Rechnungsdatums</li>
+            <li><strong>%CUSTOMER_ID%</strong> - Kunden-ID</li>
+            <li><strong>%CUSTOMER_NO%</strong> - Kundennummer</li>
+            <li><strong>%CUSTOMER_NAME%</strong> - Rechnungsname des Kunden</li>
+            <li><strong>%COMPANY%</strong> - Firma</li>
+            <li><strong>%FIRSTNAME%</strong> - Vorname</li>
+            <li><strong>%LASTNAME%</strong> - Nachname</li>
             </ul>
             ]]></de>
             <en><![CDATA[
@@ -2288,6 +2306,12 @@
             <li><strong>%YEAR%</strong>  - Year of the invoice date</li>
             <li><strong>%MONTH%</strong> - Month of the invoice date</li>
             <li><strong>%DAY%</strong>   - Day of the invoice date</li>
+            <li><strong>%CUSTOMER_ID%</strong> - Customer ID</li>
+            <li><strong>%CUSTOMER_NO%</strong> - Customer number</li>
+            <li><strong>%CUSTOMER_NAME%</strong> - Customer invoice name</li>
+            <li><strong>%COMPANY%</strong> - Company</li>
+            <li><strong>%FIRSTNAME%</strong> - First name</li>
+            <li><strong>%LASTNAME%</strong> - Last name</li>
             </ul>
             ]]></en>
         </locale>

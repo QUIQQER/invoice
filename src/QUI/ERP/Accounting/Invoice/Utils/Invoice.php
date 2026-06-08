@@ -485,6 +485,29 @@ class Invoice
             $date = time();
         }
 
+        $company = '';
+        $firstname = '';
+        $lastname = '';
+        $customerName = '';
+        $customerNo = '';
+        $customerId = '';
+
+        try {
+            $Customer = $Invoice->getCustomer();
+            $Address = $Customer->getAddress();
+
+            $company = trim((string)$Address->getAttribute('company'));
+            $firstname = trim((string)$Address->getAttribute('firstname'));
+            $lastname = trim((string)$Address->getAttribute('lastname'));
+            $customerName = trim($Customer->getInvoiceName());
+            $customerNo = trim($Customer->getCustomerNo());
+            $customerId = trim($Customer->getUUID());
+        } catch (QUI\ERP\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
         return [
             '%HASH%' => $Invoice->getUUID(),
             '%ID%' => $Invoice->getCleanId(),
@@ -492,7 +515,13 @@ class Invoice
             '%DATE%' => $Formatter->format($date),
             '%YEAR%' => date('Y', $date),
             '%MONTH%' => date('m', $date),
-            '%DAY%' => date('d', $date)
+            '%DAY%' => date('d', $date),
+            '%CUSTOMER_ID%' => $customerId,
+            '%CUSTOMER_NO%' => $customerNo,
+            '%CUSTOMER_NAME%' => $customerName,
+            '%COMPANY%' => $company,
+            '%FIRSTNAME%' => $firstname,
+            '%LASTNAME%' => $lastname
         ];
     }
 
