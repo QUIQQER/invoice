@@ -668,6 +668,153 @@ class Invoice
     }
 
     /**
+     * Normalizes the invoice delivery date / service period input.
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function normalizeServicePeriod(mixed $value): string
+    {
+        if (empty($value)) {
+            return '';
+        }
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+
+            if (is_array($decoded)) {
+                $value = $decoded;
+            }
+        }
+
+        if (is_array($value)) {
+            $type = $value['type'] ?? '';
+
+            if ($type === 'date' && !empty($value['date'])) {
+                $date = self::parseServicePeriodDate($value['date']);
+
+                return json_encode([
+                    'type' => 'date',
+                    'date' => $date->format('Y-m-d')
+                ]);
+            }
+
+            if ($type === 'period' && !empty($value['start']) && !empty($value['end'])) {
+                $start = self::parseServicePeriodDate($value['start']);
+                $end = self::parseServicePeriodDate($value['end']);
+
+                if ($end < $start) {
+                    throw new \InvalidArgumentException('The service period end date must not be before the start date.');
+                }
+
+                return json_encode([
+                    'type' => 'period',
+                    'start' => $start->format('Y-m-d'),
+                    'end' => $end->format('Y-m-d')
+                ]);
+            }
+
+            return '';
+        }
+
+        $value = trim((string)$value);
+
+        if ($value === '') {
+            return '';
+        }
+
+        $parts = preg_split('/\s+-\s+/', $value);
+
+        if (count($parts) === 2) {
+            $start = self::parseServicePeriodDate($parts[0]);
+            $end = self::parseServicePeriodDate($parts[1]);
+
+            if ($end < $start) {
+                throw new \InvalidArgumentException('The service period end date must not be before the start date.');
+            }
+
+            return json_encode([
+                'type' => 'period',
+                'start' => $start->format('Y-m-d'),
+                'end' => $end->format('Y-m-d')
+            ]);
+        }
+
+        $date = self::parseServicePeriodDate($value);
+
+        return json_encode([
+            'type' => 'date',
+            'date' => $date->format('Y-m-d')
+        ]);
+    }
+
+    public static function getServicePeriodData(
+        InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice
+    ): array {
+        $servicePeriod = $Invoice->getAttribute('service_period');
+
+        if (empty($servicePeriod)) {
+            return [];
+        }
+
+        if (is_string($servicePeriod)) {
+            $servicePeriod = json_decode($servicePeriod, true);
+        }
+
+        if (!is_array($servicePeriod)) {
+            return [];
+        }
+
+        return $servicePeriod;
+    }
+
+    public static function getServicePeriodDisplayText(
+        InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice,
+        ?QUI\Locale $Locale = null
+    ): string {
+        if ($Locale === null) {
+            $Locale = QUI::getLocale();
+        }
+
+        $data = self::getServicePeriodData($Invoice);
+
+        if (($data['type'] ?? '') === 'date' && !empty($data['date'])) {
+            return $Locale->get('quiqqer/invoice', 'service.period.display.date', [
+                'date' => self::formatServicePeriodDate($data['date'], $Locale)
+            ]);
+        }
+
+        if (($data['type'] ?? '') === 'period' && !empty($data['start']) && !empty($data['end'])) {
+            return $Locale->get('quiqqer/invoice', 'service.period.display.period', [
+                'start' => self::formatServicePeriodDate($data['start'], $Locale),
+                'end' => self::formatServicePeriodDate($data['end'], $Locale)
+            ]);
+        }
+
+        return $Locale->get('quiqqer/invoice', 'service.period.display.default');
+    }
+
+    protected static function parseServicePeriodDate(string $date): DateTime
+    {
+        $date = trim($date);
+        $formats = ['Y-m-d', 'd.m.Y', 'd.m.y'];
+
+        foreach ($formats as $format) {
+            $Date = DateTime::createFromFormat('!' . $format, $date);
+
+            if ($Date && $Date->format($format) === $date) {
+                return $Date;
+            }
+        }
+
+        throw new \InvalidArgumentException('Invalid service period date.');
+    }
+
+    protected static function formatServicePeriodDate(string $date, QUI\Locale $Locale): string
+    {
+        return $Locale->getDateFormatter()->format(strtotime($date));
+    }
+
+    /**
      * @throws QUI\ERP\Exception
      * @throws QUI\Exception
      * @throws QUI\Users\Exception
@@ -685,10 +832,24 @@ class Invoice
 
         $document->setDocumentInformation(
             $Invoice->getPrefixedNumber(),
-            "380",
+            ZugferdInvoiceType::INVOICE,
             $date,
             $Invoice->getCurrency()->getCode()
         );
+
+        $servicePeriod = self::getServicePeriodData($Invoice);
+
+        if (($servicePeriod['type'] ?? '') === 'period') {
+            $document->setDocumentBillingPeriod(
+                self::parseServicePeriodDate($servicePeriod['start']),
+                self::parseServicePeriodDate($servicePeriod['end']),
+                null
+            );
+        } elseif (($servicePeriod['type'] ?? '') === 'date') {
+            $document->setDocumentSupplyChainEvent(self::parseServicePeriodDate($servicePeriod['date']));
+        } else {
+            $document->setDocumentSupplyChainEvent($date);
+        }
 
         // ids
         $taxId = Defaults::conf('company', 'taxId');

@@ -641,6 +641,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
 
                         data.textInvoiceData = QUILocale.get(lg, 'erp.panel.invoice.data.title');
                         data.textInvoiceDate = QUILocale.get(lg, 'erp.panel.invoice.data.date');
+                        data.textServicePeriod = QUILocale.get(lg, 'erp.panel.invoice.data.servicePeriod');
                         data.textProjectName = QUILocale.get(lg, 'erp.panel.invoice.data.projectName');
                         data.textOrderedBy = QUILocale.get(lg, 'erp.panel.invoice.data.orderedBy');
                         data.textEditor = QUILocale.get(lg, 'erp.panel.invoice.data.editor');

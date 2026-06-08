@@ -340,6 +340,10 @@ class McpProvider implements ProviderInterface
                     'type' => 'string',
                     'description' => 'Additional invoice text.'
                 ],
+                'service_period' => [
+                    'type' => 'string',
+                    'description' => 'Delivery date or service period. Accepts YYYY-MM-DD, DD.MM.YYYY or a range like YYYY-MM-DD - YYYY-MM-DD.'
+                ],
                 'processing_status' => [
                     'type' => 'integer',
                     'description' => 'Invoice processing status id.'
@@ -563,6 +567,10 @@ class McpProvider implements ProviderInterface
             $Invoice->setCurrency($Currency);
         }
 
+        if (array_key_exists('service_period', $data)) {
+            $data['service_period'] = InvoiceUtils::normalizeServicePeriod($data['service_period']);
+        }
+
         if (
             $resetInvoiceAddress
             || array_key_exists('invoice_address', $data)
@@ -681,6 +689,8 @@ class McpProvider implements ProviderInterface
             'customerData' => $this->decodeJson($data['customer_data'] ?? null),
             'invoiceAddress' => $this->decodeJson($data['invoice_address'] ?? null),
             'deliveryAddress' => $this->decodeJson($data['delivery_address'] ?? null),
+            'servicePeriod' => $this->decodeJson($data['service_period'] ?? null),
+            'servicePeriodDisplay' => InvoiceUtils::getServicePeriodDisplayText($Invoice, QUI::getLocale()),
             'date' => $data['date'] ?? null,
             'timeForPayment' => $data['time_for_payment'] ?? null,
             'paidStatus' => isset($data['paid_status']) ? (int)$data['paid_status'] : null,

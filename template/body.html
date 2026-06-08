@@ -126,6 +126,7 @@
 <div class="invoice-data">
     Beleg-Nummer: {$this->getId()}<br/>
     Datum: {$this->getAttribute('date')}<br/>
+    {$servicePeriodDisplay}<br/>
     {if $Customer}
     Kunden-Nummer: {$Customer->getId()}<br/>
     {/if}

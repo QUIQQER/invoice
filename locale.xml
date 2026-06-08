@@ -545,6 +545,18 @@
             <de><![CDATA[Storno-Rechnung]]></de>
             <en><![CDATA[Cancellation invoice]]></en>
         </locale>
+        <locale name="service.period.display.date">
+            <de><![CDATA[Lieferdatum: [date]]]></de>
+            <en><![CDATA[Delivery date: [date]]]></en>
+        </locale>
+        <locale name="service.period.display.period">
+            <de><![CDATA[Leistungszeitraum: [start] - [end]]]></de>
+            <en><![CDATA[Service period: [start] - [end]]]></en>
+        </locale>
+        <locale name="service.period.display.default">
+            <de><![CDATA[Liefer-/Leistungszeitraum entspricht Rechnungsdatum.]]></de>
+            <en><![CDATA[Delivery/service period corresponds to invoice date.]]></en>
+        </locale>
 
         <locale name="global.invoice.text">
             <de><![CDATA[ ]]></de>
@@ -1111,6 +1123,30 @@
             <de><![CDATA[Rechnungsdatum]]></de>
             <en><![CDATA[Invoice date]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriod">
+            <de><![CDATA[Lieferdatum / Leistungszeitraum]]></de>
+            <en><![CDATA[Delivery date / service period]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodPlaceholder">
+            <de><![CDATA[Bitte Lieferdatum oder Leistungszeitraum eingeben]]></de>
+            <en><![CDATA[Enter delivery date or service period]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodDefault">
+            <de><![CDATA[Wie Rechnungsdatum]]></de>
+            <en><![CDATA[Same as invoice date]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodDate">
+            <de><![CDATA[Lieferdatum]]></de>
+            <en><![CDATA[Delivery date]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodPeriod">
+            <de><![CDATA[Leistungszeitraum]]></de>
+            <en><![CDATA[Service period]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodSelect">
+            <de><![CDATA[Zeitraum auswählen]]></de>
+            <en><![CDATA[Select period]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoicePayment">
             <de><![CDATA[Bezahlung]]></de>
             <en><![CDATA[Payment]]></en>
@@ -1484,6 +1520,10 @@
         <locale name="erp.panel.invoice.data.date">
             <de><![CDATA[Rechnungsdatum]]></de>
             <en><![CDATA[Invoice date]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.servicePeriod">
+            <de><![CDATA[Lieferdatum / Leistungszeitraum]]></de>
+            <en><![CDATA[Delivery date / service period]]></en>
         </locale>
         <locale name="erp.panel.invoice.data.payment">
             <de><![CDATA[Bezahlung]]></de>

@@ -24,6 +24,29 @@
         <tr>
             <td>
                 <label class="field-container">
+                    <span class="field-container-item" title="{{textServicePeriod}}">
+                        {{textServicePeriod}}
+                    </span>
+                    <span class="field-container-field field-container-field-no-padding invoice-service-period">
+                        <select name="service_period_type">
+                            <option value="">{{textServicePeriodDefault}}</option>
+                            <option value="date">{{textServicePeriodDate}}</option>
+                            <option value="period">{{textServicePeriodPeriod}}</option>
+                        </select>
+                        <input type="date" name="service_period_date"/>
+                        <span class="invoice-service-period-timefilter">
+                            <span class="invoice-service-period-timefilter-display">
+                                {{textServicePeriodSelect}}
+                            </span>
+                            <span class="invoice-service-period-timefilter-control"></span>
+                        </span>
+                    </span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field-container">
                     <span class="field-container-item" title="{{textProjectName}}">
                         {{textProjectName}}
                     </span>

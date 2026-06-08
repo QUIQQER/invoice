@@ -41,6 +41,7 @@ QUI::$Ajax->registerFunction(
             );
         }
 
+        $attributes['service_period_display'] = InvoiceUtils::getServicePeriodDisplayText($Invoice, QUI::getLocale());
         $attributes['articles'] = InvoiceUtils::formatArticlesArray($attributes['articles']);
         $attributes['getType'] = $Invoice->getType();
 

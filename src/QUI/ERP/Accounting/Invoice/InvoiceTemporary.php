@@ -761,6 +761,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         // attributes
         $projectName = '';
         $customerReference = '';
+        $servicePeriod = '';
         $date = '';
 
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
@@ -776,6 +777,8 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         if ($this->getAttribute('customer_reference')) {
             $customerReference = $this->getAttribute('customer_reference');
         }
+
+        $servicePeriod = InvoiceUtils::normalizeServicePeriod($this->getAttribute('service_period'));
 
         if ($this->getAttribute('time_for_payment') || $this->getAttribute('time_for_payment') === 0) {
             $timeForPayment = (int)$this->getAttribute('time_for_payment');
@@ -1044,6 +1047,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 'additional_invoice_text' => $invoiceText,
                 'project_name' => $projectName,
                 'customer_reference' => $customerReference,
+                'service_period' => $servicePeriod,
 
                 // Calc data
                 'isbrutto' => $isBrutto,
@@ -1319,6 +1323,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $timeForPayment = date('Y-m-d', $timeForPayment);
         $timeForPayment .= ' 23:59:59';
 
+        $servicePeriod = InvoiceUtils::normalizeServicePeriod($this->getAttribute('service_period'));
 
         // post and calc
         QUI::getEvents()->fireEvent(
@@ -1523,6 +1528,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 'hash' => $this->getAttribute('hash'),
                 'project_name' => $this->getAttribute('project_name'),
                 'customer_reference' => $this->getAttribute('customer_reference'),
+                'service_period' => $servicePeriod,
                 'date' => $date,
                 'data' => json_encode($this->data),
                 'additional_invoice_text' => $this->getAttribute('additional_invoice_text'),

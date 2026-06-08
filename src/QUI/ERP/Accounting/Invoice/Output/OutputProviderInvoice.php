@@ -224,6 +224,8 @@ class OutputProviderInvoice implements OutputProviderInterface
             $epcQrCodeImageSrc = self::getEpcQrCodeImageImgSrc($Invoice);
         }
 
+        $servicePeriodDisplay = InvoiceUtils::getServicePeriodDisplayText($Invoice, $Customer->getLocale());
+
         return [
             'this' => $InvoiceView,
             'ArticleList' => $Articles,
@@ -233,6 +235,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             'DeliveryAddress' => $DeliveryAddress,
             'Payment' => $Invoice->getPayment(),
             'transaction' => $InvoiceView->getTransactionText(),
+            'servicePeriodDisplay' => $servicePeriodDisplay,
             'projectName' => $Invoice->getAttribute('project_name'),
             'useShipping' => QUI::getPackageManager()->isInstalled('quiqqer/shipping'),
             'globalInvoiceText' => $globalInvoiceText,

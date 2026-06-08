@@ -596,6 +596,7 @@ class Handler extends QUI\Utils\Singleton
             'paid_date',
             'paid_data',
             'date',
+            'service_period',
             'c_user',
             'editor_id',
             'editor_name',
