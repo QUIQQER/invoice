@@ -508,11 +508,17 @@ class Invoice
             QUI\System\Log::writeDebugException($Exception);
         }
 
+        $formattedDate = $Formatter->format($date);
+
+        if ($formattedDate === false) {
+            $formattedDate = '';
+        }
+
         return [
-            '%HASH%' => $Invoice->getUUID(),
-            '%ID%' => $Invoice->getCleanId(),
-            '%INO%' => $Invoice->getPrefixedNumber(),
-            '%DATE%' => $Formatter->format($date),
+            '%HASH%' => (string)$Invoice->getUUID(),
+            '%ID%' => (string)$Invoice->getCleanId(),
+            '%INO%' => (string)$Invoice->getPrefixedNumber(),
+            '%DATE%' => (string)$formattedDate,
             '%YEAR%' => date('Y', $date),
             '%MONTH%' => date('m', $date),
             '%DAY%' => date('d', $date),
