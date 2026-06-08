@@ -2,6 +2,8 @@
 
 namespace QUI\ERP\Accounting\Invoice\Output;
 
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\QRGdImagePNG;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use Exception;
@@ -597,9 +599,9 @@ class OutputProviderInvoice implements OutputProviderInterface
 
         $QrOptions = new QROptions([
             'version' => QRCode::VERSION_AUTO,
-            'outputType' => QRCode::OUTPUT_IMAGE_PNG,
-            'eccLevel' => QRCode::ECC_M,
-            'pngCompression' => -1
+            'outputInterface' => QRGdImagePNG::class,
+            'eccLevel' => EccLevel::M,
+            'quality' => -1
         ]);
 
         $QrCode = new QRCode($QrOptions);
