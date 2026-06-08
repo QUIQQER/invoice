@@ -21,6 +21,8 @@ QUI::$Ajax->registerFunction(
             $invoice['invoice_address'] = json_decode($invoice['invoice_address'], true);
         }
 
+        $invoice['service_period'] = QUI\ERP\Accounting\Invoice\Utils\Invoice::getServicePeriodData($Invoice);
+
         $invoice['currencyRate'] = $Invoice->getCurrency()->getExchangeRate();
         $invoice['attached_customer_files'] = $Invoice->getCustomerFiles();
 

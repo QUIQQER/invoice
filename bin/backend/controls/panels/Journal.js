@@ -528,7 +528,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         width: 100
                     },
                     {
-                        header: QUILocale.get('quiqqer/system', 'name'),
+                        header: QUILocale.get('quiqqer/core', 'name'),
                         dataIndex: 'customer_name',
                         dataType: 'string',
                         width: 200,

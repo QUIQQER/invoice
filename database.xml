@@ -25,6 +25,7 @@
 
             <field type="TEXT NULL">invoice_address</field>
             <field type="TEXT NULL">delivery_address</field>
+            <field type="TEXT NULL">service_period</field>
 
             <field type="VARCHAR(200) NOT NULL">payment_method</field>
             <field type="TEXT NULL">payment_method_data</field>
@@ -95,6 +96,7 @@
 
             <field type="VARCHAR(50) NULL">delivery_address_id</field>
             <field type="TEXT NULL">delivery_address</field>
+            <field type="TEXT NULL">service_period</field>
 
             <field type="VARCHAR(255) NULL">order_id</field>
             <field type="VARCHAR(50) NULL">ordered_by</field>

@@ -850,6 +850,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
                 'invoice_address_id' => $invoiceAddressId,
                 'invoice_address' => $invoiceAddress,
                 'delivery_address' => $currentData['delivery_address'],
+                'service_period' => $currentData['service_period'] ?? '',
                 'order_id' => $currentData['order_id'] ?: null,
                 'project_name' => $currentData['project_name'],
                 'payment_method' => $currentData['payment_method'],

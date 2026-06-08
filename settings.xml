@@ -58,6 +58,10 @@
                     <type><![CDATA[int]]></type>
                     <defaultvalue><![CDATA[2]]></defaultvalue>
                 </conf>
+                <conf name="electronicInvoiceBuyerEmailFallback">
+                    <type><![CDATA[string]]></type>
+                    <defaultvalue><![CDATA[unknown@example.com]]></defaultvalue>
+                </conf>
             </section>
 
             <section name="temporaryInvoice">
@@ -296,6 +300,17 @@
                             <option value="9">XRechnung 2.3 (Germany only)</option>
                             <option value="10">XRechnung 3.0 (Germany only)</option>
                         </select>
+
+                        <input conf="invoice.electronicInvoiceBuyerEmailFallback" type="text">
+                            <text>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.e-invoice.buyerEmailFallback.text"/>
+                            </text>
+                            <description>
+                                <locale group="quiqqer/invoice"
+                                        var="invoice.settings.e-invoice.buyerEmailFallback.description"/>
+                            </description>
+                        </input>
 
                     </settings>
 
