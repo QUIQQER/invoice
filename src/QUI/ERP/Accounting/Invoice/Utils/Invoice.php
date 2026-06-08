@@ -448,6 +448,55 @@ class Invoice
     }
 
     /**
+     * Return invoice placeholders used in configurable invoice strings
+     *
+     * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
+     * @param QUI\Locale|null $Locale
+     *
+     * @return array<string, string>
+     */
+    public static function getInvoicePlaceholders(
+        QUI\ERP\Accounting\Invoice\Invoice | InvoiceTemporary $Invoice,
+        ?QUI\Locale $Locale = null
+    ): array {
+        if ($Locale === null) {
+            try {
+                $Locale = $Invoice->getCustomer()->getLocale();
+            } catch (QUI\ERP\Exception $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+            }
+        }
+
+        if ($Locale === null) {
+            $Locale = QUI::getLocale();
+        }
+
+        $localeCode = $Locale->getLocalesByLang($Locale->getCurrent());
+
+        $Formatter = new IntlDateFormatter(
+            $localeCode[0],
+            IntlDateFormatter::SHORT,
+            IntlDateFormatter::NONE
+        );
+
+        $date = strtotime((string)$Invoice->getAttribute('date'));
+
+        if (!$date) {
+            $date = time();
+        }
+
+        return [
+            '%HASH%' => $Invoice->getUUID(),
+            '%ID%' => $Invoice->getCleanId(),
+            '%INO%' => $Invoice->getPrefixedNumber(),
+            '%DATE%' => $Formatter->format($date),
+            '%YEAR%' => date('Y', $date),
+            '%MONTH%' => date('m', $date),
+            '%DAY%' => date('d', $date)
+        ];
+    }
+
+    /**
      * Return the file name for an invoice download
      *
      * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
@@ -460,34 +509,6 @@ class Invoice
         QUI\ERP\Accounting\Invoice\Invoice | InvoiceTemporary $Invoice,
         ?QUI\Locale $Locale = null
     ): string {
-        // date
-        $localeCode = QUI::getLocale()->getLocalesByLang(
-            QUI::getLocale()->getCurrent()
-        );
-
-        $Formatter = new IntlDateFormatter(
-            $localeCode[0],
-            IntlDateFormatter::SHORT,
-            IntlDateFormatter::NONE
-        );
-
-        $date = $Invoice->getAttribute('date');
-        $date = strtotime($date);
-
-        $year = date('Y', $date);
-        $month = date('m', $date);
-        $day = date('d', $date);
-
-        $placeholders = [
-            '%HASH%' => $Invoice->getUUID(),
-            '%ID%' => $Invoice->getCleanId(),
-            '%INO%' => $Invoice->getPrefixedNumber(),
-            '%DATE%' => $Formatter->format($date),
-            '%YEAR%' => $year,
-            '%MONTH%' => $month,
-            '%DAY%' => $day
-        ];
-
         if ($Locale === null) {
             try {
                 $Locale = $Invoice->getCustomer()->getLocale();
@@ -502,11 +523,49 @@ class Invoice
 
         $fileName = $Locale->get('quiqqer/invoice', 'pdf.download.name');
 
-        foreach ($placeholders as $placeholder => $value) {
+        foreach (self::getInvoicePlaceholders($Invoice, $Locale) as $placeholder => $value) {
             $fileName = str_replace($placeholder, $value, $fileName);
         }
 
         return QUI\Utils\Security\Orthos::clearFilename($fileName);
+    }
+
+    /**
+     * Return the configured buyer email fallback for electronic invoices.
+     *
+     * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
+     * @return string
+     */
+    protected static function getElectronicInvoiceBuyerEmailFallback(
+        QUI\ERP\Accounting\Invoice\Invoice | InvoiceTemporary $Invoice
+    ): string {
+        $buyerEmail = '';
+
+        try {
+            $buyerEmail = (string)QUI::getPackage('quiqqer/invoice')
+                ->getConfig()
+                ->getValue('invoice', 'electronicInvoiceBuyerEmailFallback');
+        } catch (\Throwable $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        $buyerEmail = trim($buyerEmail);
+
+        if ($buyerEmail === '') {
+            $buyerEmail = 'unknown@example.com';
+        }
+
+        foreach (self::getInvoicePlaceholders($Invoice) as $placeholder => $value) {
+            $buyerEmail = str_replace($placeholder, $value, $buyerEmail);
+        }
+
+        $buyerEmail = trim($buyerEmail);
+
+        if ($buyerEmail === '') {
+            return 'unknown@example.com';
+        }
+
+        return $buyerEmail;
     }
 
     /**
@@ -981,8 +1040,7 @@ class Invoice
         }
 
         if ($buyerEmail === '') {
-            // requirement -> workaround -> placeholder
-            $buyerEmail = 'unknown@example.com';
+            $buyerEmail = self::getElectronicInvoiceBuyerEmailFallback($Invoice);
         }
 
         $document->setDocumentBuyerCommunication(

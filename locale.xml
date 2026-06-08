@@ -462,6 +462,40 @@
             <de><![CDATA[Zugferd-Rechnung Profil]]></de>
             <en><![CDATA[Zugferd-bill profile]]></en>
         </locale>
+        <locale name="invoice.settings.e-invoice.buyerEmailFallback.text">
+            <de><![CDATA[Platzhalter E-Mail-Adresse]]></de>
+            <en><![CDATA[Placeholder email address]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.buyerEmailFallback.description" html="true">
+            <de><![CDATA[
+            Wird für elektronische Rechnungen verwendet, wenn beim Rechnungskunden keine E-Mail-Adresse hinterlegt ist.
+            Verfügbare Platzhalter:
+            <ul>
+            <li><strong>%HASH%</strong> - Hash der Rechnung</li>
+            <li><strong>%ID%</strong> - Rechnungs-ID</li>
+            <li><strong>%INO%</strong> - Rechnungsnummer</li>
+            <li><strong>%DATE%</strong> - Rechnungsdatum</li>
+            <li><strong>%YEAR%</strong> - Jahr des Rechnungsdatums</li>
+            <li><strong>%MONTH%</strong> - Monat des Rechnungsdatums</li>
+            <li><strong>%DAY%</strong> - Tag des Rechnungsdatums</li>
+            </ul>
+            Beispiel: <strong>invoice-%INO%@example.com</strong>
+            ]]></de>
+            <en><![CDATA[
+            Used for electronic invoices if the invoice customer has no email address.
+            Available placeholders:
+            <ul>
+            <li><strong>%HASH%</strong> - Hash of the invoice</li>
+            <li><strong>%ID%</strong> - Invoice ID</li>
+            <li><strong>%INO%</strong> - Invoice number</li>
+            <li><strong>%DATE%</strong> - Invoice date</li>
+            <li><strong>%YEAR%</strong> - Year of the invoice date</li>
+            <li><strong>%MONTH%</strong> - Month of the invoice date</li>
+            <li><strong>%DAY%</strong> - Day of the invoice date</li>
+            </ul>
+            Example: <strong>invoice-%INO%@example.com</strong>
+            ]]></en>
+        </locale>
 
 
         <locale name="invoice.type.creditNote">
