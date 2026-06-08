@@ -15,6 +15,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'package/quiqqer/invoice/bin/backend/utils/Dialogs',
     'package/quiqqer/erp/bin/backend/controls/Comments',
     'package/quiqqer/erp/bin/backend/controls/articles/Text',
+    'package/quiqqer/erp/bin/backend/controls/elements/TimeFilter',
     'package/quiqqer/payments/bin/backend/Payments',
     'package/quiqqer/customer/bin/backend/controls/customer/address/Window',
     'package/quiqqer/customer/bin/backend/controls/customer/userFiles/Select',
@@ -32,7 +33,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
     'css!package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.css'
 
 ], function(QUI, QUIPanel, QUIButton, QUIButtonMultiple, QUISeparator, QUIConfirm, QUIFormUtils,
-    AddressSelect, Invoices, Dialogs, Comments, TextArticle,
+    AddressSelect, Invoices, Dialogs, Comments, TextArticle, TimeFilter,
     Payments, AddressWindow, CustomerFileSelect, Locker, QUILocale, QUIAjax, Mustache, Users, Editors,
     templateData, templatePost, templateMissing
 ) {
@@ -80,6 +81,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             customer_reference: '',
             date: '',
             time_for_payment: '',
+            service_period: '',
             data: {},
             articles: []
         },
@@ -105,6 +107,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.$AddProduct = null;
             this.$ArticleSort = null;
             this.$AddressDelivery = null;
+            this.$ServicePeriodTimeFilter = null;
 
             this.$AddSeparator = null;
             this.$SortSeparator = null;
@@ -293,6 +296,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 articles: this.getAttribute('articles'),
                 priceFactors: this.getAttribute('priceFactors'),
                 date: this.getAttribute('date'),
+                service_period: this.getAttribute('service_period'),
                 editor_id: this.getAttribute('editor_id'),
                 ordered_by: this.getAttribute('ordered_by'),
                 contact_person: this.getAttribute('contact_person'),
@@ -341,6 +345,27 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     html: Mustache.render(templateData, {
                         textInvoiceData: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceData'),
                         textInvoiceDate: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textInvoiceDate'),
+                        textServicePeriod: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.data.textServicePeriod'),
+                        textServicePeriodPlaceholder: QUILocale.get(
+                            lg,
+                            'erp.panel.temporary.invoice.category.data.textServicePeriodPlaceholder'
+                        ),
+                        textServicePeriodDefault: QUILocale.get(
+                            lg,
+                            'erp.panel.temporary.invoice.category.data.textServicePeriodDefault'
+                        ),
+                        textServicePeriodDate: QUILocale.get(
+                            lg,
+                            'erp.panel.temporary.invoice.category.data.textServicePeriodDate'
+                        ),
+                        textServicePeriodPeriod: QUILocale.get(
+                            lg,
+                            'erp.panel.temporary.invoice.category.data.textServicePeriodPeriod'
+                        ),
+                        textServicePeriodSelect: QUILocale.get(
+                            lg,
+                            'erp.panel.temporary.invoice.category.data.textServicePeriodSelect'
+                        ),
                         textTermOfPayment: QUILocale.get(
                             lg,
                             'erp.panel.temporary.invoice.category.data.textTermOfPayment'
@@ -388,6 +413,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 QUIFormUtils.setDataToForm({
                     date: dateDate,
+                    service_period: self.getAttribute('service_period'),
                     time_for_payment: self.getAttribute('time_for_payment'),
                     project_name: self.getAttribute('project_name'),
                     customer_reference: self.getAttribute('customer_reference'),
@@ -397,6 +423,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     currency: self.getAttribute('currency'),
                     currencyRate: self.getAttribute('currencyRate')
                 }, Form);
+
+                self.$initServicePeriodForm(Form);
+                self.$setServicePeriodFormValue(Form, self.getAttribute('service_period'));
 
                 Form.elements.date.set('disabled', true);
                 Form.elements.date.set('title', QUILocale.get(lg, 'permissions.set.invoice.date'));
@@ -1366,9 +1395,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 this.setAttribute('date', formData.date + ' 00:00:00');
             }
 
+            this.setAttribute('service_period', this.$getServicePeriodFormValue(Form));
+            delete formData.service_period_type;
+            delete formData.service_period_date;
             [
                 'processing_status',
                 'time_for_payment',
+                'service_period',
                 'project_name',
                 'customer_reference',
                 'payment_method',
@@ -1390,6 +1423,232 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }.bind(this));
 
             this.setAttribute('data', Object.merge(data, formData));
+        },
+
+
+        /**
+         * @param {HTMLFormElement} Form
+         */
+        $initServicePeriodForm: function(Form) {
+            const Type = Form.elements.service_period_type;
+
+            if (!Type) {
+                return;
+            }
+
+            const TimeFilterContainer = Form.getElement('.invoice-service-period-timefilter');
+            const TimeFilterControl = Form.getElement('.invoice-service-period-timefilter-control');
+            const TimeFilterDisplay = Form.getElement('.invoice-service-period-timefilter-display');
+
+            if (TimeFilterControl) {
+                TimeFilterControl.empty();
+
+                this.$ServicePeriodTimeFilter = new TimeFilter({
+                    name: 'servicePeriodTimeFilter',
+                    events: {
+                        onChange: this.$updateServicePeriodDisplay.bind(this, Form),
+                        onPeriodSelectClose: this.$onServicePeriodSelectClose.bind(this, Form),
+                        onPeriodSelectOpenBegin: this.$onServicePeriodSelectOpenBegin,
+                        onPeriodSelectOpenEnd: this.$positionServicePeriodSelect.bind(this, Form)
+                    }
+                }).inject(TimeFilterControl);
+
+                this.$ServicePeriodTimeFilter.$type = 'period';
+                this.$ServicePeriodTimeFilter.$Select.getValue = function() {
+                    return 'period';
+                };
+
+                this.$updateServicePeriodDisplay(Form);
+            }
+
+            if (TimeFilterDisplay) {
+                TimeFilterDisplay.addEvent('click', function() {
+                    if (this.$ServicePeriodTimeFilter) {
+                        this.$ServicePeriodTimeFilter.showPeriodSelect();
+                    }
+                }.bind(this));
+            }
+
+            const update = function() {
+                const isDate = Type.value === 'date';
+                const isPeriod = Type.value === 'period';
+
+                Form.elements.service_period_date.setStyle('display', isDate ? null : 'none');
+
+                if (TimeFilterContainer) {
+                    TimeFilterContainer.setStyle('display', isPeriod ? null : 'none');
+                }
+            };
+
+            Type.addEvent('change', update);
+            update();
+        },
+
+
+
+
+        $onServicePeriodSelectOpenBegin: function() {
+            document.body.addClass('invoice-service-period-select-positioning');
+        },
+
+        /**
+         * @param {HTMLFormElement} Form
+         */
+        $onServicePeriodSelectClose: function(Form) {
+            document.body.removeClass('invoice-service-period-select-positioning');
+            this.$updateServicePeriodDisplay(Form);
+        },
+
+        /**
+         * @param {HTMLFormElement} Form
+         */
+        $positionServicePeriodSelect: function(Form) {
+            const Display = Form.getElement('.invoice-service-period-timefilter-display');
+            const Select = document.body.getElement('.timefilter-period-select');
+
+            if (!Display || !Select) {
+                return;
+            }
+
+            const position = Display.getPosition();
+            const size = Display.getSize();
+
+            Select.setStyles({
+                left: position.x,
+                top: position.y + size.y + 2
+            });
+
+            document.body.removeClass('invoice-service-period-select-positioning');
+            Select.focus();
+        },
+
+        /**
+         * @param {HTMLFormElement} Form
+         */
+        $updateServicePeriodDisplay: function(Form) {
+            const Display = Form.getElement('.invoice-service-period-timefilter-display');
+
+            if (!Display || !this.$ServicePeriodTimeFilter) {
+                return;
+            }
+
+            const value = this.$getNormalizedServicePeriodValue();
+            const Formatter = new Intl.DateTimeFormat(undefined, {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
+            Display.set('text', Formatter.format(new Date(value.from * 1000)) + ' - ' +
+                Formatter.format(new Date(value.to * 1000)));
+        },
+
+        /**
+         * @returns {{from: Number, to: Number}}
+         */
+        $getNormalizedServicePeriodValue: function() {
+            const value = this.$ServicePeriodTimeFilter.getValue();
+
+            if (value.from <= value.to) {
+                return value;
+            }
+
+            const Current = this.$ServicePeriodTimeFilter.$Current;
+            this.$ServicePeriodTimeFilter.$Current = this.$ServicePeriodTimeFilter.$To;
+            this.$ServicePeriodTimeFilter.$To = Current;
+
+            return {
+                from: value.to,
+                to: value.from
+            };
+        },
+
+        /**
+         * @param {HTMLFormElement} Form
+         * @param {Object|String} value
+         */
+        $setServicePeriodFormValue: function(Form, value) {
+            if (!Form.elements.service_period_type) {
+                return;
+            }
+
+            if (typeOf(value) === 'string' && value !== '') {
+                try {
+                    value = JSON.decode(value);
+                } catch (e) {
+                    value = {};
+                }
+            }
+
+            if (typeOf(value) !== 'object') {
+                value = {};
+            }
+
+            Form.elements.service_period_type.value = value.type || '';
+            Form.elements.service_period_date.value = value.date || '';
+
+            if (this.$ServicePeriodTimeFilter && value.type === 'period' && value.start && value.end) {
+                this.$ServicePeriodTimeFilter.setPeriod(
+                    this.$parseServicePeriodDate(value.start),
+                    this.$parseServicePeriodDate(value.end)
+                );
+            }
+
+            Form.elements.service_period_type.fireEvent('change');
+        },
+
+        /**
+         * @param {HTMLFormElement} Form
+         * @returns {Object|String}
+         */
+        $getServicePeriodFormValue: function(Form) {
+            if (!Form.elements.service_period_type) {
+                return '';
+            }
+
+            switch (Form.elements.service_period_type.value) {
+                case 'date':
+                    return {
+                        type: 'date',
+                        date: Form.elements.service_period_date.value
+                    };
+
+                case 'period':
+                    if (!this.$ServicePeriodTimeFilter) {
+                        return '';
+                    }
+
+                    const value = this.$getNormalizedServicePeriodValue();
+
+                    return {
+                        type: 'period',
+                        start: this.$formatServicePeriodDate(value.from),
+                        end: this.$formatServicePeriodDate(value.to)
+                    };
+            }
+
+            return '';
+        },
+
+        /**
+         * @param {String} value
+         * @returns {Date}
+         */
+        $parseServicePeriodDate: function(value) {
+            const parts = value.split('-');
+
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        },
+
+        /**
+         * @param {Number} timestamp
+         * @returns {String}
+         */
+        $formatServicePeriodDate: function(timestamp) {
+            const DateObject = new Date(timestamp * 1000);
+            DateObject.setMinutes(DateObject.getMinutes() - DateObject.getTimezoneOffset());
+
+            return DateObject.toJSON().slice(0, 10);
         },
 
         /**
@@ -1454,7 +1713,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             // buttons
             this.addButton({
                 name: 'save',
-                text: QUILocale.get('quiqqer/system', 'save'),
+                text: QUILocale.get('quiqqer/core', 'save'),
                 textimage: 'fa fa-save',
                 events: {
                     onClick: function() {

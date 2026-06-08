@@ -515,6 +515,7 @@ class InvoiceSearch extends Singleton
                 project_name LIKE :search OR
                 invoice_address LIKE :search OR
                 delivery_address LIKE :search OR
+                service_period LIKE :search OR
                 payment_time LIKE :search OR
                 time_for_payment LIKE :search OR
                 paid_status LIKE :search OR
@@ -917,6 +918,7 @@ class InvoiceSearch extends Singleton
 
             'invoice_address',
             'delivery_address',
+            'service_period',
 
             'payment_method',
             'payment_method_data',

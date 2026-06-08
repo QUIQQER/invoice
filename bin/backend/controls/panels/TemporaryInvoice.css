@@ -32,6 +32,70 @@
     width: 100%;
 }
 
+
+.invoice-service-period {
+    align-items: stretch;
+    display: flex;
+    gap: 6px;
+    min-height: 44px;
+}
+
+.invoice-service-period select,
+.invoice-service-period input[type="date"] {
+    border: 0;
+    box-sizing: border-box;
+    height: 44px;
+    min-height: 44px;
+}
+
+.invoice-service-period select {
+    width: 220px;
+}
+
+.invoice-service-period input[type="date"] {
+    flex: 1;
+    width: 100%;
+}
+
+.invoice-service-period input[name="service_period_date"] {
+    padding-right: 15px;
+}
+
+.invoice-service-period-timefilter {
+    flex: 1;
+    position: relative;
+}
+
+.invoice-service-period-timefilter-display {
+    align-items: center;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    height: 100%;
+    min-height: 44px;
+    padding: 0 10px;
+}
+
+.invoice-service-period-timefilter-display:hover {
+    background: #f7f7f7;
+}
+
+.invoice-service-period-timefilter-control {
+    height: 44px;
+    left: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+
+.invoice-service-period-select-positioning .timefilter-period-select {
+    visibility: hidden;
+}
+
 /** Preview
  ========================================== */
 

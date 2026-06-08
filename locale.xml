@@ -462,6 +462,52 @@
             <de><![CDATA[Zugferd-Rechnung Profil]]></de>
             <en><![CDATA[Zugferd-bill profile]]></en>
         </locale>
+        <locale name="invoice.settings.e-invoice.buyerEmailFallback.text">
+            <de><![CDATA[Platzhalter E-Mail-Adresse]]></de>
+            <en><![CDATA[Placeholder email address]]></en>
+        </locale>
+        <locale name="invoice.settings.e-invoice.buyerEmailFallback.description" html="true">
+            <de><![CDATA[
+            Wird für elektronische Rechnungen verwendet, wenn beim Rechnungskunden keine E-Mail-Adresse hinterlegt ist.
+            Verfügbare Platzhalter:
+            <ul>
+            <li><strong>%HASH%</strong> - Hash der Rechnung</li>
+            <li><strong>%ID%</strong> - Rechnungs-ID</li>
+            <li><strong>%INO%</strong> - Rechnungsnummer</li>
+            <li><strong>%DATE%</strong> - Rechnungsdatum</li>
+            <li><strong>%YEAR%</strong> - Jahr des Rechnungsdatums</li>
+            <li><strong>%MONTH%</strong> - Monat des Rechnungsdatums</li>
+            <li><strong>%DAY%</strong> - Tag des Rechnungsdatums</li>
+            <li><strong>%CUSTOMER_ID%</strong> - Kunden-ID</li>
+            <li><strong>%CUSTOMER_NO%</strong> - Kundennummer</li>
+            <li><strong>%CUSTOMER_NAME%</strong> - Rechnungsname des Kunden</li>
+            <li><strong>%COMPANY%</strong> - Firma</li>
+            <li><strong>%FIRSTNAME%</strong> - Vorname</li>
+            <li><strong>%LASTNAME%</strong> - Nachname</li>
+            </ul>
+            Beispiel: <strong>invoice-%INO%@example.com</strong>
+            ]]></de>
+            <en><![CDATA[
+            Used for electronic invoices if the invoice customer has no email address.
+            Available placeholders:
+            <ul>
+            <li><strong>%HASH%</strong> - Hash of the invoice</li>
+            <li><strong>%ID%</strong> - Invoice ID</li>
+            <li><strong>%INO%</strong> - Invoice number</li>
+            <li><strong>%DATE%</strong> - Invoice date</li>
+            <li><strong>%YEAR%</strong> - Year of the invoice date</li>
+            <li><strong>%MONTH%</strong> - Month of the invoice date</li>
+            <li><strong>%DAY%</strong> - Day of the invoice date</li>
+            <li><strong>%CUSTOMER_ID%</strong> - Customer ID</li>
+            <li><strong>%CUSTOMER_NO%</strong> - Customer number</li>
+            <li><strong>%CUSTOMER_NAME%</strong> - Customer invoice name</li>
+            <li><strong>%COMPANY%</strong> - Company</li>
+            <li><strong>%FIRSTNAME%</strong> - First name</li>
+            <li><strong>%LASTNAME%</strong> - Last name</li>
+            </ul>
+            Example: <strong>invoice-%INO%@example.com</strong>
+            ]]></en>
+        </locale>
 
 
         <locale name="invoice.type.creditNote">
@@ -544,6 +590,18 @@
         <locale name="OutputProvider.entity.title.Canceled">
             <de><![CDATA[Storno-Rechnung]]></de>
             <en><![CDATA[Cancellation invoice]]></en>
+        </locale>
+        <locale name="service.period.display.date">
+            <de><![CDATA[Lieferdatum: [date]]]></de>
+            <en><![CDATA[Delivery date: [date]]]></en>
+        </locale>
+        <locale name="service.period.display.period">
+            <de><![CDATA[Leistungszeitraum: [start] - [end]]]></de>
+            <en><![CDATA[Service period: [start] - [end]]]></en>
+        </locale>
+        <locale name="service.period.display.default">
+            <de><![CDATA[Liefer-/Leistungszeitraum entspricht Rechnungsdatum.]]></de>
+            <en><![CDATA[Delivery/service period corresponds to invoice date.]]></en>
         </locale>
 
         <locale name="global.invoice.text">
@@ -1111,6 +1169,30 @@
             <de><![CDATA[Rechnungsdatum]]></de>
             <en><![CDATA[Invoice date]]></en>
         </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriod">
+            <de><![CDATA[Lieferdatum / Leistungszeitraum]]></de>
+            <en><![CDATA[Delivery date / service period]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodPlaceholder">
+            <de><![CDATA[Bitte Lieferdatum oder Leistungszeitraum eingeben]]></de>
+            <en><![CDATA[Enter delivery date or service period]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodDefault">
+            <de><![CDATA[Wie Rechnungsdatum]]></de>
+            <en><![CDATA[Same as invoice date]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodDate">
+            <de><![CDATA[Lieferdatum]]></de>
+            <en><![CDATA[Delivery date]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodPeriod">
+            <de><![CDATA[Leistungszeitraum]]></de>
+            <en><![CDATA[Service period]]></en>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodSelect">
+            <de><![CDATA[Zeitraum auswählen]]></de>
+            <en><![CDATA[Select period]]></en>
+        </locale>
         <locale name="erp.panel.temporary.invoice.category.data.textInvoicePayment">
             <de><![CDATA[Bezahlung]]></de>
             <en><![CDATA[Payment]]></en>
@@ -1484,6 +1566,10 @@
         <locale name="erp.panel.invoice.data.date">
             <de><![CDATA[Rechnungsdatum]]></de>
             <en><![CDATA[Invoice date]]></en>
+        </locale>
+        <locale name="erp.panel.invoice.data.servicePeriod">
+            <de><![CDATA[Lieferdatum / Leistungszeitraum]]></de>
+            <en><![CDATA[Delivery date / service period]]></en>
         </locale>
         <locale name="erp.panel.invoice.data.payment">
             <de><![CDATA[Bezahlung]]></de>
@@ -2202,6 +2288,12 @@
             <li><strong>%YEAR%</strong>  - Jahr des Rechnungsdatums</li>
             <li><strong>%MONTH%</strong> - Monat des Rechnungsdatums</li>
             <li><strong>%DAY%</strong>   - Tag des Rechnungsdatums</li>
+            <li><strong>%CUSTOMER_ID%</strong> - Kunden-ID</li>
+            <li><strong>%CUSTOMER_NO%</strong> - Kundennummer</li>
+            <li><strong>%CUSTOMER_NAME%</strong> - Rechnungsname des Kunden</li>
+            <li><strong>%COMPANY%</strong> - Firma</li>
+            <li><strong>%FIRSTNAME%</strong> - Vorname</li>
+            <li><strong>%LASTNAME%</strong> - Nachname</li>
             </ul>
             ]]></de>
             <en><![CDATA[
@@ -2214,6 +2306,12 @@
             <li><strong>%YEAR%</strong>  - Year of the invoice date</li>
             <li><strong>%MONTH%</strong> - Month of the invoice date</li>
             <li><strong>%DAY%</strong>   - Day of the invoice date</li>
+            <li><strong>%CUSTOMER_ID%</strong> - Customer ID</li>
+            <li><strong>%CUSTOMER_NO%</strong> - Customer number</li>
+            <li><strong>%CUSTOMER_NAME%</strong> - Customer invoice name</li>
+            <li><strong>%COMPANY%</strong> - Company</li>
+            <li><strong>%FIRSTNAME%</strong> - First name</li>
+            <li><strong>%LASTNAME%</strong> - Last name</li>
             </ul>
             ]]></en>
         </locale>

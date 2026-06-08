@@ -448,6 +448,90 @@ class Invoice
     }
 
     /**
+     * Return invoice placeholders used in configurable invoice strings
+     *
+     * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
+     * @param QUI\Locale|null $Locale
+     *
+     * @return array<string, string>
+     */
+    public static function getInvoicePlaceholders(
+        QUI\ERP\Accounting\Invoice\Invoice | InvoiceTemporary $Invoice,
+        ?QUI\Locale $Locale = null
+    ): array {
+        if ($Locale === null) {
+            try {
+                $Locale = $Invoice->getCustomer()->getLocale();
+            } catch (QUI\ERP\Exception $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+            }
+        }
+
+        if ($Locale === null) {
+            $Locale = QUI::getLocale();
+        }
+
+        $localeCode = $Locale->getLocalesByLang($Locale->getCurrent());
+
+        $Formatter = new IntlDateFormatter(
+            $localeCode[0],
+            IntlDateFormatter::SHORT,
+            IntlDateFormatter::NONE
+        );
+
+        $date = strtotime((string)$Invoice->getAttribute('date'));
+
+        if (!$date) {
+            $date = time();
+        }
+
+        $company = '';
+        $firstname = '';
+        $lastname = '';
+        $customerName = '';
+        $customerNo = '';
+        $customerId = '';
+
+        try {
+            $Customer = $Invoice->getCustomer();
+            $Address = $Customer->getAddress();
+
+            $company = trim((string)$Address->getAttribute('company'));
+            $firstname = trim((string)$Address->getAttribute('firstname'));
+            $lastname = trim((string)$Address->getAttribute('lastname'));
+            $customerName = trim($Customer->getInvoiceName());
+            $customerNo = trim($Customer->getCustomerNo());
+            $customerId = trim($Customer->getUUID());
+        } catch (QUI\ERP\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        $formattedDate = $Formatter->format($date);
+
+        if ($formattedDate === false) {
+            $formattedDate = '';
+        }
+
+        return [
+            '%HASH%' => (string)$Invoice->getUUID(),
+            '%ID%' => (string)$Invoice->getCleanId(),
+            '%INO%' => (string)$Invoice->getPrefixedNumber(),
+            '%DATE%' => (string)$formattedDate,
+            '%YEAR%' => date('Y', $date),
+            '%MONTH%' => date('m', $date),
+            '%DAY%' => date('d', $date),
+            '%CUSTOMER_ID%' => $customerId,
+            '%CUSTOMER_NO%' => $customerNo,
+            '%CUSTOMER_NAME%' => $customerName,
+            '%COMPANY%' => $company,
+            '%FIRSTNAME%' => $firstname,
+            '%LASTNAME%' => $lastname
+        ];
+    }
+
+    /**
      * Return the file name for an invoice download
      *
      * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
@@ -460,34 +544,6 @@ class Invoice
         QUI\ERP\Accounting\Invoice\Invoice | InvoiceTemporary $Invoice,
         ?QUI\Locale $Locale = null
     ): string {
-        // date
-        $localeCode = QUI::getLocale()->getLocalesByLang(
-            QUI::getLocale()->getCurrent()
-        );
-
-        $Formatter = new IntlDateFormatter(
-            $localeCode[0],
-            IntlDateFormatter::SHORT,
-            IntlDateFormatter::NONE
-        );
-
-        $date = $Invoice->getAttribute('date');
-        $date = strtotime($date);
-
-        $year = date('Y', $date);
-        $month = date('m', $date);
-        $day = date('d', $date);
-
-        $placeholders = [
-            '%HASH%' => $Invoice->getUUID(),
-            '%ID%' => $Invoice->getCleanId(),
-            '%INO%' => $Invoice->getPrefixedNumber(),
-            '%DATE%' => $Formatter->format($date),
-            '%YEAR%' => $year,
-            '%MONTH%' => $month,
-            '%DAY%' => $day
-        ];
-
         if ($Locale === null) {
             try {
                 $Locale = $Invoice->getCustomer()->getLocale();
@@ -502,11 +558,49 @@ class Invoice
 
         $fileName = $Locale->get('quiqqer/invoice', 'pdf.download.name');
 
-        foreach ($placeholders as $placeholder => $value) {
+        foreach (self::getInvoicePlaceholders($Invoice, $Locale) as $placeholder => $value) {
             $fileName = str_replace($placeholder, $value, $fileName);
         }
 
         return QUI\Utils\Security\Orthos::clearFilename($fileName);
+    }
+
+    /**
+     * Return the configured buyer email fallback for electronic invoices.
+     *
+     * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
+     * @return string
+     */
+    protected static function getElectronicInvoiceBuyerEmailFallback(
+        QUI\ERP\Accounting\Invoice\Invoice | InvoiceTemporary $Invoice
+    ): string {
+        $buyerEmail = '';
+
+        try {
+            $buyerEmail = (string)QUI::getPackage('quiqqer/invoice')
+                ->getConfig()
+                ->getValue('invoice', 'electronicInvoiceBuyerEmailFallback');
+        } catch (\Throwable $Exception) {
+            QUI\System\Log::writeDebugException($Exception);
+        }
+
+        $buyerEmail = trim($buyerEmail);
+
+        if ($buyerEmail === '') {
+            $buyerEmail = 'unknown@example.com';
+        }
+
+        foreach (self::getInvoicePlaceholders($Invoice) as $placeholder => $value) {
+            $buyerEmail = str_replace($placeholder, $value, $buyerEmail);
+        }
+
+        $buyerEmail = trim($buyerEmail);
+
+        if ($buyerEmail === '') {
+            return 'unknown@example.com';
+        }
+
+        return $buyerEmail;
     }
 
     /**
@@ -668,6 +762,153 @@ class Invoice
     }
 
     /**
+     * Normalizes the invoice delivery date / service period input.
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function normalizeServicePeriod(mixed $value): string
+    {
+        if (empty($value)) {
+            return '';
+        }
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+
+            if (is_array($decoded)) {
+                $value = $decoded;
+            }
+        }
+
+        if (is_array($value)) {
+            $type = $value['type'] ?? '';
+
+            if ($type === 'date' && !empty($value['date'])) {
+                $date = self::parseServicePeriodDate($value['date']);
+
+                return json_encode([
+                    'type' => 'date',
+                    'date' => $date->format('Y-m-d')
+                ]);
+            }
+
+            if ($type === 'period' && !empty($value['start']) && !empty($value['end'])) {
+                $start = self::parseServicePeriodDate($value['start']);
+                $end = self::parseServicePeriodDate($value['end']);
+
+                if ($end < $start) {
+                    throw new \InvalidArgumentException('The service period end date must not be before the start date.');
+                }
+
+                return json_encode([
+                    'type' => 'period',
+                    'start' => $start->format('Y-m-d'),
+                    'end' => $end->format('Y-m-d')
+                ]);
+            }
+
+            return '';
+        }
+
+        $value = trim((string)$value);
+
+        if ($value === '') {
+            return '';
+        }
+
+        $parts = preg_split('/\s+-\s+/', $value);
+
+        if (count($parts) === 2) {
+            $start = self::parseServicePeriodDate($parts[0]);
+            $end = self::parseServicePeriodDate($parts[1]);
+
+            if ($end < $start) {
+                throw new \InvalidArgumentException('The service period end date must not be before the start date.');
+            }
+
+            return json_encode([
+                'type' => 'period',
+                'start' => $start->format('Y-m-d'),
+                'end' => $end->format('Y-m-d')
+            ]);
+        }
+
+        $date = self::parseServicePeriodDate($value);
+
+        return json_encode([
+            'type' => 'date',
+            'date' => $date->format('Y-m-d')
+        ]);
+    }
+
+    public static function getServicePeriodData(
+        InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice
+    ): array {
+        $servicePeriod = $Invoice->getAttribute('service_period');
+
+        if (empty($servicePeriod)) {
+            return [];
+        }
+
+        if (is_string($servicePeriod)) {
+            $servicePeriod = json_decode($servicePeriod, true);
+        }
+
+        if (!is_array($servicePeriod)) {
+            return [];
+        }
+
+        return $servicePeriod;
+    }
+
+    public static function getServicePeriodDisplayText(
+        InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice,
+        ?QUI\Locale $Locale = null
+    ): string {
+        if ($Locale === null) {
+            $Locale = QUI::getLocale();
+        }
+
+        $data = self::getServicePeriodData($Invoice);
+
+        if (($data['type'] ?? '') === 'date' && !empty($data['date'])) {
+            return $Locale->get('quiqqer/invoice', 'service.period.display.date', [
+                'date' => self::formatServicePeriodDate($data['date'], $Locale)
+            ]);
+        }
+
+        if (($data['type'] ?? '') === 'period' && !empty($data['start']) && !empty($data['end'])) {
+            return $Locale->get('quiqqer/invoice', 'service.period.display.period', [
+                'start' => self::formatServicePeriodDate($data['start'], $Locale),
+                'end' => self::formatServicePeriodDate($data['end'], $Locale)
+            ]);
+        }
+
+        return $Locale->get('quiqqer/invoice', 'service.period.display.default');
+    }
+
+    protected static function parseServicePeriodDate(string $date): DateTime
+    {
+        $date = trim($date);
+        $formats = ['Y-m-d', 'd.m.Y', 'd.m.y'];
+
+        foreach ($formats as $format) {
+            $Date = DateTime::createFromFormat('!' . $format, $date);
+
+            if ($Date && $Date->format($format) === $date) {
+                return $Date;
+            }
+        }
+
+        throw new \InvalidArgumentException('Invalid service period date.');
+    }
+
+    protected static function formatServicePeriodDate(string $date, QUI\Locale $Locale): string
+    {
+        return $Locale->getDateFormatter()->format(strtotime($date));
+    }
+
+    /**
      * @throws QUI\ERP\Exception
      * @throws QUI\Exception
      * @throws QUI\Users\Exception
@@ -683,12 +924,39 @@ class Invoice
         $date = strtotime($date);
         $date = (new DateTime())->setTimestamp($date);
 
+        $invoiceType = $Invoice->getInvoiceType();
+        $isCreditNote = $invoiceType === QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE;
+        $documentType = match ($invoiceType) {
+            QUI\ERP\Constants::TYPE_INVOICE,
+            QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY => ZugferdInvoiceType::INVOICE,
+            QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE => ZugferdInvoiceType::CREDITNOTE,
+            default => ZugferdInvoiceType::INVOICE
+        };
+
+        $normalizeAmount = static function (float | int $amount) use ($isCreditNote): float | int {
+            return $isCreditNote ? abs($amount) : $amount;
+        };
+
         $document->setDocumentInformation(
             $Invoice->getPrefixedNumber(),
-            "380",
+            $documentType,
             $date,
             $Invoice->getCurrency()->getCode()
         );
+
+        $servicePeriod = self::getServicePeriodData($Invoice);
+
+        if (($servicePeriod['type'] ?? '') === 'period') {
+            $document->setDocumentBillingPeriod(
+                self::parseServicePeriodDate($servicePeriod['start']),
+                self::parseServicePeriodDate($servicePeriod['end']),
+                null
+            );
+        } elseif (($servicePeriod['type'] ?? '') === 'date') {
+            $document->setDocumentSupplyChainEvent(self::parseServicePeriodDate($servicePeriod['date']));
+        } else {
+            $document->setDocumentSupplyChainEvent($date);
+        }
 
         // ids
         $taxId = Defaults::conf('company', 'taxId');
@@ -737,7 +1005,7 @@ class Invoice
         );
 
         $document->setDocumentSellerCommunication(
-            'EM',
+            ZugferdElectronicAddressScheme::UNECE3155_EM,
             Defaults::conf('company', 'email')
         );
 
@@ -808,17 +1076,25 @@ class Invoice
             )->setDocumentBuyerReference($Customer->getUUID());
 
 
-        if ($Customer->getAddress()->getAttribute('email')) {
-            $document->setDocumentBuyerCommunication('EM', $Customer->getAddress()->getAttribute('email'));
-        } else {
+        $buyerEmail = trim((string)$Customer->getAddress()->getAttribute('email'));
+
+        if ($buyerEmail === '') {
             try {
                 $User = QUI::getUsers()->get($Customer->getUUID());
-                $document->setDocumentBuyerCommunication('EM', $User->getAttribute('email'));
+                $buyerEmail = trim((string)$User->getAttribute('email'));
             } catch (QUI\Exception) {
-                // requirement -> workaround -> placeholder
-                $document->setDocumentBuyerCommunication('EM', 'unknown@example.com');
+                $buyerEmail = '';
             }
         }
+
+        if ($buyerEmail === '') {
+            $buyerEmail = self::getElectronicInvoiceBuyerEmailFallback($Invoice);
+        }
+
+        $document->setDocumentBuyerCommunication(
+            ZugferdElectronicAddressScheme::UNECE3155_EM,
+            $buyerEmail
+        );
 
         //->setDocumentBuyerOrderReferencedDocument($Invoice->getUUID());
 
@@ -827,15 +1103,17 @@ class Invoice
         $vatTotal = 0;
 
         foreach ($priceCalculation->getVat() as $vat) {
+            $vatValue = $normalizeAmount($vat->value());
+
             $document->addDocumentTax(
                 "S",
                 "VAT",
-                $priceCalculation->getNettoSum()->value(),
-                $vat->value(),
+                $normalizeAmount($priceCalculation->getNettoSum()->value()),
+                $vatValue,
                 $vat->getVat()
             );
 
-            $vatTotal = $vatTotal + $vat->value();
+            $vatTotal = $vatTotal + $vatValue;
         }
 
         $isNetInvoice = false;
@@ -845,12 +1123,12 @@ class Invoice
         }
 
         $document->setDocumentSummation(
-            $priceCalculation->getSum()->value(),
-            $priceCalculation->getSum()->value(),
-            $priceCalculation->getNettoSum()->value(),
+            $normalizeAmount($priceCalculation->getSum()->value()),
+            $normalizeAmount($priceCalculation->getSum()->value()),
+            $normalizeAmount($priceCalculation->getNettoSum()->value()),
             0.0, // zuschläge
             0.0, // rabatte
-            $priceCalculation->getNettoSum()->value(), // Steuerbarer Betrag (BT-109)
+            $normalizeAmount($priceCalculation->getNettoSum()->value()), // Steuerbarer Betrag (BT-109)
             $isNetInvoice ? $vatTotal : 0, // ausgewiesene steuer
             null, // Rundungsbetrag
             0.0 // Vorauszahlungen
@@ -879,11 +1157,15 @@ class Invoice
                     null,
                     null
                 )
-                ->setDocumentPositionNetPrice($article['calculated']['nettoPrice'], 1, "C62") // C62 = Stück
-                ->setDocumentPositionGrossPrice($bruttoPreis, 1, "C62") // C62 = Stück
+                ->setDocumentPositionNetPrice($normalizeAmount($article['calculated']['nettoPrice']), 1, "C62") // C62 = Stück
+                ->setDocumentPositionGrossPrice($normalizeAmount($bruttoPreis), 1, "C62") // C62 = Stück
                 ->setDocumentPositionQuantity($article['quantity'], "H87")
-                ->addDocumentPositionTax('S', 'VAT', $article['vat'], $article['calculated']['vatArray']['sum'])
-                ->setDocumentPositionLineSummation($article['sum']);
+                // Do not pass the position tax amount as 4th parameter here:
+                // ->addDocumentPositionTax('S', 'VAT', $article['vat'], $article['calculated']['vatArray']['sum'])
+                // The 4th parameter writes ram:CalculatedAmount. For line-level VAT taxes this is obsolete
+                // and rejected by EN16931/XRechnung validators (CII-SR-182). Tax amounts are declared on document level.
+                ->addDocumentPositionTax('S', 'VAT', $article['vat'])
+                ->setDocumentPositionLineSummation($normalizeAmount($article['sum']));
         }
 
         // payment stuff

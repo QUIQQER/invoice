@@ -117,6 +117,7 @@ class Provider implements QUI\REST\ProviderInterface
             'payment_method' => false,
 
             'additional_invoice_text' => false,
+            'service_period' => false,
             'files' => false,
             'processing_status' => false,
         ];
@@ -298,6 +299,13 @@ class Provider implements QUI\REST\ProviderInterface
             $invoiceText .= QUI::getLocale()->get('quiqqer/invoice', 'additional.invoice.text');
 
             $InvoiceDraft->setAttribute('additional_invoice_text', $invoiceText);
+        }
+
+        if (array_key_exists('service_period', $invoiceData)) {
+            $InvoiceDraft->setAttribute(
+                'service_period',
+                QUI\ERP\Accounting\Invoice\Utils\Invoice::normalizeServicePeriod($invoiceData['service_period'])
+            );
         }
 
         // Articles - Existing products
