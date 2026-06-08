@@ -898,7 +898,7 @@ class Invoice
         );
 
         $document->setDocumentSellerCommunication(
-            'EM',
+            ZugferdElectronicAddressScheme::UNECE3155_EM,
             Defaults::conf('company', 'email')
         );
 
@@ -969,17 +969,26 @@ class Invoice
             )->setDocumentBuyerReference($Customer->getUUID());
 
 
-        if ($Customer->getAddress()->getAttribute('email')) {
-            $document->setDocumentBuyerCommunication('EM', $Customer->getAddress()->getAttribute('email'));
-        } else {
+        $buyerEmail = trim((string)$Customer->getAddress()->getAttribute('email'));
+
+        if ($buyerEmail === '') {
             try {
                 $User = QUI::getUsers()->get($Customer->getUUID());
-                $document->setDocumentBuyerCommunication('EM', $User->getAttribute('email'));
+                $buyerEmail = trim((string)$User->getAttribute('email'));
             } catch (QUI\Exception) {
-                // requirement -> workaround -> placeholder
-                $document->setDocumentBuyerCommunication('EM', 'unknown@example.com');
+                $buyerEmail = '';
             }
         }
+
+        if ($buyerEmail === '') {
+            // requirement -> workaround -> placeholder
+            $buyerEmail = 'unknown@example.com';
+        }
+
+        $document->setDocumentBuyerCommunication(
+            ZugferdElectronicAddressScheme::UNECE3155_EM,
+            $buyerEmail
+        );
 
         //->setDocumentBuyerOrderReferencedDocument($Invoice->getUUID());
 
