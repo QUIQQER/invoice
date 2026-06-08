@@ -918,9 +918,16 @@ class Invoice
         $date = strtotime($date);
         $date = (new DateTime())->setTimestamp($date);
 
+        $documentType = match ($Invoice->getInvoiceType()) {
+            QUI\ERP\Constants::TYPE_INVOICE,
+            QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY => ZugferdInvoiceType::INVOICE,
+            QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE => ZugferdInvoiceType::CREDITNOTE,
+            default => ZugferdInvoiceType::INVOICE
+        };
+
         $document->setDocumentInformation(
             $Invoice->getPrefixedNumber(),
-            ZugferdInvoiceType::INVOICE,
+            $documentType,
             $date,
             $Invoice->getCurrency()->getCode()
         );
