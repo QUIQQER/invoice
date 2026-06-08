@@ -924,11 +924,17 @@ class Invoice
         $date = strtotime($date);
         $date = (new DateTime())->setTimestamp($date);
 
-        $documentType = match ($Invoice->getInvoiceType()) {
+        $invoiceType = $Invoice->getInvoiceType();
+        $isCreditNote = $invoiceType === QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE;
+        $documentType = match ($invoiceType) {
             QUI\ERP\Constants::TYPE_INVOICE,
             QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY => ZugferdInvoiceType::INVOICE,
             QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE => ZugferdInvoiceType::CREDITNOTE,
             default => ZugferdInvoiceType::INVOICE
+        };
+
+        $normalizeAmount = static function (float | int $amount) use ($isCreditNote): float | int {
+            return $isCreditNote ? abs($amount) : $amount;
         };
 
         $document->setDocumentInformation(
@@ -1097,15 +1103,17 @@ class Invoice
         $vatTotal = 0;
 
         foreach ($priceCalculation->getVat() as $vat) {
+            $vatValue = $normalizeAmount($vat->value());
+
             $document->addDocumentTax(
                 "S",
                 "VAT",
-                $priceCalculation->getNettoSum()->value(),
-                $vat->value(),
+                $normalizeAmount($priceCalculation->getNettoSum()->value()),
+                $vatValue,
                 $vat->getVat()
             );
 
-            $vatTotal = $vatTotal + $vat->value();
+            $vatTotal = $vatTotal + $vatValue;
         }
 
         $isNetInvoice = false;
@@ -1115,12 +1123,12 @@ class Invoice
         }
 
         $document->setDocumentSummation(
-            $priceCalculation->getSum()->value(),
-            $priceCalculation->getSum()->value(),
-            $priceCalculation->getNettoSum()->value(),
+            $normalizeAmount($priceCalculation->getSum()->value()),
+            $normalizeAmount($priceCalculation->getSum()->value()),
+            $normalizeAmount($priceCalculation->getNettoSum()->value()),
             0.0, // zuschläge
             0.0, // rabatte
-            $priceCalculation->getNettoSum()->value(), // Steuerbarer Betrag (BT-109)
+            $normalizeAmount($priceCalculation->getNettoSum()->value()), // Steuerbarer Betrag (BT-109)
             $isNetInvoice ? $vatTotal : 0, // ausgewiesene steuer
             null, // Rundungsbetrag
             0.0 // Vorauszahlungen
@@ -1149,15 +1157,15 @@ class Invoice
                     null,
                     null
                 )
-                ->setDocumentPositionNetPrice($article['calculated']['nettoPrice'], 1, "C62") // C62 = Stück
-                ->setDocumentPositionGrossPrice($bruttoPreis, 1, "C62") // C62 = Stück
+                ->setDocumentPositionNetPrice($normalizeAmount($article['calculated']['nettoPrice']), 1, "C62") // C62 = Stück
+                ->setDocumentPositionGrossPrice($normalizeAmount($bruttoPreis), 1, "C62") // C62 = Stück
                 ->setDocumentPositionQuantity($article['quantity'], "H87")
                 // Do not pass the position tax amount as 4th parameter here:
                 // ->addDocumentPositionTax('S', 'VAT', $article['vat'], $article['calculated']['vatArray']['sum'])
                 // The 4th parameter writes ram:CalculatedAmount. For line-level VAT taxes this is obsolete
                 // and rejected by EN16931/XRechnung validators (CII-SR-182). Tax amounts are declared on document level.
                 ->addDocumentPositionTax('S', 'VAT', $article['vat'])
-                ->setDocumentPositionLineSummation($article['sum']);
+                ->setDocumentPositionLineSummation($normalizeAmount($article['sum']));
         }
 
         // payment stuff
