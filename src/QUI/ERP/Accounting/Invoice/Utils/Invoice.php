@@ -1139,7 +1139,11 @@ class Invoice
                 ->setDocumentPositionNetPrice($article['calculated']['nettoPrice'], 1, "C62") // C62 = Stück
                 ->setDocumentPositionGrossPrice($bruttoPreis, 1, "C62") // C62 = Stück
                 ->setDocumentPositionQuantity($article['quantity'], "H87")
-                ->addDocumentPositionTax('S', 'VAT', $article['vat'], $article['calculated']['vatArray']['sum'])
+                // Do not pass the position tax amount as 4th parameter here:
+                // ->addDocumentPositionTax('S', 'VAT', $article['vat'], $article['calculated']['vatArray']['sum'])
+                // The 4th parameter writes ram:CalculatedAmount. For line-level VAT taxes this is obsolete
+                // and rejected by EN16931/XRechnung validators (CII-SR-182). Tax amounts are declared on document level.
+                ->addDocumentPositionTax('S', 'VAT', $article['vat'])
                 ->setDocumentPositionLineSummation($article['sum']);
         }
 
