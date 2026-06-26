@@ -2265,8 +2265,8 @@
             <en><![CDATA[Invoice address]]></en>
         </locale>
         <locale name="user.profile.invoice.address.description">
-            <de><![CDATA[Wählen Sie bitte hier Ihre standard Rechnungs addresse aus.]]></de>
-            <en><![CDATA[Please select your standard invoice address.]]></en>
+            <de><![CDATA[Wählen Sie hier Ihre Rechnungs-Adresse aus.]]></de>
+            <en><![CDATA[Select your invoice address.]]></en>
         </locale>
 
         <locale name="invoice.settings.download.title">
