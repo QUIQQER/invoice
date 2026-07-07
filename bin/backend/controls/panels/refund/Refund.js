@@ -143,7 +143,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/refund/Refund', [
             var self = this;
 
             this.getElm().set('html', Mustache.render(templateRefundList, {
-                transactions: this.$transactions
+                transactions: this.$transactions,
+                textPaymentMethod: QUILocale.get(lg, 'journal.payments.paymentMethod')
             }));
 
             this.fireEvent('openTransactionList', [this]);
