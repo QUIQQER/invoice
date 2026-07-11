@@ -229,7 +229,12 @@ class Invoice
             try {
                 $Customer = QUI::getUsers()->get($customerId);
             } catch (QUI\Exception) {
-                $missing[] = 'customer_id';
+                if (
+                    $Invoice->getInvoiceType() !== QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+                    || $Invoice->getCustomer() === null
+                ) {
+                    $missing[] = 'customer_id';
+                }
             }
         }
 

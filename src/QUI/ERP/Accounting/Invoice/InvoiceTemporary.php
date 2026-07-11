@@ -389,6 +389,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     public function getCustomer(): ?QUI\ERP\User
     {
         $invoiceAddress = $this->getAttribute('invoice_address');
+        $customerData = $this->getAttribute('customer_data');
 
         try {
             $User = QUI::getUsers()->get($this->getAttribute('customer_id'));
@@ -399,7 +400,45 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
 
-            return null;
+            if (is_string($customerData)) {
+                $customerData = json_decode($customerData, true);
+            }
+
+            if (!is_array($customerData)) {
+                return null;
+            }
+
+            if (is_string($invoiceAddress)) {
+                $invoiceAddress = json_decode($invoiceAddress, true);
+            }
+
+            if (empty($customerData['uuid']) && empty($customerData['id'])) {
+                $customerData['id'] = $this->getAttribute('customer_id');
+            }
+
+            if (!empty($invoiceAddress)) {
+                $customerData['address'] = $invoiceAddress;
+            }
+
+            if (empty($customerData['country'])) {
+                if (!empty($invoiceAddress['country'])) {
+                    $customerData['country'] = $invoiceAddress['country'];
+                } else {
+                    try {
+                        $customerData['country'] = QUI\ERP\Defaults::getCountry()->getCode();
+                    } catch (\Exception) {
+                        $customerData['country'] = '';
+                    }
+                }
+            }
+
+            try {
+                return new QUI\ERP\User($customerData);
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::writeException($Exception);
+
+                return null;
+            }
         }
 
         $userData = [
@@ -1236,6 +1275,8 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $date = date('Y-m-d H:i:s'); // invoice date, to today
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
         $Customer = $this->getCustomer();
+        $customerId = $Customer?->getUUID()
+            ?: $this->getAttribute('customer_id');
         $Handler = Handler::getInstance();
 
         if (QUI\Permissions\Permission::hasPermission('quiqqer.invoice.changeDate')) {
@@ -1500,7 +1541,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 'ordered_by' => $orderedBy,
                 'ordered_by_name' => $orderedByName,
                 'contact_person' => $contactPerson,
-                'customer_id' => $this->getCustomer()->getUUID(),
+                'customer_id' => $customerId,
                 'customer_data' => json_encode($customerData),
 
                 // addresses
