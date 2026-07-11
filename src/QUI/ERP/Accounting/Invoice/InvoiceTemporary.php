@@ -394,51 +394,17 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         try {
             $User = QUI::getUsers()->get($this->getAttribute('customer_id'));
 
-            if (is_numeric($this->getAttribute('customer_id')) && $User->getUUID()) {
+            if (!$User->getUUID()) {
+                return $this->getCustomerFromSnapshot($customerData, $invoiceAddress);
+            }
+
+            if (is_numeric($this->getAttribute('customer_id'))) {
                 $this->setAttribute('customer_id', $User->getUUID());
             }
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
 
-            if (is_string($customerData)) {
-                $customerData = json_decode($customerData, true);
-            }
-
-            if (!is_array($customerData)) {
-                return null;
-            }
-
-            if (is_string($invoiceAddress)) {
-                $invoiceAddress = json_decode($invoiceAddress, true);
-            }
-
-            if (empty($customerData['uuid']) && empty($customerData['id'])) {
-                $customerData['id'] = $this->getAttribute('customer_id');
-            }
-
-            if (!empty($invoiceAddress)) {
-                $customerData['address'] = $invoiceAddress;
-            }
-
-            if (empty($customerData['country'])) {
-                if (!empty($invoiceAddress['country'])) {
-                    $customerData['country'] = $invoiceAddress['country'];
-                } else {
-                    try {
-                        $customerData['country'] = QUI\ERP\Defaults::getCountry()->getCode();
-                    } catch (\Exception) {
-                        $customerData['country'] = '';
-                    }
-                }
-            }
-
-            try {
-                return new QUI\ERP\User($customerData);
-            } catch (QUI\Exception $Exception) {
-                QUI\System\Log::writeException($Exception);
-
-                return null;
-            }
+            return $this->getCustomerFromSnapshot($customerData, $invoiceAddress);
         }
 
         $userData = [
@@ -510,6 +476,53 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $this->setAttribute('invoice_address', false);
 
         return null;
+    }
+
+    /**
+     * @param mixed $customerData
+     * @param mixed $invoiceAddress
+     */
+    private function getCustomerFromSnapshot(mixed $customerData, mixed $invoiceAddress): ?QUI\ERP\User
+    {
+        if (is_string($customerData)) {
+            $customerData = json_decode($customerData, true);
+        }
+
+        if (!is_array($customerData)) {
+            return null;
+        }
+
+        if (is_string($invoiceAddress)) {
+            $invoiceAddress = json_decode($invoiceAddress, true);
+        }
+
+        if (empty($customerData['uuid']) && empty($customerData['id'])) {
+            $customerData['id'] = $this->getAttribute('customer_id');
+        }
+
+        if (!empty($invoiceAddress)) {
+            $customerData['address'] = $invoiceAddress;
+        }
+
+        if (empty($customerData['country'])) {
+            if (!empty($invoiceAddress['country'])) {
+                $customerData['country'] = $invoiceAddress['country'];
+            } else {
+                try {
+                    $customerData['country'] = QUI\ERP\Defaults::getCountry()->getCode();
+                } catch (\Exception) {
+                    $customerData['country'] = '';
+                }
+            }
+        }
+
+        try {
+            return new QUI\ERP\User($customerData);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+
+            return null;
+        }
     }
 
     /**
@@ -1071,7 +1084,9 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 'paid_date' => $paidDate,
                 'paid_data' => $paidData,
                 'processing_status' => $processingStatus,
-                'customer_data' => '',   // nicht in gui
+                'customer_data' => $this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+                    ? $this->getAttribute('customer_data')
+                    : '', // nicht in gui
 
                 // shipping
                 'shipping_id' => $shippingId,
