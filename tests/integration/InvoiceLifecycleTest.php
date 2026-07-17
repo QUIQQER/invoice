@@ -17,6 +17,7 @@ use QUI\ERP\Accounting\Invoice\PaymentReceiver;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUI\Mail\Mailer;
 use QUI\Smarty\Collector;
+use ReflectionMethod;
 use ReflectionProperty;
 use Throwable;
 
@@ -183,7 +184,13 @@ class InvoiceLifecycleTest extends TestCase
         self::assertFalse($Draft->getHistory()->isEmpty());
         self::assertSame(1, $Draft->getArticles()->count());
         self::assertSame(11.9, $Draft->getPriceCalculation()->getSum()->value());
-        self::assertSame($Draft, $Draft->getView()->getInvoice());
+        $DraftView = $Draft->getView();
+        self::assertSame($Draft, $DraftView->getInvoice());
+        self::assertTrue($DraftView->isDraft());
+        self::assertNotSame('', $DraftView->getDownloadLink());
+        self::assertNotSame('', $DraftView->getTransactionText());
+        self::assertStringContainsString('<style>', $DraftView->previewOnlyArticles());
+        self::assertIsNotString($Draft->getArticles()->getCalculations()['subSum']);
         self::assertArrayHasKey('entityType', $Draft->toArray());
         self::assertFalse($Draft->isPaid());
         self::assertArrayHasKey('toPay', $Draft->getPaidStatusInformation());
@@ -236,6 +243,9 @@ class InvoiceLifecycleTest extends TestCase
         self::assertSame('DE', $Invoice->getInvoiceAddress()?->getAttribute('country'));
         self::assertSame('Berlin', $Invoice->getDeliveryAddress()?->getAttribute('city'));
         self::assertSame($Invoice, $Invoice->getView()->getInvoice());
+        self::assertFalse($Invoice->getView()->isDraft());
+        self::assertNotSame('', $Invoice->getView()->getDownloadLink());
+        self::assertIsString($Invoice->getView()->toHTML());
         self::assertSame(11.9, $Invoice->getPriceCalculation()->getSum()->value());
         self::assertArrayHasKey('prefixedNumber', $Invoice->toArray());
         self::assertFalse($Invoice->getComments()->isEmpty());
@@ -296,7 +306,11 @@ class InvoiceLifecycleTest extends TestCase
         self::assertNotSame('', OutputProviderInvoice::getMailSubject($Invoice->getUUID()));
         self::assertNotSame('', OutputProviderInvoice::getMailBody($Invoice->getUUID()));
         self::assertNotSame('', OutputProviderInvoice::dateFormat('2026-07-17', $Invoice->getCustomer()->getLocale()));
+        self::assertNotSame('', OutputProviderInvoice::dateFormat(null, $Invoice->getCustomer()->getLocale()));
         self::assertArrayHasKey('companyOrName', OutputProviderInvoice::getCustomerVariables($Invoice->getCustomer()));
+
+        $QrCodeMethod = new ReflectionMethod(OutputProviderInvoice::class, 'getEpcQrCodeImageImgSrc');
+        self::assertFalse($QrCodeMethod->invoke(null, $Invoice));
 
         $templateData = OutputProviderInvoice::getTemplateData($Invoice->getUUID());
         self::assertSame($Invoice->getUUID(), $templateData['this']->getInvoice()->getUUID());
@@ -366,6 +380,7 @@ class InvoiceLifecycleTest extends TestCase
 
         $CreditNote = $CreditNoteDraft->post($SystemUser);
         self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE, $CreditNote->getInvoiceType());
+        self::assertNotSame('', $CreditNote->getView()->getDownloadLink());
         self::assertNotSame('', OutputProviderCreditNote::getMailSubject($CreditNote->getUUID()));
         self::assertNotSame('', OutputProviderCreditNote::getMailBody($CreditNote->getUUID()));
         self::assertInstanceOf(
@@ -389,6 +404,7 @@ class InvoiceLifecycleTest extends TestCase
         $CancellationUuid = $CopiedInvoice->cancellation('Lifecycle cancellation', $SystemUser);
         $Cancellation = $Handler->getInvoiceByHash($CancellationUuid);
         self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_REVERSAL, $Cancellation->getInvoiceType());
+        self::assertNotSame('', $Cancellation->getView()->getDownloadLink());
         self::assertNotSame('', OutputProviderCancelled::getMailSubject($Cancellation->getUUID()));
         self::assertNotSame('', OutputProviderCancelled::getMailBody($Cancellation->getUUID()));
     }
