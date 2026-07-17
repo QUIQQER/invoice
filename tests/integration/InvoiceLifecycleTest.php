@@ -10,6 +10,7 @@ use QUI\ERP\Accounting\Invoice\Factory;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
+use QUI\ERP\Accounting\Invoice\McpProvider;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
@@ -263,6 +264,16 @@ class InvoiceLifecycleTest extends TestCase
         $Invoice->addComment('', $SystemUser);
         $Invoice->setCustomer(['id' => 'ignored']);
 
+        $McpProvider = new McpProvider();
+        $parseInvoice = new ReflectionMethod($McpProvider, 'parseInvoice');
+        $mcpInvoice = $parseInvoice->invoke($McpProvider, $Invoice, true);
+        self::assertSame($Invoice->getUUID(), $mcpInvoice['uuid']);
+        self::assertCount(1, $mcpInvoice['articles']['articles']);
+        self::assertArrayNotHasKey('articles', $parseInvoice->invoke($McpProvider, $Invoice, false));
+
+        $getInvoice = new ReflectionMethod($McpProvider, 'getInvoice');
+        self::assertSame($Invoice->getUUID(), $getInvoice->invoke($McpProvider, $Invoice->getUUID())->getUUID());
+
         $placeholders = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoicePlaceholders($Invoice);
         self::assertSame($Invoice->getUUID(), $placeholders['%HASH%']);
         self::assertSame($Invoice->getPrefixedNumber(), $placeholders['%INO%']);
@@ -417,8 +428,38 @@ class InvoiceLifecycleTest extends TestCase
 
         $CopiedDraft = $Invoice->copy($SystemUser, $this->globalProcessId);
         $CopiedDraft->setAttribute(InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL, 1);
+
+        $applyTemporaryInvoiceData = new ReflectionMethod($McpProvider, 'applyTemporaryInvoiceData');
+        $applyTemporaryInvoiceData->invoke($McpProvider, $CopiedDraft, [
+            'customer_id' => $User->getUUID(),
+            'invoice_address_id' => $Address->getUUID(),
+            'invoice_address' => $Address->toJSON(),
+            'addressDelivery' => json_encode([
+                'firstname' => 'MCP',
+                'lastname' => 'Delivery',
+                'street_no' => 'MCP-Weg 4',
+                'zip' => '10115',
+                'city' => 'Berlin',
+                'country' => 'DE'
+            ]),
+            'articles' => [[
+                'id' => 2,
+                'articleNo' => 'MCP-ARTICLE',
+                'title' => 'MCP updated article',
+                'unitPrice' => 5,
+                'quantity' => 1,
+                'vat' => 19
+            ]],
+            'currency' => 'EUR',
+            'currencyRate' => 1,
+            'service_period' => '2026-07-01 - 2026-07-31',
+            'project_name' => 'MCP update'
+        ]);
+
         self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY, $CopiedDraft->getInvoiceType());
         self::assertSame($this->globalProcessId, $CopiedDraft->getGlobalProcessId());
+        self::assertSame('MCP update', $CopiedDraft->getAttribute('project_name'));
+        self::assertSame(1, $CopiedDraft->getArticles()->count());
 
         $CopiedInvoice = $CopiedDraft->post($SystemUser);
         $CancellationUuid = $CopiedInvoice->cancellation('Lifecycle cancellation', $SystemUser);
