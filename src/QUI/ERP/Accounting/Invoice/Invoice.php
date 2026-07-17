@@ -1989,10 +1989,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * this method is there to comply with the interface
      * customer is not changeable at an invoice
      *
-     * @param $User
+     * @param array<mixed>|User $User
      * @return void
      */
-    public function setCustomer($User)
+    public function setCustomer(array | User $User): void
     {
         // customer is not changeable at an invoice
     }
