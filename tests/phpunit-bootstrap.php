@@ -15,6 +15,9 @@ require_once __DIR__ . '/stubs/Mcp/Schema/Result/CallToolResult.php';
 require_once __DIR__ . '/stubs/QUI/AI/MCP/ProviderInterface.php';
 require_once __DIR__ . '/stubs/QUI/AI/MCP/Server.php';
 require_once __DIR__ . '/stubs/QUI/AI/MCP/ToolHelper.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Shipping/Api/ShippingInterface.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Shipping/Types/ShippingEntry.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Shipping/Shipping.php';
 
 if (file_exists(__DIR__ . '/../../../../bootstrap.php')) {
     require_once __DIR__ . '/../../../../bootstrap.php';

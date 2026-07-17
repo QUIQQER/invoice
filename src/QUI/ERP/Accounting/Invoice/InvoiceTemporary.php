@@ -2690,6 +2690,11 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 }
             }
 
+            // ERP\User treats "id" as a legacy numeric ID, so preserve modern UUID customer identifiers explicitly.
+            if (!isset($User['uuid']) && isset($User['id'])) {
+                $User['uuid'] = (string)$User['id'];
+            }
+
             $customerId = (new QUI\ERP\User($User))->getUUID();
         } elseif ($User instanceof QUI\ERP\User) {
             $customerId = $User->getUUID();

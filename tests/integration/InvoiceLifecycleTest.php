@@ -135,6 +135,8 @@ class InvoiceLifecycleTest extends TestCase
         $Draft->setAttribute('payment_method', -1);
         $Draft->setAttribute(InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL, 1);
         $Draft->setCurrency(QUI\ERP\Defaults::getCurrency()->getCode());
+        $Draft->setShipping(new QUI\ERP\Shipping\Types\ShippingEntry());
+        self::assertInstanceOf(QUI\ERP\Shipping\Types\ShippingEntry::class, $Draft->getShipping());
         $Draft->setDeliveryAddress([
             'firstname' => 'Delivery',
             'lastname' => 'Customer',
@@ -249,6 +251,7 @@ class InvoiceLifecycleTest extends TestCase
         self::assertSame('Lifecycle', $Invoice->getCustomer()->getAttribute('firstname'));
         self::assertSame('PAY-123', $Invoice->getPaymentData('reference'));
         self::assertSame('phpunit', $Invoice->getCustomDataEntry('source'));
+        self::assertArrayHasKey('source', $Invoice->getCustomData());
         self::assertSame(['draft' => true], $Invoice->getData('integration'));
         self::assertSame('DE', $Invoice->getInvoiceAddress()?->getAttribute('country'));
         self::assertSame('Berlin', $Invoice->getDeliveryAddress()?->getAttribute('city'));
@@ -269,6 +272,7 @@ class InvoiceLifecycleTest extends TestCase
         $Invoice->calculatePayments();
         $Invoice->setPaymentStatus(QUI\ERP\Constants::PAYMENT_STATUS_OPEN);
         $Invoice->setProcessingStatus(-1);
+        self::assertNull($Invoice->getProcessingStatus());
         $Invoice->addComment('', $SystemUser);
         $Invoice->setCustomer(['id' => 'ignored']);
 
@@ -411,6 +415,8 @@ class InvoiceLifecycleTest extends TestCase
         EventHandler::onFrontendUsersAddressTop($Collector, $User);
         self::assertStringContainsString('<style>', $Collector->getContent());
         EventHandler::onUserSaveBegin($User);
+        EventHandler::onPackageSetup(QUI::getPackage('quiqqer/core'));
+        EventHandler::onProductsPackageSetup(QUI::getPackage('quiqqer/core'));
 
         $CreditNoteDraft = $Invoice->createCreditNote($SystemUser);
         self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE, $CreditNoteDraft->getInvoiceType());
@@ -521,6 +527,42 @@ class InvoiceLifecycleTest extends TestCase
         EventHandler::onTransactionCreate($DraftTransaction);
         EventHandler::onTransactionStatusChange($DraftTransaction);
         $TransactionDraft->addTransaction($DraftTransaction);
+        $TransactionDraft->linkTransaction($LinkedTransaction);
+
+        $TransactionDraft->setCustomer($User);
+        $TransactionDraft->setAttribute('invoice_address_id', $Address->getUUID());
+        $TransactionDraft->setAttribute('invoice_address', $Address->toJSON());
+        $TransactionDraft->setAttribute('payment_method', -1);
+        $TransactionDraft->setAttribute(InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL, 1);
+        $TransactionDraft->addArticle($this->createArticle('TEMP-COPY', 3));
+        $TransactionDraft->save($SystemUser);
+
+        $TemporaryCopy = $TransactionDraft->copy($SystemUser, true);
+        $TemporaryCopy->setAttribute(InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL, 1);
+        $InvoiceFromTemporaryCopy = $TemporaryCopy->createInvoice($SystemUser);
+        self::assertInstanceOf(Invoice::class, $InvoiceFromTemporaryCopy);
+
+        $ArrayCustomerDraft = Factory::getInstance()->createInvoice($SystemUser, $this->globalProcessId);
+        $ArrayCustomerDraft->setCustomer(null);
+        self::assertFalse($ArrayCustomerDraft->getAttribute('customer_id'));
+        $ArrayCustomerDraft->setCustomer([
+            'id' => $User->getUUID(),
+            'address' => $Address->getAttributes()
+        ]);
+        self::assertSame($User->getUUID(), $ArrayCustomerDraft->getAttribute('customer_id'));
+        $ArrayCustomerDraft->setCustomer($ArrayCustomerDraft->getCustomer());
+
+        $ArrayCustomerDraft->setCustomer([
+            'id' => QUI\Utils\Uuid::get(),
+            'address' => [
+                'firstname' => 'Snapshot',
+                'lastname' => 'Customer',
+                'street_no' => 'Snapshot-Weg 6',
+                'zip' => '10115',
+                'city' => 'Berlin',
+                'country' => 'DE'
+            ]
+        ]);
 
         self::assertNotEmpty(
             QUI\ERP\Accounting\Invoice\Utils\Invoice::getTransactionsByInvoice($Invoice)
