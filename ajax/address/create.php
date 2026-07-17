@@ -20,6 +20,12 @@ QUI::getAjax()->registerFunction(
             json_decode($data, true)
         );
 
+        if ($Address === null) {
+            throw new QUI\Exception(
+                QUI::getLocale()->get('quiqqer/invoice', 'exception.invoice.address.create')
+            );
+        }
+
         $User->setAttribute('quiqqer.erp.address', $Address->getUUID());
         $User->save();
     },

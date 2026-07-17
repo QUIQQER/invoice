@@ -14,12 +14,21 @@ QUI::getAjax()->registerFunction(
     function ($invoiceId, $reason) {
         $Settings = QUI\ERP\Accounting\Invoice\Settings::getInstance();
         $currentSetting = $Settings->sendMailAtInvoiceCreation();
+        $Invoice = InvoiceUtils::getInvoiceByString($invoiceId);
+
+        if (!$Invoice instanceof QUI\ERP\Accounting\Invoice\Invoice) {
+            throw new QUI\Exception(
+                QUI::getLocale()->get('quiqqer/invoice', 'exception.invoice.reversal.invalidEntity')
+            );
+        }
+
         $Settings->set('invoice', 'sendMailAtCreation', false);
 
-        $Reversal = InvoiceUtils::getInvoiceByString($invoiceId)->reversal($reason);
-        $Settings->set('invoice', 'sendMailAtCreation', $currentSetting);
-
-        return $Reversal->getUUID();
+        try {
+            return $Invoice->reversal($reason)->getUUID();
+        } finally {
+            $Settings->set('invoice', 'sendMailAtCreation', $currentSetting);
+        }
     },
     ['invoiceId', 'reason'],
     'Permission::checkAdminUser'

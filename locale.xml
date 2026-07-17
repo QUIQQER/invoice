@@ -1413,6 +1413,16 @@
             <en><![CDATA[Create invoice address]]></en>
         </locale>
 
+        <locale name="exception.invoice.address.create">
+            <de><![CDATA[Die Rechnungsadresse konnte nicht angelegt werden.]]></de>
+            <en><![CDATA[The invoice address could not be created.]]></en>
+        </locale>
+
+        <locale name="exception.invoice.reversal.invalidEntity">
+            <de><![CDATA[Nur gebuchte Rechnungen können storniert werden.]]></de>
+            <en><![CDATA[Only posted invoices can be reversed.]]></en>
+        </locale>
+
         <locale name="dialog.edit.description.title">
             <de><![CDATA[Beschreibung von Artikel: [articleNo] [articleTitle]]]></de>
             <en><![CDATA[Description of article: [articleNo] [articleTitle]]]></en>

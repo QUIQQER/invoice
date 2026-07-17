@@ -584,12 +584,18 @@ class OutputProviderInvoice implements OutputProviderInterface
             return false;
         }
 
+        $Customer = $Invoice->getCustomer();
+
+        if ($Customer === null) {
+            return false;
+        }
+
         $purposeText = QUI::getLocale()->get(
             'quiqqer/invoice',
             'OutputProvider.epc_qr_code_purpose',
             [
                 'invoiceNo' => $Invoice->getPrefixedNumber(),
-                'customerNo' => $Invoice->getCustomer()->getCustomerNo(),
+                'customerNo' => $Customer->getCustomerNo(),
             ]
         );
 

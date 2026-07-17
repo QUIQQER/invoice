@@ -349,12 +349,28 @@ class EventHandler
         // @todo
         $customerFiles = $Invoice->getCustomerFiles();
 
+        if (empty($customerFiles)) {
+            return;
+        }
+
+        $Customer = $Invoice->getCustomer();
+
+        if ($Customer === null) {
+            QUI\System\Log::addError(
+                'Customer files could not be attached because invoice '
+                . $Invoice->getUUID()
+                . ' has no customer.'
+            );
+
+            return;
+        }
+
         foreach ($customerFiles as $entry) {
             if (empty($entry['options']['attachToEmail'])) {
                 continue;
             }
 
-            $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Invoice->getCustomer()->getUUID(), $entry['hash']);
+            $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Customer->getUUID(), $entry['hash']);
 
             if ($file) {
                 $filePath = $file['dirname'] . '/' . $file['basename'];
