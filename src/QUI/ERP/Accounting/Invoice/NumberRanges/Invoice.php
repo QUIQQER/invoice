@@ -8,6 +8,7 @@ namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 
 use QUI;
 use QUI\ERP\Api\NumberRangeInterface;
+use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\Exception;
 
 use function is_numeric;
@@ -41,7 +42,7 @@ class Invoice implements NumberRangeInterface
      */
     public function getRange(): int
     {
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
         $invoiceId = $Config->getValue('invoice', 'invoiceCurrentIdIndex');
 
         if (empty($invoiceId)) {
@@ -57,7 +58,7 @@ class Invoice implements NumberRangeInterface
      */
     public function setRange(int $range): void
     {
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
         $Config->set('invoice', 'invoiceCurrentIdIndex', $range);
         $Config->save();
     }

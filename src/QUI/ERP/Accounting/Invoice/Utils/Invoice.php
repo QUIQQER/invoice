@@ -11,6 +11,7 @@ use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
+use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\ERP\Currency\Currency;
 use QUI\ExceptionStack;
 use QUI\ERP\Defaults;
@@ -67,7 +68,7 @@ class Invoice
         }
 
         try {
-            return $Invoices->getInvoiceByHash($str);
+            return $Invoices->getInvoiceByHash((string)$str);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
@@ -88,19 +89,19 @@ class Invoice
     }
 
     /**
-     * @param $str
+     * @param int|string $str
      *
      * @return InvoiceTemporary
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public static function getTemporaryInvoiceByString($str): InvoiceTemporary
+    public static function getTemporaryInvoiceByString(int | string $str): InvoiceTemporary
     {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
         try {
-            return $Invoices->getTemporaryInvoiceByHash($str);
+            return $Invoices->getTemporaryInvoiceByHash((string)$str);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
@@ -118,7 +119,7 @@ class Invoice
      * Return all fields, attributes which are still missing to post the invoice
      *
      * @param InvoiceTemporary $Invoice
-     * @return array
+     * @return array<int, string>
      *
      * @throws ExceptionStack
      * @throws QUI\Exception
@@ -177,7 +178,7 @@ class Invoice
      * - if something is missing in the address
      *
      * @param InvoiceTemporary $Invoice
-     * @return array
+     * @return array<int, string>
      *
      * @throws QUI\Exception
      * @todo better address check
@@ -229,7 +230,12 @@ class Invoice
             try {
                 $Customer = QUI::getUsers()->get($customerId);
             } catch (QUI\Exception) {
-                $missing[] = 'customer_id';
+                if (
+                    $Invoice->getInvoiceType() !== QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+                    || $Invoice->getCustomer() === null
+                ) {
+                    $missing[] = 'customer_id';
+                }
             }
         }
 
@@ -284,8 +290,8 @@ class Invoice
     }
 
     /**
-     * @param array $address
-     * @return array
+     * @param array<string, mixed> $address
+     * @return list<string>
      */
     public static function getMissingAddressData(array $address): array
     {
@@ -381,8 +387,8 @@ class Invoice
     }
 
     /**
-     * @param array|string $articles
-     * @return array|string
+     * @param array<string, mixed>|string $articles
+     * @return array<string, mixed>|string
      */
     public static function formatArticlesArray(array | string $articles): array | string
     {
@@ -420,7 +426,7 @@ class Invoice
         }
 
         if ($isString) {
-            return json_encode($articles);
+            return (string)json_encode($articles);
         }
 
         return $articles;
@@ -429,15 +435,15 @@ class Invoice
     /**
      * Verification of a field, value can not be empty
      *
-     * @param $value
-     * @param array|string $eMessage
+     * @param mixed $value
+     * @param array<int|string, mixed>|string $eMessage
      * @param int $eCode - optional
-     * @param array $eContext - optional
+     * @param array<int|string, mixed> $eContext - optional
      *
      * @throws Exception
      */
     protected static function verificateField(
-        $value,
+        mixed $value,
         array | string $eMessage = 'Error occurred',
         int $eCode = 0,
         array $eContext = []
@@ -461,7 +467,7 @@ class Invoice
     ): array {
         if ($Locale === null) {
             try {
-                $Locale = $Invoice->getCustomer()->getLocale();
+                $Locale = $Invoice->getCustomer()?->getLocale();
             } catch (QUI\ERP\Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
             }
@@ -494,14 +500,17 @@ class Invoice
 
         try {
             $Customer = $Invoice->getCustomer();
-            $Address = $Customer->getAddress();
 
-            $company = trim((string)$Address->getAttribute('company'));
-            $firstname = trim((string)$Address->getAttribute('firstname'));
-            $lastname = trim((string)$Address->getAttribute('lastname'));
-            $customerName = trim($Customer->getInvoiceName());
-            $customerNo = trim($Customer->getCustomerNo());
-            $customerId = trim($Customer->getUUID());
+            if ($Customer !== null) {
+                $Address = $Customer->getAddress();
+
+                $company = trim((string)$Address->getAttribute('company'));
+                $firstname = trim((string)$Address->getAttribute('firstname'));
+                $lastname = trim((string)$Address->getAttribute('lastname'));
+                $customerName = trim($Customer->getInvoiceName());
+                $customerNo = trim($Customer->getCustomerNo());
+                $customerId = trim($Customer->getUUID());
+            }
         } catch (QUI\ERP\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         } catch (QUI\Exception $Exception) {
@@ -546,7 +555,7 @@ class Invoice
     ): string {
         if ($Locale === null) {
             try {
-                $Locale = $Invoice->getCustomer()->getLocale();
+                $Locale = $Invoice->getCustomer()?->getLocale();
             } catch (QUI\ERP\Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
             }
@@ -562,7 +571,9 @@ class Invoice
             $fileName = str_replace($placeholder, $value, $fileName);
         }
 
-        return QUI\Utils\Security\Orthos::clearFilename($fileName);
+        $fileName = QUI\Utils\Security\Orthos::clearFilename($fileName);
+
+        return is_string($fileName) ? $fileName : '';
     }
 
     /**
@@ -577,9 +588,12 @@ class Invoice
         $buyerEmail = '';
 
         try {
-            $buyerEmail = (string)QUI::getPackage('quiqqer/invoice')
-                ->getConfig()
+            $configuredBuyerEmail = Settings::getConfig()
                 ->getValue('invoice', 'electronicInvoiceBuyerEmailFallback');
+
+            if (is_string($configuredBuyerEmail)) {
+                $buyerEmail = $configuredBuyerEmail;
+            }
         } catch (\Throwable $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
@@ -628,11 +642,12 @@ class Invoice
     /**
      * Return the time for payment date as unix timestamp
      *
-     * @param Invoice|InvoiceTemporary $Invoice
+     * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
      * @return int - Unix Timestamp
      */
-    public static function getInvoiceTimeForPaymentDate(InvoiceTemporary | Invoice $Invoice): int
-    {
+    public static function getInvoiceTimeForPaymentDate(
+        InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice
+    ): int {
         $timeForPayment = $Invoice->getAttribute('time_for_payment');
 
         if ($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
@@ -649,9 +664,9 @@ class Invoice
     }
 
     /**
-     * @param array|string $vatArray
+     * @param array<int|string, mixed>|string $vatArray
      * @param QUI\ERP\Currency\Currency $Currency
-     * @return array
+     * @return array<int|string, string>
      */
     public static function getVatTextArrayFromVatArray(
         array | string $vatArray,
@@ -671,8 +686,8 @@ class Invoice
     }
 
     /**
-     * @param array|string $vatArray
-     * @return array
+     * @param array<int|string, mixed>|string $vatArray
+     * @return array<int|string, mixed>
      */
     public static function getVatSumArrayFromVatArray(array | string $vatArray): array
     {
@@ -692,7 +707,7 @@ class Invoice
     /**
      * Return the vat sum from a var array of an invoice
      *
-     * @param array|string|null $vatArray
+     * @param array<int|string, mixed>|string|null $vatArray
      * @return int|float
      */
     public static function getVatSumFromVatArray(array | string | null $vatArray): float | int
@@ -711,7 +726,7 @@ class Invoice
      * or returns all transactions related to an invoice
      *
      * @param QUI\ERP\Accounting\Invoice\Invoice|integer|string $Invoice - Invoice or Invoice ID
-     * @return array
+     * @return array<int|string, mixed>
      */
     public static function getTransactionsByInvoice(QUI\ERP\Accounting\Invoice\Invoice | int | string $Invoice): array
     {
@@ -737,7 +752,7 @@ class Invoice
      */
     public static function addressRequirement(): bool
     {
-        return !!QUI::getPackage('quiqqer/invoice')->getConfig()->get('invoice', 'invoiceAddressRequirement');
+        return !!Settings::getConfig()->get('invoice', 'invoiceAddressRequirement');
     }
 
     /**
@@ -749,7 +764,7 @@ class Invoice
      */
     public static function addressRequirementThreshold(): float
     {
-        $threshold = QUI::getPackage('quiqqer/invoice')->getConfig()->get(
+        $threshold = Settings::getConfig()->get(
             'invoice',
             'invoiceAddressRequirementThreshold'
         );
@@ -786,7 +801,7 @@ class Invoice
             if ($type === 'date' && !empty($value['date'])) {
                 $date = self::parseServicePeriodDate($value['date']);
 
-                return json_encode([
+                return (string)json_encode([
                     'type' => 'date',
                     'date' => $date->format('Y-m-d')
                 ]);
@@ -800,7 +815,7 @@ class Invoice
                     throw new \InvalidArgumentException('The service period end date must not be before the start date.');
                 }
 
-                return json_encode([
+                return (string)json_encode([
                     'type' => 'period',
                     'start' => $start->format('Y-m-d'),
                     'end' => $end->format('Y-m-d')
@@ -816,17 +831,17 @@ class Invoice
             return '';
         }
 
-        $parts = preg_split('/\s+-\s+/', $value);
+        $parts = (array)preg_split('/\s+-\s+/', $value);
 
         if (count($parts) === 2) {
-            $start = self::parseServicePeriodDate($parts[0]);
-            $end = self::parseServicePeriodDate($parts[1]);
+            $start = self::parseServicePeriodDate((string)$parts[0]);
+            $end = self::parseServicePeriodDate((string)$parts[1]);
 
             if ($end < $start) {
                 throw new \InvalidArgumentException('The service period end date must not be before the start date.');
             }
 
-            return json_encode([
+            return (string)json_encode([
                 'type' => 'period',
                 'start' => $start->format('Y-m-d'),
                 'end' => $end->format('Y-m-d')
@@ -835,12 +850,15 @@ class Invoice
 
         $date = self::parseServicePeriodDate($value);
 
-        return json_encode([
+        return (string)json_encode([
             'type' => 'date',
             'date' => $date->format('Y-m-d')
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getServicePeriodData(
         InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice
     ): array {
@@ -905,7 +923,7 @@ class Invoice
 
     protected static function formatServicePeriodDate(string $date, QUI\Locale $Locale): string
     {
-        return $Locale->getDateFormatter()->format(strtotime($date));
+        return (string)$Locale->getDateFormatter()->format((int)strtotime($date));
     }
 
     /**
@@ -915,7 +933,7 @@ class Invoice
      */
     public static function getElectronicInvoice(
         InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice,
-        $type = ZugferdProfiles::PROFILE_EN16931
+        int $type = ZugferdProfiles::PROFILE_EN16931
     ): ZugferdDocumentBuilder {
         $document = ZugferdDocumentBuilder::CreateNew($type);
         $Articles = $Invoice->getArticles();
@@ -958,12 +976,19 @@ class Invoice
             $document->setDocumentSupplyChainEvent($date);
         }
 
+        $getCompanySetting = static function (string $setting): string {
+            $value = Defaults::conf('company', $setting);
+
+            return is_string($value) ? $value : '';
+        };
+
         // ids
-        $taxId = Defaults::conf('company', 'taxId');
-        $taxNumber = Defaults::conf('company', 'taxNumber');
+        $taxId = $getCompanySetting('taxId');
+        $taxNumber = $getCompanySetting('taxNumber');
 
         // seller / owner
-        $document->setDocumentSeller(Defaults::conf('company', 'name'));
+        $companyName = $getCompanySetting('name');
+        $document->setDocumentSeller($companyName);
 
         // @todo global seller id
         //  ->addDocumentSellerGlobalId("4000001123452", "0088");
@@ -977,7 +1002,7 @@ class Invoice
         }
 
         // address
-        $country = Defaults::conf('company', 'country');
+        $country = $getCompanySetting('country');
 
         if (strlen($country) !== 2) {
             $DefaultLocale = QUI::getSystemLocale();
@@ -993,28 +1018,34 @@ class Invoice
         if (strlen($country) !== 2) {
             $country = '';
         }
-
+        $street = $getCompanySetting('street');
+        $zipCode = $getCompanySetting('zipCode');
+        $city = $getCompanySetting('city');
 
         $document->setDocumentSellerAddress(
-            Defaults::conf('company', 'street'),
+            $street,
             "",
             "",
-            Defaults::conf('company', 'zipCode'),
-            Defaults::conf('company', 'city'),
+            $zipCode,
+            $city,
             $country
         );
 
+        $email = $getCompanySetting('email');
         $document->setDocumentSellerCommunication(
             ZugferdElectronicAddressScheme::UNECE3155_EM,
-            Defaults::conf('company', 'email')
+            $email
         );
 
+        $owner = $getCompanySetting('owner');
+        $phone = $getCompanySetting('phone');
+        $fax = $getCompanySetting('fax');
         $document->setDocumentSellerContact(
-            Defaults::conf('company', 'owner'), // @todo contact person
-            '',                         // @todo contact department
-            Defaults::conf('company', 'phone'), // @todo contact phone
-            Defaults::conf('company', 'fax'),   // @todo contact fax
-            Defaults::conf('company', 'email')  // @todo contact email
+            $owner, // @todo contact person
+            '',     // @todo contact department
+            $phone, // @todo contact phone
+            $fax,   // @todo contact fax
+            $email  // @todo contact email
         );
 
         // bank stuff
@@ -1035,16 +1066,29 @@ class Invoice
             && class_exists('QUI\ERP\Payments\SEPA\Transactions')
             && QUI\ERP\Payments\SEPA\Payment::class === $paymentType
         ) {
-            $paymentData = QUI\ERP\Payments\SEPA\Transactions::parsePaymentData($Invoice->getCustomer(), $Invoice);
+            try {
+                $SepaCustomer = $Invoice->getCustomer();
 
-            $document->addDocumentPaymentMeanToDirectDebit(
-                $paymentData['account']['iban'],
-                $paymentData['account']['id']
-            );
+                if ($SepaCustomer !== null) {
+                    $paymentData = QUI\ERP\Payments\SEPA\Transactions::parsePaymentData(
+                        $SepaCustomer,
+                        $Invoice
+                    );
 
-            $buyerIban = $paymentData['account']['iban'];
-            $buyerIban = str_replace(' ', '', $buyerIban);
-            $buyerIban = trim($buyerIban);
+                    if (is_array($paymentData)) {
+                        $document->addDocumentPaymentMeanToDirectDebit(
+                            $paymentData['account']['iban'],
+                            $paymentData['account']['id']
+                        );
+
+                        $buyerIban = $paymentData['account']['iban'];
+                        $buyerIban = str_replace(' ', '', $buyerIban);
+                        $buyerIban = trim($buyerIban);
+                    }
+                }
+            } catch (\Throwable $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+            }
         }
 
 
@@ -1063,6 +1107,10 @@ class Invoice
 
         // customer
         $Customer = $Invoice->getCustomer();
+
+        if ($Customer === null) {
+            throw new QUI\ERP\Exception('Electronic invoices require a customer.');
+        }
 
         $document
             ->setDocumentBuyer($Customer->getInvoiceName(), $Customer->getCustomerNo())

@@ -20,6 +20,7 @@ use QUI\ERP\Products\Handler\Search;
 use QUI\Mail\Mailer;
 use QUI\Package\Package;
 use QUI\Smarty\Collector;
+use QUI\Utils\Doctrine;
 
 use function dirname;
 use function file_exists;
@@ -27,7 +28,6 @@ use function file_get_contents;
 use function in_array;
 use function is_numeric;
 use function str_replace;
-use function strtolower;
 use function strtotime;
 
 /**
@@ -71,7 +71,13 @@ class EventHandler
             $result = [];
 
             foreach ($languages as $language) {
-                $result[$language] = QUI::getLocale()->getByLang($language, 'quiqqer/invoice', $key);
+                $translation = QUI::getLocale()->getByLang($language, 'quiqqer/invoice', $key);
+
+                if (!is_string($translation)) {
+                    $translation = '';
+                }
+
+                $result[$language] = $translation;
             }
 
             return $result;
@@ -207,12 +213,16 @@ class EventHandler
 
     /**
      * @param QUI\Users\User $User
-     * @throws QUi\Exception
+     * @throws QUI\Exception
      */
     public static function onUserSaveBegin(QUI\Users\User $User): void
     {
         $Package = QUI::getPackage('quiqqer/frontend-users');
         $Config = $Package->getConfig();
+
+        if ($Config === null) {
+            throw new QUI\Exception('The quiqqer/frontend-users package configuration is not available.');
+        }
 
         if (!$Config->get('userProfile', 'useAddressManagement')) {
             return;
@@ -287,7 +297,7 @@ class EventHandler
      *
      * Used to attach customer files that are attached to an invoice to the invoice mail
      *
-     * @param $entityId
+     * @param int|string $entityId
      * @param string $entityType
      * @param string $recipient
      * @param Mailer $Mailer
@@ -299,7 +309,7 @@ class EventHandler
      * @throws QUI\Permissions\Exception
      */
     public static function onQuiqqerErpOutputSendMailBefore(
-        $entityId,
+        int | string $entityId,
         string $entityType,
         string $recipient,
         QUI\Mail\Mailer $Mailer,
@@ -323,13 +333,13 @@ class EventHandler
         }
 
         // extend pdf with e-invoice
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
 
         if (file_exists($mailFile) && $Config->getValue('invoice', 'xInvoiceAttachment')) {
             $xmlFile = str_replace('.pdf', '.xml', $mailFile);
             $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
                 $Invoice,
-                $Config->getValue('invoice', 'xInvoiceAttachmentType')
+                (int)$Config->getValue('invoice', 'xInvoiceAttachmentType')
             );
 
             $document->writeFile($xmlFile);
@@ -339,12 +349,28 @@ class EventHandler
         // @todo
         $customerFiles = $Invoice->getCustomerFiles();
 
+        if (empty($customerFiles)) {
+            return;
+        }
+
+        $Customer = $Invoice->getCustomer();
+
+        if ($Customer === null) {
+            QUI\System\Log::addError(
+                'Customer files could not be attached because invoice '
+                . $Invoice->getUUID()
+                . ' has no customer.'
+            );
+
+            return;
+        }
+
         foreach ($customerFiles as $entry) {
             if (empty($entry['options']['attachToEmail'])) {
                 continue;
             }
 
-            $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Invoice->getCustomer()->getUUID(), $entry['hash']);
+            $file = QUI\ERP\Customer\CustomerFiles::getFileByHash($Customer->getUUID(), $entry['hash']);
 
             if ($file) {
                 $filePath = $file['dirname'] . '/' . $file['basename'];
@@ -356,7 +382,7 @@ class EventHandler
         }
     }
 
-    public static function onQuiqqerHtmlToPDFCreated(QUI\HtmlToPdf\Document $Document, $filename): void
+    public static function onQuiqqerHtmlToPDFCreated(QUI\HtmlToPdf\Document $Document, string $filename): void
     {
         $Entity = $Document->getAttribute('Entity');
 
@@ -365,12 +391,13 @@ class EventHandler
         }
 
         // extend pdf with e-invoice
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
 
         if (file_exists($filename) && $Config->getValue('invoice', 'zugferdInvoiceAttachment')) {
+            // ZUGFeRD has its own profile setting and must not inherit the XRechnung profile.
             $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
                 $Entity,
-                $Config->getValue('invoice', 'xInvoiceAttachmentType')
+                (int)$Config->getValue('invoice', 'zugferdInvoiceAttachmentType')
             );
             $pdfBuilder = new ZugferdDocumentPdfBuilder($document, $filename);
             $pdfBuilder->generateDocument()->saveDocument($filename);
@@ -382,13 +409,16 @@ class EventHandler
      *
      * Save to invoice that a dunning was sent
      *
-     * @param $entityId
+     * @param int|string $entityId
      * @param string $entityType
      * @param string $recipient
      * @return void
      */
-    public static function onQuiqqerErpOutputSendMail($entityId, string $entityType, string $recipient): void
-    {
+    public static function onQuiqqerErpOutputSendMail(
+        int | string $entityId,
+        string $entityType,
+        string $recipient
+    ): void {
         switch ($entityType) {
             case OutputProviderInvoice::getEntityType():
             case OutputProviderCancelled::getEntityType():
@@ -429,7 +459,7 @@ class EventHandler
      */
     protected static function patchIdWithPrefixColumn(): void
     {
-        $Conf = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Conf = Settings::getConfig();
 
         if (!empty($Conf->getValue('patch', 'id_with_prefix'))) {
             return;
@@ -437,13 +467,17 @@ class EventHandler
 
         $table = Handler::getInstance()->invoiceTable();
 
-        $result = QUI::getDataBase()->fetch([
-            'select' => ['id', 'id_prefix'],
-            'from' => $table
-        ]);
+        $result = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select(
+                Doctrine::quoteIdentifier('id'),
+                Doctrine::quoteIdentifier('id_prefix')
+            )
+            ->from(Doctrine::quoteIdentifier($table))
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         foreach ($result as $row) {
-            QUI::getDataBase()->update(
+            QUI::getDataBaseConnection()->update(
                 $table,
                 [
                     'id_with_prefix' => $row['id_prefix'] . $row['id']
@@ -469,32 +503,57 @@ class EventHandler
         $invoiceTable = Handler::getInstance()->invoiceTable();
 
         // migrate database
-        $alterOrderId = function ($table) {
-            $tableInfo = QUI::getDatabase()->table()->getFieldsInfos($table);
+        $alterOrderId = function (string $table): void {
+            $SchemaManager = QUI::getSchemaManager();
+            $Table = $SchemaManager->introspectTable($table);
             $hashFields = [
-                'c_user' => 'VARCHAR(50) NOT NULL',
-                'editor_id' => 'VARCHAR(50) NULL',
-                'customer_id' => 'VARCHAR(50) NOT NULL',
-                'invoice_address_id' => 'VARCHAR(50) NULL',
-                'ordered_by' => 'VARCHAR(50) NULL',
-                'order_id' => 'VARCHAR(50) NULL',
+                'c_user' => true,
+                'editor_id' => false,
+                'customer_id' => true,
+                'invoice_address_id' => false,
+                'ordered_by' => false,
+                'order_id' => false,
             ];
+            $changedColumns = [];
 
-            foreach ($tableInfo as $tableEntry) {
-                $tableField = $tableEntry['Field'];
-
-                if (!isset($hashFields[$tableField])) {
+            foreach ($hashFields as $tableField => $notNull) {
+                if (!$Table->hasColumn($tableField)) {
                     continue;
                 }
 
-                $swl = $hashFields[$tableField];
+                $CurrentColumn = $Table->getColumn($tableField);
 
-                if (!str_contains(strtolower($tableEntry['Type']), 'varchar')) {
-                    QUI::getDatabase()->execSQL(
-                        "ALTER TABLE `$table` CHANGE `$tableField` `$tableField` $swl;"
-                    );
+                if (
+                    $CurrentColumn->getType() instanceof \Doctrine\DBAL\Types\StringType
+                    && $CurrentColumn->getLength() === 50
+                    && $CurrentColumn->getNotnull() === $notNull
+                ) {
+                    continue;
                 }
+
+                $TargetColumn = new \Doctrine\DBAL\Schema\Column(
+                    $tableField,
+                    \Doctrine\DBAL\Types\Type::getType(\Doctrine\DBAL\Types\Types::STRING),
+                    [
+                        'length' => 50,
+                        'notnull' => $notNull,
+                        'default' => null
+                    ]
+                );
+                $changedColumns[$tableField] = new \Doctrine\DBAL\Schema\ColumnDiff(
+                    $CurrentColumn,
+                    $TargetColumn
+                );
             }
+
+            if ($changedColumns === []) {
+                return;
+            }
+
+            $SchemaManager->alterTable(new \Doctrine\DBAL\Schema\TableDiff(
+                $Table,
+                changedColumns: $changedColumns
+            ));
         };
 
         $alterOrderId($invoiceTable);
@@ -513,9 +572,14 @@ class EventHandler
 
 
         // migrate order ids
-        $result = QUI::getDataBase()->fetch([
-            'from' => Handler::getInstance()->invoiceTable()
-        ]);
+        $result = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select(
+                Doctrine::quoteIdentifier('id'),
+                Doctrine::quoteIdentifier('order_id')
+            )
+            ->from(Doctrine::quoteIdentifier(Handler::getInstance()->invoiceTable()))
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         foreach ($result as $invoice) {
             if (!is_numeric($invoice['order_id'])) {
@@ -527,9 +591,9 @@ class EventHandler
             }
 
             try {
-                $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById($invoice['order_id']);
+                $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById((string)$invoice['order_id']);
 
-                QUI::getDataBase()->update(
+                QUI::getDataBaseConnection()->update(
                     $invoiceTable,
                     ['order_id' => $Order->getUUID()],
                     ['id' => $invoice['id']]

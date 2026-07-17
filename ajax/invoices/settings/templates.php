@@ -11,7 +11,7 @@ use QUI\ERP\Accounting\Invoice\Settings;
  *
  * @return array
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_settings_templates',
     function () {
         return Settings::getInstance()->getAvailableTemplates();

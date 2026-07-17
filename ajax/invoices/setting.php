@@ -12,7 +12,7 @@
  *
  * @return string|integer
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_setting',
     function ($section, $key) {
         return QUI\ERP\Accounting\Invoice\Settings::getInstance()->get($section, $key);

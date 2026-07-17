@@ -30,24 +30,34 @@ class Settings extends Singleton
     protected ?string $temporaryInvoicePrefix = null;
 
     /**
-     * @var array
+     * @var array<string, array<string, mixed>>
      */
     protected array $settings = [];
 
     /**
+     * Return the required invoice package configuration.
+     *
+     * @throws QUI\Exception
+     */
+    public static function getConfig(): QUI\Config
+    {
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+
+        if ($Config === null) {
+            throw new QUI\Exception('Invoice configuration is not available.');
+        }
+
+        return $Config;
+    }
+
+    /**
      * Settings constructor.
+     *
+     * @throws QUI\Exception
      */
     public function __construct()
     {
-        try {
-            $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeDebugException($Exception);
-
-            return;
-        }
-
-        $this->settings = $Config->toArray();
+        $this->settings = self::getConfig()->toArray();
     }
 
     /**
@@ -112,8 +122,7 @@ class Settings extends Singleton
         }
 
         try {
-            $Package = QUI::getPackage('quiqqer/invoice');
-            $Config = $Package->getConfig();
+            $Config = self::getConfig();
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
@@ -124,7 +133,7 @@ class Settings extends Singleton
 
         $this->invoicePrefix = 'INV-';
 
-        if (!empty($setting)) {
+        if (is_string($setting) && $setting !== '') {
             $this->invoicePrefix = $setting;
         }
 
@@ -144,8 +153,7 @@ class Settings extends Singleton
         }
 
         try {
-            $Package = QUI::getPackage('quiqqer/invoice');
-            $Config = $Package->getConfig();
+            $Config = self::getConfig();
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
 
@@ -156,7 +164,7 @@ class Settings extends Singleton
 
         $this->temporaryInvoicePrefix = 'EDIT-';
 
-        if (!empty($setting)) {
+        if (is_string($setting) && $setting !== '') {
             $this->temporaryInvoicePrefix = $setting;
         }
 
@@ -166,7 +174,7 @@ class Settings extends Singleton
     /**
      * Return all available invoice templates
      *
-     * @return array
+     * @return list<array{name: string, title: string, default: int}>
      *
      * @throws QUI\Exception
      */
@@ -213,12 +221,11 @@ class Settings extends Singleton
      */
     public function getDefaultTemplate(): string
     {
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config = $Package->getConfig();
+        $Config = self::getConfig();
 
         $template = $Config->getValue('invoice', 'template');
 
-        if (!empty($template)) {
+        if (is_string($template) && $template !== '') {
             return $template;
         }
 
@@ -241,7 +248,7 @@ class Settings extends Singleton
     public function isIncludeQrCode(): bool
     {
         try {
-            $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+            $Config = self::getConfig();
         } catch (\Exception $Exception) {
             QUI\System\Log::writeException($Exception);
             return false;

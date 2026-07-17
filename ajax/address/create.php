@@ -11,7 +11,7 @@
  * @param array $data
  * @return string
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_address_create',
     function ($userId, $data) {
         $User = QUI::getUsers()->get($userId);
@@ -19,6 +19,12 @@ QUI::$Ajax->registerFunction(
         $Address = $User->addAddress(
             json_decode($data, true)
         );
+
+        if ($Address === null) {
+            throw new QUI\Exception(
+                QUI::getLocale()->get('quiqqer/invoice', 'exception.invoice.address.create')
+            );
+        }
 
         $User->setAttribute('quiqqer.erp.address', $Address->getUUID());
         $User->save();

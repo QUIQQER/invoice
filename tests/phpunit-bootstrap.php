@@ -10,6 +10,16 @@ if (!defined('QUIQQER_AJAX')) {
 
 putenv("QUIQQER_OTHER_AUTOLOADERS=KEEP");
 
+require_once __DIR__ . '/stubs/Mcp/Server/Builder.php';
+require_once __DIR__ . '/stubs/Mcp/Schema/Result/CallToolResult.php';
+require_once __DIR__ . '/stubs/QUI/AI/MCP/ProviderInterface.php';
+require_once __DIR__ . '/stubs/QUI/AI/MCP/Server.php';
+require_once __DIR__ . '/stubs/QUI/AI/MCP/ToolHelper.php';
+require_once __DIR__ . '/stubs/QUI/FrontendUsers/Controls/Profile/ControlInterface.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Shipping/Api/ShippingInterface.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Shipping/Types/ShippingEntry.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Shipping/Shipping.php';
+
 if (file_exists(__DIR__ . '/../../../../bootstrap.php')) {
     require_once __DIR__ . '/../../../../bootstrap.php';
 }
@@ -17,3 +27,8 @@ if (file_exists(__DIR__ . '/../../../../bootstrap.php')) {
 if (file_exists(__DIR__ . '/../../../autoload.php')) {
     require_once __DIR__ . '/../../../autoload.php';
 }
+
+require_once __DIR__ . '/stubs/QUI/REST/ProviderInterface.php';
+require_once __DIR__ . '/stubs/QUI/REST/ResponseStream.php';
+require_once __DIR__ . '/stubs/QUI/REST/Response.php';
+require_once __DIR__ . '/stubs/QUI/REST/Utils/RequestUtils.php';

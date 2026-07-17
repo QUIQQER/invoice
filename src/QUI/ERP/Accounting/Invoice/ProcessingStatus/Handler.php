@@ -7,6 +7,7 @@
 namespace QUI\ERP\Accounting\Invoice\ProcessingStatus;
 
 use QUI;
+use QUI\ERP\Accounting\Invoice\Settings;
 
 use function is_array;
 use function json_encode;
@@ -27,14 +28,22 @@ class Handler extends QUI\Utils\Singleton
     const STATUS_OPTION_PREVENT_INVOICE_POSTING = 'preventInvoicePosting';
 
     /**
-     * @var ?array
+     * @var array<int, string>|null
      */
     protected ?array $list = null;
 
     /**
+     * Clear the cached processing status configuration after it has been changed.
+     */
+    public function clearCache(): void
+    {
+        $this->list = null;
+    }
+
+    /**
      * Return all processing status entries from the config
      *
-     * @return array
+     * @return array<int, string>
      */
     public function getList(): array
     {
@@ -43,8 +52,7 @@ class Handler extends QUI\Utils\Singleton
         }
 
         try {
-            $Package = QUI::getPackage('quiqqer/invoice');
-            $Config = $Package->getConfig();
+            $Config = Settings::getConfig();
         } catch (QUI\Exception) {
             return [];
         }
@@ -65,7 +73,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return the complete processing status objects
      *
-     * @return array
+     * @return list<Status>
      */
     public function getProcessingStatusList(): array
     {
@@ -85,7 +93,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return a processing status
      *
-     * @param $id
+     * @param int|string $id
      * @return Status
      *
      * @throws Exception
@@ -118,11 +126,11 @@ class Handler extends QUI\Utils\Singleton
         QUI\Translator::publish('quiqqer/invoice');
 
         // update config
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config = $Package->getConfig();
+        $Config = Settings::getConfig();
 
         $Config->del('processing_status', (string)$Status->getId());
         $Config->save();
+        $this->clearCache();
     }
 
     /**
@@ -130,8 +138,8 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param int|string $id
      * @param int|string $color
-     * @param array $title
-     * @param array $options (optional)
+     * @param array<string, string> $title
+     * @param array<string, mixed> $options (optional)
      *
      * @throws Exception
      * @throws QUI\Exception
@@ -172,8 +180,7 @@ class Handler extends QUI\Utils\Singleton
         QUI\Translator::publish('quiqqer/invoice');
 
         // update config
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config = $Package->getConfig();
+        $Config = Settings::getConfig();
 
         $Config->setValue(
             'processing_status',
@@ -181,9 +188,10 @@ class Handler extends QUI\Utils\Singleton
             json_encode([
                 'color' => $color,
                 'options' => $options
-            ])
+            ], JSON_THROW_ON_ERROR)
         );
 
         $Config->save();
+        $this->clearCache();
     }
 }

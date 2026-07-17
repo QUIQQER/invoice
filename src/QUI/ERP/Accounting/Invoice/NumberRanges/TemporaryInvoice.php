@@ -9,8 +9,11 @@ namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 use QUI;
 use QUI\Database\Exception;
 use QUI\ERP\Api\NumberRangeInterface;
+use QUI\ERP\Accounting\Invoice\Settings;
+use QUI\Utils\Doctrine;
 
 use function is_numeric;
+use function max;
 
 /**
  * Class TemporaryInvoice
@@ -41,12 +44,15 @@ class TemporaryInvoice implements NumberRangeInterface
      */
     public function getRange(): int
     {
-        $Table = QUI::getDataBase()->table();
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+        $Config = Settings::getConfig();
+        $currentId = $Config->getValue('invoice', 'temporaryInvoiceCurrentIdIndex');
 
-        return $Table->getAutoIncrementIndex(
-            $Handler->temporaryInvoiceTable()
-        );
+        if (is_numeric($currentId)) {
+            return (int)$currentId + 1;
+        }
+
+        return $this->getNextAvailableId($Handler->temporaryInvoiceTable());
     }
 
     /**
@@ -56,12 +62,25 @@ class TemporaryInvoice implements NumberRangeInterface
     {
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $tableName = $Handler->temporaryInvoiceTable();
-        $PDO = QUI::getDataBase()->getPDO();
+        $nextAvailableId = $this->getNextAvailableId($tableName);
 
-        $Statement = $PDO->prepare(
-            "ALTER TABLE $tableName AUTO_INCREMENT = " . (int)$range
+        $Config = Settings::getConfig();
+        $Config->setValue(
+            'invoice',
+            'temporaryInvoiceCurrentIdIndex',
+            max($range, $this->getRange(), $nextAvailableId) - 1
         );
+        $Config->save();
+    }
 
-        $Statement->execute();
+    private function getNextAvailableId(string $tableName): int
+    {
+        $nextAvailableId = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select('COALESCE(MAX(' . Doctrine::quoteIdentifier('id') . '), 0) + 1')
+            ->from(Doctrine::quoteIdentifier($tableName))
+            ->executeQuery()
+            ->fetchOne();
+
+        return (int)$nextAvailableId;
     }
 }

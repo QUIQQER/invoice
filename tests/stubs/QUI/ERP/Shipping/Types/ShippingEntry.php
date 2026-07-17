@@ -12,12 +12,9 @@ if (!class_exists(ShippingEntry::class)) {
             return 0;
         }
 
-        /**
-         * @return array<string, mixed>
-         */
-        public function toJSON(): array
+        public function toJSON(): string
         {
-            return [];
+            return '{}';
         }
     }
 }

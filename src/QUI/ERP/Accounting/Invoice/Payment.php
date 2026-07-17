@@ -20,14 +20,14 @@ use function reset;
 class Payment
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $attributes = [];
 
     /**
      * Payment constructor.
      *
-     * @param array $paymentData
+     * @param array<string, mixed> $paymentData
      */
     public function __construct(array $paymentData = [])
     {

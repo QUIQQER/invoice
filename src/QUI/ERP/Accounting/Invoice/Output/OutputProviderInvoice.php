@@ -122,7 +122,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * Fill the OutputTemplate with appropriate entity data
      *
      * @param int|string $entityId
-     * @return array
+     * @return array<string, mixed>
      *
      * @throws QUI\ERP\Accounting\Invoice\Exception
      * @throws QUI\ERP\Exception
@@ -193,7 +193,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $DeliveryAddress->clearMail();
             $DeliveryAddress->clearPhone();
 
-            if ($DeliveryAddress->equals($Address)) {
+            if ($Address !== null && $DeliveryAddress->equals($Address)) {
                 $DeliveryAddress = false;
             }
         }
@@ -312,8 +312,9 @@ class OutputProviderInvoice implements OutputProviderInterface
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
+        $Locale = $Customer?->getLocale() ?? QUI::getLocale();
 
-        return $Invoice->getCustomer()->getLocale()->get(
+        return $Locale->get(
             'quiqqer/invoice',
             'invoice.send.mail.subject',
             self::getInvoiceLocaleVar($Invoice, $Customer)
@@ -332,8 +333,9 @@ class OutputProviderInvoice implements OutputProviderInterface
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
+        $Locale = $Customer?->getLocale() ?? QUI::getLocale();
 
-        return $Customer->getLocale()->get(
+        return $Locale->get(
             'quiqqer/invoice',
             'invoice.send.mail.message',
             self::getInvoiceLocaleVar($Invoice, $Customer)
@@ -342,13 +344,20 @@ class OutputProviderInvoice implements OutputProviderInterface
 
     /**
      * @param Invoice|InvoiceTemporary $Invoice
-     * @param QUI\ERP\User $Customer
-     * @return array
+     * @param QUI\ERP\User|null $Customer
+     * @return array<string, mixed>
+     * @throws QUI\Exception
      */
     protected static function getInvoiceLocaleVar(
         Invoice | InvoiceTemporary $Invoice,
-        QUI\ERP\User $Customer
+        ?QUI\ERP\User $Customer
     ): array {
+        if ($Customer === null) {
+            $Customer = QUI\ERP\User::convertUserToErpUser(
+                QUI::getUsers()->getNobody()
+            );
+        }
+
         $CustomerAddress = $Customer->getAddress();
         $user = $CustomerAddress->getAttribute('contactPerson');
 
@@ -405,6 +414,11 @@ class OutputProviderInvoice implements OutputProviderInterface
     {
         try {
             $Conf = QUI::getPackage('quiqqer/erp')->getConfig();
+
+            if ($Conf === null) {
+                throw new QUI\Exception('The quiqqer/erp package configuration is not available.');
+            }
+
             $company = $Conf->get('company', 'name');
         } catch (Exception $Exception) {
             QUI\System\Log::writeException($Exception);
@@ -436,7 +450,7 @@ class OutputProviderInvoice implements OutputProviderInterface
 
     /**
      * @param QUI\ERP\User $Customer
-     * @return array
+     * @return array<string, mixed>
      */
     public static function getCustomerVariables(QUI\ERP\User $Customer): array
     {
@@ -482,7 +496,7 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Format dates for invoice mails using the target locale with SHORT date and no time.
      */
-    public static function dateFormat($date, Locale $Locale): bool | string
+    public static function dateFormat(string | null $date, Locale $Locale): bool | string
     {
         $localeCode = $Locale->getLocalesByLang(
             $Locale->getCurrent()
@@ -500,7 +514,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $date = strtotime($date);
         }
 
-        return $Formatter->format($date);
+        return $Formatter->format((int)$date);
     }
 
     /**
@@ -570,12 +584,18 @@ class OutputProviderInvoice implements OutputProviderInterface
             return false;
         }
 
+        $Customer = $Invoice->getCustomer();
+
+        if ($Customer === null) {
+            return false;
+        }
+
         $purposeText = QUI::getLocale()->get(
             'quiqqer/invoice',
             'OutputProvider.epc_qr_code_purpose',
             [
                 'invoiceNo' => $Invoice->getPrefixedNumber(),
-                'customerNo' => $Invoice->getCustomer()->getCustomerNo(),
+                'customerNo' => $Customer->getCustomerNo(),
             ]
         );
 

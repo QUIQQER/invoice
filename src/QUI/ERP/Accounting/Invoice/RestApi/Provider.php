@@ -329,10 +329,12 @@ class Provider implements QUI\REST\ProviderInterface
             }
         }
 
-        $ProductList->recalculate();
+        if ($ProductList->count()) {
+            $ProductList->recalculate();
 
-        foreach ($ProductList->getProducts() as $Product) {
-            $InvoiceDraft->addArticle($Product->toArticle());
+            foreach ($ProductList->getProducts() as $Product) {
+                $InvoiceDraft->addArticle($Product->toArticle());
+            }
         }
 
         // Articles - Custom

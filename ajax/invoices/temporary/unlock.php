@@ -9,7 +9,7 @@
  *
  * @param integer|string $invoiceId
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_unlock',
     function ($invoiceId) {
         $Invoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString($invoiceId);

@@ -9,7 +9,7 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 /**
  * Preview of an invoice
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_preview',
     function ($invoiceId, $onlyArticles) {
         $Invoice = InvoiceUtils::getInvoiceByString($invoiceId);

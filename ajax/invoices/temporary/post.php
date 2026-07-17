@@ -11,7 +11,7 @@
  *
  * @return string - HASH
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_post',
     function ($invoiceId) {
         $Settings = QUI\ERP\Accounting\Invoice\Settings::getInstance();
