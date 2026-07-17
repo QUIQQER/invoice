@@ -576,7 +576,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      *
      * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @return ?QUI\ERP\ErpEntityInterface
+     * @return QUI\ERP\ErpEntityInterface
      *
      * @throws Exception
      * @throws QUI\Exception
@@ -585,7 +585,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     public function reversal(
         string $reason = '',
         null | QUI\Interfaces\Users\User $PermissionUser = null
-    ): ?QUI\ERP\ErpEntityInterface {
+    ): QUI\ERP\ErpEntityInterface {
         // is canceled / reversal possible?
         if (!Settings::getInstance()->get('invoice', 'storno')) {
             // @todo implement credit note
