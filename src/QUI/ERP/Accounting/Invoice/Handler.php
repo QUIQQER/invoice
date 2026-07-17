@@ -8,8 +8,9 @@ namespace QUI\ERP\Accounting\Invoice;
 
 use QUI;
 
-use function array_flip;
+use function count;
 use function explode;
+use function in_array;
 use function is_numeric;
 use function is_string;
 use function mb_strtoupper;
@@ -619,24 +620,16 @@ class Handler extends QUI\Utils\Singleton
             return false;
         }
 
-        $fields = array_flip($this->getOrderGroupFields());
-        $str = explode(' ', $str);
+        $parts = explode(' ', trim($str));
 
-        if (!isset($fields[$str[0]])) {
+        if (count($parts) > 2 || !in_array($parts[0], $this->getOrderGroupFields(), true)) {
             return false;
         }
 
-        if (!isset($fields[$str[1]])) {
+        if (!isset($parts[1])) {
             return true;
         }
 
-        if (
-            mb_strtoupper($fields[$str[1]]) === 'DESC' ||
-            mb_strtoupper($fields[$str[1]]) === 'ASC'
-        ) {
-            return true;
-        }
-
-        return true;
+        return in_array(mb_strtoupper($parts[1]), ['ASC', 'DESC'], true);
     }
 }
