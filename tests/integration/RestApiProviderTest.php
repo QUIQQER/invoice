@@ -3,6 +3,8 @@
 namespace QUITests\ERP\Accounting\Invoice\Integration;
 
 use GuzzleHttp\Psr7\ServerRequest;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Handler;
@@ -13,6 +15,8 @@ use ReflectionMethod;
 use ReflectionProperty;
 use Throwable;
 
+#[PreserveGlobalState(false)]
+#[RunClassInSeparateProcess]
 class RestApiProviderTest extends TestCase
 {
     private ?UserInterface $previousSessionUser = null;

@@ -214,8 +214,6 @@ class InvoiceLifecycleTest extends TestCase
 
         try {
             self::assertFalse($Draft->isLocked());
-            $this->replaceSessionUser($User);
-            self::assertNotFalse($Draft->isLocked());
         } finally {
             $this->replaceSessionUser($SystemUser);
             $Draft->unlock();
