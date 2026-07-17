@@ -919,13 +919,19 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         }
 
         // extra EU vat invoice text
-        if ($listCalculations['isEuVat'] && empty($listCalculations['vatArray'])) {
-            $Locale = $this->getCustomer()->getLocale();
+        $Customer = $this->getCustomer();
+
+        if (
+            $Customer !== null
+            && $listCalculations['isEuVat']
+            && empty($listCalculations['vatArray'])
+        ) {
+            $Locale = $Customer->getLocale();
 
             $extraText = '<br />';
             $extraText .= $Locale->get('quiqqer/tax', 'message.EUVAT.addition', [
-                'user' => $this->getCustomer()->getInvoiceName(),
-                'vatId' => $this->getCustomer()->getAttribute('quiqqer.erp.euVatId')
+                'user' => $Customer->getInvoiceName(),
+                'vatId' => $Customer->getAttribute('quiqqer.erp.euVatId')
             ]);
 
 
@@ -1273,7 +1279,15 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             $PermissionUser = QUI::getUserBySession();
         }
 
-        if ($PermissionUser->getUUID() !== $this->getCustomer()->getUUID()) {
+        $Customer = $this->getCustomer();
+
+        if ($Customer === null) {
+            throw new Exception(
+                Utils\Invoice::getMissingAttributeMessage('customer_id')
+            );
+        }
+
+        if ($PermissionUser->getUUID() !== $Customer->getUUID()) {
             QUI\Permissions\Permission::checkPermission(
                 'quiqqer.invoice.post',
                 $PermissionUser
