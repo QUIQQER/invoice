@@ -1384,7 +1384,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         };
 
         if ($isValidTimeStamp($date) === false) {
-            $date = strtotime($date);
+            $date = strtotime((string)$date);
 
             if ($isValidTimeStamp($date) === false) {
                 $date = time();
@@ -1631,7 +1631,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             $outputType,
             null,
             null,
-            $template,
+            (string)$template,
             $recipient
         );
     }

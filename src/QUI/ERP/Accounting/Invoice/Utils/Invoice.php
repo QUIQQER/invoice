@@ -67,7 +67,7 @@ class Invoice
         }
 
         try {
-            return $Invoices->getInvoiceByHash($str);
+            return $Invoices->getInvoiceByHash((string)$str);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
@@ -822,11 +822,11 @@ class Invoice
             return '';
         }
 
-        $parts = preg_split('/\s+-\s+/', $value);
+        $parts = (array)preg_split('/\s+-\s+/', $value);
 
         if (count($parts) === 2) {
-            $start = self::parseServicePeriodDate($parts[0]);
-            $end = self::parseServicePeriodDate($parts[1]);
+            $start = self::parseServicePeriodDate((string)$parts[0]);
+            $end = self::parseServicePeriodDate((string)$parts[1]);
 
             if ($end < $start) {
                 throw new \InvalidArgumentException('The service period end date must not be before the start date.');
@@ -914,7 +914,7 @@ class Invoice
 
     protected static function formatServicePeriodDate(string $date, QUI\Locale $Locale): string
     {
-        return $Locale->getDateFormatter()->format(strtotime($date));
+        return $Locale->getDateFormatter()->format((int)strtotime($date));
     }
 
     /**
@@ -972,7 +972,9 @@ class Invoice
         $taxNumber = Defaults::conf('company', 'taxNumber');
 
         // seller / owner
-        $document->setDocumentSeller(Defaults::conf('company', 'name'));
+        $companyName = Defaults::conf('company', 'name');
+        /** @var string $companyName */
+        $document->setDocumentSeller($companyName);
 
         // @todo global seller id
         //  ->addDocumentSellerGlobalId("4000001123452", "0088");
@@ -987,6 +989,7 @@ class Invoice
 
         // address
         $country = Defaults::conf('company', 'country');
+        /** @var string $country */
 
         if (strlen($country) !== 2) {
             $DefaultLocale = QUI::getSystemLocale();
@@ -1002,28 +1005,41 @@ class Invoice
         if (strlen($country) !== 2) {
             $country = '';
         }
-
+        $street = Defaults::conf('company', 'street');
+        $zipCode = Defaults::conf('company', 'zipCode');
+        $city = Defaults::conf('company', 'city');
+        /** @var string $street */
+        /** @var string $zipCode */
+        /** @var string $city */
 
         $document->setDocumentSellerAddress(
-            Defaults::conf('company', 'street'),
+            $street,
             "",
             "",
-            Defaults::conf('company', 'zipCode'),
-            Defaults::conf('company', 'city'),
+            $zipCode,
+            $city,
             $country
         );
 
+        $email = Defaults::conf('company', 'email');
+        /** @var string $email */
         $document->setDocumentSellerCommunication(
             ZugferdElectronicAddressScheme::UNECE3155_EM,
-            Defaults::conf('company', 'email')
+            $email
         );
 
+        $owner = Defaults::conf('company', 'owner');
+        $phone = Defaults::conf('company', 'phone');
+        $fax = Defaults::conf('company', 'fax');
+        /** @var string $owner */
+        /** @var string $phone */
+        /** @var string $fax */
         $document->setDocumentSellerContact(
-            Defaults::conf('company', 'owner'), // @todo contact person
-            '',                         // @todo contact department
-            Defaults::conf('company', 'phone'), // @todo contact phone
-            Defaults::conf('company', 'fax'),   // @todo contact fax
-            Defaults::conf('company', 'email')  // @todo contact email
+            $owner, // @todo contact person
+            '',     // @todo contact department
+            $phone, // @todo contact phone
+            $fax,   // @todo contact fax
+            $email  // @todo contact email
         );
 
         // bank stuff

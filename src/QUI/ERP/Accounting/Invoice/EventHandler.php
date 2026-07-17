@@ -71,7 +71,9 @@ class EventHandler
             $result = [];
 
             foreach ($languages as $language) {
-                $result[$language] = QUI::getLocale()->getByLang($language, 'quiqqer/invoice', $key);
+                $translation = QUI::getLocale()->getByLang($language, 'quiqqer/invoice', $key);
+                /** @var string $translation */
+                $result[$language] = $translation;
             }
 
             return $result;
@@ -562,7 +564,7 @@ class EventHandler
             }
 
             try {
-                $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById($invoice['order_id']);
+                $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById((string)$invoice['order_id']);
 
                 QUI::getDataBaseConnection()->update(
                     $invoiceTable,

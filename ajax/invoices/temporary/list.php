@@ -177,12 +177,12 @@ QUI::getAjax()->registerFunction(
             // format
             $data[$key]['date'] = $Locale->formatDate(
                 strtotime($TemporaryInvoice->getAttribute('date')),
-                $defaultDateFormat
+                (string)$defaultDateFormat
             );
 
             $data[$key]['c_date'] = $Locale->formatDate(
                 strtotime($TemporaryInvoice->getAttribute('date')),
-                $defaultTimeFormat
+                (string)$defaultTimeFormat
             );
 
             $vatSum = InvoiceUtils::getVatSumFromVatArray($data[$key]['vat_array']);

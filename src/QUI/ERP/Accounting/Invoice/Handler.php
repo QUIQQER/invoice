@@ -296,7 +296,7 @@ class Handler extends QUI\Utils\Singleton
             'id_with_prefix' => $id
         ];
 
-        $idSanitized = str_replace(Settings::getInstance()->getInvoicePrefix(), '', $id);
+        $idSanitized = str_replace(Settings::getInstance()->getInvoicePrefix(), '', (string)$id);
 
         if (is_numeric($idSanitized)) {
             $whereOr['id'] = (int)$idSanitized;
@@ -410,7 +410,7 @@ class Handler extends QUI\Utils\Singleton
 
         if ($result === false) {
             $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
-            $id = QUI\Utils\Security\Orthos::clear($id);
+            $id = QUI\Utils\Security\Orthos::clear((string)$id);
 
             $result = $Connection->createQueryBuilder()
                 ->select('*')

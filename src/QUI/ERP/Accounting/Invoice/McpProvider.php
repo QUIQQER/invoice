@@ -628,11 +628,11 @@ class McpProvider implements ProviderInterface
         }
 
         if ($from !== '') {
-            $Search->setFilter('from', $this->parseDateFilter($from, true));
+            $Search->setFilter('from', (string)$this->parseDateFilter($from, true));
         }
 
         if ($to !== '') {
-            $Search->setFilter('to', $this->parseDateFilter($to, false));
+            $Search->setFilter('to', (string)$this->parseDateFilter($to, false));
         }
 
         $entries = $Search->search();

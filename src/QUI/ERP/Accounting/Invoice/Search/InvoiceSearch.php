@@ -154,11 +154,11 @@ class InvoiceSearch extends Singleton
             }
 
             if ($filter === 'from' && is_numeric($val)) {
-                $val = date('Y-m-d 00:00:00', $val);
+                $val = date('Y-m-d 00:00:00', (int)$val);
             }
 
             if ($filter === 'to' && is_numeric($val)) {
-                $val = date('Y-m-d 23:59:59', $val);
+                $val = date('Y-m-d 23:59:59', (int)$val);
             }
 
             $this->filter[] = [
@@ -447,6 +447,7 @@ class InvoiceSearch extends Singleton
                             'customer',
                             'customerNoPrefix'
                         );
+                        /** @var string $prefix */
 
                         if (str_starts_with($value, $prefix)) {
                             $value = substr_replace($value, '', 0, strlen($value));
@@ -493,6 +494,7 @@ class InvoiceSearch extends Singleton
                     'customer',
                     'customerNoPrefix'
                 );
+                /** @var string $prefix */
 
                 if (str_starts_with($customerIdSearch, $prefix)) {
                     $customerIdSearch = substr_replace($customerIdSearch, '', 0, strlen($prefix));
@@ -728,8 +730,8 @@ class InvoiceSearch extends Singleton
 
                     $invoiceData['order_date'] = $Order->getCreateDate();
                     $invoiceData['order_date'] = $Locale->formatDate(
-                        strtotime($invoiceData['order_date']),
-                        $defaultTimeFormat
+                        (int)strtotime($invoiceData['order_date']),
+                        (string)$defaultTimeFormat
                     );
                 } else {
                     $invoiceData['order_date'] = Handler::EMPTY_VALUE;
@@ -752,20 +754,23 @@ class InvoiceSearch extends Singleton
 
             $invoiceData['date'] = $Locale->formatDate(
                 strtotime($Invoice->getAttribute('date')),
-                $defaultDateFormat
+                (string)$defaultDateFormat
             );
 
-            $invoiceData['time_for_payment'] = $Locale->formatDate($timeForPayment, $defaultDateFormat);
+            $invoiceData['time_for_payment'] = $Locale->formatDate(
+                (int)$timeForPayment,
+                (string)$defaultDateFormat
+            );
 
             $invoiceData['c_date'] = $Locale->formatDate(
                 strtotime($Invoice->getAttribute('c_date')),
-                $defaultTimeFormat
+                (string)$defaultTimeFormat
             );
 
             if ($Invoice->getAttribute('paid_date')) {
                 $invoiceData['paid_date'] = $Locale->formatDate(
                     $Invoice->getAttribute('paid_date'),
-                    $defaultDateFormat
+                    (string)$defaultDateFormat
                 );
             } else {
                 $invoiceData['paid_date'] = Handler::EMPTY_VALUE;

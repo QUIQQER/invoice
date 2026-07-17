@@ -299,7 +299,7 @@ class InvoiceView extends QUI\QDOM
 
             if ($timeForPayment) {
                 $timeForPayment = strtotime('+' . $timeForPayment . ' day');
-                $timeForPayment = $Formatter->format($timeForPayment);
+                $timeForPayment = $Formatter->format((int)$timeForPayment);
             } else {
                 $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
             }
@@ -339,7 +339,7 @@ class InvoiceView extends QUI\QDOM
         }
 
         return $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
-            'date' => $Formatter->format(strtotime($Transaction->getDate())),
+            'date' => $Formatter->format((int)strtotime($Transaction->getDate())),
             'payment' => $payment
         ]);
     }

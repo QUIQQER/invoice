@@ -937,7 +937,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             $extraTextClean = html_entity_decode($extraTextClean);
             $extraTextClean = preg_replace('#( ){2,}#', "$1", $extraTextClean);
 
-            if (mb_strpos($invoiceTextClean, $extraTextClean) === false) {
+            if (mb_strpos((string)$invoiceTextClean, (string)$extraTextClean) === false) {
                 $invoiceText .= $extraText;
             }
         }
@@ -1070,7 +1070,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
                 // payments
                 'payment_method' => $paymentMethod,
-                'payment_data' => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
+                'payment_data' => QUI\Security\Encryption::encrypt((string)json_encode($this->paymentData)),
                 'payment_time' => null,
 
                 // address
@@ -1376,7 +1376,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         }
 
         $timeForPayment = strtotime(date('Y-m-d') . ' 00:00 + ' . $paymentTime . ' days');
-        $timeForPayment = date('Y-m-d', $timeForPayment);
+        $timeForPayment = date('Y-m-d', (int)$timeForPayment);
         $timeForPayment .= ' 23:59:59';
 
         $servicePeriod = InvoiceUtils::normalizeServicePeriod($this->getAttribute('service_period'));
@@ -1569,7 +1569,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 // payments
                 'payment_method' => $this->getAttribute('payment_method'),
                 'payment_method_data' => json_encode($paymentMethodData),
-                'payment_data' => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
+                'payment_data' => QUI\Security\Encryption::encrypt((string)json_encode($this->paymentData)),
                 'payment_time' => null,
                 'time_for_payment' => $timeForPayment,
 
@@ -1877,7 +1877,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         };
 
         if ($isValidTimeStamp($date) === false) {
-            $date = strtotime($date);
+            $date = strtotime((string)$date);
 
             if ($isValidTimeStamp($date) === false) {
                 $date = time();
