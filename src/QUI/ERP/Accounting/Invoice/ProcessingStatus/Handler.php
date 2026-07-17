@@ -27,14 +27,14 @@ class Handler extends QUI\Utils\Singleton
     const STATUS_OPTION_PREVENT_INVOICE_POSTING = 'preventInvoicePosting';
 
     /**
-     * @var ?array
+     * @var array<int, string>|null
      */
     protected ?array $list = null;
 
     /**
      * Return all processing status entries from the config
      *
-     * @return array
+     * @return array<int, string>
      */
     public function getList(): array
     {
@@ -65,7 +65,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return the complete processing status objects
      *
-     * @return array
+     * @return list<Status>
      */
     public function getProcessingStatusList(): array
     {
@@ -85,7 +85,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return a processing status
      *
-     * @param $id
+     * @param int|string $id
      * @return Status
      *
      * @throws Exception
@@ -130,8 +130,8 @@ class Handler extends QUI\Utils\Singleton
      *
      * @param int|string $id
      * @param int|string $color
-     * @param array $title
-     * @param array $options (optional)
+     * @param array<string, string> $title
+     * @param array<string, mixed> $options (optional)
      *
      * @throws Exception
      * @throws QUI\Exception

@@ -30,7 +30,7 @@ class Settings extends Singleton
     protected ?string $temporaryInvoicePrefix = null;
 
     /**
-     * @var array
+     * @var array<string, array<string, mixed>>
      */
     protected array $settings = [];
 
@@ -166,7 +166,7 @@ class Settings extends Singleton
     /**
      * Return all available invoice templates
      *
-     * @return array
+     * @return list<array{name: string, title: string, default: int}>
      *
      * @throws QUI\Exception
      */
