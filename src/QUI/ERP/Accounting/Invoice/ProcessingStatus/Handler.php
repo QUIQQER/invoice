@@ -32,6 +32,14 @@ class Handler extends QUI\Utils\Singleton
     protected ?array $list = null;
 
     /**
+     * Clear the cached processing status configuration after it has been changed.
+     */
+    public function clearCache(): void
+    {
+        $this->list = null;
+    }
+
+    /**
      * Return all processing status entries from the config
      *
      * @return array<int, string>
@@ -123,6 +131,7 @@ class Handler extends QUI\Utils\Singleton
 
         $Config->del('processing_status', (string)$Status->getId());
         $Config->save();
+        $this->clearCache();
     }
 
     /**
@@ -185,5 +194,6 @@ class Handler extends QUI\Utils\Singleton
         );
 
         $Config->save();
+        $this->clearCache();
     }
 }

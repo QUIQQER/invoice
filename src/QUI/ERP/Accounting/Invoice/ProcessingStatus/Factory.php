@@ -62,6 +62,7 @@ class Factory extends QUI\Utils\Singleton
         );
 
         $Config->save();
+        Handler::getInstance()->clearCache();
 
         // translations
         $languages = QUI::availableLanguages();
