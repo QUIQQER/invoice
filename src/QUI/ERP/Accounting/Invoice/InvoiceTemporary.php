@@ -1613,7 +1613,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $Config->set('invoice', 'invoiceCurrentIdIndex', $invoiceId);
         $Config->save();
 
-        $newId = $Connection->lastInsertId('id');
+        $newId = $Connection->lastInsertId();
 
         // if temporary invoice was a credit note
         // add history entry to original invoice

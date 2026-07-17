@@ -11,6 +11,7 @@ use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\McpProvider;
+use QUI\ERP\Accounting\Invoice\NumberRanges\TemporaryInvoice as TemporaryInvoiceNumberRange;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
@@ -733,6 +734,36 @@ class InvoiceLifecycleTest extends TestCase
         self::assertNotEmpty(
             QUI\ERP\Accounting\Invoice\Utils\Invoice::getTransactionsByInvoice($Invoice)
         );
+    }
+
+    public function testTemporaryInvoiceNumberRangeIncrements(): void
+    {
+        $SystemUser = QUI::getUsers()->getSystemUser();
+        $NumberRange = new TemporaryInvoiceNumberRange();
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $previousCurrentId = $Config->getValue('invoice', 'temporaryInvoiceCurrentIdIndex');
+        $nextId = $NumberRange->getRange();
+        $FirstInvoice = null;
+        $SecondInvoice = null;
+
+        try {
+            $NumberRange->setRange($nextId);
+
+            $FirstInvoice = Factory::getInstance()->createInvoice($SystemUser, $this->globalProcessId);
+            $SecondInvoice = Factory::getInstance()->createInvoice($SystemUser, $this->globalProcessId);
+
+            self::assertSame($nextId, $FirstInvoice->getCleanId());
+            self::assertSame($nextId + 1, $SecondInvoice->getCleanId());
+        } finally {
+            if ($SecondInvoice === null) {
+                $Config->setValue(
+                    'invoice',
+                    'temporaryInvoiceCurrentIdIndex',
+                    $FirstInvoice?->getCleanId() ?? $previousCurrentId
+                );
+                $Config->save();
+            }
+        }
     }
 
     private function createArticle(string $articleNumber, float $price): Article

@@ -11,6 +11,9 @@ use QUI\Database\Exception;
 use QUI\ERP\Api\NumberRangeInterface;
 use QUI\Utils\Doctrine;
 
+use function is_numeric;
+use function max;
+
 /**
  * Class TemporaryInvoice
  *
@@ -41,12 +44,14 @@ class TemporaryInvoice implements NumberRangeInterface
     public function getRange(): int
     {
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $currentId = $Config->getValue('invoice', 'temporaryInvoiceCurrentIdIndex');
 
-        return (int)QUI::getDataBaseConnection()->fetchOne(
-            'SELECT AUTO_INCREMENT FROM information_schema.TABLES '
-            . 'WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table',
-            ['table' => $Handler->temporaryInvoiceTable()]
-        );
+        if (is_numeric($currentId)) {
+            return (int)$currentId + 1;
+        }
+
+        return $this->getNextAvailableId($Handler->temporaryInvoiceTable());
     }
 
     /**
@@ -56,9 +61,25 @@ class TemporaryInvoice implements NumberRangeInterface
     {
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $tableName = $Handler->temporaryInvoiceTable();
+        $nextAvailableId = $this->getNextAvailableId($tableName);
 
-        QUI::getDataBaseConnection()->executeStatement(
-            'ALTER TABLE ' . Doctrine::quoteIdentifier($tableName) . ' AUTO_INCREMENT = ' . (int)$range
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config->setValue(
+            'invoice',
+            'temporaryInvoiceCurrentIdIndex',
+            max($range, $this->getRange(), $nextAvailableId) - 1
         );
+        $Config->save();
+    }
+
+    private function getNextAvailableId(string $tableName): int
+    {
+        $nextAvailableId = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select('COALESCE(MAX(' . Doctrine::quoteIdentifier('id') . '), 0) + 1')
+            ->from(Doctrine::quoteIdentifier($tableName))
+            ->executeQuery()
+            ->fetchOne();
+
+        return (int)$nextAvailableId;
     }
 }

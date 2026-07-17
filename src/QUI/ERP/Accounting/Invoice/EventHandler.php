@@ -475,34 +475,56 @@ class EventHandler
 
         // migrate database
         $alterOrderId = function (string $table): void {
-            $Table = QUI::getSchemaManager()->introspectTable($table);
+            $SchemaManager = QUI::getSchemaManager();
+            $Table = $SchemaManager->introspectTable($table);
             $hashFields = [
-                'c_user' => 'VARCHAR(50) NOT NULL',
-                'editor_id' => 'VARCHAR(50) NULL',
-                'customer_id' => 'VARCHAR(50) NOT NULL',
-                'invoice_address_id' => 'VARCHAR(50) NULL',
-                'ordered_by' => 'VARCHAR(50) NULL',
-                'order_id' => 'VARCHAR(50) NULL',
+                'c_user' => true,
+                'editor_id' => false,
+                'customer_id' => true,
+                'invoice_address_id' => false,
+                'ordered_by' => false,
+                'order_id' => false,
             ];
+            $changedColumns = [];
 
-            foreach ($hashFields as $tableField => $definition) {
+            foreach ($hashFields as $tableField => $notNull) {
                 if (!$Table->hasColumn($tableField)) {
                     continue;
                 }
 
-                $Column = $Table->getColumn($tableField);
+                $CurrentColumn = $Table->getColumn($tableField);
 
-                if ($Column->getType() instanceof \Doctrine\DBAL\Types\StringType) {
+                if (
+                    $CurrentColumn->getType() instanceof \Doctrine\DBAL\Types\StringType
+                    && $CurrentColumn->getLength() === 50
+                    && $CurrentColumn->getNotnull() === $notNull
+                ) {
                     continue;
                 }
 
-                QUI::getDataBaseConnection()->executeStatement(
-                    'ALTER TABLE ' . Doctrine::quoteIdentifier($table)
-                    . ' CHANGE ' . Doctrine::quoteIdentifier($tableField)
-                    . ' ' . Doctrine::quoteIdentifier($tableField)
-                    . ' ' . $definition
+                $TargetColumn = new \Doctrine\DBAL\Schema\Column(
+                    $tableField,
+                    \Doctrine\DBAL\Types\Type::getType(\Doctrine\DBAL\Types\Types::STRING),
+                    [
+                        'length' => 50,
+                        'notnull' => $notNull,
+                        'default' => null
+                    ]
+                );
+                $changedColumns[$tableField] = new \Doctrine\DBAL\Schema\ColumnDiff(
+                    $CurrentColumn,
+                    $TargetColumn
                 );
             }
+
+            if ($changedColumns === []) {
+                return;
+            }
+
+            $SchemaManager->alterTable(new \Doctrine\DBAL\Schema\TableDiff(
+                $Table,
+                changedColumns: $changedColumns
+            ));
         };
 
         $alterOrderId($invoiceTable);
