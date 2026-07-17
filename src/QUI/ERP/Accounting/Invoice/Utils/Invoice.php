@@ -638,8 +638,7 @@ class Invoice
      */
     public static function getInvoiceTimeForPaymentDate(
         InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice
-    ): int
-    {
+    ): int {
         $timeForPayment = $Invoice->getAttribute('time_for_payment');
 
         if ($Invoice instanceof QUI\ERP\Accounting\Invoice\InvoiceTemporary) {
