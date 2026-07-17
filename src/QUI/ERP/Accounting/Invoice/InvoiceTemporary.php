@@ -2312,7 +2312,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     {
         $data = $Payment->toArray();
         $Locale = new QUI\Locale();
-        $languages = QUI\Translator::getAvailableLanguages();
+        $languages = QUI::availableLanguages();
 
         $data['title'] = [];
         $data['workingTitle'] = [];

@@ -4,6 +4,7 @@
  * This file contains package_quiqqer_invoice_ajax_invoices_create
  */
 
+use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 /**
@@ -28,7 +29,13 @@ QUI::getAjax()->registerFunction(
         $currentSetting = $Settings->sendMailAtInvoiceCreation();
         $Settings->set('invoice', 'sendMailAtCreation', false);
 
-        $CreditNote = InvoiceUtils::getInvoiceByString($invoiceId)->createCreditNote();
+        $Invoice = InvoiceUtils::getInvoiceByString($invoiceId);
+
+        if (!($Invoice instanceof Invoice)) {
+            throw new QUI\Exception('Credit notes can only be created from posted invoices.');
+        }
+
+        $CreditNote = $Invoice->createCreditNote();
 
         if (!empty($invoiceData)) {
             foreach ($invoiceData as $key => $value) {
