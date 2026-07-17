@@ -2,10 +2,11 @@
 
 namespace QUITests\ERP\Accounting\Invoice\Integration;
 
-use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\RestApi\Provider;
@@ -217,9 +218,17 @@ class RestApiProviderTest extends TestCase
         self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_PAID, $Invoice->getAttribute('paid_status'));
     }
 
-    private function request(array $body): ServerRequest
+    private function request(array $body): ServerRequestInterface
     {
-        return (new ServerRequest('POST', '/invoice/create'))->withParsedBody($body);
+        $Stream = $this->createStub(StreamInterface::class);
+        $Stream->method('getContents')->willReturn('');
+
+        $Request = $this->createStub(ServerRequestInterface::class);
+        $Request->method('getQueryParams')->willReturn([]);
+        $Request->method('getParsedBody')->willReturn($body);
+        $Request->method('getBody')->willReturn($Stream);
+
+        return $Request;
     }
 
     private function body(\Psr\Http\Message\MessageInterface $Response): array
