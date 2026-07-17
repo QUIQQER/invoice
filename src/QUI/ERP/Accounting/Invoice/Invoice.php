@@ -807,7 +807,6 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
-        $New = $Factory->createInvoice($User);
 
         $currentData = QUI::getDataBaseConnection()->createQueryBuilder()
             ->select('*')
@@ -817,6 +816,12 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             ->setMaxResults(1)
             ->executeQuery()
             ->fetchAssociative();
+
+        if ($currentData === false) {
+            throw new QUI\Exception('Invoice data could not be loaded for copying.');
+        }
+
+        $New = $Factory->createInvoice($User);
 
         QUI::getEvents()->fireEvent('quiqqerInvoiceCopy', [$this]);
 

@@ -1063,16 +1063,29 @@ class Invoice
             && class_exists('QUI\ERP\Payments\SEPA\Transactions')
             && QUI\ERP\Payments\SEPA\Payment::class === $paymentType
         ) {
-            $paymentData = QUI\ERP\Payments\SEPA\Transactions::parsePaymentData($Invoice->getCustomer(), $Invoice);
+            try {
+                $SepaCustomer = $Invoice->getCustomer();
 
-            $document->addDocumentPaymentMeanToDirectDebit(
-                $paymentData['account']['iban'],
-                $paymentData['account']['id']
-            );
+                if ($SepaCustomer !== null) {
+                    $paymentData = QUI\ERP\Payments\SEPA\Transactions::parsePaymentData(
+                        $SepaCustomer,
+                        $Invoice
+                    );
 
-            $buyerIban = $paymentData['account']['iban'];
-            $buyerIban = str_replace(' ', '', $buyerIban);
-            $buyerIban = trim($buyerIban);
+                    if (is_array($paymentData)) {
+                        $document->addDocumentPaymentMeanToDirectDebit(
+                            $paymentData['account']['iban'],
+                            $paymentData['account']['id']
+                        );
+
+                        $buyerIban = $paymentData['account']['iban'];
+                        $buyerIban = str_replace(' ', '', $buyerIban);
+                        $buyerIban = trim($buyerIban);
+                    }
+                }
+            } catch (\Throwable $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+            }
         }
 
 

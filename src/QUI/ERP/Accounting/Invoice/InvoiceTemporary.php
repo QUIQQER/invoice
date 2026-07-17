@@ -1211,8 +1211,6 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             $newProcess = false;
         }
 
-        $New = $Factory->createInvoice($PermissionUser, $globalProcessId);
-
         $currentData = QUI::getDataBaseConnection()->createQueryBuilder()
             ->select('*')
             ->from(Doctrine::quoteIdentifier($Handler->temporaryInvoiceTable()))
@@ -1221,6 +1219,13 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             ->setMaxResults(1)
             ->executeQuery()
             ->fetchAssociative();
+
+        if ($currentData === false) {
+            throw new QUI\Exception('Temporary invoice data could not be loaded for copying.');
+        }
+
+        $New = $Factory->createInvoice($PermissionUser, $globalProcessId);
+
         $currentData['hash'] = $New->getUUID();
         $currentData['global_process_id'] = $New->getGlobalProcessId();
 

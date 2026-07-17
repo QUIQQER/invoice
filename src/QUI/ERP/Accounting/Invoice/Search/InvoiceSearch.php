@@ -55,9 +55,9 @@ class InvoiceSearch extends Singleton
     protected string $search = '';
 
     /**
-     * @var array{int, int}|bool
+     * @var array{int, int}|false
      */
-    protected array | bool $limit = [0, 20];
+    protected array | false $limit = [0, 20];
 
     /**
      * @var string
@@ -311,8 +311,14 @@ class InvoiceSearch extends Singleton
         }
 
         // grid data
+        $page = 1;
+
+        if ($this->limit !== false) {
+            $page = ($this->limit[0] / $this->limit[1]) + 1;
+        }
+
         $Grid = new QUI\Utils\Grid();
-        $Grid->setAttribute('page', ($this->limit[0] / $this->limit[1]) + 1);
+        $Grid->setAttribute('page', $page);
 
         $parsedInvoices = $this->parseListForGrid($invoices);
         $result['grid'] = $Grid->parseResult($parsedInvoices, $count);
