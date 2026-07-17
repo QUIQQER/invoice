@@ -188,7 +188,7 @@ class Handler extends QUI\Utils\Singleton
             json_encode([
                 'color' => $color,
                 'options' => $options
-            ])
+            ], JSON_THROW_ON_ERROR)
         );
 
         $Config->save();
