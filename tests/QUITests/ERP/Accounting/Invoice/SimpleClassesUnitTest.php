@@ -1,0 +1,73 @@
+<?php
+
+namespace QUITests\ERP\Accounting\Invoice;
+
+use PHPUnit\Framework\TestCase;
+use QUI;
+use QUI\ERP\Accounting\Invoice\ErpProvider;
+use QUI\ERP\Accounting\Invoice\Exception as InvoiceException;
+use QUI\ERP\Accounting\Invoice\NumberRanges;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
+use QUI\ERP\Accounting\Invoice\PaymentReceiver;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Exception as ProcessingStatusException;
+
+class SimpleClassesUnitTest extends TestCase
+{
+    public function testProviderIdentifiersAndTitles(): void
+    {
+        $Locale = QUI::getLocale();
+
+        self::assertSame('Invoice', PaymentReceiver::getType());
+        self::assertIsString(PaymentReceiver::getTypeTitle($Locale));
+        self::assertSame('Invoice', OutputProviderInvoice::getEntityType());
+        self::assertIsString(OutputProviderInvoice::getEntityTypeTitle($Locale));
+        self::assertSame('Canceled', OutputProviderCancelled::getEntityType());
+        self::assertIsString(OutputProviderCancelled::getEntityTypeTitle($Locale));
+        self::assertSame('CreditNote', OutputProviderCreditNote::getEntityType());
+        self::assertIsString(OutputProviderCreditNote::getEntityTypeTitle($Locale));
+    }
+
+    public function testErpProviderDefinitions(): void
+    {
+        $ranges = ErpProvider::getNumberRanges();
+
+        self::assertCount(2, $ranges);
+        self::assertInstanceOf(NumberRanges\Invoice::class, $ranges[0]);
+        self::assertInstanceOf(NumberRanges\TemporaryInvoice::class, $ranges[1]);
+
+        $mailLocale = ErpProvider::getMailLocale();
+        self::assertCount(3, $mailLocale);
+
+        foreach ($mailLocale as $definition) {
+            self::assertArrayHasKey('title', $definition);
+            self::assertArrayHasKey('description', $definition);
+            self::assertArrayHasKey('subject', $definition);
+            self::assertArrayHasKey('content', $definition);
+            self::assertArrayHasKey('subject.description', $definition);
+            self::assertArrayHasKey('content.description', $definition);
+        }
+    }
+
+    public function testNumberRangeTitles(): void
+    {
+        $Locale = QUI::getLocale();
+
+        self::assertIsString((new NumberRanges\Invoice())->getTitle($Locale));
+        self::assertIsString((new NumberRanges\TemporaryInvoice())->getTitle($Locale));
+    }
+
+    public function testPackageExceptionsCanBeCreated(): void
+    {
+        $exceptions = [
+            new InvoiceException('invoice'),
+            new ProcessingStatusException('processing-status')
+        ];
+
+        foreach ($exceptions as $Exception) {
+            self::assertInstanceOf(QUI\Exception::class, $Exception);
+            self::assertNotSame('', $Exception->getMessage());
+        }
+    }
+}
