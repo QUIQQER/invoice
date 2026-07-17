@@ -16,6 +16,7 @@ use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
 use QUI\ERP\Accounting\Invoice\PaymentReceiver;
 use QUI\ERP\Accounting\Invoice\Search\InvoiceSearch;
+use QUI\ERP\Accounting\Payments\Transactions\Factory as TransactionFactory;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUI\Mail\Mailer;
 use QUI\Smarty\Collector;
@@ -30,6 +31,9 @@ class InvoiceLifecycleTest extends TestCase
     private ?UserInterface $previousSessionUser = null;
     private ?string $globalProcessId = null;
     private ?string $customerUuid = null;
+
+    /** @var list<string> */
+    private array $transactionIds = [];
 
     protected function setUp(): void
     {
@@ -63,6 +67,10 @@ class InvoiceLifecycleTest extends TestCase
                 QUI::getUsers()->deleteUser($this->customerUuid);
             } catch (Throwable) {
             }
+        }
+
+        foreach ($this->transactionIds as $transactionId) {
+            $Connection->delete(TransactionFactory::table(), ['txid' => $transactionId]);
         }
 
         if ($this->previousSessionUser !== null) {
@@ -468,6 +476,55 @@ class InvoiceLifecycleTest extends TestCase
         self::assertNotSame('', $Cancellation->getView()->getDownloadLink());
         self::assertNotSame('', OutputProviderCancelled::getMailSubject($Cancellation->getUUID()));
         self::assertNotSame('', OutputProviderCancelled::getMailBody($Cancellation->getUUID()));
+
+        $Transaction = TransactionFactory::createPaymentTransaction(
+            5,
+            $Invoice->getCurrency(),
+            $Invoice->getUUID(),
+            'phpunit',
+            [],
+            $SystemUser,
+            '2026-07-17 12:00:00',
+            $this->globalProcessId
+        );
+        $this->transactionIds[] = $Transaction->getTxId();
+        EventHandler::onTransactionCreate($Transaction);
+        EventHandler::onTransactionStatusChange($Transaction);
+        $Invoice->addTransaction($Transaction);
+
+        $LinkedTransaction = TransactionFactory::createPaymentTransaction(
+            1,
+            $Invoice->getCurrency(),
+            QUI\Utils\Uuid::get(),
+            'phpunit',
+            [],
+            $SystemUser,
+            false,
+            $this->globalProcessId
+        );
+        $this->transactionIds[] = $LinkedTransaction->getTxId();
+        $Invoice->linkTransaction($LinkedTransaction);
+        $Invoice->linkTransaction($LinkedTransaction);
+
+        $TransactionDraft = Factory::getInstance()->createInvoice($SystemUser, $this->globalProcessId);
+        $DraftTransaction = TransactionFactory::createPaymentTransaction(
+            2,
+            $TransactionDraft->getCurrency(),
+            $TransactionDraft->getUUID(),
+            'phpunit',
+            [],
+            $SystemUser,
+            false,
+            $this->globalProcessId
+        );
+        $this->transactionIds[] = $DraftTransaction->getTxId();
+        EventHandler::onTransactionCreate($DraftTransaction);
+        EventHandler::onTransactionStatusChange($DraftTransaction);
+        $TransactionDraft->addTransaction($DraftTransaction);
+
+        self::assertNotEmpty(
+            QUI\ERP\Accounting\Invoice\Utils\Invoice::getTransactionsByInvoice($Invoice)
+        );
     }
 
     private function createArticle(string $articleNumber, float $price): Article
