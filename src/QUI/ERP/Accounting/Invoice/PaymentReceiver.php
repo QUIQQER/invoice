@@ -108,9 +108,7 @@ class PaymentReceiver implements PaymentReceiverInterface
             }
         }
 
-        $Date = date_create();
-        /** @var DateTime $Date */
-        return $Date;
+        return new DateTime();
     }
 
     /**

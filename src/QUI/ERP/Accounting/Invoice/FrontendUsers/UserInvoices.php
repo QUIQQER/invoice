@@ -94,7 +94,11 @@ class UserInvoices extends Control implements ControlInterface
         }
 
         $Site = QUI::getRewrite()->getSite();
-        /** @var QUI\Interfaces\Projects\Site $Site */
+
+        if ($Site === null) {
+            throw new QUI\Exception('No current site available.');
+        }
+
         $this->setAttribute('Site', $Site);
 
         return $Site;

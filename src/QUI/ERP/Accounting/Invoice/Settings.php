@@ -124,7 +124,7 @@ class Settings extends Singleton
 
         $this->invoicePrefix = 'INV-';
 
-        if (!empty($setting)) {
+        if (is_string($setting) && $setting !== '') {
             $this->invoicePrefix = $setting;
         }
 
@@ -156,7 +156,7 @@ class Settings extends Singleton
 
         $this->temporaryInvoicePrefix = 'EDIT-';
 
-        if (!empty($setting)) {
+        if (is_string($setting) && $setting !== '') {
             $this->temporaryInvoicePrefix = $setting;
         }
 
@@ -217,9 +217,8 @@ class Settings extends Singleton
         $Config = $Package->getConfig();
 
         $template = $Config->getValue('invoice', 'template');
-        /** @var string $template */
 
-        if (!empty($template)) {
+        if (is_string($template) && $template !== '') {
             return $template;
         }
 

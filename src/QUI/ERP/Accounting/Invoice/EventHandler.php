@@ -72,7 +72,11 @@ class EventHandler
 
             foreach ($languages as $language) {
                 $translation = QUI::getLocale()->getByLang($language, 'quiqqer/invoice', $key);
-                /** @var string $translation */
+
+                if (!is_string($translation)) {
+                    $translation = '';
+                }
+
                 $result[$language] = $translation;
             }
 

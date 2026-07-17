@@ -95,7 +95,7 @@ class InvoiceSearch extends Singleton
         }
 
         if ($filter === 'currency') {
-            if (empty($value) || $value === '---') {
+            if (!is_string($value) || empty($value) || $value === '---') {
                 $this->currency = QUI\ERP\Currency\Handler::getDefaultCurrency()->getCode();
 
                 return;
@@ -447,7 +447,10 @@ class InvoiceSearch extends Singleton
                             'customer',
                             'customerNoPrefix'
                         );
-                        /** @var string $prefix */
+
+                        if (!is_string($prefix)) {
+                            $prefix = '';
+                        }
 
                         if (str_starts_with($value, $prefix)) {
                             $value = substr_replace($value, '', 0, strlen($value));
@@ -494,7 +497,10 @@ class InvoiceSearch extends Singleton
                     'customer',
                     'customerNoPrefix'
                 );
-                /** @var string $prefix */
+
+                if (!is_string($prefix)) {
+                    $prefix = '';
+                }
 
                 if (str_starts_with($customerIdSearch, $prefix)) {
                     $customerIdSearch = substr_replace($customerIdSearch, '', 0, strlen($prefix));

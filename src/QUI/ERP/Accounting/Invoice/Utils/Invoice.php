@@ -561,17 +561,15 @@ class Invoice
             $Locale = QUI::getLocale();
         }
 
-        /** @var string $fileName */
         $fileName = $Locale->get('quiqqer/invoice', 'pdf.download.name');
 
         foreach (self::getInvoicePlaceholders($Invoice, $Locale) as $placeholder => $value) {
             $fileName = str_replace($placeholder, $value, $fileName);
         }
 
-        /** @var string $fileName */
         $fileName = QUI\Utils\Security\Orthos::clearFilename($fileName);
 
-        return $fileName;
+        return is_string($fileName) ? $fileName : '';
     }
 
     /**
@@ -586,9 +584,13 @@ class Invoice
         $buyerEmail = '';
 
         try {
-            $buyerEmail = (string)QUI::getPackage('quiqqer/invoice')
+            $configuredBuyerEmail = QUI::getPackage('quiqqer/invoice')
                 ->getConfig()
                 ->getValue('invoice', 'electronicInvoiceBuyerEmailFallback');
+
+            if (is_string($configuredBuyerEmail)) {
+                $buyerEmail = $configuredBuyerEmail;
+            }
         } catch (\Throwable $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
@@ -971,13 +973,18 @@ class Invoice
             $document->setDocumentSupplyChainEvent($date);
         }
 
+        $getCompanySetting = static function (string $setting): string {
+            $value = Defaults::conf('company', $setting);
+
+            return is_string($value) ? $value : '';
+        };
+
         // ids
-        $taxId = Defaults::conf('company', 'taxId');
-        $taxNumber = Defaults::conf('company', 'taxNumber');
+        $taxId = $getCompanySetting('taxId');
+        $taxNumber = $getCompanySetting('taxNumber');
 
         // seller / owner
-        $companyName = Defaults::conf('company', 'name');
-        /** @var string $companyName */
+        $companyName = $getCompanySetting('name');
         $document->setDocumentSeller($companyName);
 
         // @todo global seller id
@@ -992,8 +999,7 @@ class Invoice
         }
 
         // address
-        $country = Defaults::conf('company', 'country');
-        /** @var string $country */
+        $country = $getCompanySetting('country');
 
         if (strlen($country) !== 2) {
             $DefaultLocale = QUI::getSystemLocale();
@@ -1009,12 +1015,9 @@ class Invoice
         if (strlen($country) !== 2) {
             $country = '';
         }
-        $street = Defaults::conf('company', 'street');
-        $zipCode = Defaults::conf('company', 'zipCode');
-        $city = Defaults::conf('company', 'city');
-        /** @var string $street */
-        /** @var string $zipCode */
-        /** @var string $city */
+        $street = $getCompanySetting('street');
+        $zipCode = $getCompanySetting('zipCode');
+        $city = $getCompanySetting('city');
 
         $document->setDocumentSellerAddress(
             $street,
@@ -1025,19 +1028,15 @@ class Invoice
             $country
         );
 
-        $email = Defaults::conf('company', 'email');
-        /** @var string $email */
+        $email = $getCompanySetting('email');
         $document->setDocumentSellerCommunication(
             ZugferdElectronicAddressScheme::UNECE3155_EM,
             $email
         );
 
-        $owner = Defaults::conf('company', 'owner');
-        $phone = Defaults::conf('company', 'phone');
-        $fax = Defaults::conf('company', 'fax');
-        /** @var string $owner */
-        /** @var string $phone */
-        /** @var string $fax */
+        $owner = $getCompanySetting('owner');
+        $phone = $getCompanySetting('phone');
+        $fax = $getCompanySetting('fax');
         $document->setDocumentSellerContact(
             $owner, // @todo contact person
             '',     // @todo contact department

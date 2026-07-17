@@ -1021,6 +1021,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
         $additionalText = $Copy->getAttribute('additional_invoice_text');
 
+        if (!is_string($additionalText)) {
+            $additionalText = '';
+        }
+
         if (!empty($additionalText)) {
             $additionalText .= '<br />';
         }
@@ -1201,6 +1205,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
 
         $additionalText = $Copy->getAttribute('additional_invoice_text');
+
+        if (!is_string($additionalText)) {
+            $additionalText = '';
+        }
 
         if (!empty($additionalText)) {
             $additionalText .= '<br />';
