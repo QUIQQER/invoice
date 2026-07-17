@@ -6,7 +6,7 @@
 
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Factory;
 
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_processingStatus_create',
     function ($id, $color, $title, $options) {
         if (!empty($options)) {

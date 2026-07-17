@@ -13,7 +13,7 @@ use QUI\ERP\Accounting\Invoice\Search\InvoiceSearch;
  *
  * @return array
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_list',
     function ($params) {
         $Search = InvoiceSearch::getInstance();

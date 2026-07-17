@@ -11,7 +11,7 @@
  * @param array $data
  * @return string
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_address_create',
     function ($userId, $data) {
         $User = QUI::getUsers()->get($userId);

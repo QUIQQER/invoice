@@ -12,7 +12,7 @@ use QUI\ERP\Accounting\Invoice\ProcessingStatus\Status;
  *
  * @return array
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_processingStatus_list',
     function () {
         $Grid = new QUI\Utils\Grid();

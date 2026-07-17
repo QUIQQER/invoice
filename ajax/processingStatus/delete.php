@@ -11,7 +11,7 @@ use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler;
  *
  * @param int $id
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_processingStatus_delete',
     function ($id) {
         Handler::getInstance()->deleteProcessingStatus($id);

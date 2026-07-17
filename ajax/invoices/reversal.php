@@ -9,7 +9,7 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 /**
  * Cancellation of an invoice
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_reversal',
     function ($invoiceId, $reason) {
         $Settings = QUI\ERP\Accounting\Invoice\Settings::getInstance();

@@ -10,7 +10,7 @@
  * @param string|integer $invoiceId - ID of the invoice
  * @param string $comment - amount of the payment
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_addComment',
     function ($invoiceId, $comment) {
         try {

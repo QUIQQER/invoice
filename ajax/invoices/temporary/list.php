@@ -15,7 +15,7 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
  *
  * @return array
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_list',
     function ($params, $filter) {
         $Invoices = Handler::getInstance();
