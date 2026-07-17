@@ -30,6 +30,11 @@
       "QUI\\ERP\\": "src/QUI/ERP"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "QUITests\\ERP\\Accounting\\Invoice\\": "tests/QUITests/ERP/Accounting/Invoice"
+    }
+  },
   "scripts": {
     "test": [
       "@dev:lint",
