@@ -86,19 +86,19 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     protected int $type;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $data = [];
 
     /**
      * variable data for developers
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $customData = [];
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $paymentData = [];
 
@@ -123,7 +123,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     protected ?int $shippingId = null;
 
     /**
-     * @var array|false
+     * @var array<string, mixed>|false
      */
     protected array | false $addressDelivery = [];
 
@@ -630,7 +630,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Return all fields, attributes which are still missing to post the invoice
      *
-     * @return array
+     * @return array<int, string>
      * @throws QUI\Exception
      * @throws ExceptionStack
      */
@@ -674,7 +674,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws QUI\ERP\Exception|QUI\Exception
      */
     public function getPaidStatusInformation(): array
@@ -1717,7 +1717,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Parse the Temporary invoice to an array
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
@@ -2072,7 +2072,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Import an article array
      *
-     * @param array $articles - array of articles, eq: [0] => Array
+     * @param array<int|string, mixed> $articles - array of articles, eq: [0] => Array
      * (
      *       [productId] => 5
      *       [type] => QUI\ERP\Products\Product\Product
@@ -2265,7 +2265,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Return all custom data
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getCustomData(): array
     {
@@ -2306,7 +2306,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * Parses the payment for the invoice payment method data field
      *
      * @param QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment
-     * @return array
+     * @return array<string, mixed>
      */
     protected function parsePaymentForPaymentData(QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment): array
     {
@@ -2534,7 +2534,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Set the delivery address
      *
-     * @param array|QUI\ERP\Address $address
+     * @param array<string, mixed>|QUI\ERP\Address $address
      */
     public function setDeliveryAddress(array | QUI\ERP\Address $address): void
     {
@@ -2548,8 +2548,8 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     }
 
     /**
-     * @param array $address
-     * @return array
+     * @param array<string, mixed> $address
+     * @return array<string, mixed>
      */
     protected function parseAddressData(array $address): array
     {
@@ -2606,7 +2606,8 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Set the customer for the invoice.
      *
-     * @param QUI\ERP\User|array|QUI\Interfaces\Users\User|null $User The customer data. Can be a QUI\ERP\User object,
+     * @param QUI\ERP\User|array<string, mixed>|QUI\Interfaces\Users\User|null $User The customer data. Can be a
+     *                                                              QUI\ERP\User object,
      *                                                              an array of customer data, or a QUI\Interfaces\Users\User
      *                                                              object. Pass null to unset the customer.
      *

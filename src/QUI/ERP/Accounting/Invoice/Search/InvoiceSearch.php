@@ -43,7 +43,7 @@ use function trim;
 class InvoiceSearch extends Singleton
 {
     /**
-     * @var array
+     * @var list<array{filter: string, value: mixed}>
      */
     protected array $filter = [];
 
@@ -55,7 +55,7 @@ class InvoiceSearch extends Singleton
     protected string $search = '';
 
     /**
-     * @var array|bool
+     * @var array{int, int}|bool
      */
     protected array | bool $limit = [0, 20];
 
@@ -72,7 +72,7 @@ class InvoiceSearch extends Singleton
     protected string $currency = '';
 
     /**
-     * @var array
+     * @var array<int|string, mixed>
      */
     protected array $cache = [];
 
@@ -82,12 +82,13 @@ class InvoiceSearch extends Singleton
      * Set a filter
      *
      * @param string $filter
-     * @param array|string $value
+     * @param array<int|string, mixed>|string $value
      * @throws QUI\Exception
      */
     public function setFilter(string $filter, array | string $value): void
     {
         if ($filter === 'search') {
+            /** @var string $value */
             $this->search = $value;
 
             return;
@@ -251,7 +252,7 @@ class InvoiceSearch extends Singleton
     /**
      * Execute the search and return the invoice list
      *
-     * @return array
+     * @return list<array<string, mixed>>
      *
      * @throws QUI\Exception
      */
@@ -263,7 +264,7 @@ class InvoiceSearch extends Singleton
     /**
      * Execute the search and return the invoice list for a grid control
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws QUI\Exception
      */
     public function searchForGrid(): array
@@ -320,7 +321,7 @@ class InvoiceSearch extends Singleton
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws QUI\Exception
      */
     protected function getQueryCount(): array
@@ -330,7 +331,7 @@ class InvoiceSearch extends Singleton
 
     /**
      * @param bool $count - Use count select, or not
-     * @return array
+     * @return array<string, mixed>
      * @throws QUI\Exception
      */
     protected function getQuery(bool $count = false): array
@@ -596,8 +597,8 @@ class InvoiceSearch extends Singleton
     }
 
     /**
-     * @param array $queryData
-     * @return array
+     * @param array<string, mixed> $queryData
+     * @return list<array<string, mixed>>
      * @throws QUI\Exception
      */
     protected function executeQueryParams(array $queryData = []): array
@@ -626,8 +627,8 @@ class InvoiceSearch extends Singleton
     }
 
     /**
-     * @param array $data
-     * @return array
+     * @param list<array<string, mixed>> $data
+     * @return list<array<string, mixed>>
      * @throws QUI\ERP\Exception
      * @throws QUI\Exception
      */
@@ -899,7 +900,7 @@ class InvoiceSearch extends Singleton
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
     protected function getAllowedFields(): array
     {

@@ -83,19 +83,19 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     protected mixed $globalProcessId;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $data = [];
 
     /**
      * variable data for developers
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $customData = [];
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $paymentData = [];
 
@@ -430,7 +430,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * - How many has already been paid
      * - How many must be paid
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      * @throws QUI\Exception
      */
@@ -1814,7 +1814,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     /**
      * Return all custom data
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getCustomData(): array
     {
@@ -1824,7 +1824,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     //endregion
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

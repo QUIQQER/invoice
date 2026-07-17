@@ -122,7 +122,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      * Fill the OutputTemplate with appropriate entity data
      *
      * @param int|string $entityId
-     * @return array
+     * @return array<string, mixed>
      *
      * @throws QUI\ERP\Accounting\Invoice\Exception
      * @throws QUI\ERP\Exception
@@ -343,7 +343,7 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * @param Invoice|InvoiceTemporary $Invoice
      * @param QUI\ERP\User $Customer
-     * @return array
+     * @return array<string, mixed>
      */
     protected static function getInvoiceLocaleVar(
         Invoice | InvoiceTemporary $Invoice,
@@ -436,7 +436,7 @@ class OutputProviderInvoice implements OutputProviderInterface
 
     /**
      * @param QUI\ERP\User $Customer
-     * @return array
+     * @return array<string, mixed>
      */
     public static function getCustomerVariables(QUI\ERP\User $Customer): array
     {

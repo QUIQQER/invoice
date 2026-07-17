@@ -118,7 +118,7 @@ class Invoice
      * Return all fields, attributes which are still missing to post the invoice
      *
      * @param InvoiceTemporary $Invoice
-     * @return array
+     * @return array<int, string>
      *
      * @throws ExceptionStack
      * @throws QUI\Exception
@@ -177,7 +177,7 @@ class Invoice
      * - if something is missing in the address
      *
      * @param InvoiceTemporary $Invoice
-     * @return array
+     * @return array<int, string>
      *
      * @throws QUI\Exception
      * @todo better address check
@@ -289,8 +289,8 @@ class Invoice
     }
 
     /**
-     * @param array $address
-     * @return array
+     * @param array<string, mixed> $address
+     * @return list<string>
      */
     public static function getMissingAddressData(array $address): array
     {
@@ -386,8 +386,8 @@ class Invoice
     }
 
     /**
-     * @param array|string $articles
-     * @return array|string
+     * @param array<string, mixed>|string $articles
+     * @return array<string, mixed>|string
      */
     public static function formatArticlesArray(array | string $articles): array | string
     {
@@ -435,9 +435,9 @@ class Invoice
      * Verification of a field, value can not be empty
      *
      * @param $value
-     * @param array|string $eMessage
+     * @param array<int|string, mixed>|string $eMessage
      * @param int $eCode - optional
-     * @param array $eContext - optional
+     * @param array<int|string, mixed> $eContext - optional
      *
      * @throws Exception
      */
@@ -655,9 +655,9 @@ class Invoice
     }
 
     /**
-     * @param array|string $vatArray
+     * @param array<int|string, mixed>|string $vatArray
      * @param QUI\ERP\Currency\Currency $Currency
-     * @return array
+     * @return array<int|string, string>
      */
     public static function getVatTextArrayFromVatArray(
         array | string $vatArray,
@@ -677,8 +677,8 @@ class Invoice
     }
 
     /**
-     * @param array|string $vatArray
-     * @return array
+     * @param array<int|string, mixed>|string $vatArray
+     * @return array<int|string, mixed>
      */
     public static function getVatSumArrayFromVatArray(array | string $vatArray): array
     {
@@ -698,7 +698,7 @@ class Invoice
     /**
      * Return the vat sum from a var array of an invoice
      *
-     * @param array|string|null $vatArray
+     * @param array<int|string, mixed>|string|null $vatArray
      * @return int|float
      */
     public static function getVatSumFromVatArray(array | string | null $vatArray): float | int
@@ -717,7 +717,7 @@ class Invoice
      * or returns all transactions related to an invoice
      *
      * @param QUI\ERP\Accounting\Invoice\Invoice|integer|string $Invoice - Invoice or Invoice ID
-     * @return array
+     * @return array<int|string, mixed>
      */
     public static function getTransactionsByInvoice(QUI\ERP\Accounting\Invoice\Invoice | int | string $Invoice): array
     {
@@ -847,6 +847,9 @@ class Invoice
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getServicePeriodData(
         InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice
     ): array {

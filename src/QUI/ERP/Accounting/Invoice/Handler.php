@@ -118,8 +118,8 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Search for invoices
      *
-     * @param array $params - search params
-     * @return array
+     * @param array<string, mixed> $params - search params
+     * @return list<array<string, mixed>>
      *
      * @throws QUI\DataBase\Exception
      */
@@ -136,7 +136,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Count the invoices
      *
-     * @param array $queryParams - optional
+     * @param array<string, mixed> $queryParams - optional
      * @return int
      *
      * @throws QUI\DataBase\Exception
@@ -151,8 +151,8 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Search for temporary invoices
      *
-     * @param array $params - search params
-     * @return array
+     * @param array<string, mixed> $params - search params
+     * @return list<array<string, mixed>>
      */
     public function searchTemporaryInvoices(array $params = []): array
     {
@@ -174,7 +174,7 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Count the invoices
      *
-     * @param array $queryParams - optional
+     * @param array<string, mixed> $queryParams - optional
      * @return int
      *
      * @throws QUI\DataBase\Exception
@@ -269,7 +269,7 @@ class Handler extends QUI\Utils\Singleton
      * Return the data from an invoice
      *
      * @param integer|string $id
-     * @return array
+     * @return array<string, mixed>
      *
      * @throws Exception
      * @throws QUI\Exception
@@ -391,7 +391,7 @@ class Handler extends QUI\Utils\Singleton
      * Return the data from a temporary invoice
      *
      * @param int|string $id
-     * @return array
+     * @return array<string, mixed>
      *
      * @throws Exception
      * @throws QUI\Exception
@@ -651,7 +651,7 @@ class Handler extends QUI\Utils\Singleton
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
     protected function getOrderGroupFields(): array
     {

@@ -134,7 +134,7 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function getPaidStatusInformation(): array
     {
