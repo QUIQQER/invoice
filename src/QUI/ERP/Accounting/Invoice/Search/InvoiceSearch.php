@@ -449,10 +449,8 @@ class InvoiceSearch extends Singleton
 
                     // remove customer prefix, for better search
                     if (QUI::getPackageManager()->isInstalled('quiqqer/customer')) {
-                        $prefix = QUI::getpackage('quiqqer/customer')->getConfig()->getValue(
-                            'customer',
-                            'customerNoPrefix'
-                        );
+                        $CustomerConfig = QUI::getpackage('quiqqer/customer')->getConfig();
+                        $prefix = $CustomerConfig?->getValue('customer', 'customerNoPrefix');
 
                         if (!is_string($prefix)) {
                             $prefix = '';
@@ -499,10 +497,8 @@ class InvoiceSearch extends Singleton
 
             // remove customer prefix, for better search
             if (QUI::getPackageManager()->isInstalled('quiqqer/customer')) {
-                $prefix = QUI::getpackage('quiqqer/customer')->getConfig()->getValue(
-                    'customer',
-                    'customerNoPrefix'
-                );
+                $CustomerConfig = QUI::getpackage('quiqqer/customer')->getConfig();
+                $prefix = $CustomerConfig?->getValue('customer', 'customerNoPrefix');
 
                 if (!is_string($prefix)) {
                     $prefix = '';

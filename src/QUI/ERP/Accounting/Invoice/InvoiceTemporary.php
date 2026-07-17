@@ -1531,7 +1531,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         );
 
         // new invoice id
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
         $invoiceId = $Config->getValue('invoice', 'invoiceCurrentIdIndex');
 
         if (empty($invoiceId)) {

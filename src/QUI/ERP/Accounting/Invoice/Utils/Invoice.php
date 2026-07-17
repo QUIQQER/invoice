@@ -11,6 +11,7 @@ use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatuses;
+use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\ERP\Currency\Currency;
 use QUI\ExceptionStack;
 use QUI\ERP\Defaults;
@@ -584,8 +585,7 @@ class Invoice
         $buyerEmail = '';
 
         try {
-            $configuredBuyerEmail = QUI::getPackage('quiqqer/invoice')
-                ->getConfig()
+            $configuredBuyerEmail = Settings::getConfig()
                 ->getValue('invoice', 'electronicInvoiceBuyerEmailFallback');
 
             if (is_string($configuredBuyerEmail)) {
@@ -749,7 +749,7 @@ class Invoice
      */
     public static function addressRequirement(): bool
     {
-        return !!QUI::getPackage('quiqqer/invoice')->getConfig()->get('invoice', 'invoiceAddressRequirement');
+        return !!Settings::getConfig()->get('invoice', 'invoiceAddressRequirement');
     }
 
     /**
@@ -761,7 +761,7 @@ class Invoice
      */
     public static function addressRequirementThreshold(): float
     {
-        $threshold = QUI::getPackage('quiqqer/invoice')->getConfig()->get(
+        $threshold = Settings::getConfig()->get(
             'invoice',
             'invoiceAddressRequirementThreshold'
         );

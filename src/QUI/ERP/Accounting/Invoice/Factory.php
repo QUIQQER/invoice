@@ -65,7 +65,7 @@ class Factory extends QUI\Utils\Singleton
             $editor = $c_user;
         }
 
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
         $currentId = $Config->getValue('invoice', 'temporaryInvoiceCurrentIdIndex');
         $invoiceData = [
             'c_user' => $c_user,

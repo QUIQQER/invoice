@@ -7,6 +7,7 @@
 namespace QUI\ERP\Accounting\Invoice\ProcessingStatus;
 
 use QUI;
+use QUI\ERP\Accounting\Invoice\Settings;
 
 use function is_array;
 use function json_encode;
@@ -51,8 +52,7 @@ class Handler extends QUI\Utils\Singleton
         }
 
         try {
-            $Package = QUI::getPackage('quiqqer/invoice');
-            $Config = $Package->getConfig();
+            $Config = Settings::getConfig();
         } catch (QUI\Exception) {
             return [];
         }
@@ -126,8 +126,7 @@ class Handler extends QUI\Utils\Singleton
         QUI\Translator::publish('quiqqer/invoice');
 
         // update config
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config = $Package->getConfig();
+        $Config = Settings::getConfig();
 
         $Config->del('processing_status', (string)$Status->getId());
         $Config->save();
@@ -181,8 +180,7 @@ class Handler extends QUI\Utils\Singleton
         QUI\Translator::publish('quiqqer/invoice');
 
         // update config
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config = $Package->getConfig();
+        $Config = Settings::getConfig();
 
         $Config->setValue(
             'processing_status',

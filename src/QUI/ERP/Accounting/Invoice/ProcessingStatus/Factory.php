@@ -7,6 +7,7 @@
 namespace QUI\ERP\Accounting\Invoice\ProcessingStatus;
 
 use QUI;
+use QUI\ERP\Accounting\Invoice\Settings;
 
 use function array_keys;
 use function count;
@@ -49,8 +50,7 @@ class Factory extends QUI\Utils\Singleton
         }
 
         // config
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config = $Package->getConfig();
+        $Config = Settings::getConfig();
 
         $Config->setValue(
             'processing_status',

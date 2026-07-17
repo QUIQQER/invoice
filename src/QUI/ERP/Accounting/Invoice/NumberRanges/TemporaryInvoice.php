@@ -9,6 +9,7 @@ namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 use QUI;
 use QUI\Database\Exception;
 use QUI\ERP\Api\NumberRangeInterface;
+use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\Utils\Doctrine;
 
 use function is_numeric;
@@ -44,7 +45,7 @@ class TemporaryInvoice implements NumberRangeInterface
     public function getRange(): int
     {
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
         $currentId = $Config->getValue('invoice', 'temporaryInvoiceCurrentIdIndex');
 
         if (is_numeric($currentId)) {
@@ -63,7 +64,7 @@ class TemporaryInvoice implements NumberRangeInterface
         $tableName = $Handler->temporaryInvoiceTable();
         $nextAvailableId = $this->getNextAvailableId($tableName);
 
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
         $Config->setValue(
             'invoice',
             'temporaryInvoiceCurrentIdIndex',

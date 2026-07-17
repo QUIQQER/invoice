@@ -213,12 +213,16 @@ class EventHandler
 
     /**
      * @param QUI\Users\User $User
-     * @throws QUi\Exception
+     * @throws QUI\Exception
      */
     public static function onUserSaveBegin(QUI\Users\User $User): void
     {
         $Package = QUI::getPackage('quiqqer/frontend-users');
         $Config = $Package->getConfig();
+
+        if ($Config === null) {
+            throw new QUI\Exception('The quiqqer/frontend-users package configuration is not available.');
+        }
 
         if (!$Config->get('userProfile', 'useAddressManagement')) {
             return;
@@ -329,7 +333,7 @@ class EventHandler
         }
 
         // extend pdf with e-invoice
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
 
         if (file_exists($mailFile) && $Config->getValue('invoice', 'xInvoiceAttachment')) {
             $xmlFile = str_replace('.pdf', '.xml', $mailFile);
@@ -371,7 +375,7 @@ class EventHandler
         }
 
         // extend pdf with e-invoice
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
 
         if (file_exists($filename) && $Config->getValue('invoice', 'zugferdInvoiceAttachment')) {
             // ZUGFeRD has its own profile setting and must not inherit the XRechnung profile.
@@ -439,7 +443,7 @@ class EventHandler
      */
     protected static function patchIdWithPrefixColumn(): void
     {
-        $Conf = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Conf = Settings::getConfig();
 
         if (!empty($Conf->getValue('patch', 'id_with_prefix'))) {
             return;
