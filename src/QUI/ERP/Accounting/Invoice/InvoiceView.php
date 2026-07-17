@@ -331,11 +331,15 @@ class InvoiceView extends QUI\QDOM
         $Payment = $Transaction->getPayment(); // payment method
         $PaymentType = $this->getPayment(); // payment method
 
-        $payment = $Payment->getTitle();
+        $payment = $PaymentType->getTitle($Locale);
         $Formatter = $Locale->getDateFormatter();
 
-        if ($PaymentType->getPaymentType() === $Payment->getClass()) {
-            $payment = $PaymentType->getTitle($Locale);
+        if ($Payment !== null) {
+            $payment = $Payment->getTitle();
+
+            if ($PaymentType->getPaymentType() === $Payment->getClass()) {
+                $payment = $PaymentType->getTitle($Locale);
+            }
         }
 
         return $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
