@@ -9,6 +9,10 @@ use QUI\ERP\Accounting\Invoice\Factory;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
+use QUI\ERP\Accounting\Invoice\PaymentReceiver;
 use QUI\Interfaces\Users\User as UserInterface;
 use ReflectionProperty;
 use Throwable;
@@ -204,6 +208,47 @@ class InvoiceLifecycleTest extends TestCase
             'where' => ['global_process_id' => $this->globalProcessId]
         ]));
         self::assertCount(1, $Handler->getInvoicesByGlobalProcessId($this->globalProcessId));
+
+        self::assertSame('Invoice', OutputProviderInvoice::getEntityType());
+        self::assertSame('CreditNote', OutputProviderCreditNote::getEntityType());
+        self::assertSame('Canceled', OutputProviderCancelled::getEntityType());
+        self::assertNotSame('', OutputProviderInvoice::getEntityTypeTitle());
+        self::assertNotSame('', OutputProviderCreditNote::getEntityTypeTitle());
+        self::assertNotSame('', OutputProviderCancelled::getEntityTypeTitle());
+        self::assertSame($Invoice->getUUID(), OutputProviderInvoice::getEntity($Invoice->getUUID())->getUUID());
+        self::assertNotSame('', OutputProviderInvoice::getDownloadFileName($Invoice->getUUID()));
+        self::assertSame(
+            $Invoice->getCustomer()->getLocale()->getCurrent(),
+            OutputProviderInvoice::getLocale($Invoice->getUUID())->getCurrent()
+        );
+        self::assertSame($username . '@example.invalid', OutputProviderInvoice::getEmailAddress($Invoice->getUUID()));
+        self::assertNotSame('', OutputProviderInvoice::getMailSubject($Invoice->getUUID()));
+        self::assertNotSame('', OutputProviderInvoice::getMailBody($Invoice->getUUID()));
+        self::assertNotSame('', OutputProviderInvoice::dateFormat('2026-07-17', $Invoice->getCustomer()->getLocale()));
+        self::assertArrayHasKey('companyOrName', OutputProviderInvoice::getCustomerVariables($Invoice->getCustomer()));
+
+        $templateData = OutputProviderInvoice::getTemplateData($Invoice->getUUID());
+        self::assertSame($Invoice->getUUID(), $templateData['this']->getInvoice()->getUUID());
+        self::assertSame($Invoice->getCustomer()->getUUID(), $templateData['Customer']->getUUID());
+        self::assertFalse(OutputProviderInvoice::hasDownloadPermission($Invoice->getUUID(), $SystemUser));
+        $this->replaceSessionUser($User);
+        self::assertTrue(OutputProviderInvoice::hasDownloadPermission($Invoice->getUUID(), $User));
+        $this->replaceSessionUser($SystemUser);
+
+        $Receiver = new PaymentReceiver($Invoice->getUUID());
+        self::assertSame('Invoice', PaymentReceiver::getType());
+        self::assertNotSame('', PaymentReceiver::getTypeTitle());
+        self::assertSame($Invoice->getPrefixedNumber(), $Receiver->getDocumentNo());
+        self::assertSame($Invoice->getCustomer()->getCustomerNo(), $Receiver->getDebtorNo());
+        self::assertSame($Invoice->getCurrency()->getCode(), $Receiver->getCurrency()->getCode());
+        self::assertSame((float)$Invoice->getAttribute('sum'), $Receiver->getAmountTotal());
+        self::assertSame((float)$Invoice->getAttribute('toPay'), $Receiver->getAmountOpen());
+        self::assertSame((float)$Invoice->getAttribute('paid'), $Receiver->getAmountPaid());
+        self::assertSame((int)$Invoice->getAttribute('paid_status'), $Receiver->getPaymentStatus());
+        self::assertInstanceOf(\DateTime::class, $Receiver->getDate());
+        self::assertNotFalse($Receiver->getDueDate());
+        self::assertNotFalse($Receiver->getDebtorAddress());
+        self::assertNotFalse($Receiver->getPaymentMethod());
     }
 
     private function createArticle(string $articleNumber, float $price): Article
