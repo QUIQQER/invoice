@@ -17,9 +17,9 @@ use function date_create;
 class PaymentReceiver implements PaymentReceiverInterface
 {
     /**
-     * @var null|InvoiceTemporary|Invoice $Invoice
+     * @var InvoiceTemporary|Invoice $Invoice
      */
-    protected null | InvoiceTemporary | Invoice $Invoice = null;
+    protected InvoiceTemporary | Invoice $Invoice;
 
     /**
      * Get entity type descriptor
@@ -66,7 +66,13 @@ class PaymentReceiver implements PaymentReceiverInterface
      */
     public function getDebtorAddress(): bool | Address
     {
-        return $this->Invoice->getCustomer()->getStandardAddress();
+        $Customer = $this->Invoice->getCustomer();
+
+        if ($Customer === null) {
+            return false;
+        }
+
+        return $Customer->getStandardAddress();
     }
 
     /**
@@ -88,7 +94,13 @@ class PaymentReceiver implements PaymentReceiverInterface
      */
     public function getDebtorNo(): string
     {
-        return $this->Invoice->getCustomer()->getAttribute('customerNo');
+        $Customer = $this->Invoice->getCustomer();
+
+        if ($Customer === null) {
+            throw new QUI\ERP\Exception('The invoice has no customer.');
+        }
+
+        return $Customer->getAttribute('customerNo');
     }
 
     /**
