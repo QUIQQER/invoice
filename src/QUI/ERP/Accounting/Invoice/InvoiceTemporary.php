@@ -300,9 +300,11 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
                 $this->Articles->setExchangeRate($accountingCurrencyData['rate']);
             } elseif (QUI\ERP\Currency\Conf::accountingCurrencyEnabled()) {
-                $this->Articles->setExchangeCurrency(
-                    QUI\ERP\Currency\Conf::getAccountingCurrency()
-                );
+                $AccountingCurrency = QUI\ERP\Currency\Conf::getAccountingCurrency();
+
+                if ($AccountingCurrency !== null) {
+                    $this->Articles->setExchangeCurrency($AccountingCurrency);
+                }
             }
         } catch (QUI\Exception) {
         }
@@ -543,7 +545,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         }
         $this->Currency = $currency;
         $this->setAttribute('currency_data', $currency->toArray());
-        $this->Articles->setCurrency($this->Currency);
+        $this->Articles->setCurrency($currency);
         $this->Currency = $this->getCurrency();
     }
 
@@ -1295,7 +1297,14 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $date = date('Y-m-d H:i:s'); // invoice date, to today
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
         $Customer = $this->getCustomer();
-        $customerId = $Customer?->getUUID()
+
+        if ($Customer === null) {
+            throw new Exception(
+                Utils\Invoice::getMissingAttributeMessage('customer_id')
+            );
+        }
+
+        $customerId = $Customer->getUUID()
             ?: $this->getAttribute('customer_id');
         $Handler = Handler::getInstance();
 
@@ -1308,9 +1317,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             }
         }
 
-        if ($Customer) {
-            $isBrutto = QUI\ERP\Utils\User::getBruttoNettoUserStatus($this->getCustomer());
-        }
+        $isBrutto = QUI\ERP\Utils\User::getBruttoNettoUserStatus($Customer);
 
         // address
         try {
@@ -1661,13 +1668,19 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         if (QUI\ERP\Currency\Conf::accountingCurrencyEnabled()) {
             $AccountingCurrency = QUI\ERP\Currency\Conf::getAccountingCurrency();
 
-            $acData = [
-                'accountingCurrency' => $AccountingCurrency->toArray(),
-                'currency' => $this->getCurrency()->toArray(),
-                'rate' => $this->getCurrency()->getExchangeRate($AccountingCurrency)
-            ];
+            if ($AccountingCurrency !== null) {
+                $acData = [
+                    'accountingCurrency' => $AccountingCurrency->toArray(),
+                    'currency' => $this->getCurrency()->toArray(),
+                    'rate' => $this->getCurrency()->getExchangeRate($AccountingCurrency)
+                ];
 
-            $Invoice->addCustomDataEntry('accountingCurrencyData', $acData);
+                $Invoice->addCustomDataEntry('accountingCurrencyData', $acData);
+            } else {
+                QUI\System\Log::addError(
+                    'Accounting currency is enabled but no accounting currency is available.'
+                );
+            }
         }
 
         QUI::getEvents()->fireEvent(

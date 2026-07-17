@@ -193,7 +193,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $DeliveryAddress->clearMail();
             $DeliveryAddress->clearPhone();
 
-            if ($DeliveryAddress->equals($Address)) {
+            if ($Address !== null && $DeliveryAddress->equals($Address)) {
                 $DeliveryAddress = false;
             }
         }
@@ -312,8 +312,9 @@ class OutputProviderInvoice implements OutputProviderInterface
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
+        $Locale = $Customer?->getLocale() ?? QUI::getLocale();
 
-        return $Invoice->getCustomer()->getLocale()->get(
+        return $Locale->get(
             'quiqqer/invoice',
             'invoice.send.mail.subject',
             self::getInvoiceLocaleVar($Invoice, $Customer)
@@ -332,8 +333,9 @@ class OutputProviderInvoice implements OutputProviderInterface
     {
         $Invoice = self::getEntity($entityId);
         $Customer = $Invoice->getCustomer();
+        $Locale = $Customer?->getLocale() ?? QUI::getLocale();
 
-        return $Customer->getLocale()->get(
+        return $Locale->get(
             'quiqqer/invoice',
             'invoice.send.mail.message',
             self::getInvoiceLocaleVar($Invoice, $Customer)
@@ -342,13 +344,20 @@ class OutputProviderInvoice implements OutputProviderInterface
 
     /**
      * @param Invoice|InvoiceTemporary $Invoice
-     * @param QUI\ERP\User $Customer
+     * @param QUI\ERP\User|null $Customer
      * @return array<string, mixed>
+     * @throws QUI\Exception
      */
     protected static function getInvoiceLocaleVar(
         Invoice | InvoiceTemporary $Invoice,
-        QUI\ERP\User $Customer
+        ?QUI\ERP\User $Customer
     ): array {
+        if ($Customer === null) {
+            $Customer = QUI\ERP\User::convertUserToErpUser(
+                QUI::getUsers()->getNobody()
+            );
+        }
+
         $CustomerAddress = $Customer->getAddress();
         $user = $CustomerAddress->getAttribute('contactPerson');
 
