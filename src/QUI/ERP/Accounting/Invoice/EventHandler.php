@@ -368,9 +368,10 @@ class EventHandler
         $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
 
         if (file_exists($filename) && $Config->getValue('invoice', 'zugferdInvoiceAttachment')) {
+            // ZUGFeRD has its own profile setting and must not inherit the XRechnung profile.
             $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
                 $Entity,
-                $Config->getValue('invoice', 'xInvoiceAttachmentType')
+                $Config->getValue('invoice', 'zugferdInvoiceAttachmentType')
             );
             $pdfBuilder = new ZugferdDocumentPdfBuilder($document, $filename);
             $pdfBuilder->generateDocument()->saveDocument($filename);
