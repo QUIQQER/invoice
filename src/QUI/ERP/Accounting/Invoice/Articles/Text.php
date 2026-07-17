@@ -28,7 +28,7 @@ class Text extends QUI\ERP\Accounting\Articles\Text
 {
     /**
      * @inheritdoc
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

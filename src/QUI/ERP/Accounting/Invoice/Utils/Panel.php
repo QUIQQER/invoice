@@ -17,7 +17,7 @@ class Panel
     /**
      * Return all packages which have an invoice.xml
      *
-     * @return array
+     * @return list<QUI\Package\Package>
      */
     public static function getInvoicePackages(): array
     {
@@ -47,7 +47,7 @@ class Panel
     }
 
     /**
-     * @return array
+     * @return array<string, array<string, mixed>>
      */
     public static function getPanelCategories(): array
     {
@@ -94,7 +94,7 @@ class Panel
     }
 
     /**
-     * @param $category
+     * @param string $category
      * @return string
      */
     public static function getPanelCategory($category): string
