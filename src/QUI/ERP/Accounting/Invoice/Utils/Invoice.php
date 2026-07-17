@@ -467,7 +467,7 @@ class Invoice
     ): array {
         if ($Locale === null) {
             try {
-                $Locale = $Invoice->getCustomer()->getLocale();
+                $Locale = $Invoice->getCustomer()?->getLocale();
             } catch (QUI\ERP\Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
             }
@@ -500,14 +500,17 @@ class Invoice
 
         try {
             $Customer = $Invoice->getCustomer();
-            $Address = $Customer->getAddress();
 
-            $company = trim((string)$Address->getAttribute('company'));
-            $firstname = trim((string)$Address->getAttribute('firstname'));
-            $lastname = trim((string)$Address->getAttribute('lastname'));
-            $customerName = trim($Customer->getInvoiceName());
-            $customerNo = trim($Customer->getCustomerNo());
-            $customerId = trim($Customer->getUUID());
+            if ($Customer !== null) {
+                $Address = $Customer->getAddress();
+
+                $company = trim((string)$Address->getAttribute('company'));
+                $firstname = trim((string)$Address->getAttribute('firstname'));
+                $lastname = trim((string)$Address->getAttribute('lastname'));
+                $customerName = trim($Customer->getInvoiceName());
+                $customerNo = trim($Customer->getCustomerNo());
+                $customerId = trim($Customer->getUUID());
+            }
         } catch (QUI\ERP\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         } catch (QUI\Exception $Exception) {
@@ -552,7 +555,7 @@ class Invoice
     ): string {
         if ($Locale === null) {
             try {
-                $Locale = $Invoice->getCustomer()->getLocale();
+                $Locale = $Invoice->getCustomer()?->getLocale();
             } catch (QUI\ERP\Exception $Exception) {
                 QUI\System\Log::writeDebugException($Exception);
             }
@@ -1104,6 +1107,10 @@ class Invoice
 
         // customer
         $Customer = $Invoice->getCustomer();
+
+        if ($Customer === null) {
+            throw new QUI\ERP\Exception('Electronic invoices require a customer.');
+        }
 
         $document
             ->setDocumentBuyer($Customer->getInvoiceName(), $Customer->getCustomerNo())
