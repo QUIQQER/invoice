@@ -48,7 +48,10 @@ class InvoiceView extends QUI\QDOM
         try {
             return $this->Invoice->getArticles();
         } catch (\Exception) {
-            return new ArticleListUnique();
+            return new ArticleListUnique([
+                'articles' => [],
+                'calculations' => []
+            ]);
         }
     }
 
