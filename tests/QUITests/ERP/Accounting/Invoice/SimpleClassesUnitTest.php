@@ -4,6 +4,8 @@ namespace QUITests\ERP\Accounting\Invoice;
 
 use PHPUnit\Framework\TestCase;
 use QUI;
+use QUI\Controls\Sitemap\Item;
+use QUI\Controls\Sitemap\Map;
 use QUI\ERP\Accounting\Invoice\ErpProvider;
 use QUI\ERP\Accounting\Invoice\Exception as InvoiceException;
 use QUI\ERP\Accounting\Invoice\NumberRanges;
@@ -48,6 +50,25 @@ class SimpleClassesUnitTest extends TestCase
             self::assertArrayHasKey('subject.description', $definition);
             self::assertArrayHasKey('content.description', $definition);
         }
+    }
+
+    public function testErpProviderAddsMenuItems(): void
+    {
+        $Map = new Map();
+        ErpProvider::addMenuItems($Map);
+
+        $Accounting = $Map->getChildrenByName('accounting');
+        self::assertNotNull($Accounting);
+        self::assertSame('invoice', $Accounting->toArray()['items'][0]['name']);
+        self::assertCount(3, $Accounting->toArray()['items'][0]['items']);
+
+        $ExistingMap = new Map();
+        $ExistingAccounting = new Item(['name' => 'accounting']);
+        $ExistingMap->appendChild($ExistingAccounting);
+        ErpProvider::addMenuItems($ExistingMap);
+
+        self::assertSame($ExistingAccounting, $ExistingMap->getChildrenByName('accounting'));
+        self::assertSame('invoice', $ExistingAccounting->toArray()['items'][0]['name']);
     }
 
     public function testNumberRangeTitles(): void

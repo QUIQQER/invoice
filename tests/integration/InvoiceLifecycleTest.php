@@ -99,11 +99,24 @@ class InvoiceLifecycleTest extends TestCase
         self::assertStringContainsString((string)$Draft->getId(), $Draft->getPrefixedNumber());
         self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY, $Draft->getInvoiceType());
         self::assertNull($Draft->getCustomer());
+        self::assertNull($Draft->getOrderedByUser());
         self::assertNull($Draft->getShipping());
         self::assertFalse($Draft->hasRefund());
+        self::assertNull($Draft->reversal());
         self::assertFalse($Draft->getData('missing'));
         self::assertFalse($Draft->getPaymentData('missing'));
         self::assertNull($Draft->getCustomDataEntry('missing'));
+        self::assertGreaterThan(0, (new QUI\ERP\Accounting\Invoice\NumberRanges\Invoice())->getRange());
+        self::assertGreaterThan(0, (new QUI\ERP\Accounting\Invoice\NumberRanges\TemporaryInvoice())->getRange());
+
+        $Settings = QUI\ERP\Accounting\Invoice\Settings::getInstance();
+        self::assertIsArray($Settings->getAvailableTemplates());
+        self::assertIsString($Settings->getDefaultTemplate());
+        self::assertIsBool($Settings->isIncludeQrCode());
+
+        $ProcessingStatuses = QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler::getInstance();
+        self::assertIsArray($ProcessingStatuses->getList());
+        self::assertIsArray($ProcessingStatuses->getProcessingStatusList());
 
         $Draft->setCustomer($User);
         $Draft->setAttribute('invoice_address_id', $Address->getUUID());
@@ -119,6 +132,16 @@ class InvoiceLifecycleTest extends TestCase
             'city' => 'Berlin',
             'country' => 'DE',
             'ignored' => 'value'
+        ]);
+        $Draft->removeDeliveryAddress();
+        self::assertSame('Teststadt', $Draft->getDeliveryAddress()?->getAttribute('city'));
+        $Draft->setDeliveryAddress([
+            'firstname' => 'Delivery',
+            'lastname' => 'Customer',
+            'street_no' => 'Lieferweg 3',
+            'zip' => '10115',
+            'city' => 'Berlin',
+            'country' => 'DE'
         ]);
         $Draft->setData('integration', ['draft' => true]);
         $Draft->setPaymentData('reference', 'PAY-123');
@@ -145,6 +168,10 @@ class InvoiceLifecycleTest extends TestCase
         $Draft->addArticle($this->createArticle('TEST-FINAL', 10));
         $Draft->getArticles()->calc();
 
+        $Draft->setInvoiceType(999, $SystemUser);
+        self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY, $Draft->getInvoiceType());
+        $Draft->setInvoiceType(QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY, $SystemUser);
+
         self::assertSame('DE', $Draft->getDeliveryAddress()?->getAttribute('country'));
         self::assertSame('EUR', $Draft->getCurrency()->getCode());
         self::assertSame('Lifecycle', $Draft->getCustomer()?->getAttribute('firstname'));
@@ -157,6 +184,23 @@ class InvoiceLifecycleTest extends TestCase
         self::assertSame(1, $Draft->getArticles()->count());
         self::assertSame(11.9, $Draft->getPriceCalculation()->getSum()->value());
         self::assertSame($Draft, $Draft->getView()->getInvoice());
+        self::assertArrayHasKey('entityType', $Draft->toArray());
+        self::assertFalse($Draft->isPaid());
+        self::assertArrayHasKey('toPay', $Draft->getPaidStatusInformation());
+
+        $Draft->lock();
+
+        try {
+            self::assertFalse($Draft->isLocked());
+            $this->replaceSessionUser($User);
+            self::assertNotFalse($Draft->isLocked());
+        } finally {
+            $this->replaceSessionUser($SystemUser);
+            $Draft->unlock();
+        }
+
+        self::assertFalse($Draft->isLocked());
+        $Draft->checkLocked();
 
         $Draft->save($SystemUser);
         $Draft->validate();
@@ -182,6 +226,7 @@ class InvoiceLifecycleTest extends TestCase
         self::assertSame($this->globalProcessId, $Invoice->getGlobalProcessId());
         self::assertSame($Invoice->getUUID(), $Invoice->getHash());
         self::assertSame($Invoice->getId(), $Invoice->getCleanId());
+        self::assertSame($Invoice->getPrefixedNumber(), $Invoice->getPrefixedId());
         self::assertSame(1, $Invoice->getArticles()->count());
         self::assertSame('EUR', $Invoice->getCurrency()->getCode());
         self::assertSame('Lifecycle', $Invoice->getCustomer()->getAttribute('firstname'));
@@ -195,6 +240,17 @@ class InvoiceLifecycleTest extends TestCase
         self::assertArrayHasKey('prefixedNumber', $Invoice->toArray());
         self::assertFalse($Invoice->getComments()->isEmpty());
         self::assertFalse($Invoice->getHistory()->isEmpty());
+        self::assertFalse($Invoice->hasRefund());
+        self::assertFalse($Invoice->isPaid());
+        self::assertArrayHasKey('toPay', $Invoice->getPaidStatusInformation());
+        self::assertSame('PAY-123', $Invoice->getPaymentDataEntry('reference'));
+        self::assertIsString($Invoice->getPayment()->getTitle());
+        self::assertNull($Invoice->getShipping());
+        $Invoice->calculatePayments();
+        $Invoice->setPaymentStatus(QUI\ERP\Constants::PAYMENT_STATUS_OPEN);
+        $Invoice->setProcessingStatus(-1);
+        $Invoice->addComment('', $SystemUser);
+        $Invoice->setCustomer(['id' => 'ignored']);
 
         $placeholders = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoicePlaceholders($Invoice);
         self::assertSame($Invoice->getUUID(), $placeholders['%HASH%']);
