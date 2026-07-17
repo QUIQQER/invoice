@@ -17,6 +17,7 @@ use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
 use QUI\ERP\Accounting\Invoice\PaymentReceiver;
 use QUI\ERP\Accounting\Invoice\Search\InvoiceSearch;
 use QUI\ERP\Accounting\Payments\Transactions\Factory as TransactionFactory;
+use QUI\ERP\Customer\CustomerFiles;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUI\Mail\Mailer;
 use QUI\Smarty\Collector;
@@ -429,6 +430,101 @@ class InvoiceLifecycleTest extends TestCase
             $Mailer
         );
 
+        $customerFileName = 'invoice-mail-attachment-' . uniqid() . '.txt';
+        $customerFileSource = sys_get_temp_dir() . '/' . $customerFileName;
+        file_put_contents($customerFileSource, 'PHPUnit customer attachment');
+        $customerFileHash = CustomerFiles::addFileToCustomer($User->getUUID(), $customerFileSource);
+
+        try {
+            $Invoice->addCustomerFile($customerFileHash, ['attachToEmail' => true]);
+            $CustomerFile = CustomerFiles::getFileByHash($User->getUUID(), $customerFileHash);
+            self::assertIsArray($CustomerFile);
+
+            $AttachmentMailer = new Mailer();
+            EventHandler::onQuiqqerErpOutputSendMailBefore(
+                $Invoice->getUUID(),
+                OutputProviderInvoice::getEntityType(),
+                $username . '@example.invalid',
+                $AttachmentMailer
+            );
+
+            self::assertContains(
+                $CustomerFile['dirname'] . '/' . $CustomerFile['basename'],
+                $AttachmentMailer->toArray()['attachements']
+            );
+        } finally {
+            CustomerFiles::deleteFiles($User->getUUID(), [$customerFileName]);
+        }
+
+        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $previousXInvoiceAttachment = $Config->getValue('invoice', 'xInvoiceAttachment');
+        $previousXInvoiceAttachmentType = $Config->getValue('invoice', 'xInvoiceAttachmentType');
+        $mailPdfFile = sys_get_temp_dir() . '/invoice-mail-' . $Invoice->getUUID() . '.pdf';
+        $mailXmlFile = str_replace('.pdf', '.xml', $mailPdfFile);
+
+        try {
+            file_put_contents($mailPdfFile, '%PDF-1.4 PHPUnit placeholder');
+            $Config->setValue('invoice', 'xInvoiceAttachment', 1);
+            $Config->setValue('invoice', 'xInvoiceAttachmentType', 2);
+            $Config->save();
+
+            $XInvoiceMailer = new Mailer();
+            EventHandler::onQuiqqerErpOutputSendMailBefore(
+                $Invoice->getUUID(),
+                OutputProviderInvoice::getEntityType(),
+                $username . '@example.invalid',
+                $XInvoiceMailer,
+                $mailPdfFile
+            );
+
+            self::assertFileExists($mailXmlFile);
+            self::assertContains($mailXmlFile, $XInvoiceMailer->toArray()['attachements']);
+        } finally {
+            $Config->setValue('invoice', 'xInvoiceAttachment', $previousXInvoiceAttachment);
+            $Config->setValue('invoice', 'xInvoiceAttachmentType', $previousXInvoiceAttachmentType);
+            $Config->save();
+
+            if (file_exists($mailPdfFile)) {
+                unlink($mailPdfFile);
+            }
+
+            if (file_exists($mailXmlFile)) {
+                unlink($mailXmlFile);
+            }
+        }
+
+        $previousZugferdAttachment = $Config->getValue('invoice', 'zugferdInvoiceAttachment');
+        $previousZugferdAttachmentType = $Config->getValue('invoice', 'zugferdInvoiceAttachmentType');
+        $zugferdPdfFile = sys_get_temp_dir() . '/invoice-zugferd-' . $Invoice->getUUID() . '.pdf';
+
+        try {
+            $Pdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
+            $Pdf->WriteHTML('<h1>PHPUnit invoice</h1>');
+            $Pdf->Output($zugferdPdfFile, \Mpdf\Output\Destination::FILE);
+
+            // Deliberately use different profiles so the test detects a mix-up between both settings.
+            $Config->setValue('invoice', 'xInvoiceAttachmentType', 0);
+            $Config->setValue('invoice', 'zugferdInvoiceAttachment', 1);
+            $Config->setValue('invoice', 'zugferdInvoiceAttachmentType', 2);
+            $Config->save();
+
+            $ZugferdDocument = new QUI\HtmlToPdf\Document();
+            $ZugferdDocument->setAttribute('Entity', $Invoice);
+            EventHandler::onQuiqqerHtmlToPDFCreated($ZugferdDocument, $zugferdPdfFile);
+
+            $zugferdXml = \horstoeko\zugferd\ZugferdDocumentPdfReader::getXmlFromFile($zugferdPdfFile);
+            self::assertSame(2, \horstoeko\zugferd\ZugferdProfileResolver::resolveProfileId($zugferdXml));
+        } finally {
+            $Config->setValue('invoice', 'xInvoiceAttachmentType', $previousXInvoiceAttachmentType);
+            $Config->setValue('invoice', 'zugferdInvoiceAttachment', $previousZugferdAttachment);
+            $Config->setValue('invoice', 'zugferdInvoiceAttachmentType', $previousZugferdAttachmentType);
+            $Config->save();
+
+            if (file_exists($zugferdPdfFile)) {
+                unlink($zugferdPdfFile);
+            }
+        }
+
         $Document = new QUI\HtmlToPdf\Document();
         EventHandler::onQuiqqerHtmlToPDFCreated($Document, '/not/a/real/document.pdf');
         $Document->setAttribute('Entity', $Invoice);
@@ -520,6 +616,42 @@ class InvoiceLifecycleTest extends TestCase
         EventHandler::onTransactionCreate($Transaction);
         EventHandler::onTransactionStatusChange($Transaction);
         $Invoice->addTransaction($Transaction);
+        self::assertEqualsWithDelta(5, (float)$Invoice->getAttribute('paid'), 0.001);
+        self::assertEqualsWithDelta(6.9, (float)$Invoice->getAttribute('toPay'), 0.001);
+        self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_PART, $Invoice->getAttribute('paid_status'));
+
+        $paidDataBeforeDuplicate = $Invoice->getAttribute('paid_data');
+        $Invoice->addTransaction($Transaction);
+        self::assertSame($paidDataBeforeDuplicate, $Invoice->getAttribute('paid_data'));
+
+        $ZeroTransaction = TransactionFactory::createPaymentTransaction(
+            0,
+            $Invoice->getCurrency(),
+            $Invoice->getUUID(),
+            'phpunit',
+            [],
+            $SystemUser,
+            false,
+            $this->globalProcessId
+        );
+        $this->transactionIds[] = $ZeroTransaction->getTxId();
+        self::assertEqualsWithDelta(5, (float)$Invoice->getAttribute('paid'), 0.001);
+
+        $FullTransaction = TransactionFactory::createPaymentTransaction(
+            6.9,
+            $Invoice->getCurrency(),
+            $Invoice->getUUID(),
+            'phpunit',
+            [],
+            $SystemUser,
+            '2026-07-18 12:00:00',
+            $this->globalProcessId
+        );
+        $this->transactionIds[] = $FullTransaction->getTxId();
+        $Invoice->calculatePayments();
+        self::assertEqualsWithDelta(11.9, (float)$Invoice->getAttribute('paid'), 0.001);
+        self::assertEqualsWithDelta(0, (float)$Invoice->getAttribute('toPay'), 0.001);
+        self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_PAID, $Invoice->getAttribute('paid_status'));
 
         $LinkedTransaction = TransactionFactory::createPaymentTransaction(
             1,
