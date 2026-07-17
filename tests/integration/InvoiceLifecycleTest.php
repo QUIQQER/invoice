@@ -126,7 +126,8 @@ class InvoiceLifecycleTest extends TestCase
         self::assertIsBool($Settings->isIncludeQrCode());
 
         $ProcessingStatuses = QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler::getInstance();
-        self::assertIsArray($ProcessingStatuses->getList());
+        $processingStatusList = $ProcessingStatuses->getList();
+        self::assertIsArray($processingStatusList);
         self::assertIsArray($ProcessingStatuses->getProcessingStatusList());
 
         $Draft->setCustomer($User);
@@ -199,6 +200,8 @@ class InvoiceLifecycleTest extends TestCase
         $DraftView = $Draft->getView();
         self::assertSame($Draft, $DraftView->getInvoice());
         self::assertTrue($DraftView->isDraft());
+        self::assertIsString($DraftView->getDate());
+        self::assertIsString($DraftView->formatDate('2026-07-17'));
         self::assertNotSame('', $DraftView->getDownloadLink());
         self::assertNotSame('', $DraftView->getTransactionText());
         self::assertStringContainsString('<style>', $DraftView->previewOnlyArticles());
@@ -238,6 +241,13 @@ class InvoiceLifecycleTest extends TestCase
             'where' => ['global_process_id' => $this->globalProcessId]
         ]));
 
+        $McpProvider = new McpProvider();
+        $getTemporaryInvoice = new ReflectionMethod($McpProvider, 'getTemporaryInvoice');
+        self::assertSame(
+            $ReloadedDraft->getUUID(),
+            $getTemporaryInvoice->invoke($McpProvider, $ReloadedDraft->getUUID())->getUUID()
+        );
+
         $Invoice = $ReloadedDraft->post($SystemUser);
 
         self::assertInstanceOf(Invoice::class, $Invoice);
@@ -257,8 +267,10 @@ class InvoiceLifecycleTest extends TestCase
         self::assertSame('Berlin', $Invoice->getDeliveryAddress()?->getAttribute('city'));
         self::assertSame($Invoice, $Invoice->getView()->getInvoice());
         self::assertFalse($Invoice->getView()->isDraft());
+        self::assertNotSame('', $Invoice->getView()->getTransactionText());
         self::assertNotSame('', $Invoice->getView()->getDownloadLink());
         self::assertIsString($Invoice->getView()->toHTML());
+        self::assertIsString($Invoice->getView()->previewHTML());
         self::assertSame(11.9, $Invoice->getPriceCalculation()->getSum()->value());
         self::assertArrayHasKey('prefixedNumber', $Invoice->toArray());
         self::assertFalse($Invoice->getComments()->isEmpty());
@@ -273,10 +285,16 @@ class InvoiceLifecycleTest extends TestCase
         $Invoice->setPaymentStatus(QUI\ERP\Constants::PAYMENT_STATUS_OPEN);
         $Invoice->setProcessingStatus(-1);
         self::assertNull($Invoice->getProcessingStatus());
+
+        if ($processingStatusList !== []) {
+            $processingStatusId = (int)array_key_first($processingStatusList);
+            $Invoice->setProcessingStatus($processingStatusId);
+            self::assertSame($processingStatusId, $Invoice->getProcessingStatus()?->getId());
+        }
+
         $Invoice->addComment('', $SystemUser);
         $Invoice->setCustomer(['id' => 'ignored']);
 
-        $McpProvider = new McpProvider();
         $parseInvoice = new ReflectionMethod($McpProvider, 'parseInvoice');
         $mcpInvoice = $parseInvoice->invoke($McpProvider, $Invoice, true);
         self::assertSame($Invoice->getUUID(), $mcpInvoice['uuid']);
@@ -405,6 +423,13 @@ class InvoiceLifecycleTest extends TestCase
             $username . '@example.invalid'
         );
         EventHandler::onQuiqqerErpOutputSendMail($Invoice->getUUID(), 'Unsupported', 'nobody@example.invalid');
+        EventHandler::onQuiqqerErpOutputSendMail(QUI\Utils\Uuid::get(), OutputProviderInvoice::getEntityType(), '');
+        EventHandler::onQuiqqerErpOutputSendMailBefore(
+            QUI\Utils\Uuid::get(),
+            OutputProviderInvoice::getEntityType(),
+            '',
+            $Mailer
+        );
 
         $Document = new QUI\HtmlToPdf\Document();
         EventHandler::onQuiqqerHtmlToPDFCreated($Document, '/not/a/real/document.pdf');
@@ -563,6 +588,9 @@ class InvoiceLifecycleTest extends TestCase
                 'country' => 'DE'
             ]
         ]);
+
+        $DeleteDraft = Factory::getInstance()->createInvoice($SystemUser, $this->globalProcessId);
+        $Handler->delete($DeleteDraft->getUUID(), $SystemUser);
 
         self::assertNotEmpty(
             QUI\ERP\Accounting\Invoice\Utils\Invoice::getTransactionsByInvoice($Invoice)

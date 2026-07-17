@@ -82,6 +82,23 @@ class InvoiceSearchUnitTest extends TestCase
         }
     }
 
+    public function testQuerySupportsExactMatchFilters(): void
+    {
+        $Search = $this->createSearch();
+
+        $Search->setFilter('customer_id', '123');
+        $Search->setFilter('c_user', '12');
+        $Search->setFilter('order_id', '34');
+        $Search->setFilter('hash', '78');
+        $Search->setFilter('isbrutto', '1');
+
+        $query = $Search->query();
+
+        foreach (['customer_id', 'c_user', 'order_id', 'hash', 'isbrutto'] as $field) {
+            self::assertStringContainsString($field . ' = ', $query['query']);
+        }
+    }
+
     private function createSearch(): InvoiceSearch
     {
         return new class () extends InvoiceSearch {

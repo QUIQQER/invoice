@@ -37,6 +37,14 @@ class StatusUnitTest extends TestCase
         self::assertSame('#123456', $data['color']);
         self::assertTrue($data['options'][Handler::STATUS_OPTION_PREVENT_INVOICE_POSTING]);
         self::assertIsString($data['title']);
+
+        $translatedData = $Status->toArray();
+
+        self::assertIsArray($translatedData['title']);
+
+        foreach (QUI::availableLanguages() as $language) {
+            self::assertArrayHasKey($language, $translatedData['title']);
+        }
     }
 
     private function setProperty(object $object, string $name, mixed $value): void
