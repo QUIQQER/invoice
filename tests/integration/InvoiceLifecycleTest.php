@@ -196,6 +196,18 @@ class InvoiceLifecycleTest extends TestCase
         self::assertFalse($Invoice->getComments()->isEmpty());
         self::assertFalse($Invoice->getHistory()->isEmpty());
 
+        $placeholders = QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoicePlaceholders($Invoice);
+        self::assertSame($Invoice->getUUID(), $placeholders['%HASH%']);
+        self::assertSame($Invoice->getPrefixedNumber(), $placeholders['%INO%']);
+        self::assertNotSame('', QUI\ERP\Accounting\Invoice\Utils\Invoice::getInvoiceFilename($Invoice));
+        self::assertSame([], QUI\ERP\Accounting\Invoice\Utils\Invoice::getTransactionsByInvoice($Invoice));
+        self::assertIsBool(QUI\ERP\Accounting\Invoice\Utils\Invoice::addressRequirement());
+        self::assertIsFloat(QUI\ERP\Accounting\Invoice\Utils\Invoice::addressRequirementThreshold());
+        QUI\ERP\Accounting\Invoice\Utils\Invoice::checkAddress($Address);
+
+        $ElectronicInvoice = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice($Invoice);
+        self::assertInstanceOf(\horstoeko\zugferd\ZugferdDocumentBuilder::class, $ElectronicInvoice);
+
         $Invoice->addCustomDataEntry('posted', true);
         $Invoice->addHistory('Posted lifecycle history');
         $Invoice->addComment('<i>Posted lifecycle comment</i>', $SystemUser);
@@ -300,6 +312,10 @@ class InvoiceLifecycleTest extends TestCase
         self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE, $CreditNote->getInvoiceType());
         self::assertNotSame('', OutputProviderCreditNote::getMailSubject($CreditNote->getUUID()));
         self::assertNotSame('', OutputProviderCreditNote::getMailBody($CreditNote->getUUID()));
+        self::assertInstanceOf(
+            \horstoeko\zugferd\ZugferdDocumentBuilder::class,
+            QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice($CreditNote)
+        );
 
         try {
             $CreditNote->createCreditNote($SystemUser);
