@@ -5,6 +5,7 @@ namespace QUITests\ERP\Accounting\Invoice\Integration;
 use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\ERP\Accounting\Article;
+use QUI\ERP\Accounting\Invoice\EventHandler;
 use QUI\ERP\Accounting\Invoice\Factory;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
@@ -14,6 +15,8 @@ use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
 use QUI\ERP\Accounting\Invoice\PaymentReceiver;
 use QUI\Interfaces\Users\User as UserInterface;
+use QUI\Mail\Mailer;
+use QUI\Smarty\Collector;
 use ReflectionProperty;
 use Throwable;
 
@@ -249,6 +252,73 @@ class InvoiceLifecycleTest extends TestCase
         self::assertNotFalse($Receiver->getDueDate());
         self::assertNotFalse($Receiver->getDebtorAddress());
         self::assertNotFalse($Receiver->getPaymentMethod());
+
+        $Comments = new QUI\ERP\Comments();
+        EventHandler::onQuiqqerErpGetCommentsByUser($User, $Comments);
+        self::assertFalse($Comments->isEmpty());
+
+        $History = new QUI\ERP\Comments();
+        EventHandler::onQuiqqerErpGetHistoryByUser($User, $History);
+        self::assertFalse($History->isEmpty());
+
+        $Mailer = new Mailer();
+        EventHandler::onQuiqqerErpOutputSendMailBefore(
+            $Invoice->getUUID(),
+            'Unsupported',
+            $username . '@example.invalid',
+            $Mailer
+        );
+        EventHandler::onQuiqqerErpOutputSendMailBefore(
+            $Invoice->getUUID(),
+            OutputProviderInvoice::getEntityType(),
+            $username . '@example.invalid',
+            $Mailer
+        );
+        EventHandler::onQuiqqerErpOutputSendMail(
+            $Invoice->getUUID(),
+            OutputProviderInvoice::getEntityType(),
+            $username . '@example.invalid'
+        );
+        EventHandler::onQuiqqerErpOutputSendMail($Invoice->getUUID(), 'Unsupported', 'nobody@example.invalid');
+
+        $Document = new QUI\HtmlToPdf\Document();
+        EventHandler::onQuiqqerHtmlToPDFCreated($Document, '/not/a/real/document.pdf');
+        $Document->setAttribute('Entity', $Invoice);
+        EventHandler::onQuiqqerHtmlToPDFCreated($Document, '/not/a/real/document.pdf');
+
+        $Collector = new Collector();
+        EventHandler::onFrontendUsersAddressTop($Collector, $User);
+        self::assertStringContainsString('<style>', $Collector->getContent());
+        EventHandler::onUserSaveBegin($User);
+
+        $CreditNoteDraft = $Invoice->createCreditNote($SystemUser);
+        self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE, $CreditNoteDraft->getInvoiceType());
+        self::assertSame($this->globalProcessId, $CreditNoteDraft->getGlobalProcessId());
+        self::assertLessThan(0, $CreditNoteDraft->getArticles()->getArticles()[0]->getUnitPrice()->value());
+
+        $CreditNote = $CreditNoteDraft->post($SystemUser);
+        self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_CREDIT_NOTE, $CreditNote->getInvoiceType());
+        self::assertNotSame('', OutputProviderCreditNote::getMailSubject($CreditNote->getUUID()));
+        self::assertNotSame('', OutputProviderCreditNote::getMailBody($CreditNote->getUUID()));
+
+        try {
+            $CreditNote->createCreditNote($SystemUser);
+            self::fail('A credit note must not create another credit note.');
+        } catch (QUI\ERP\Exception) {
+            self::assertTrue(true);
+        }
+
+        $CopiedDraft = $Invoice->copy($SystemUser, $this->globalProcessId);
+        $CopiedDraft->setAttribute(InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL, 1);
+        self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_TEMPORARY, $CopiedDraft->getInvoiceType());
+        self::assertSame($this->globalProcessId, $CopiedDraft->getGlobalProcessId());
+
+        $CopiedInvoice = $CopiedDraft->post($SystemUser);
+        $CancellationUuid = $CopiedInvoice->cancellation('Lifecycle cancellation', $SystemUser);
+        $Cancellation = $Handler->getInvoiceByHash($CancellationUuid);
+        self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_REVERSAL, $Cancellation->getInvoiceType());
+        self::assertNotSame('', OutputProviderCancelled::getMailSubject($Cancellation->getUUID()));
+        self::assertNotSame('', OutputProviderCancelled::getMailBody($Cancellation->getUUID()));
     }
 
     private function createArticle(string $articleNumber, float $price): Article
