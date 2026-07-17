@@ -9,7 +9,7 @@
  *
  * @return string
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_isNetto',
     function ($uid) {
         if (empty($uid)) {

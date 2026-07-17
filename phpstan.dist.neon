@@ -2,7 +2,10 @@ includes:
 	- phpstan-baseline.neon
 
 parameters:
-    level: 5
+    level: 8
+    phpVersion:
+        min: 80200 # 8.2.0
+        max: 80509 # 8.5.9
     paths:
         - src
         - ajax
@@ -12,6 +15,7 @@ parameters:
     bootstrapFiles:
         - tests/phpstan-bootstrap.php
     treatPhpDocTypesAsCertain: false
+    tipsOfTheDay: false
     customRulesetUsed: true
 services:
     -

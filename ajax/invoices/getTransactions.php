@@ -15,7 +15,7 @@
 
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_getTransactions',
     function ($invoiceId) {
         $transactions = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTransactionsByInvoice($invoiceId);

@@ -15,7 +15,7 @@ use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
  *
  * @return array
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_list',
     function ($params, $filter) {
         $Invoices = Handler::getInstance();
@@ -177,12 +177,12 @@ QUI::$Ajax->registerFunction(
             // format
             $data[$key]['date'] = $Locale->formatDate(
                 strtotime($TemporaryInvoice->getAttribute('date')),
-                $defaultDateFormat
+                (string)$defaultDateFormat
             );
 
             $data[$key]['c_date'] = $Locale->formatDate(
                 strtotime($TemporaryInvoice->getAttribute('date')),
-                $defaultTimeFormat
+                (string)$defaultTimeFormat
             );
 
             $vatSum = InvoiceUtils::getVatSumFromVatArray($data[$key]['vat_array']);

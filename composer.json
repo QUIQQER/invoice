@@ -13,13 +13,13 @@
   "require": {
     "php": "^8.2",
     "php81_bc/strftime": "^0.7",
-    "quiqqer/core": "^2",
+    "quiqqer/core": "^2.25.1",
     "quiqqer/qui": "^1.6.7",
-    "quiqqer/erp": "^3.14",
+    "quiqqer/erp": "^4",
     "quiqqer/customer": "^2.4",
-    "quiqqer/payments": "^3",
+    "quiqqer/payments": "^4",
     "quiqqer/payment-transactions": "^2",
-    "quiqqer/htmltopdf": "^3",
+    "quiqqer/htmltopdf": "^4",
     "quiqqer/utils": "^2",
     "ramsey/uuid": "^3|^4",
     "chillerlan/php-qrcode": "^6",
@@ -28,6 +28,11 @@
   "autoload": {
     "psr-4": {
       "QUI\\ERP\\": "src/QUI/ERP"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "QUITests\\ERP\\Accounting\\Invoice\\": "tests/QUITests/ERP/Accounting/Invoice"
     }
   },
   "scripts": {

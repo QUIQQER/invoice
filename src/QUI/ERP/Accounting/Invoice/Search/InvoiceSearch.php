@@ -6,8 +6,8 @@
 
 namespace QUI\ERP\Accounting\Invoice\Search;
 
+use Doctrine\DBAL\ParameterType;
 use Exception;
-use PDO;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
@@ -43,7 +43,7 @@ use function trim;
 class InvoiceSearch extends Singleton
 {
     /**
-     * @var array
+     * @var list<array{filter: string, value: mixed}>
      */
     protected array $filter = [];
 
@@ -55,9 +55,9 @@ class InvoiceSearch extends Singleton
     protected string $search = '';
 
     /**
-     * @var array|bool
+     * @var array{int, int}|false
      */
-    protected array | bool $limit = [0, 20];
+    protected array | false $limit = [0, 20];
 
     /**
      * @var string
@@ -72,7 +72,7 @@ class InvoiceSearch extends Singleton
     protected string $currency = '';
 
     /**
-     * @var array
+     * @var array<int|string, mixed>
      */
     protected array $cache = [];
 
@@ -82,20 +82,21 @@ class InvoiceSearch extends Singleton
      * Set a filter
      *
      * @param string $filter
-     * @param array|string $value
+     * @param array<int|string, mixed>|string $value
      * @throws QUI\Exception
      */
     public function setFilter(string $filter, array | string $value): void
     {
         if ($filter === 'search') {
+            /** @var string $value */
             $this->search = $value;
 
             return;
         }
 
         if ($filter === 'currency') {
-            if (empty($value) || $value === '---') {
-                $this->currency = QUI\ERP\Currency\Handler::getDefaultCurrency()->getCode();
+            if (!is_string($value) || empty($value) || $value === '---') {
+                $this->currency = QUI\ERP\Defaults::getCurrency()->getCode();
 
                 return;
             }
@@ -153,11 +154,11 @@ class InvoiceSearch extends Singleton
             }
 
             if ($filter === 'from' && is_numeric($val)) {
-                $val = date('Y-m-d 00:00:00', $val);
+                $val = date('Y-m-d 00:00:00', (int)$val);
             }
 
             if ($filter === 'to' && is_numeric($val)) {
-                $val = date('Y-m-d 23:59:59', $val);
+                $val = date('Y-m-d 23:59:59', (int)$val);
             }
 
             $this->filter[] = [
@@ -218,9 +219,9 @@ class InvoiceSearch extends Singleton
     /**
      * Set the order
      *
-     * @param $order
+     * @param string $order
      */
-    public function order($order): void
+    public function order(string $order): void
     {
         $allowed = [];
 
@@ -251,7 +252,7 @@ class InvoiceSearch extends Singleton
     /**
      * Execute the search and return the invoice list
      *
-     * @return array
+     * @return list<array<string, mixed>>
      *
      * @throws QUI\Exception
      */
@@ -263,7 +264,7 @@ class InvoiceSearch extends Singleton
     /**
      * Execute the search and return the invoice list for a grid control
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws QUI\Exception
      */
     public function searchForGrid(): array
@@ -310,8 +311,14 @@ class InvoiceSearch extends Singleton
         }
 
         // grid data
+        $page = 1;
+
+        if ($this->limit !== false) {
+            $page = ($this->limit[0] / $this->limit[1]) + 1;
+        }
+
         $Grid = new QUI\Utils\Grid();
-        $Grid->setAttribute('page', ($this->limit[0] / $this->limit[1]) + 1);
+        $Grid->setAttribute('page', $page);
 
         $parsedInvoices = $this->parseListForGrid($invoices);
         $result['grid'] = $Grid->parseResult($parsedInvoices, $count);
@@ -320,7 +327,7 @@ class InvoiceSearch extends Singleton
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws QUI\Exception
      */
     protected function getQueryCount(): array
@@ -330,7 +337,7 @@ class InvoiceSearch extends Singleton
 
     /**
      * @param bool $count - Use count select, or not
-     * @return array
+     * @return array<string, mixed>
      * @throws QUI\Exception
      */
     protected function getQuery(bool $count = false): array
@@ -374,7 +381,7 @@ class InvoiceSearch extends Singleton
         $fc = 0;
 
         // currency
-        $DefaultCurrency = QUI\ERP\Currency\Handler::getDefaultCurrency();
+        $DefaultCurrency = QUI\ERP\Defaults::getCurrency();
 
         if (empty($this->currency)) {
             $this->currency = $DefaultCurrency->getCode();
@@ -389,7 +396,7 @@ class InvoiceSearch extends Singleton
 
         $binds[':currency'] = [
             'value' => $this->currency,
-            'type' => PDO::PARAM_STR
+            'type' => ParameterType::STRING
         ];
 
         // filter
@@ -416,12 +423,12 @@ class InvoiceSearch extends Singleton
 
                         $binds[$bind1] = [
                             'value' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
-                            'type' => PDO::PARAM_INT
+                            'type' => ParameterType::INTEGER
                         ];
 
                         $binds[$bind2] = [
                             'value' => QUI\ERP\Constants::PAYMENT_STATUS_PART,
-                            'type' => PDO::PARAM_INT
+                            'type' => ParameterType::INTEGER
                         ];
 
                         break;
@@ -431,7 +438,7 @@ class InvoiceSearch extends Singleton
 
                     $binds[$bind] = [
                         'value' => (int)$filter['value'],
-                        'type' => PDO::PARAM_INT
+                        'type' => ParameterType::INTEGER
                     ];
 
                     break;
@@ -442,10 +449,12 @@ class InvoiceSearch extends Singleton
 
                     // remove customer prefix, for better search
                     if (QUI::getPackageManager()->isInstalled('quiqqer/customer')) {
-                        $prefix = QUI::getpackage('quiqqer/customer')->getConfig()->getValue(
-                            'customer',
-                            'customerNoPrefix'
-                        );
+                        $CustomerConfig = QUI::getpackage('quiqqer/customer')->getConfig();
+                        $prefix = $CustomerConfig?->getValue('customer', 'customerNoPrefix');
+
+                        if (!is_string($prefix)) {
+                            $prefix = '';
+                        }
 
                         if (str_starts_with($value, $prefix)) {
                             $value = substr_replace($value, '', 0, strlen($value));
@@ -454,7 +463,7 @@ class InvoiceSearch extends Singleton
 
                     $binds[$bind] = [
                         'value' => (int)$value,
-                        'type' => PDO::PARAM_INT
+                        'type' => ParameterType::INTEGER
                     ];
 
                     break;
@@ -469,7 +478,7 @@ class InvoiceSearch extends Singleton
 
                     $binds[$bind] = [
                         'value' => (int)$filter['value'],
-                        'type' => PDO::PARAM_INT
+                        'type' => ParameterType::INTEGER
                     ];
 
                     break;
@@ -477,7 +486,7 @@ class InvoiceSearch extends Singleton
 
             $binds[$bind] = [
                 'value' => $filter['value'],
-                'type' => PDO::PARAM_STR
+                'type' => ParameterType::STRING
             ];
 
             $fc++;
@@ -488,10 +497,12 @@ class InvoiceSearch extends Singleton
 
             // remove customer prefix, for better search
             if (QUI::getPackageManager()->isInstalled('quiqqer/customer')) {
-                $prefix = QUI::getpackage('quiqqer/customer')->getConfig()->getValue(
-                    'customer',
-                    'customerNoPrefix'
-                );
+                $CustomerConfig = QUI::getpackage('quiqqer/customer')->getConfig();
+                $prefix = $CustomerConfig?->getValue('customer', 'customerNoPrefix');
+
+                if (!is_string($prefix)) {
+                    $prefix = '';
+                }
 
                 if (str_starts_with($customerIdSearch, $prefix)) {
                     $customerIdSearch = substr_replace($customerIdSearch, '', 0, strlen($prefix));
@@ -500,7 +511,7 @@ class InvoiceSearch extends Singleton
 
             $binds['customerIdSearch'] = [
                 'value' => '%' . $customerIdSearch . '%',
-                'type' => PDO::PARAM_STR
+                'type' => ParameterType::STRING
             ];
 
             $where[] = '(
@@ -544,25 +555,25 @@ class InvoiceSearch extends Singleton
 
                 $binds['searchId'] = [
                     'value' => $idSearch . '%',
-                    'type' => PDO::PARAM_STR
+                    'type' => ParameterType::STRING
                 ];
             } elseif (str_starts_with($this->search, $tempPrefix)) {
                 $idSearch = substr($this->search, strlen($tempPrefix));
 
                 $binds['searchId'] = [
                     'value' => $idSearch . '%',
-                    'type' => PDO::PARAM_STR
+                    'type' => ParameterType::STRING
                 ];
             } else {
                 $binds['searchId'] = [
                     'value' => '%' . $this->search . '%',
-                    'type' => PDO::PARAM_STR
+                    'type' => ParameterType::STRING
                 ];
             }
 
             $binds['search'] = [
                 'value' => '%' . $this->search . '%',
-                'type' => PDO::PARAM_STR
+                'type' => ParameterType::STRING
             ];
         }
 
@@ -596,26 +607,27 @@ class InvoiceSearch extends Singleton
     }
 
     /**
-     * @param array $queryData
-     * @return array
+     * @param array<string, mixed> $queryData
+     * @return list<array<string, mixed>>
      * @throws QUI\Exception
      */
     protected function executeQueryParams(array $queryData = []): array
     {
-        $PDO = QUI::getDataBase()->getPDO();
         $binds = $queryData['binds'];
         $query = $queryData['query'];
-
-        $Statement = $PDO->prepare($query);
+        $parameters = [];
+        $types = [];
 
         foreach ($binds as $var => $bind) {
-            $Statement->bindValue($var, $bind['value'], $bind['type']);
+            $parameter = ltrim($var, ':');
+            $parameters[$parameter] = $bind['value'];
+            $types[$parameter] = $bind['type'];
         }
 
         try {
-            $Statement->execute();
-
-            return $Statement->fetchAll(PDO::FETCH_ASSOC);
+            return QUI::getDataBaseConnection()
+                ->executeQuery($query, $parameters, $types)
+                ->fetchAllAssociative();
         } catch (Exception $Exception) {
             QUI\System\Log::writeRecursive($Exception);
             QUI\System\Log::writeRecursive($query);
@@ -625,8 +637,8 @@ class InvoiceSearch extends Singleton
     }
 
     /**
-     * @param array $data
-     * @return array
+     * @param list<array<string, mixed>> $data
+     * @return list<array<string, mixed>>
      * @throws QUI\ERP\Exception
      * @throws QUI\Exception
      */
@@ -726,8 +738,8 @@ class InvoiceSearch extends Singleton
 
                     $invoiceData['order_date'] = $Order->getCreateDate();
                     $invoiceData['order_date'] = $Locale->formatDate(
-                        strtotime($invoiceData['order_date']),
-                        $defaultTimeFormat
+                        (int)strtotime($invoiceData['order_date']),
+                        (string)$defaultTimeFormat
                     );
                 } else {
                     $invoiceData['order_date'] = Handler::EMPTY_VALUE;
@@ -750,20 +762,23 @@ class InvoiceSearch extends Singleton
 
             $invoiceData['date'] = $Locale->formatDate(
                 strtotime($Invoice->getAttribute('date')),
-                $defaultDateFormat
+                (string)$defaultDateFormat
             );
 
-            $invoiceData['time_for_payment'] = $Locale->formatDate($timeForPayment, $defaultDateFormat);
+            $invoiceData['time_for_payment'] = $Locale->formatDate(
+                (int)$timeForPayment,
+                (string)$defaultDateFormat
+            );
 
             $invoiceData['c_date'] = $Locale->formatDate(
                 strtotime($Invoice->getAttribute('c_date')),
-                $defaultTimeFormat
+                (string)$defaultTimeFormat
             );
 
             if ($Invoice->getAttribute('paid_date')) {
                 $invoiceData['paid_date'] = $Locale->formatDate(
                     $Invoice->getAttribute('paid_date'),
-                    $defaultDateFormat
+                    (string)$defaultDateFormat
                 );
             } else {
                 $invoiceData['paid_date'] = Handler::EMPTY_VALUE;
@@ -898,7 +913,7 @@ class InvoiceSearch extends Singleton
     }
 
     /**
-     * @return array
+     * @return list<string>
      */
     protected function getAllowedFields(): array
     {

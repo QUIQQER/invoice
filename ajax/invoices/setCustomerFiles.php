@@ -9,7 +9,7 @@
  * @return void
  */
 
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_setCustomerFiles',
     function ($invoiceHash, $customerFiles) {
         $customerFiles = json_decode($customerFiles, true);

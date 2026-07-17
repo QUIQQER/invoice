@@ -12,7 +12,7 @@ use QUI\ERP\Accounting\ArticleList;
  *
  * @return string
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_calc',
     function ($articles, $user) {
         $articles = json_decode($articles, true);

@@ -17,6 +17,7 @@ use QUI\ERP\Order\Handler as OrderHandler;
 use QUI\ERP\User;
 use QUI\ExceptionStack;
 use QUI\Utils\Security\Orthos;
+use QUI\Utils\Doctrine;
 use QUI\ERP\ErpEntityInterface;
 use QUI\ERP\ErpTransactionsInterface;
 use QUI\ERP\ErpCopyInterface;
@@ -85,19 +86,19 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     protected int $type;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $data = [];
 
     /**
      * variable data for developers
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $customData = [];
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $paymentData = [];
 
@@ -122,7 +123,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     protected ?int $shippingId = null;
 
     /**
-     * @var array|false
+     * @var array<string, mixed>|false
      */
     protected array | false $addressDelivery = [];
 
@@ -134,13 +135,13 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Invoice constructor.
      *
-     * @param $id
+     * @param int|string $id
      * @param Handler $Handler
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function __construct($id, Handler $Handler)
+    public function __construct(int | string $id, Handler $Handler)
     {
         $data = $Handler->getTemporaryInvoiceData($id);
 
@@ -299,9 +300,11 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
                 $this->Articles->setExchangeRate($accountingCurrencyData['rate']);
             } elseif (QUI\ERP\Currency\Conf::accountingCurrencyEnabled()) {
-                $this->Articles->setExchangeCurrency(
-                    QUI\ERP\Currency\Conf::getAccountingCurrency()
-                );
+                $AccountingCurrency = QUI\ERP\Currency\Conf::getAccountingCurrency();
+
+                if ($AccountingCurrency !== null) {
+                    $this->Articles->setExchangeCurrency($AccountingCurrency);
+                }
             }
         } catch (QUI\Exception) {
         }
@@ -389,17 +392,22 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     public function getCustomer(): ?QUI\ERP\User
     {
         $invoiceAddress = $this->getAttribute('invoice_address');
+        $customerData = $this->getAttribute('customer_data');
 
         try {
             $User = QUI::getUsers()->get($this->getAttribute('customer_id'));
 
-            if (is_numeric($this->getAttribute('customer_id')) && $User->getUUID()) {
+            if (!$User->getUUID()) {
+                return $this->getCustomerFromSnapshot($customerData, $invoiceAddress);
+            }
+
+            if (is_numeric($this->getAttribute('customer_id'))) {
                 $this->setAttribute('customer_id', $User->getUUID());
             }
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
 
-            return null;
+            return $this->getCustomerFromSnapshot($customerData, $invoiceAddress);
         }
 
         $userData = [
@@ -474,6 +482,53 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     }
 
     /**
+     * @param mixed $customerData
+     * @param mixed $invoiceAddress
+     */
+    private function getCustomerFromSnapshot(mixed $customerData, mixed $invoiceAddress): ?QUI\ERP\User
+    {
+        if (is_string($customerData)) {
+            $customerData = json_decode($customerData, true);
+        }
+
+        if (!is_array($customerData)) {
+            return null;
+        }
+
+        if (is_string($invoiceAddress)) {
+            $invoiceAddress = json_decode($invoiceAddress, true);
+        }
+
+        if (empty($customerData['uuid']) && empty($customerData['id'])) {
+            $customerData['id'] = $this->getAttribute('customer_id');
+        }
+
+        if (!empty($invoiceAddress)) {
+            $customerData['address'] = $invoiceAddress;
+        }
+
+        if (empty($customerData['country'])) {
+            if (!empty($invoiceAddress['country'])) {
+                $customerData['country'] = $invoiceAddress['country'];
+            } else {
+                try {
+                    $customerData['country'] = QUI\ERP\Defaults::getCountry()->getCode();
+                } catch (\Exception) {
+                    $customerData['country'] = '';
+                }
+            }
+        }
+
+        try {
+            return new QUI\ERP\User($customerData);
+        } catch (QUI\Exception $Exception) {
+            QUI\System\Log::writeException($Exception);
+
+            return null;
+        }
+    }
+
+    /**
      * @param string|QUI\ERP\Currency\Currency $currency
      * @throws QUI\Exception
      */
@@ -490,7 +545,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         }
         $this->Currency = $currency;
         $this->setAttribute('currency_data', $currency->toArray());
-        $this->Articles->setCurrency($this->Currency);
+        $this->Articles->setCurrency($currency);
         $this->Currency = $this->getCurrency();
     }
 
@@ -577,7 +632,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Return all fields, attributes which are still missing to post the invoice
      *
-     * @return array
+     * @return array<int, string>
      * @throws QUI\Exception
      * @throws ExceptionStack
      */
@@ -621,7 +676,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws QUI\ERP\Exception|QUI\Exception
      */
     public function getPaidStatusInformation(): array
@@ -864,13 +919,19 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         }
 
         // extra EU vat invoice text
-        if ($listCalculations['isEuVat'] && empty($listCalculations['vatArray'])) {
-            $Locale = $this->getCustomer()->getLocale();
+        $Customer = $this->getCustomer();
+
+        if (
+            $Customer !== null
+            && $listCalculations['isEuVat']
+            && empty($listCalculations['vatArray'])
+        ) {
+            $Locale = $Customer->getLocale();
 
             $extraText = '<br />';
             $extraText .= $Locale->get('quiqqer/tax', 'message.EUVAT.addition', [
-                'user' => $this->getCustomer()->getInvoiceName(),
-                'vatId' => $this->getCustomer()->getAttribute('quiqqer.erp.euVatId')
+                'user' => $Customer->getInvoiceName(),
+                'vatId' => $Customer->getAttribute('quiqqer.erp.euVatId')
             ]);
 
 
@@ -884,7 +945,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             $extraTextClean = html_entity_decode($extraTextClean);
             $extraTextClean = preg_replace('#( ){2,}#', "$1", $extraTextClean);
 
-            if (mb_strpos($invoiceTextClean, $extraTextClean) === false) {
+            if (mb_strpos((string)$invoiceTextClean, (string)$extraTextClean) === false) {
                 $invoiceText .= $extraText;
             }
         }
@@ -1000,7 +1061,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             [$this]
         );
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             [
                 'type' => $this->getInvoiceType(),
@@ -1017,7 +1078,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
                 // payments
                 'payment_method' => $paymentMethod,
-                'payment_data' => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
+                'payment_data' => QUI\Security\Encryption::encrypt((string)json_encode($this->paymentData)),
                 'payment_time' => null,
 
                 // address
@@ -1032,7 +1093,9 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 'paid_date' => $paidDate,
                 'paid_data' => $paidData,
                 'processing_status' => $processingStatus,
-                'customer_data' => '',   // nicht in gui
+                'customer_data' => $this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+                    ? $this->getAttribute('customer_data')
+                    : '', // nicht in gui
 
                 // shipping
                 'shipping_id' => $shippingId,
@@ -1096,7 +1159,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             [$this]
         );
 
-        QUI::getDataBase()->delete(
+        QUI::getDataBaseConnection()->delete(
             Handler::getInstance()->temporaryInvoiceTable(),
             ['id' => $this->getCleanId()]
         );
@@ -1156,17 +1219,21 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             $newProcess = false;
         }
 
+        $currentData = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select('*')
+            ->from(Doctrine::quoteIdentifier($Handler->temporaryInvoiceTable()))
+            ->where(Doctrine::quoteIdentifier('id') . ' = :id')
+            ->setParameter('id', $this->getCleanId())
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
+
+        if ($currentData === false) {
+            throw new QUI\Exception('Temporary invoice data could not be loaded for copying.');
+        }
+
         $New = $Factory->createInvoice($PermissionUser, $globalProcessId);
 
-        $currentData = QUI::getDataBase()->fetch([
-            'from' => $Handler->temporaryInvoiceTable(),
-            'where' => [
-                'id' => $this->getCleanId()
-            ],
-            'limit' => 1
-        ]);
-
-        $currentData = $currentData[0];
         $currentData['hash'] = $New->getUUID();
         $currentData['global_process_id'] = $New->getGlobalProcessId();
 
@@ -1179,7 +1246,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         }
 
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             $Handler->temporaryInvoiceTable(),
             $currentData,
             ['id' => $New->getCleanId()]
@@ -1212,7 +1279,15 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             $PermissionUser = QUI::getUserBySession();
         }
 
-        if ($PermissionUser->getUUID() !== $this->getCustomer()->getUUID()) {
+        $Customer = $this->getCustomer();
+
+        if ($Customer === null) {
+            throw new Exception(
+                Utils\Invoice::getMissingAttributeMessage('customer_id')
+            );
+        }
+
+        if ($PermissionUser->getUUID() !== $Customer->getUUID()) {
             QUI\Permissions\Permission::checkPermission(
                 'quiqqer.invoice.post',
                 $PermissionUser
@@ -1236,6 +1311,15 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $date = date('Y-m-d H:i:s'); // invoice date, to today
         $isBrutto = QUI\ERP\Defaults::getBruttoNettoStatus();
         $Customer = $this->getCustomer();
+
+        if ($Customer === null) {
+            throw new Exception(
+                Utils\Invoice::getMissingAttributeMessage('customer_id')
+            );
+        }
+
+        $customerId = $Customer->getUUID()
+            ?: $this->getAttribute('customer_id');
         $Handler = Handler::getInstance();
 
         if (QUI\Permissions\Permission::hasPermission('quiqqer.invoice.changeDate')) {
@@ -1247,9 +1331,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             }
         }
 
-        if ($Customer) {
-            $isBrutto = QUI\ERP\Utils\User::getBruttoNettoUserStatus($this->getCustomer());
-        }
+        $isBrutto = QUI\ERP\Utils\User::getBruttoNettoUserStatus($Customer);
 
         // address
         try {
@@ -1320,7 +1402,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         }
 
         $timeForPayment = strtotime(date('Y-m-d') . ' 00:00 + ' . $paymentTime . ' days');
-        $timeForPayment = date('Y-m-d', $timeForPayment);
+        $timeForPayment = date('Y-m-d', (int)$timeForPayment);
         $timeForPayment .= ' 23:59:59';
 
         $servicePeriod = InvoiceUtils::normalizeServicePeriod($this->getAttribute('service_period'));
@@ -1463,26 +1545,29 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         );
 
         // new invoice id
-        $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $Config = Settings::getConfig();
         $invoiceId = $Config->getValue('invoice', 'invoiceCurrentIdIndex');
 
         if (empty($invoiceId)) {
             $invoiceId = 0;
             $invoiceTable = $Handler->invoiceTable();
 
-            $nextId = QUI::getDatabase()->fetchSQL(
-                "SELECT MAX(id) + 1 AS nextId FROM $invoiceTable;"
-            );
+            $nextId = QUI::getDataBaseConnection()->createQueryBuilder()
+                ->select('MAX(' . Doctrine::quoteIdentifier('id') . ') + 1')
+                ->from(Doctrine::quoteIdentifier($invoiceTable))
+                ->executeQuery()
+                ->fetchOne();
 
-            if (!empty($nextId)) {
-                $invoiceId = (int)$nextId[0]['nextId'];
+            if ($nextId !== false && $nextId !== null) {
+                $invoiceId = (int)$nextId;
             }
         } else {
             $invoiceId = (int)$invoiceId + 1;
         }
 
         // new invoice database entry
-        QUI::getDataBase()->insert(
+        $Connection = QUI::getDataBaseConnection();
+        $Connection->insert(
             $Handler->invoiceTable(),
             [
                 'type' => $type,
@@ -1500,7 +1585,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 'ordered_by' => $orderedBy,
                 'ordered_by_name' => $orderedByName,
                 'contact_person' => $contactPerson,
-                'customer_id' => $this->getCustomer()->getUUID(),
+                'customer_id' => $customerId,
                 'customer_data' => json_encode($customerData),
 
                 // addresses
@@ -1510,7 +1595,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 // payments
                 'payment_method' => $this->getAttribute('payment_method'),
                 'payment_method_data' => json_encode($paymentMethodData),
-                'payment_data' => QUI\Security\Encryption::encrypt(json_encode($this->paymentData)),
+                'payment_data' => QUI\Security\Encryption::encrypt((string)json_encode($this->paymentData)),
                 'payment_time' => null,
                 'time_for_payment' => $timeForPayment,
 
@@ -1554,7 +1639,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $Config->set('invoice', 'invoiceCurrentIdIndex', $invoiceId);
         $Config->save();
 
-        $newId = QUI::getDataBase()->getPDO()->lastInsertId('id');
+        $newId = $Connection->lastInsertId();
 
         // if temporary invoice was a credit note
         // add history entry to original invoice
@@ -1582,7 +1667,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $calculation = QUI\ERP\Accounting\Calc::calculatePayments($Invoice);
 
         if (!empty($calculation)) {
-            QUI::getDataBase()->update(
+            QUI::getDataBaseConnection()->update(
                 $Handler->invoiceTable(),
                 [
                     'paid_data' => json_encode($calculation['paidData']),
@@ -1597,13 +1682,19 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         if (QUI\ERP\Currency\Conf::accountingCurrencyEnabled()) {
             $AccountingCurrency = QUI\ERP\Currency\Conf::getAccountingCurrency();
 
-            $acData = [
-                'accountingCurrency' => $AccountingCurrency->toArray(),
-                'currency' => $this->getCurrency()->toArray(),
-                'rate' => $this->getCurrency()->getExchangeRate($AccountingCurrency)
-            ];
+            if ($AccountingCurrency !== null) {
+                $acData = [
+                    'accountingCurrency' => $AccountingCurrency->toArray(),
+                    'currency' => $this->getCurrency()->toArray(),
+                    'rate' => $this->getCurrency()->getExchangeRate($AccountingCurrency)
+                ];
 
-            $Invoice->addCustomDataEntry('accountingCurrencyData', $acData);
+                $Invoice->addCustomDataEntry('accountingCurrencyData', $acData);
+            } else {
+                QUI\System\Log::addError(
+                    'Accounting currency is enabled but no accounting currency is available.'
+                );
+            }
         }
 
         QUI::getEvents()->fireEvent(
@@ -1658,7 +1749,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Parse the Temporary invoice to an array
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
@@ -1818,7 +1909,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         };
 
         if ($isValidTimeStamp($date) === false) {
-            $date = strtotime($date);
+            $date = strtotime((string)$date);
 
             if ($isValidTimeStamp($date) === false) {
                 $date = time();
@@ -1932,7 +2023,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_ERROR);
         }
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             [
                 'paid_data' => $this->getAttribute('paid_data'),
@@ -2013,7 +2104,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Import an article array
      *
-     * @param array $articles - array of articles, eq: [0] => Array
+     * @param array<int|string, mixed> $articles - array of articles, eq: [0] => Array
      * (
      *       [productId] => 5
      *       [type] => QUI\ERP\Products\Product\Product
@@ -2176,7 +2267,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     {
         $this->customData[$key] = $value;
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             ['custom_data' => json_encode($this->customData)],
             ['id' => $this->getCleanId()]
@@ -2191,10 +2282,10 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Return a wanted custom data entry
      *
-     * @param $key
+     * @param string $key
      * @return mixed|null
      */
-    public function getCustomDataEntry($key): mixed
+    public function getCustomDataEntry(string $key): mixed
     {
         if (isset($this->customData[$key])) {
             return $this->customData[$key];
@@ -2206,7 +2297,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Return all custom data
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getCustomData(): array
     {
@@ -2247,13 +2338,13 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
      * Parses the payment for the invoice payment method data field
      *
      * @param QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment
-     * @return array
+     * @return array<string, mixed>
      */
     protected function parsePaymentForPaymentData(QUI\ERP\Accounting\Payments\Types\PaymentInterface $Payment): array
     {
         $data = $Payment->toArray();
         $Locale = new QUI\Locale();
-        $languages = QUI\Translator::getAvailableLanguages();
+        $languages = QUI::availableLanguages();
 
         $data['title'] = [];
         $data['workingTitle'] = [];
@@ -2475,7 +2566,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Set the delivery address
      *
-     * @param array|QUI\ERP\Address $address
+     * @param array<string, mixed>|QUI\ERP\Address $address
      */
     public function setDeliveryAddress(array | QUI\ERP\Address $address): void
     {
@@ -2489,8 +2580,8 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     }
 
     /**
-     * @param array $address
-     * @return array
+     * @param array<string, mixed> $address
+     * @return array<string, mixed>
      */
     protected function parseAddressData(array $address): array
     {
@@ -2547,7 +2638,8 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Set the customer for the invoice.
      *
-     * @param QUI\ERP\User|array|QUI\Interfaces\Users\User|null $User The customer data. Can be a QUI\ERP\User object,
+     * @param QUI\ERP\User|array<string, mixed>|QUI\Interfaces\Users\User|null $User The customer data. Can be a
+     *                                                              QUI\ERP\User object,
      *                                                              an array of customer data, or a QUI\Interfaces\Users\User
      *                                                              object. Pass null to unset the customer.
      *
@@ -2632,6 +2724,11 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                         $User[$missingAttribute] = '';
                     }
                 }
+            }
+
+            // ERP\User treats "id" as a legacy numeric ID, so preserve modern UUID customer identifiers explicitly.
+            if (!isset($User['uuid']) && isset($User['id'])) {
+                $User['uuid'] = (string)$User['id'];
             }
 
             $customerId = (new QUI\ERP\User($User))->getUUID();

@@ -271,6 +271,9 @@ class McpProvider implements ProviderInterface
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getTemporaryInvoiceDataSchema(): array
     {
         return [
@@ -368,6 +371,9 @@ class McpProvider implements ProviderInterface
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getArticleSchema(): array
     {
         return [
@@ -416,6 +422,9 @@ class McpProvider implements ProviderInterface
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getAddressSchema(string $description): array
     {
         return [
@@ -505,6 +514,8 @@ class McpProvider implements ProviderInterface
     }
 
     /**
+     * @param array<string, mixed> $data
+     *
      * @throws QUI\Exception
      */
     private function applyTemporaryInvoiceData(InvoiceTemporary $Invoice, array $data): void
@@ -583,6 +594,8 @@ class McpProvider implements ProviderInterface
     }
 
     /**
+     * @return array<string, mixed>
+     *
      * @throws QUI\Exception
      */
     private function searchInvoices(
@@ -615,11 +628,11 @@ class McpProvider implements ProviderInterface
         }
 
         if ($from !== '') {
-            $Search->setFilter('from', $this->parseDateFilter($from, true));
+            $Search->setFilter('from', (string)$this->parseDateFilter($from, true));
         }
 
         if ($to !== '') {
-            $Search->setFilter('to', $this->parseDateFilter($to, false));
+            $Search->setFilter('to', (string)$this->parseDateFilter($to, false));
         }
 
         $entries = $Search->search();
@@ -666,6 +679,8 @@ class McpProvider implements ProviderInterface
     }
 
     /**
+     * @return array<string, mixed>
+     *
      * @throws QUI\Exception
      */
     private function parseInvoice(Invoice | InvoiceTemporary $Invoice, bool $includeArticles): array

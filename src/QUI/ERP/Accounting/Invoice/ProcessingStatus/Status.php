@@ -32,7 +32,7 @@ class Status
     /**
      * Default options.
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $options = [
         Handler::STATUS_OPTION_PREVENT_INVOICE_POSTING => false
@@ -117,7 +117,7 @@ class Status
      * Set status option
      *
      * @param string $key - See $this->options for available options
-     * @param $value
+     * @param mixed $value
      */
     public function setOption(string $key, $value): void
     {
@@ -144,7 +144,7 @@ class Status
     /**
      * Get all status options
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getOptions(): array
     {
@@ -157,7 +157,12 @@ class Status
      * Status as array
      *
      * @param null|QUI\Locale $Locale - optional. if no locale, all translations would be returned
-     * @return array
+     * @return array{
+     *     id: int,
+     *     title: string|array<string, array<mixed>|string>,
+     *     color: string,
+     *     options: array<string, mixed>
+     * }
      */
     public function toArray(null | QUI\Locale $Locale = null): array
     {

@@ -23,7 +23,7 @@ class Article extends QUI\ERP\Accounting\Article
 {
     /**
      * @inheritdoc
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

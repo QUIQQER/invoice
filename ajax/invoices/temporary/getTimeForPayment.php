@@ -7,7 +7,7 @@
 /**
  * @return int
  */
-QUI::$Ajax->registerFunction(
+QUI::getAjax()->registerFunction(
     'package_quiqqer_invoice_ajax_invoices_temporary_getTimeForPayment',
     function ($uid) {
         return QUI\ERP\Customer\Utils::getInstance()->getPaymentTimeForUser((int)$uid);

@@ -23,6 +23,7 @@ use QUI\ERP\ErpEntityInterface;
 use QUI\ERP\ErpTransactionsInterface;
 use QUI\ERP\ErpCopyInterface;
 use QUI\Permissions\Permission;
+use QUI\Utils\Doctrine;
 
 use function array_key_exists;
 use function class_exists;
@@ -82,19 +83,19 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     protected mixed $globalProcessId;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $data = [];
 
     /**
      * variable data for developers
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $customData = [];
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $paymentData = [];
 
@@ -106,13 +107,13 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     /**
      * Invoice constructor.
      *
-     * @param $id
+     * @param int|string $id
      * @param Handler $Handler
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function __construct($id, Handler $Handler)
+    public function __construct(int | string $id, Handler $Handler)
     {
         $invoiceData = $Handler->getInvoiceData($id);
         $this->setAttributes($invoiceData);
@@ -429,7 +430,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * - How many has already been paid
      * - How many must be paid
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws Exception
      * @throws QUI\Exception
      */
@@ -575,7 +576,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      *
      * @param string $reason
      * @param null|QUI\Interfaces\Users\User $PermissionUser
-     * @return ?QUI\ERP\ErpEntityInterface
+     * @return QUI\ERP\ErpEntityInterface
      *
      * @throws Exception
      * @throws QUI\Exception
@@ -584,7 +585,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     public function reversal(
         string $reason = '',
         null | QUI\Interfaces\Users\User $PermissionUser = null
-    ): ?QUI\ERP\ErpEntityInterface {
+    ): QUI\ERP\ErpEntityInterface {
         // is canceled / reversal possible?
         if (!Settings::getInstance()->get('invoice', 'storno')) {
             // @todo implement credit note
@@ -712,7 +713,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
         $this->data['canceledId'] = $Reversal->getUUID();
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             [
                 'type' => $this->type,
@@ -806,17 +807,21 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
         $Handler = Handler::getInstance();
         $Factory = Factory::getInstance();
+
+        $currentData = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select('*')
+            ->from(Doctrine::quoteIdentifier($Handler->invoiceTable()))
+            ->where(Doctrine::quoteIdentifier('hash') . ' = :hash')
+            ->setParameter('hash', $this->getUUID())
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
+
+        if ($currentData === false) {
+            throw new QUI\Exception('Invoice data could not be loaded for copying.');
+        }
+
         $New = $Factory->createInvoice($User);
-
-        $currentData = QUI::getDataBase()->fetch([
-            'from' => $Handler->invoiceTable(),
-            'where' => [
-                'hash' => $this->getUUID()
-            ],
-            'limit' => 1
-        ]);
-
-        $currentData = $currentData[0];
 
         QUI::getEvents()->fireEvent('quiqqerInvoiceCopy', [$this]);
 
@@ -840,7 +845,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             }
         }
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             $Handler->temporaryInvoiceTable(),
             [
                 'global_process_id' => $globalProcessId,
@@ -1020,6 +1025,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         );
 
         $additionalText = $Copy->getAttribute('additional_invoice_text');
+
+        if (!is_string($additionalText)) {
+            $additionalText = '';
+        }
 
         if (!empty($additionalText)) {
             $additionalText .= '<br />';
@@ -1201,6 +1210,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
 
         $additionalText = $Copy->getAttribute('additional_invoice_text');
+
+        if (!is_string($additionalText)) {
+            $additionalText = '';
+        }
 
         if (!empty($additionalText)) {
             $additionalText .= '<br />';
@@ -1384,7 +1397,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         };
 
         if ($isValidTimeStamp($date) === false) {
-            $date = strtotime($date);
+            $date = strtotime((string)$date);
 
             if ($isValidTimeStamp($date) === false) {
                 $date = time();
@@ -1495,7 +1508,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
                 $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_ERROR);
         }
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             [
                 'paid_data' => $this->getAttribute('paid_data'),
@@ -1566,7 +1579,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             return;
         }
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             [
                 'paid_data' => $this->getAttribute('paid_data'),
@@ -1631,7 +1644,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             $outputType,
             null,
             null,
-            $template,
+            (string)$template,
             $recipient
         );
     }
@@ -1690,7 +1703,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             )
         );
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             ['comments' => $Comments->toJSON()],
             ['id' => $this->getId()]
@@ -1740,7 +1753,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
         $this->setAttribute('history', $History->toJSON());
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             ['history' => $History->toJSON()],
             ['id' => $this->getId()]
@@ -1778,7 +1791,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     {
         $this->customData[$key] = $value;
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             ['custom_data' => json_encode($this->customData)],
             ['id' => $this->getId()]
@@ -1799,10 +1812,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     /**
      * Return a wanted custom data entry
      *
-     * @param $key
+     * @param string $key
      * @return mixed|null
      */
-    public function getCustomDataEntry($key): mixed
+    public function getCustomDataEntry(string $key): mixed
     {
         if (isset($this->customData[$key])) {
             return $this->customData[$key];
@@ -1814,7 +1827,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     /**
      * Return all custom data
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getCustomData(): array
     {
@@ -1824,7 +1837,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     //endregion
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
@@ -1859,7 +1872,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         $CurrentStatus = $this->getProcessingStatus();
 
         try {
-            QUI::getDataBase()->update(
+            QUI::getDataBaseConnection()->update(
                 Handler::getInstance()->invoiceTable(),
                 ['processing_status' => $Status->getId()],
                 ['id' => $this->getId()]
@@ -1989,10 +2002,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
      * this method is there to comply with the interface
      * customer is not changeable at an invoice
      *
-     * @param $User
+     * @param array<mixed>|User $User
      * @return void
      */
-    public function setCustomer($User)
+    public function setCustomer(array | User $User): void
     {
         // customer is not changeable at an invoice
     }

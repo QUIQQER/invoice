@@ -48,7 +48,10 @@ class InvoiceView extends QUI\QDOM
         try {
             return $this->Invoice->getArticles();
         } catch (\Exception) {
-            return new ArticleListUnique();
+            return new ArticleListUnique([
+                'articles' => [],
+                'calculations' => []
+            ]);
         }
     }
 
@@ -109,17 +112,17 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
-     * @param $dateString
+     * @param string $dateString
      * @param Locale|null $Locale
      * @return false|string
      */
-    public function formatDate($dateString, null | QUI\Locale $Locale = null): bool | string
+    public function formatDate(string $dateString, null | QUI\Locale $Locale = null): bool | string
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
         }
 
-        return $Locale->getDateFormatter()->format(strtotime($dateString));
+        return $Locale->getDateFormatter()->format((int)strtotime($dateString));
     }
 
     /**
@@ -131,7 +134,7 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function getPaidStatusInformation(): array
     {
@@ -296,7 +299,7 @@ class InvoiceView extends QUI\QDOM
 
             if ($timeForPayment) {
                 $timeForPayment = strtotime('+' . $timeForPayment . ' day');
-                $timeForPayment = $Formatter->format($timeForPayment);
+                $timeForPayment = $Formatter->format((int)$timeForPayment);
             } else {
                 $timeForPayment = $Locale->get('quiqqer/invoice', 'additional.invoice.text.timeForPayment.0');
             }
@@ -328,15 +331,19 @@ class InvoiceView extends QUI\QDOM
         $Payment = $Transaction->getPayment(); // payment method
         $PaymentType = $this->getPayment(); // payment method
 
-        $payment = $Payment->getTitle();
+        $payment = $PaymentType->getTitle($Locale);
         $Formatter = $Locale->getDateFormatter();
 
-        if ($PaymentType->getPaymentType() === $Payment->getClass()) {
-            $payment = $PaymentType->getTitle($Locale);
+        if ($Payment !== null) {
+            $payment = $Payment->getTitle();
+
+            if ($PaymentType->getPaymentType() === $Payment->getClass()) {
+                $payment = $PaymentType->getTitle($Locale);
+            }
         }
 
         return $Locale->get('quiqqer/invoice', 'invoice.view.payment.transaction.text', [
-            'date' => $Formatter->format(strtotime($Transaction->getDate())),
+            'date' => $Formatter->format((int)strtotime($Transaction->getDate())),
             'payment' => $payment
         ]);
     }

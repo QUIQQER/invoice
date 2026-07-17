@@ -7,6 +7,7 @@
 namespace QUI\ERP\Accounting\Invoice\ProcessingStatus;
 
 use QUI;
+use QUI\ERP\Accounting\Invoice\Settings;
 
 use function array_keys;
 use function count;
@@ -26,8 +27,8 @@ class Factory extends QUI\Utils\Singleton
      *
      * @param integer|string $id - processing ID
      * @param string $color - color of the status
-     * @param array $title - title
-     * @param array $options (optional) - Status options
+     * @param array<string, string> $title - title
+     * @param array<string, mixed> $options (optional) - Status options
      * @throws Exception|QUI\Exception
      * @todo permissions
      */
@@ -49,8 +50,7 @@ class Factory extends QUI\Utils\Singleton
         }
 
         // config
-        $Package = QUI::getPackage('quiqqer/invoice');
-        $Config = $Package->getConfig();
+        $Config = Settings::getConfig();
 
         $Config->setValue(
             'processing_status',
@@ -58,10 +58,11 @@ class Factory extends QUI\Utils\Singleton
             json_encode([
                 'color' => $color,
                 'options' => $options
-            ])
+            ], JSON_THROW_ON_ERROR)
         );
 
         $Config->save();
+        Handler::getInstance()->clearCache();
 
         // translations
         $languages = QUI::availableLanguages();
