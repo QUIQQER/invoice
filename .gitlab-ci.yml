@@ -1,7 +1,6 @@
 include:
   - component: $CI_SERVER_FQDN/quiqqer/stabilization/ci-cd-components/quiqqer-package-bundle/quiqqer-package-bundle@main
     inputs:
-      php-81: false
       php-82: true
       php-83: true
       php-84: true
