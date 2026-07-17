@@ -633,10 +633,12 @@ class Invoice
     /**
      * Return the time for payment date as unix timestamp
      *
-     * @param Invoice|InvoiceTemporary $Invoice
+     * @param QUI\ERP\Accounting\Invoice\Invoice|InvoiceTemporary $Invoice
      * @return int - Unix Timestamp
      */
-    public static function getInvoiceTimeForPaymentDate(InvoiceTemporary | Invoice $Invoice): int
+    public static function getInvoiceTimeForPaymentDate(
+        InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice
+    ): int
     {
         $timeForPayment = $Invoice->getAttribute('time_for_payment');
 
