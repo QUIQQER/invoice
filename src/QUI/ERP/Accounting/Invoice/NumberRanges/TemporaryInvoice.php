@@ -9,8 +9,7 @@ namespace QUI\ERP\Accounting\Invoice\NumberRanges;
 use QUI;
 use QUI\Database\Exception;
 use QUI\ERP\Api\NumberRangeInterface;
-
-use function is_numeric;
+use QUI\Utils\Doctrine;
 
 /**
  * Class TemporaryInvoice
@@ -41,11 +40,12 @@ class TemporaryInvoice implements NumberRangeInterface
      */
     public function getRange(): int
     {
-        $Table = QUI::getDataBase()->table();
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
-        return $Table->getAutoIncrementIndex(
-            $Handler->temporaryInvoiceTable()
+        return (int)QUI::getDataBaseConnection()->fetchOne(
+            'SELECT AUTO_INCREMENT FROM information_schema.TABLES '
+            . 'WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table',
+            ['table' => $Handler->temporaryInvoiceTable()]
         );
     }
 
@@ -56,12 +56,9 @@ class TemporaryInvoice implements NumberRangeInterface
     {
         $Handler = QUI\ERP\Accounting\Invoice\Handler::getInstance();
         $tableName = $Handler->temporaryInvoiceTable();
-        $PDO = QUI::getDataBase()->getPDO();
 
-        $Statement = $PDO->prepare(
-            "ALTER TABLE $tableName AUTO_INCREMENT = " . (int)$range
+        QUI::getDataBaseConnection()->executeStatement(
+            'ALTER TABLE ' . Doctrine::quoteIdentifier($tableName) . ' AUTO_INCREMENT = ' . (int)$range
         );
-
-        $Statement->execute();
     }
 }

@@ -6,8 +6,8 @@
 
 namespace QUI\ERP\Accounting\Invoice\Search;
 
+use Doctrine\DBAL\ParameterType;
 use Exception;
-use PDO;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
@@ -389,7 +389,7 @@ class InvoiceSearch extends Singleton
 
         $binds[':currency'] = [
             'value' => $this->currency,
-            'type' => PDO::PARAM_STR
+            'type' => ParameterType::STRING
         ];
 
         // filter
@@ -416,12 +416,12 @@ class InvoiceSearch extends Singleton
 
                         $binds[$bind1] = [
                             'value' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
-                            'type' => PDO::PARAM_INT
+                            'type' => ParameterType::INTEGER
                         ];
 
                         $binds[$bind2] = [
                             'value' => QUI\ERP\Constants::PAYMENT_STATUS_PART,
-                            'type' => PDO::PARAM_INT
+                            'type' => ParameterType::INTEGER
                         ];
 
                         break;
@@ -431,7 +431,7 @@ class InvoiceSearch extends Singleton
 
                     $binds[$bind] = [
                         'value' => (int)$filter['value'],
-                        'type' => PDO::PARAM_INT
+                        'type' => ParameterType::INTEGER
                     ];
 
                     break;
@@ -454,7 +454,7 @@ class InvoiceSearch extends Singleton
 
                     $binds[$bind] = [
                         'value' => (int)$value,
-                        'type' => PDO::PARAM_INT
+                        'type' => ParameterType::INTEGER
                     ];
 
                     break;
@@ -469,7 +469,7 @@ class InvoiceSearch extends Singleton
 
                     $binds[$bind] = [
                         'value' => (int)$filter['value'],
-                        'type' => PDO::PARAM_INT
+                        'type' => ParameterType::INTEGER
                     ];
 
                     break;
@@ -477,7 +477,7 @@ class InvoiceSearch extends Singleton
 
             $binds[$bind] = [
                 'value' => $filter['value'],
-                'type' => PDO::PARAM_STR
+                'type' => ParameterType::STRING
             ];
 
             $fc++;
@@ -500,7 +500,7 @@ class InvoiceSearch extends Singleton
 
             $binds['customerIdSearch'] = [
                 'value' => '%' . $customerIdSearch . '%',
-                'type' => PDO::PARAM_STR
+                'type' => ParameterType::STRING
             ];
 
             $where[] = '(
@@ -544,25 +544,25 @@ class InvoiceSearch extends Singleton
 
                 $binds['searchId'] = [
                     'value' => $idSearch . '%',
-                    'type' => PDO::PARAM_STR
+                    'type' => ParameterType::STRING
                 ];
             } elseif (str_starts_with($this->search, $tempPrefix)) {
                 $idSearch = substr($this->search, strlen($tempPrefix));
 
                 $binds['searchId'] = [
                     'value' => $idSearch . '%',
-                    'type' => PDO::PARAM_STR
+                    'type' => ParameterType::STRING
                 ];
             } else {
                 $binds['searchId'] = [
                     'value' => '%' . $this->search . '%',
-                    'type' => PDO::PARAM_STR
+                    'type' => ParameterType::STRING
                 ];
             }
 
             $binds['search'] = [
                 'value' => '%' . $this->search . '%',
-                'type' => PDO::PARAM_STR
+                'type' => ParameterType::STRING
             ];
         }
 
@@ -602,20 +602,21 @@ class InvoiceSearch extends Singleton
      */
     protected function executeQueryParams(array $queryData = []): array
     {
-        $PDO = QUI::getDataBase()->getPDO();
         $binds = $queryData['binds'];
         $query = $queryData['query'];
-
-        $Statement = $PDO->prepare($query);
+        $parameters = [];
+        $types = [];
 
         foreach ($binds as $var => $bind) {
-            $Statement->bindValue($var, $bind['value'], $bind['type']);
+            $parameter = ltrim($var, ':');
+            $parameters[$parameter] = $bind['value'];
+            $types[$parameter] = $bind['type'];
         }
 
         try {
-            $Statement->execute();
-
-            return $Statement->fetchAll(PDO::FETCH_ASSOC);
+            return QUI::getDataBaseConnection()
+                ->executeQuery($query, $parameters, $types)
+                ->fetchAllAssociative();
         } catch (Exception $Exception) {
             QUI\System\Log::writeRecursive($Exception);
             QUI\System\Log::writeRecursive($query);

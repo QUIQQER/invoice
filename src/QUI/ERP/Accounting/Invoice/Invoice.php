@@ -23,6 +23,7 @@ use QUI\ERP\ErpEntityInterface;
 use QUI\ERP\ErpTransactionsInterface;
 use QUI\ERP\ErpCopyInterface;
 use QUI\Permissions\Permission;
+use QUI\Utils\Doctrine;
 
 use function array_key_exists;
 use function class_exists;
@@ -712,7 +713,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
         $this->data['canceledId'] = $Reversal->getUUID();
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             [
                 'type' => $this->type,
@@ -808,15 +809,14 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         $Factory = Factory::getInstance();
         $New = $Factory->createInvoice($User);
 
-        $currentData = QUI::getDataBase()->fetch([
-            'from' => $Handler->invoiceTable(),
-            'where' => [
-                'hash' => $this->getUUID()
-            ],
-            'limit' => 1
-        ]);
-
-        $currentData = $currentData[0];
+        $currentData = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select('*')
+            ->from(Doctrine::quoteIdentifier($Handler->invoiceTable()))
+            ->where(Doctrine::quoteIdentifier('hash') . ' = :hash')
+            ->setParameter('hash', $this->getUUID())
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
 
         QUI::getEvents()->fireEvent('quiqqerInvoiceCopy', [$this]);
 
@@ -840,7 +840,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             }
         }
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             $Handler->temporaryInvoiceTable(),
             [
                 'global_process_id' => $globalProcessId,
@@ -1495,7 +1495,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
                 $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_ERROR);
         }
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             [
                 'paid_data' => $this->getAttribute('paid_data'),
@@ -1566,7 +1566,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             return;
         }
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             [
                 'paid_data' => $this->getAttribute('paid_data'),
@@ -1690,7 +1690,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
             )
         );
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             ['comments' => $Comments->toJSON()],
             ['id' => $this->getId()]
@@ -1740,7 +1740,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
         $this->setAttribute('history', $History->toJSON());
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             ['history' => $History->toJSON()],
             ['id' => $this->getId()]
@@ -1778,7 +1778,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     {
         $this->customData[$key] = $value;
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->invoiceTable(),
             ['custom_data' => json_encode($this->customData)],
             ['id' => $this->getId()]
@@ -1859,7 +1859,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         $CurrentStatus = $this->getProcessingStatus();
 
         try {
-            QUI::getDataBase()->update(
+            QUI::getDataBaseConnection()->update(
                 Handler::getInstance()->invoiceTable(),
                 ['processing_status' => $Status->getId()],
                 ['id' => $this->getId()]

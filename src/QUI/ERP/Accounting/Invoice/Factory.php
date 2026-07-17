@@ -64,7 +64,8 @@ class Factory extends QUI\Utils\Singleton
             $editor = $c_user;
         }
 
-        QUI::getDataBase()->insert(
+        $Connection = QUI::getDataBaseConnection();
+        $Connection->insert(
             Handler::getInstance()->temporaryInvoiceTable(),
             [
                 'c_user' => $c_user,
@@ -81,7 +82,7 @@ class Factory extends QUI\Utils\Singleton
             ]
         );
 
-        $newId = QUI::getDataBase()->getPDO()->lastInsertId();
+        $newId = $Connection->lastInsertId();
 
         try {
             $TemporaryInvoice = Handler::getInstance()->getTemporaryInvoice($newId);

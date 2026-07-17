@@ -20,6 +20,7 @@ use QUI\ERP\Products\Handler\Search;
 use QUI\Mail\Mailer;
 use QUI\Package\Package;
 use QUI\Smarty\Collector;
+use QUI\Utils\Doctrine;
 
 use function dirname;
 use function file_exists;
@@ -27,7 +28,6 @@ use function file_get_contents;
 use function in_array;
 use function is_numeric;
 use function str_replace;
-use function strtolower;
 use function strtotime;
 
 /**
@@ -438,13 +438,17 @@ class EventHandler
 
         $table = Handler::getInstance()->invoiceTable();
 
-        $result = QUI::getDataBase()->fetch([
-            'select' => ['id', 'id_prefix'],
-            'from' => $table
-        ]);
+        $result = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select(
+                Doctrine::quoteIdentifier('id'),
+                Doctrine::quoteIdentifier('id_prefix')
+            )
+            ->from(Doctrine::quoteIdentifier($table))
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         foreach ($result as $row) {
-            QUI::getDataBase()->update(
+            QUI::getDataBaseConnection()->update(
                 $table,
                 [
                     'id_with_prefix' => $row['id_prefix'] . $row['id']
@@ -470,8 +474,8 @@ class EventHandler
         $invoiceTable = Handler::getInstance()->invoiceTable();
 
         // migrate database
-        $alterOrderId = function ($table) {
-            $tableInfo = QUI::getDatabase()->table()->getFieldsInfos($table);
+        $alterOrderId = function (string $table): void {
+            $Table = QUI::getSchemaManager()->introspectTable($table);
             $hashFields = [
                 'c_user' => 'VARCHAR(50) NOT NULL',
                 'editor_id' => 'VARCHAR(50) NULL',
@@ -481,20 +485,23 @@ class EventHandler
                 'order_id' => 'VARCHAR(50) NULL',
             ];
 
-            foreach ($tableInfo as $tableEntry) {
-                $tableField = $tableEntry['Field'];
-
-                if (!isset($hashFields[$tableField])) {
+            foreach ($hashFields as $tableField => $definition) {
+                if (!$Table->hasColumn($tableField)) {
                     continue;
                 }
 
-                $swl = $hashFields[$tableField];
+                $Column = $Table->getColumn($tableField);
 
-                if (!str_contains(strtolower($tableEntry['Type']), 'varchar')) {
-                    QUI::getDatabase()->execSQL(
-                        "ALTER TABLE `$table` CHANGE `$tableField` `$tableField` $swl;"
-                    );
+                if ($Column->getType() instanceof \Doctrine\DBAL\Types\StringType) {
+                    continue;
                 }
+
+                QUI::getDataBaseConnection()->executeStatement(
+                    'ALTER TABLE ' . Doctrine::quoteIdentifier($table)
+                    . ' CHANGE ' . Doctrine::quoteIdentifier($tableField)
+                    . ' ' . Doctrine::quoteIdentifier($tableField)
+                    . ' ' . $definition
+                );
             }
         };
 
@@ -514,9 +521,14 @@ class EventHandler
 
 
         // migrate order ids
-        $result = QUI::getDataBase()->fetch([
-            'from' => Handler::getInstance()->invoiceTable()
-        ]);
+        $result = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select(
+                Doctrine::quoteIdentifier('id'),
+                Doctrine::quoteIdentifier('order_id')
+            )
+            ->from(Doctrine::quoteIdentifier(Handler::getInstance()->invoiceTable()))
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         foreach ($result as $invoice) {
             if (!is_numeric($invoice['order_id'])) {
@@ -530,7 +542,7 @@ class EventHandler
             try {
                 $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById($invoice['order_id']);
 
-                QUI::getDataBase()->update(
+                QUI::getDataBaseConnection()->update(
                     $invoiceTable,
                     ['order_id' => $Order->getUUID()],
                     ['id' => $invoice['id']]

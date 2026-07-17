@@ -6,7 +6,9 @@
 
 namespace QUI\ERP\Accounting\Invoice;
 
+use Doctrine\DBAL\Query\QueryBuilder;
 use QUI;
+use QUI\Utils\Doctrine;
 
 use function count;
 use function explode;
@@ -65,20 +67,20 @@ class Handler extends QUI\Utils\Singleton
         $result = [];
 
         try {
-            $invoices = QUI::getDataBase()->fetch([
-                'select' => 'id',
-                'from' => self::invoiceTable(),
-                'where' => [
-                    'customer_id' => $User->getUUID()
-                ]
-            ]);
-        } catch (QUI\Exception) {
+            $invoiceIds = QUI::getDataBaseConnection()->createQueryBuilder()
+                ->select(Doctrine::quoteIdentifier('id'))
+                ->from(Doctrine::quoteIdentifier(self::invoiceTable()))
+                ->where(Doctrine::quoteIdentifier('customer_id') . ' = :customerId')
+                ->setParameter('customerId', $User->getUUID())
+                ->executeQuery()
+                ->fetchFirstColumn();
+        } catch (\Exception) {
             return [];
         }
 
-        foreach ($invoices as $invoice) {
+        foreach ($invoiceIds as $invoiceId) {
             try {
-                $result[] = $this->getInvoice($invoice['id']);
+                $result[] = $this->getInvoice($invoiceId);
             } catch (QUI\Exception $Exception) {
                 QUI\System\Log::addDebug($Exception->getMessage());
             }
@@ -123,34 +125,12 @@ class Handler extends QUI\Utils\Singleton
      */
     public function search(array $params = []): array
     {
-        $query = [
-            'from' => $this->invoiceTable(),
-            'limit' => 20
-        ];
+        $params['limit'] ??= 20;
+        $params['order'] ??= 'id DESC';
 
-        if (isset($params['select'])) {
-            $query['select'] = $params['select'];
-        }
-
-        if (isset($params['where'])) {
-            $query['where'] = $params['where'];
-        }
-
-        if (isset($params['where_or'])) {
-            $query['where_or'] = $params['where_or'];
-        }
-
-        if (isset($params['limit'])) {
-            $query['limit'] = $params['limit'];
-        }
-
-        if (isset($params['order'])) {
-            $query['order'] = $params['order'];
-        } else {
-            $query['order'] = 'id DESC';
-        }
-
-        return QUI::getDataBase()->fetch($query);
+        return $this->createSearchQueryBuilder($this->invoiceTable(), $params)
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 
     /**
@@ -163,29 +143,9 @@ class Handler extends QUI\Utils\Singleton
      */
     public function count(array $queryParams = []): int
     {
-        $query = [
-            'from' => $this->invoiceTable(),
-            'count' => [
-                'select' => 'id',
-                'as' => 'count'
-            ]
-        ];
-
-        if (isset($queryParams['where'])) {
-            $query['where'] = $queryParams['where'];
-        }
-
-        if (isset($queryParams['where_or'])) {
-            $query['where_or'] = $queryParams['where_or'];
-        }
-
-        $data = QUI::getDataBase()->fetch($query);
-
-        if (isset($data[0]['count'])) {
-            return (int)$data[0]['count'];
-        }
-
-        return 0;
+        return (int)$this->createSearchQueryBuilder($this->invoiceTable(), $queryParams, true)
+            ->executeQuery()
+            ->fetchOne();
     }
 
     /**
@@ -196,30 +156,17 @@ class Handler extends QUI\Utils\Singleton
      */
     public function searchTemporaryInvoices(array $params = []): array
     {
-        $query = [
-            'from' => $this->temporaryInvoiceTable(),
-            'limit' => 20
-        ];
+        $params['limit'] ??= 20;
 
-        if (isset($params['where'])) {
-            $query['where'] = $params['where'];
-        }
-
-        if (isset($params['where_or'])) {
-            $query['where_or'] = $params['where_or'];
-        }
-
-        if (isset($params['limit'])) {
-            $query['limit'] = $params['limit'];
-        }
-
-        if (isset($params['order']) && $this->canBeUseAsOrderField($params['order'])) {
-            $query['order'] = $params['order'];
+        if (isset($params['order']) && !$this->canBeUseAsOrderField($params['order'])) {
+            unset($params['order']);
         }
 
         try {
-            return QUI::getDataBase()->fetch($query);
-        } catch (QUi\Exception) {
+            return $this->createSearchQueryBuilder($this->temporaryInvoiceTable(), $params)
+                ->executeQuery()
+                ->fetchAllAssociative();
+        } catch (\Exception) {
             return [];
         }
     }
@@ -234,29 +181,9 @@ class Handler extends QUI\Utils\Singleton
      */
     public function countTemporaryInvoices(array $queryParams = []): int
     {
-        $query = [
-            'from' => $this->temporaryInvoiceTable(),
-            'count' => [
-                'select' => 'id',
-                'as' => 'count'
-            ]
-        ];
-
-        if (isset($queryParams['where'])) {
-            $query['where'] = $queryParams['where'];
-        }
-
-        if (isset($queryParams['where_or'])) {
-            $query['where_or'] = $queryParams['where_or'];
-        }
-
-        $data = QUI::getDataBase()->fetch($query);
-
-        if (isset($data[0]['count'])) {
-            return (int)$data[0]['count'];
-        }
-
-        return 0;
+        return (int)$this->createSearchQueryBuilder($this->temporaryInvoiceTable(), $queryParams, true)
+            ->executeQuery()
+            ->fetchOne();
     }
 
     /**
@@ -305,30 +232,31 @@ class Handler extends QUI\Utils\Singleton
     {
         $hash = QUI\Utils\Security\Orthos::clear($hash);
 
-        $result = QUI::getDataBase()->fetch([
-            'select' => 'id',
-            'from' => self::invoiceTable(),
-            'where' => [
-                'hash' => $hash
-            ],
-            'limit' => 1
-        ]);
+        $Connection = QUI::getDataBaseConnection();
+        $invoiceId = $Connection->createQueryBuilder()
+            ->select(Doctrine::quoteIdentifier('id'))
+            ->from(Doctrine::quoteIdentifier(self::invoiceTable()))
+            ->where(Doctrine::quoteIdentifier('hash') . ' = :hash')
+            ->setParameter('hash', $hash)
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
 
-        if (!empty($result)) {
-            return $this->getInvoice($result[0]['id']);
+        if ($invoiceId !== false) {
+            return $this->getInvoice($invoiceId);
         }
 
-        $result = QUI::getDataBase()->fetch([
-            'select' => 'id',
-            'from' => self::temporaryInvoiceTable(),
-            'where' => [
-                'hash' => $hash
-            ],
-            'limit' => 1
-        ]);
+        $invoiceId = $Connection->createQueryBuilder()
+            ->select(Doctrine::quoteIdentifier('id'))
+            ->from(Doctrine::quoteIdentifier(self::temporaryInvoiceTable()))
+            ->where(Doctrine::quoteIdentifier('hash') . ' = :hash')
+            ->setParameter('hash', $hash)
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
 
-        if (!empty($result)) {
-            return $this->getTemporaryInvoice($result[0]['id']);
+        if ($invoiceId !== false) {
+            return $this->getTemporaryInvoice($invoiceId);
         }
 
         throw new Exception(
@@ -349,27 +277,18 @@ class Handler extends QUI\Utils\Singleton
     public function getInvoiceData(int | string $id): array
     {
         // check invoice via hash
-        $result = QUI::getDataBase()->fetch([
-            'from' => self::invoiceTable(),
-            'where' => [
-                'hash' => $id
-            ],
-            'limit' => 1
-        ]);
+        $Connection = QUI::getDataBaseConnection();
+        $result = $Connection->createQueryBuilder()
+            ->select('*')
+            ->from(Doctrine::quoteIdentifier(self::invoiceTable()))
+            ->where(Doctrine::quoteIdentifier('hash') . ' = :id')
+            ->setParameter('id', $id)
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
 
-        if (!empty($result)) {
-            $result[0]['id'] = (int)$result[0]['id'];
-            $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
-            $result[0]['paid_status'] = (int)$result[0]['paid_status'];
-            $result[0]['canceled'] = (int)$result[0]['canceled'];
-            $result[0]['c_user'] = (int)$result[0]['c_user'];
-
-            $result[0]['nettosum'] = (float)$result[0]['nettosum'];
-            $result[0]['subsum'] = (float)$result[0]['subsum'];
-            $result[0]['sum'] = (float)$result[0]['sum'];
-            $result[0]['processing_status'] = (int)$result[0]['processing_status'];
-
-            return $result[0];
+        if ($result !== false) {
+            return $this->normalizeInvoiceData($result);
         }
 
         // check invoice via old ids
@@ -383,31 +302,31 @@ class Handler extends QUI\Utils\Singleton
             $whereOr['id'] = (int)$idSanitized;
         }
 
-        $result = QUI::getDataBase()->fetch([
-            'from' => self::invoiceTable(),
-            'where_or' => $whereOr,
-            'limit' => 1
-        ]);
+        $QueryBuilder = $Connection->createQueryBuilder()
+            ->select('*')
+            ->from(Doctrine::quoteIdentifier(self::invoiceTable()))
+            ->setMaxResults(1);
+        $orConditions = [];
 
-        if (empty($result)) {
+        foreach ($whereOr as $field => $value) {
+            $parameter = 'invoice_' . $field;
+            $orConditions[] = Doctrine::quoteIdentifier($field) . ' = :' . $parameter;
+            $QueryBuilder->setParameter($parameter, $value);
+        }
+
+        $result = $QueryBuilder
+            ->where($QueryBuilder->expr()->or(...$orConditions))
+            ->executeQuery()
+            ->fetchAssociative();
+
+        if ($result === false) {
             throw new Exception(
                 ['quiqqer/invoice', 'exception.invoice.not.found', ['id' => $id]],
                 404
             );
         }
 
-        $result[0]['id'] = (int)$result[0]['id'];
-        $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
-        $result[0]['paid_status'] = (int)$result[0]['paid_status'];
-        $result[0]['canceled'] = (int)$result[0]['canceled'];
-        $result[0]['c_user'] = (int)$result[0]['c_user'];
-
-        $result[0]['nettosum'] = (float)$result[0]['nettosum'];
-        $result[0]['subsum'] = (float)$result[0]['subsum'];
-        $result[0]['sum'] = (float)$result[0]['sum'];
-        $result[0]['processing_status'] = (int)$result[0]['processing_status'];
-
-        return $result[0];
+        return $this->normalizeInvoiceData($result);
     }
 
     //region temporary
@@ -447,25 +366,25 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getTemporaryInvoiceByHash(string $hash): InvoiceTemporary
     {
-        $result = QUI::getDataBase()->fetch([
-            'select' => 'id',
-            'from' => self::temporaryInvoiceTable(),
-            'where' => [
-                'hash' => $hash
-            ],
-            'limit' => 1
-        ]);
+        $invoiceId = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select(Doctrine::quoteIdentifier('id'))
+            ->from(Doctrine::quoteIdentifier(self::temporaryInvoiceTable()))
+            ->where(Doctrine::quoteIdentifier('hash') . ' = :hash')
+            ->setParameter('hash', $hash)
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
 
         $hash = QUI\Utils\Security\Orthos::clear($hash);
 
-        if (!isset($result[0])) {
+        if ($invoiceId === false) {
             throw new Exception(
                 ['quiqqer/invoice', 'exception.temporary.invoice.not.found', ['id' => $hash]],
                 404
             );
         }
 
-        return $this->getTemporaryInvoice($result[0]['id']);
+        return $this->getTemporaryInvoice($invoiceId);
     }
 
     /**
@@ -479,28 +398,31 @@ class Handler extends QUI\Utils\Singleton
      */
     public function getTemporaryInvoiceData(int | string $id): array
     {
-        $result = QUI::getDataBase()->fetch([
-            'from' => self::temporaryInvoiceTable(),
-            'where' => [
-                'hash' => $id
-            ],
-            'limit' => 1
-        ]);
+        $Connection = QUI::getDataBaseConnection();
+        $result = $Connection->createQueryBuilder()
+            ->select('*')
+            ->from(Doctrine::quoteIdentifier(self::temporaryInvoiceTable()))
+            ->where(Doctrine::quoteIdentifier('hash') . ' = :id')
+            ->setParameter('id', $id)
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
 
-        if (empty($result)) {
+        if ($result === false) {
             $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
             $id = QUI\Utils\Security\Orthos::clear($id);
 
-            $result = QUI::getDataBase()->fetch([
-                'from' => self::temporaryInvoiceTable(),
-                'where' => [
-                    'id' => (int)str_replace($prefix, '', $id)
-                ],
-                'limit' => 1
-            ]);
+            $result = $Connection->createQueryBuilder()
+                ->select('*')
+                ->from(Doctrine::quoteIdentifier(self::temporaryInvoiceTable()))
+                ->where(Doctrine::quoteIdentifier('id') . ' = :id')
+                ->setParameter('id', (int)str_replace($prefix, '', $id))
+                ->setMaxResults(1)
+                ->executeQuery()
+                ->fetchAssociative();
         }
 
-        if (!isset($result[0])) {
+        if ($result === false) {
             throw new Exception(
                 ['quiqqer/invoice', 'exception.temporary.invoice.not.found', ['id' => $id]],
                 404
@@ -509,22 +431,22 @@ class Handler extends QUI\Utils\Singleton
 
         $canceled = null;
 
-        if (isset($result[0]['canceled'])) {
-            $canceled = (int)$result[0]['canceled'];
+        if (isset($result['canceled'])) {
+            $canceled = (int)$result['canceled'];
         }
 
-        $result[0]['id'] = (int)$result[0]['id'];
-        $result[0]['isbrutto'] = (int)$result[0]['isbrutto'];
-        $result[0]['paid_status'] = (int)$result[0]['paid_status'];
-        $result[0]['processing_status'] = (int)$result[0]['processing_status'];
-        $result[0]['time_for_payment'] = (int)$result[0]['time_for_payment'];
-        $result[0]['canceled'] = $canceled;
+        $result['id'] = (int)$result['id'];
+        $result['isbrutto'] = (int)$result['isbrutto'];
+        $result['paid_status'] = (int)$result['paid_status'];
+        $result['processing_status'] = (int)$result['processing_status'];
+        $result['time_for_payment'] = (int)$result['time_for_payment'];
+        $result['canceled'] = $canceled;
 
-        $result[0]['nettosum'] = (float)$result[0]['nettosum'];
-        $result[0]['subsum'] = (float)$result[0]['subsum'];
-        $result[0]['sum'] = (float)$result[0]['sum'];
+        $result['nettosum'] = (float)$result['nettosum'];
+        $result['subsum'] = (float)$result['subsum'];
+        $result['sum'] = (float)$result['sum'];
 
-        return $result[0];
+        return $result;
     }
 
     //endregion
@@ -541,37 +463,191 @@ class Handler extends QUI\Utils\Singleton
     {
         $result = [];
 
-        $data = QUI::getDataBase()->fetch([
-            'select' => 'id',
-            'from' => self::invoiceTable(),
-            'where' => [
-                'global_process_id' => $processId
-            ]
-        ]);
+        $Connection = QUI::getDataBaseConnection();
+        $invoiceIds = $Connection->createQueryBuilder()
+            ->select(Doctrine::quoteIdentifier('id'))
+            ->from(Doctrine::quoteIdentifier(self::invoiceTable()))
+            ->where(Doctrine::quoteIdentifier('global_process_id') . ' = :processId')
+            ->setParameter('processId', $processId)
+            ->executeQuery()
+            ->fetchFirstColumn();
 
-        foreach ($data as $entry) {
+        foreach ($invoiceIds as $invoiceId) {
             try {
-                $result[] = $this->get($entry['id']);
+                $result[] = $this->get($invoiceId);
             } catch (QUI\Exception) {
             }
         }
 
-        $data = QUI::getDataBase()->fetch([
-            'select' => 'id',
-            'from' => self::temporaryInvoiceTable(),
-            'where' => [
-                'global_process_id' => $processId
-            ]
-        ]);
+        $invoiceIds = $Connection->createQueryBuilder()
+            ->select(Doctrine::quoteIdentifier('id'))
+            ->from(Doctrine::quoteIdentifier(self::temporaryInvoiceTable()))
+            ->where(Doctrine::quoteIdentifier('global_process_id') . ' = :processId')
+            ->setParameter('processId', $processId)
+            ->executeQuery()
+            ->fetchFirstColumn();
 
-        foreach ($data as $entry) {
+        foreach ($invoiceIds as $invoiceId) {
             try {
-                $result[] = $this->getTemporaryInvoice($entry['id']);
+                $result[] = $this->getTemporaryInvoice($invoiceId);
             } catch (QUI\Exception) {
             }
         }
 
         return $result;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function normalizeInvoiceData(array $data): array
+    {
+        $data['id'] = (int)$data['id'];
+        $data['isbrutto'] = (int)$data['isbrutto'];
+        $data['paid_status'] = (int)$data['paid_status'];
+        $data['canceled'] = (int)$data['canceled'];
+        $data['c_user'] = (int)$data['c_user'];
+
+        $data['nettosum'] = (float)$data['nettosum'];
+        $data['subsum'] = (float)$data['subsum'];
+        $data['sum'] = (float)$data['sum'];
+        $data['processing_status'] = (int)$data['processing_status'];
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function createSearchQueryBuilder(string $table, array $params, bool $count = false): QueryBuilder
+    {
+        $QueryBuilder = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->from(Doctrine::quoteIdentifier($table));
+
+        if ($count) {
+            $QueryBuilder->select('COUNT(' . Doctrine::quoteIdentifier('id') . ')');
+        } else {
+            $select = $params['select'] ?? '*';
+
+            if (is_array($select)) {
+                $select = array_map(Doctrine::quoteIdentifier(...), $select);
+                $QueryBuilder->select(...$select);
+            } elseif (in_array($select, $this->getOrderGroupFields(), true)) {
+                $QueryBuilder->select(Doctrine::quoteIdentifier($select));
+            } else {
+                $QueryBuilder->select($select);
+            }
+        }
+
+        if (isset($params['where']) && is_array($params['where'])) {
+            $this->applyWhere($QueryBuilder, $params['where']);
+        }
+
+        if (isset($params['where_or']) && is_array($params['where_or'])) {
+            $this->applyWhere($QueryBuilder, $params['where_or'], true);
+        }
+
+        if ($count) {
+            return $QueryBuilder;
+        }
+
+        if (isset($params['order']) && $this->canBeUseAsOrderField($params['order'])) {
+            [$orderField, $orderDirection] = array_pad(explode(' ', $params['order'], 2), 2, 'ASC');
+            $QueryBuilder->orderBy(Doctrine::quoteIdentifier($orderField), $orderDirection);
+        }
+
+        if (isset($params['limit'])) {
+            $limit = explode(',', (string)$params['limit'], 2);
+
+            if (isset($limit[1])) {
+                $QueryBuilder->setFirstResult((int)$limit[0]);
+                $QueryBuilder->setMaxResults((int)$limit[1]);
+            } else {
+                $QueryBuilder->setMaxResults((int)$limit[0]);
+            }
+        }
+
+        return $QueryBuilder;
+    }
+
+    /**
+     * @param array<string, mixed> $where
+     */
+    private function applyWhere(QueryBuilder $QueryBuilder, array $where, bool $or = false): void
+    {
+        $expressions = [];
+        $index = count($QueryBuilder->getParameters());
+
+        foreach ($where as $field => $condition) {
+            $column = Doctrine::quoteIdentifier($field);
+            $parameter = 'where' . $index++;
+            $operator = '=';
+            $value = $condition;
+
+            if (is_array($condition) && isset($condition['type'], $condition['value'])) {
+                $operator = mb_strtoupper((string)$condition['type']);
+                $value = $condition['value'];
+            }
+
+            if ($value === null) {
+                $expressions[] = $operator === 'NOT'
+                    ? $QueryBuilder->expr()->isNotNull($column)
+                    : $QueryBuilder->expr()->isNull($column);
+                continue;
+            }
+
+            if ($operator === 'IN' && is_array($value)) {
+                if ($value === []) {
+                    $expressions[] = '1 = 0';
+                    continue;
+                }
+
+                $placeholders = [];
+
+                foreach ($value as $entry) {
+                    $entryParameter = 'where' . $index++;
+                    $placeholders[] = ':' . $entryParameter;
+                    $QueryBuilder->setParameter($entryParameter, $entry);
+                }
+
+                $expressions[] = $QueryBuilder->expr()->in($column, $placeholders);
+                continue;
+            }
+
+            if ($operator === '%LIKE%' || $operator === 'LIKE%' || $operator === '%LIKE') {
+                $value = match ($operator) {
+                    '%LIKE%' => '%' . $value . '%',
+                    'LIKE%' => $value . '%',
+                    default => '%' . $value
+                };
+                $operator = 'LIKE';
+            }
+
+            if ($operator === 'NOT') {
+                $operator = '!=';
+            }
+
+            if (!in_array($operator, ['=', '!=', '<>', '>', '<', '>=', '<=', 'LIKE'], true)) {
+                $operator = '=';
+            }
+
+            $expressions[] = $column . ' ' . $operator . ' :' . $parameter;
+            $QueryBuilder->setParameter($parameter, $value);
+        }
+
+        if ($expressions === []) {
+            return;
+        }
+
+        if ($or) {
+            $QueryBuilder->andWhere($QueryBuilder->expr()->or(...$expressions));
+            return;
+        }
+
+        foreach ($expressions as $expression) {
+            $QueryBuilder->andWhere($expression);
+        }
     }
 
     /**

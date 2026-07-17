@@ -17,6 +17,7 @@ use QUI\ERP\Order\Handler as OrderHandler;
 use QUI\ERP\User;
 use QUI\ExceptionStack;
 use QUI\Utils\Security\Orthos;
+use QUI\Utils\Doctrine;
 use QUI\ERP\ErpEntityInterface;
 use QUI\ERP\ErpTransactionsInterface;
 use QUI\ERP\ErpCopyInterface;
@@ -1052,7 +1053,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             [$this]
         );
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             [
                 'type' => $this->getInvoiceType(),
@@ -1150,7 +1151,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             [$this]
         );
 
-        QUI::getDataBase()->delete(
+        QUI::getDataBaseConnection()->delete(
             Handler::getInstance()->temporaryInvoiceTable(),
             ['id' => $this->getCleanId()]
         );
@@ -1212,15 +1213,14 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
         $New = $Factory->createInvoice($PermissionUser, $globalProcessId);
 
-        $currentData = QUI::getDataBase()->fetch([
-            'from' => $Handler->temporaryInvoiceTable(),
-            'where' => [
-                'id' => $this->getCleanId()
-            ],
-            'limit' => 1
-        ]);
-
-        $currentData = $currentData[0];
+        $currentData = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select('*')
+            ->from(Doctrine::quoteIdentifier($Handler->temporaryInvoiceTable()))
+            ->where(Doctrine::quoteIdentifier('id') . ' = :id')
+            ->setParameter('id', $this->getCleanId())
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
         $currentData['hash'] = $New->getUUID();
         $currentData['global_process_id'] = $New->getGlobalProcessId();
 
@@ -1233,7 +1233,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         }
 
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             $Handler->temporaryInvoiceTable(),
             $currentData,
             ['id' => $New->getCleanId()]
@@ -1526,19 +1526,22 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             $invoiceId = 0;
             $invoiceTable = $Handler->invoiceTable();
 
-            $nextId = QUI::getDatabase()->fetchSQL(
-                "SELECT MAX(id) + 1 AS nextId FROM $invoiceTable;"
-            );
+            $nextId = QUI::getDataBaseConnection()->createQueryBuilder()
+                ->select('MAX(' . Doctrine::quoteIdentifier('id') . ') + 1')
+                ->from(Doctrine::quoteIdentifier($invoiceTable))
+                ->executeQuery()
+                ->fetchOne();
 
-            if (!empty($nextId)) {
-                $invoiceId = (int)$nextId[0]['nextId'];
+            if ($nextId !== false && $nextId !== null) {
+                $invoiceId = (int)$nextId;
             }
         } else {
             $invoiceId = (int)$invoiceId + 1;
         }
 
         // new invoice database entry
-        QUI::getDataBase()->insert(
+        $Connection = QUI::getDataBaseConnection();
+        $Connection->insert(
             $Handler->invoiceTable(),
             [
                 'type' => $type,
@@ -1610,7 +1613,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $Config->set('invoice', 'invoiceCurrentIdIndex', $invoiceId);
         $Config->save();
 
-        $newId = QUI::getDataBase()->getPDO()->lastInsertId('id');
+        $newId = $Connection->lastInsertId('id');
 
         // if temporary invoice was a credit note
         // add history entry to original invoice
@@ -1638,7 +1641,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $calculation = QUI\ERP\Accounting\Calc::calculatePayments($Invoice);
 
         if (!empty($calculation)) {
-            QUI::getDataBase()->update(
+            QUI::getDataBaseConnection()->update(
                 $Handler->invoiceTable(),
                 [
                     'paid_data' => json_encode($calculation['paidData']),
@@ -1988,7 +1991,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_ERROR);
         }
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             [
                 'paid_data' => $this->getAttribute('paid_data'),
@@ -2232,7 +2235,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     {
         $this->customData[$key] = $value;
 
-        QUI::getDataBase()->update(
+        QUI::getDataBaseConnection()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
             ['custom_data' => json_encode($this->customData)],
             ['id' => $this->getCleanId()]
