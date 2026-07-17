@@ -7,6 +7,8 @@ use QUI;
 use QUI\Controls\Sitemap\Item;
 use QUI\Controls\Sitemap\Map;
 use QUI\ERP\Accounting\Invoice\ErpProvider;
+use QUI\ERP\Accounting\Invoice\Articles\Article as InvoiceArticle;
+use QUI\ERP\Accounting\Invoice\Articles\Text as InvoiceText;
 use QUI\ERP\Accounting\Invoice\Exception as InvoiceException;
 use QUI\ERP\Accounting\Invoice\NumberRanges;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
@@ -14,6 +16,7 @@ use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
 use QUI\ERP\Accounting\Invoice\PaymentReceiver;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Exception as ProcessingStatusException;
+use QUI\ERP\Accounting\Invoice\Utils\Panel;
 
 class SimpleClassesUnitTest extends TestCase
 {
@@ -90,5 +93,28 @@ class SimpleClassesUnitTest extends TestCase
             self::assertInstanceOf(QUI\Exception::class, $Exception);
             self::assertNotSame('', $Exception->getMessage());
         }
+    }
+
+    public function testInvoiceArticleTypesExposeTheirControls(): void
+    {
+        $Article = new InvoiceArticle([
+            'title' => 'Article',
+            'quantity' => 1,
+            'unitPrice' => 10,
+            'vat' => 19
+        ]);
+        $Text = new InvoiceText(['title' => 'Information']);
+
+        self::assertSame(InvoiceArticle::class, $Article->toArray()['class']);
+        self::assertStringContainsString('/Article', $Article->toArray()['control']);
+        self::assertSame(InvoiceText::class, $Text->toArray()['class']);
+        self::assertStringContainsString('/Text', $Text->toArray()['control']);
+    }
+
+    public function testPanelMetadataCanBeRead(): void
+    {
+        self::assertIsArray(Panel::getInvoicePackages());
+        self::assertIsArray(Panel::getPanelCategories());
+        self::assertIsString(Panel::getPanelCategory('phpunit-category-that-does-not-exist'));
     }
 }

@@ -17,6 +17,8 @@ class RestApiProviderTest extends TestCase
 {
     private ?UserInterface $previousSessionUser = null;
     private ?string $temporaryInvoiceId = null;
+    private ?string $postedGlobalProcessId = null;
+    private ?string $customerUuid = null;
 
     protected function setUp(): void
     {
@@ -36,6 +38,24 @@ class RestApiProviderTest extends TestCase
                 Handler::getInstance()->temporaryInvoiceTable(),
                 ['id' => $this->temporaryInvoiceId]
             );
+        }
+
+        if ($this->postedGlobalProcessId !== null) {
+            QUI::getDataBaseConnection()->delete(
+                Handler::getInstance()->invoiceTable(),
+                ['global_process_id' => $this->postedGlobalProcessId]
+            );
+            QUI::getDataBaseConnection()->delete(
+                Handler::getInstance()->temporaryInvoiceTable(),
+                ['global_process_id' => $this->postedGlobalProcessId]
+            );
+        }
+
+        if ($this->customerUuid !== null) {
+            try {
+                QUI::getUsers()->deleteUser($this->customerUuid);
+            } catch (Throwable) {
+            }
         }
 
         if ($this->previousSessionUser !== null) {
@@ -137,6 +157,60 @@ class RestApiProviderTest extends TestCase
 
         self::assertSame(500, $Response->getStatusCode());
         self::assertSame(Provider::ERROR_CODE_SERVER_ERROR, $this->body($Response)['errorCode']);
+    }
+
+    public function testCreateInvoiceCanPostForExistingCustomer(): void
+    {
+        $Users = QUI::getUsers();
+        $SystemUser = $Users->getSystemUser();
+        $customerNumber = (string)random_int(700000, 799999);
+        $username = 'invoice-rest-customer-' . uniqid();
+        $User = $Users->createChildWithAttributes([
+            'username' => $username,
+            'email' => $username . '@example.invalid',
+            'firstname' => 'REST',
+            'lastname' => 'Customer',
+            'customerId' => $customerNumber
+        ], $SystemUser);
+        $this->customerUuid = $User->getUUID();
+        $Address = $User->addAddress([
+            'firstname' => 'REST',
+            'lastname' => 'Customer',
+            'street_no' => 'API-Straße 5',
+            'zip' => '10115',
+            'city' => 'Berlin',
+            'country' => 'DE',
+            'mail' => $username . '@example.invalid'
+        ], $SystemUser);
+
+        $Response = (new Provider())->createInvoice(
+            $this->request([
+                'invoiceData' => [
+                    'source' => 'phpunit-post',
+                    'customer_no' => $customerNumber,
+                    'invoice_address_id' => $Address->getUUID(),
+                    'articles' => [[
+                        'title' => 'Posted REST article',
+                        'articleNo' => 'REST-POST-1',
+                        'unitPrice' => 20,
+                        'quantity' => 1,
+                        'vat' => 19
+                    ]],
+                    'payment_method' => -1,
+                    'post' => true,
+                    'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_PAID
+                ]
+            ]),
+            new Response(),
+            []
+        );
+
+        self::assertSame(200, $Response->getStatusCode());
+        $Invoice = Handler::getInstance()->get($this->body($Response)['msg']['invoice_id']);
+        $this->postedGlobalProcessId = $Invoice->getGlobalProcessId();
+
+        self::assertSame($User->getUUID(), $Invoice->getCustomer()->getUUID());
+        self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_PAID, $Invoice->getAttribute('paid_status'));
     }
 
     private function request(array $body): ServerRequest
