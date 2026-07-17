@@ -14,6 +14,7 @@ use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
 use QUI\ERP\Accounting\Invoice\PaymentReceiver;
+use QUI\ERP\Accounting\Invoice\Search\InvoiceSearch;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUI\Mail\Mailer;
 use QUI\Smarty\Collector;
@@ -289,6 +290,25 @@ class InvoiceLifecycleTest extends TestCase
             'where' => ['global_process_id' => $this->globalProcessId]
         ]));
         self::assertCount(1, $Handler->getInvoicesByGlobalProcessId($this->globalProcessId));
+
+        $Search = new InvoiceSearch();
+        $Search->setFilter('search', $Invoice->getUUID());
+        $Search->setFilter('currency', $Invoice->getCurrency()->getCode());
+        $Search->order('display_sum DESC');
+        $Search->limit(0, 20);
+        self::assertSame($Invoice->getId(), (int)$Search->search()[0]['id']);
+
+        $GridResult = $Search->searchForGrid();
+        self::assertArrayHasKey('total', $GridResult);
+        self::assertArrayHasKey('grid', $GridResult);
+        self::assertSame(1, $GridResult['grid']['total']);
+
+        $Search->disableCalcTotal();
+        self::assertArrayHasKey('total', $Search->searchForGrid());
+        $Search->enableCalcTotal();
+        $Search->noLimit();
+        self::assertSame($Invoice->getId(), (int)$Search->search()[0]['id']);
+        $Search->clearFilter();
 
         self::assertSame('Invoice', OutputProviderInvoice::getEntityType());
         self::assertSame('CreditNote', OutputProviderCreditNote::getEntityType());
