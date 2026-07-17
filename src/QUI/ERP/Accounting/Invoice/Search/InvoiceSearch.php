@@ -96,7 +96,7 @@ class InvoiceSearch extends Singleton
 
         if ($filter === 'currency') {
             if (!is_string($value) || empty($value) || $value === '---') {
-                $this->currency = QUI\ERP\Currency\Handler::getDefaultCurrency()->getCode();
+                $this->currency = QUI\ERP\Defaults::getCurrency()->getCode();
 
                 return;
             }
@@ -381,7 +381,7 @@ class InvoiceSearch extends Singleton
         $fc = 0;
 
         // currency
-        $DefaultCurrency = QUI\ERP\Currency\Handler::getDefaultCurrency();
+        $DefaultCurrency = QUI\ERP\Defaults::getCurrency();
 
         if (empty($this->currency)) {
             $this->currency = $DefaultCurrency->getCode();
