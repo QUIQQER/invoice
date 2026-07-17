@@ -112,17 +112,17 @@ class InvoiceView extends QUI\QDOM
     }
 
     /**
-     * @param $dateString
+     * @param string $dateString
      * @param Locale|null $Locale
      * @return false|string
      */
-    public function formatDate($dateString, null | QUI\Locale $Locale = null): bool | string
+    public function formatDate(string $dateString, null | QUI\Locale $Locale = null): bool | string
     {
         if ($Locale === null) {
             $Locale = QUI::getLocale();
         }
 
-        return $Locale->getDateFormatter()->format(strtotime($dateString));
+        return $Locale->getDateFormatter()->format((int)strtotime($dateString));
     }
 
     /**

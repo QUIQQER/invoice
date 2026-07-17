@@ -217,6 +217,7 @@ class Settings extends Singleton
         $Config = $Package->getConfig();
 
         $template = $Config->getValue('invoice', 'template');
+        /** @var string $template */
 
         if (!empty($template)) {
             return $template;

@@ -219,9 +219,9 @@ class InvoiceSearch extends Singleton
     /**
      * Set the order
      *
-     * @param $order
+     * @param string $order
      */
-    public function order($order): void
+    public function order(string $order): void
     {
         $allowed = [];
 

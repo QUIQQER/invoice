@@ -289,7 +289,7 @@ class EventHandler
      *
      * Used to attach customer files that are attached to an invoice to the invoice mail
      *
-     * @param $entityId
+     * @param int|string $entityId
      * @param string $entityType
      * @param string $recipient
      * @param Mailer $Mailer
@@ -301,7 +301,7 @@ class EventHandler
      * @throws QUI\Permissions\Exception
      */
     public static function onQuiqqerErpOutputSendMailBefore(
-        $entityId,
+        int | string $entityId,
         string $entityType,
         string $recipient,
         QUI\Mail\Mailer $Mailer,
@@ -331,7 +331,7 @@ class EventHandler
             $xmlFile = str_replace('.pdf', '.xml', $mailFile);
             $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
                 $Invoice,
-                $Config->getValue('invoice', 'xInvoiceAttachmentType')
+                (int)$Config->getValue('invoice', 'xInvoiceAttachmentType')
             );
 
             $document->writeFile($xmlFile);
@@ -358,7 +358,7 @@ class EventHandler
         }
     }
 
-    public static function onQuiqqerHtmlToPDFCreated(QUI\HtmlToPdf\Document $Document, $filename): void
+    public static function onQuiqqerHtmlToPDFCreated(QUI\HtmlToPdf\Document $Document, string $filename): void
     {
         $Entity = $Document->getAttribute('Entity');
 
@@ -373,7 +373,7 @@ class EventHandler
             // ZUGFeRD has its own profile setting and must not inherit the XRechnung profile.
             $document = QUI\ERP\Accounting\Invoice\Utils\Invoice::getElectronicInvoice(
                 $Entity,
-                $Config->getValue('invoice', 'zugferdInvoiceAttachmentType')
+                (int)$Config->getValue('invoice', 'zugferdInvoiceAttachmentType')
             );
             $pdfBuilder = new ZugferdDocumentPdfBuilder($document, $filename);
             $pdfBuilder->generateDocument()->saveDocument($filename);
@@ -385,13 +385,16 @@ class EventHandler
      *
      * Save to invoice that a dunning was sent
      *
-     * @param $entityId
+     * @param int|string $entityId
      * @param string $entityType
      * @param string $recipient
      * @return void
      */
-    public static function onQuiqqerErpOutputSendMail($entityId, string $entityType, string $recipient): void
-    {
+    public static function onQuiqqerErpOutputSendMail(
+        int | string $entityId,
+        string $entityType,
+        string $recipient
+    ): void {
         switch ($entityType) {
             case OutputProviderInvoice::getEntityType():
             case OutputProviderCancelled::getEntityType():

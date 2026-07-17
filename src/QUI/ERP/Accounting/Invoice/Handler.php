@@ -454,12 +454,12 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Return all invoices from a process id
      *
-     * @param $processId
+     * @param string $processId
      * @return Invoice[]|InvoiceTemporary[]
      *
      * @throws QUI\DataBase\Exception
      */
-    public function getInvoicesByGlobalProcessId($processId): array
+    public function getInvoicesByGlobalProcessId(string $processId): array
     {
         $result = [];
 
@@ -687,10 +687,10 @@ class Handler extends QUI\Utils\Singleton
     /**
      * Can the string be used as a mysql order field?
      *
-     * @param $str
+     * @param mixed $str
      * @return bool
      */
-    protected function canBeUseAsOrderField($str): bool
+    protected function canBeUseAsOrderField(mixed $str): bool
     {
         if (!is_string($str)) {
             return false;

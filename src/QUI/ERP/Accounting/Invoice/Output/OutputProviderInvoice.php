@@ -482,7 +482,7 @@ class OutputProviderInvoice implements OutputProviderInterface
     /**
      * Format dates for invoice mails using the target locale with SHORT date and no time.
      */
-    public static function dateFormat($date, Locale $Locale): bool | string
+    public static function dateFormat(string | null $date, Locale $Locale): bool | string
     {
         $localeCode = $Locale->getLocalesByLang(
             $Locale->getCurrent()
@@ -500,7 +500,7 @@ class OutputProviderInvoice implements OutputProviderInterface
             $date = strtotime($date);
         }
 
-        return $Formatter->format($date);
+        return $Formatter->format((int)$date);
     }
 
     /**

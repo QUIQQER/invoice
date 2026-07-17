@@ -94,6 +94,7 @@ class UserInvoices extends Control implements ControlInterface
         }
 
         $Site = QUI::getRewrite()->getSite();
+        /** @var QUI\Interfaces\Projects\Site $Site */
         $this->setAttribute('Site', $Site);
 
         return $Site;

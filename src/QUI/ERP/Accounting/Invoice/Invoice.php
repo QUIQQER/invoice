@@ -107,13 +107,13 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     /**
      * Invoice constructor.
      *
-     * @param $id
+     * @param int|string $id
      * @param Handler $Handler
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public function __construct($id, Handler $Handler)
+    public function __construct(int | string $id, Handler $Handler)
     {
         $invoiceData = $Handler->getInvoiceData($id);
         $this->setAttributes($invoiceData);
@@ -1799,10 +1799,10 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     /**
      * Return a wanted custom data entry
      *
-     * @param $key
+     * @param string $key
      * @return mixed|null
      */
-    public function getCustomDataEntry($key): mixed
+    public function getCustomDataEntry(string $key): mixed
     {
         if (isset($this->customData[$key])) {
             return $this->customData[$key];

@@ -88,19 +88,19 @@ class Invoice
     }
 
     /**
-     * @param $str
+     * @param int|string $str
      *
      * @return InvoiceTemporary
      *
      * @throws Exception
      * @throws QUI\Exception
      */
-    public static function getTemporaryInvoiceByString($str): InvoiceTemporary
+    public static function getTemporaryInvoiceByString(int | string $str): InvoiceTemporary
     {
         $Invoices = QUI\ERP\Accounting\Invoice\Handler::getInstance();
 
         try {
-            return $Invoices->getTemporaryInvoiceByHash($str);
+            return $Invoices->getTemporaryInvoiceByHash((string)$str);
         } catch (QUI\Exception $Exception) {
             QUI\System\Log::writeDebugException($Exception);
         }
@@ -425,7 +425,7 @@ class Invoice
         }
 
         if ($isString) {
-            return json_encode($articles);
+            return (string)json_encode($articles);
         }
 
         return $articles;
@@ -434,7 +434,7 @@ class Invoice
     /**
      * Verification of a field, value can not be empty
      *
-     * @param $value
+     * @param mixed $value
      * @param array<int|string, mixed>|string $eMessage
      * @param int $eCode - optional
      * @param array<int|string, mixed> $eContext - optional
@@ -442,7 +442,7 @@ class Invoice
      * @throws Exception
      */
     protected static function verificateField(
-        $value,
+        mixed $value,
         array | string $eMessage = 'Error occurred',
         int $eCode = 0,
         array $eContext = []
@@ -561,13 +561,17 @@ class Invoice
             $Locale = QUI::getLocale();
         }
 
+        /** @var string $fileName */
         $fileName = $Locale->get('quiqqer/invoice', 'pdf.download.name');
 
         foreach (self::getInvoicePlaceholders($Invoice, $Locale) as $placeholder => $value) {
             $fileName = str_replace($placeholder, $value, $fileName);
         }
 
-        return QUI\Utils\Security\Orthos::clearFilename($fileName);
+        /** @var string $fileName */
+        $fileName = QUI\Utils\Security\Orthos::clearFilename($fileName);
+
+        return $fileName;
     }
 
     /**
@@ -792,7 +796,7 @@ class Invoice
             if ($type === 'date' && !empty($value['date'])) {
                 $date = self::parseServicePeriodDate($value['date']);
 
-                return json_encode([
+                return (string)json_encode([
                     'type' => 'date',
                     'date' => $date->format('Y-m-d')
                 ]);
@@ -806,7 +810,7 @@ class Invoice
                     throw new \InvalidArgumentException('The service period end date must not be before the start date.');
                 }
 
-                return json_encode([
+                return (string)json_encode([
                     'type' => 'period',
                     'start' => $start->format('Y-m-d'),
                     'end' => $end->format('Y-m-d')
@@ -832,7 +836,7 @@ class Invoice
                 throw new \InvalidArgumentException('The service period end date must not be before the start date.');
             }
 
-            return json_encode([
+            return (string)json_encode([
                 'type' => 'period',
                 'start' => $start->format('Y-m-d'),
                 'end' => $end->format('Y-m-d')
@@ -841,7 +845,7 @@ class Invoice
 
         $date = self::parseServicePeriodDate($value);
 
-        return json_encode([
+        return (string)json_encode([
             'type' => 'date',
             'date' => $date->format('Y-m-d')
         ]);
@@ -914,7 +918,7 @@ class Invoice
 
     protected static function formatServicePeriodDate(string $date, QUI\Locale $Locale): string
     {
-        return $Locale->getDateFormatter()->format((int)strtotime($date));
+        return (string)$Locale->getDateFormatter()->format((int)strtotime($date));
     }
 
     /**
@@ -924,7 +928,7 @@ class Invoice
      */
     public static function getElectronicInvoice(
         InvoiceTemporary | QUI\ERP\Accounting\Invoice\Invoice $Invoice,
-        $type = ZugferdProfiles::PROFILE_EN16931
+        int $type = ZugferdProfiles::PROFILE_EN16931
     ): ZugferdDocumentBuilder {
         $document = ZugferdDocumentBuilder::CreateNew($type);
         $Articles = $Invoice->getArticles();
