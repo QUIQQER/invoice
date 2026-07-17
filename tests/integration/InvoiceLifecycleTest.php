@@ -495,9 +495,15 @@ class InvoiceLifecycleTest extends TestCase
 
         $previousZugferdAttachment = $Config->getValue('invoice', 'zugferdInvoiceAttachment');
         $previousZugferdAttachmentType = $Config->getValue('invoice', 'zugferdInvoiceAttachmentType');
+        $ErpConfig = QUI::getPackage('quiqqer/erp')->getConfig();
+        $previousCompanyName = $ErpConfig->getValue('company', 'name');
         $zugferdPdfFile = sys_get_temp_dir() . '/invoice-zugferd-' . $Invoice->getUUID() . '.pdf';
 
         try {
+            // The CI setup has no company profile, but ZUGFeRD requires a seller name in its embedded XML.
+            $ErpConfig->setValue('company', 'name', 'PHPUnit Seller');
+            $ErpConfig->save();
+
             $Pdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
             $Pdf->WriteHTML('<h1>PHPUnit invoice</h1>');
             $Pdf->Output($zugferdPdfFile, \Mpdf\Output\Destination::FILE);
@@ -519,6 +525,8 @@ class InvoiceLifecycleTest extends TestCase
             $Config->setValue('invoice', 'zugferdInvoiceAttachment', $previousZugferdAttachment);
             $Config->setValue('invoice', 'zugferdInvoiceAttachmentType', $previousZugferdAttachmentType);
             $Config->save();
+            $ErpConfig->setValue('company', 'name', $previousCompanyName);
+            $ErpConfig->save();
 
             if (file_exists($zugferdPdfFile)) {
                 unlink($zugferdPdfFile);
