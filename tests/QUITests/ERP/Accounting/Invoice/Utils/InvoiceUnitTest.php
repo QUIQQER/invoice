@@ -9,6 +9,7 @@ use QUI;
 use QUI\ERP\Accounting\Invoice\Exception;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
+use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 
 class InvoiceUnitTest extends TestCase
@@ -91,6 +92,17 @@ class InvoiceUnitTest extends TestCase
         self::assertArrayHasKey('display_sum', json_decode($json, true)['articles'][0]);
     }
 
+    public function testFormatArticlesArrayUsesDefaultCurrencyWithoutCurrencyData(): void
+    {
+        $formatted = InvoiceUtils::formatArticlesArray([
+            'calculations' => [],
+            'articles' => [['sum' => 25]]
+        ]);
+
+        self::assertIsArray($formatted);
+        self::assertArrayHasKey('display_sum', $formatted['articles'][0]);
+    }
+
     public function testVatHelpers(): void
     {
         $vat = [
@@ -102,6 +114,8 @@ class InvoiceUnitTest extends TestCase
         self::assertSame([19, 3.5], InvoiceUtils::getVatSumArrayFromVatArray(json_encode($vat)));
         self::assertSame(22.5, InvoiceUtils::getVatSumFromVatArray($vat));
         self::assertSame(0, InvoiceUtils::getVatSumFromVatArray(null));
+        self::assertSame([], InvoiceUtils::getVatTextArrayFromVatArray('{invalid', QUI\ERP\Defaults::getCurrency()));
+        self::assertSame([], InvoiceUtils::getVatSumArrayFromVatArray('{invalid'));
 
         $texts = InvoiceUtils::getVatTextArrayFromVatArray($vat, QUI\ERP\Defaults::getCurrency());
         self::assertCount(2, $texts);
@@ -136,6 +150,7 @@ class InvoiceUnitTest extends TestCase
     {
         self::assertSame('', InvoiceUtils::normalizeServicePeriod(null));
         self::assertSame('', InvoiceUtils::normalizeServicePeriod(''));
+        self::assertSame('', InvoiceUtils::normalizeServicePeriod('   '));
         self::assertSame('', InvoiceUtils::normalizeServicePeriod(['type' => 'period']));
     }
 
@@ -175,5 +190,43 @@ class InvoiceUnitTest extends TestCase
 
         self::assertSame([], InvoiceUtils::getServicePeriodData($EmptyInvoice));
         self::assertIsString(InvoiceUtils::getServicePeriodDisplayText($EmptyInvoice, QUI::getLocale()));
+
+        $InvalidInvoice = $this->createMock(Invoice::class);
+        $InvalidInvoice->method('getAttribute')->with('service_period')->willReturn('{invalid');
+        self::assertSame([], InvoiceUtils::getServicePeriodData($InvalidInvoice));
+
+        $PeriodInvoice = $this->createMock(Invoice::class);
+        $PeriodInvoice->method('getAttribute')->with('service_period')->willReturn([
+            'type' => 'period',
+            'start' => '2026-07-01',
+            'end' => '2026-07-17'
+        ]);
+        self::assertIsString(InvoiceUtils::getServicePeriodDisplayText($PeriodInvoice));
+    }
+
+    public function testUnknownInvoiceHasNoTransactions(): void
+    {
+        self::assertSame([], InvoiceUtils::getTransactionsByInvoice('phpunit-missing-invoice'));
+    }
+
+    public function testAddressRequirementThresholdUsesConfiguredValue(): void
+    {
+        $Config = Settings::getConfig();
+        $previousThreshold = $Config->getValue('invoice', 'invoiceAddressRequirementThreshold');
+
+        try {
+            $Config->setValue('invoice', 'invoiceAddressRequirementThreshold', '123.45');
+            $Config->save();
+
+            self::assertSame(123.45, InvoiceUtils::addressRequirementThreshold());
+        } finally {
+            if ($previousThreshold === false || $previousThreshold === null) {
+                $Config->del('invoice', 'invoiceAddressRequirementThreshold');
+            } else {
+                $Config->setValue('invoice', 'invoiceAddressRequirementThreshold', $previousThreshold);
+            }
+
+            $Config->save();
+        }
     }
 }

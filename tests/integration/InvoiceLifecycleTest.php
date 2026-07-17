@@ -12,6 +12,7 @@ use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\McpProvider;
 use QUI\ERP\Accounting\Invoice\NumberRanges\TemporaryInvoice as TemporaryInvoiceNumberRange;
+use QUI\ERP\Accounting\Invoice\NumberRanges\Invoice as InvoiceNumberRange;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCancelled;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
@@ -763,6 +764,26 @@ class InvoiceLifecycleTest extends TestCase
                 );
                 $Config->save();
             }
+        }
+    }
+
+    public function testInvoiceNumberRangeCanBeChanged(): void
+    {
+        $Config = QUI\ERP\Accounting\Invoice\Settings::getConfig();
+        $previousCurrentId = $Config->getValue('invoice', 'invoiceCurrentIdIndex');
+        $NumberRange = new InvoiceNumberRange();
+
+        try {
+            $NumberRange->setRange(123456);
+            self::assertSame(123457, $NumberRange->getRange());
+        } finally {
+            if ($previousCurrentId === false || $previousCurrentId === null) {
+                $Config->del('invoice', 'invoiceCurrentIdIndex');
+            } else {
+                $Config->setValue('invoice', 'invoiceCurrentIdIndex', $previousCurrentId);
+            }
+
+            $Config->save();
         }
     }
 

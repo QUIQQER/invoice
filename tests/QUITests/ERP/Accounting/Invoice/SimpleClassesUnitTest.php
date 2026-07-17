@@ -80,6 +80,8 @@ class SimpleClassesUnitTest extends TestCase
 
         self::assertIsString((new NumberRanges\Invoice())->getTitle($Locale));
         self::assertIsString((new NumberRanges\TemporaryInvoice())->getTitle($Locale));
+        self::assertIsString((new NumberRanges\Invoice())->getTitle());
+        self::assertIsString((new NumberRanges\TemporaryInvoice())->getTitle());
     }
 
     public function testPackageExceptionsCanBeCreated(): void
