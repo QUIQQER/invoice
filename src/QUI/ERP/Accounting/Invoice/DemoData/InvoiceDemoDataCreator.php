@@ -11,7 +11,6 @@ use QUI\ERP\Accounting\Invoice\Factory;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\DemoData\Contract\DemoDataCreatorInterface;
-use QUI\ERP\DemoData\Contract\DemoDataDeletionCreatorInterface;
 use QUI\ERP\DemoData\DTO\CreatedDemoData;
 use QUI\ERP\DemoData\DTO\CreatedDemoDataCollection;
 use QUI\ERP\DemoData\DTO\DemoDataCreationContext;
@@ -20,7 +19,7 @@ use QUI\ERP\DemoData\DTO\DemoDataReference;
 use QUI\ERP\DemoData\DTO\DemoDataReferenceCollection;
 use QUI\ERP\DemoData\Exception\DemoDataException;
 
-final class InvoiceDemoDataCreator implements DemoDataCreatorInterface, DemoDataDeletionCreatorInterface
+final class InvoiceDemoDataCreator implements DemoDataCreatorInterface
 {
     private const PROVIDER_IDENTIFIER = 'quiqqer.invoice';
     private const ENTITY_TYPE = 'invoice_temporary';
