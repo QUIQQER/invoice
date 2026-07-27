@@ -44,21 +44,46 @@ final class InvoiceDemoDataCreator implements DemoDataCreatorInterface
 
         foreach ($dateRanges as $index => $dateRange) {
             $rangeNumber = $index + 1;
-            $createdDemoData[] = $this->createInvoice(
-                $privateCustomer,
-                $dateRange->startDate,
-                'Demo consulting service',
-                "private_invoice_$rangeNumber"
-            );
-            $createdDemoData[] = $this->createInvoice(
-                $businessCustomer,
-                $dateRange->endDate,
-                'Demo software subscription',
-                "business_invoice_$rangeNumber"
-            );
+
+            foreach ($this->getInvoiceDates($dateRange) as $monthNumber => [$privateInvoiceDate, $businessInvoiceDate]) {
+                $monthReference = $rangeNumber . '_' . ($monthNumber + 1);
+                $createdDemoData[] = $this->createInvoice(
+                    $privateCustomer,
+                    $privateInvoiceDate,
+                    'Demo consulting service',
+                    "private_invoice_$monthReference"
+                );
+                $createdDemoData[] = $this->createInvoice(
+                    $businessCustomer,
+                    $businessInvoiceDate,
+                    'Demo software subscription',
+                    "business_invoice_$monthReference"
+                );
+            }
         }
 
         return new CreatedDemoDataCollection($createdDemoData);
+    }
+
+    /**
+     * @return list<array{DateTimeImmutable, DateTimeImmutable}>
+     */
+    private function getInvoiceDates(DemoDataDateRange $dateRange): array
+    {
+        $monthStart = $dateRange->startDate->modify('first day of this month midnight');
+        $lastMonthStart = $dateRange->endDate->modify('first day of this month midnight');
+        $invoiceDates = [];
+
+        while ($monthStart <= $lastMonthStart) {
+            $monthEnd = $monthStart->modify('last day of this month 23:59:59');
+            $invoiceDates[] = [
+                max($monthStart, $dateRange->startDate),
+                min($monthEnd, $dateRange->endDate)
+            ];
+            $monthStart = $monthStart->modify('first day of next month midnight');
+        }
+
+        return $invoiceDates;
     }
 
     public function deleteDemoData(DemoDataReferenceCollection $demoData): void

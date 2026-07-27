@@ -95,7 +95,7 @@ class InvoiceDemoDataCreatorTest extends TestCase
             [
                 new DemoDataDateRange(
                     new DateTimeImmutable('2022-01-01 00:00:00'),
-                    new DateTimeImmutable('2023-12-31 23:59:59')
+                    new DateTimeImmutable('2022-02-28 23:59:59')
                 )
             ]
         );
@@ -110,11 +110,15 @@ class InvoiceDemoDataCreatorTest extends TestCase
             $CreatedDemoData
         );
 
-        self::assertCount(2, $CreatedDemoData);
+        self::assertCount(4, $CreatedDemoData);
 
         foreach ($CreatedDemoData as $DemoData) {
             self::assertSame('invoice_temporary', $DemoData->entityType);
-            self::assertNotEmpty(Handler::getInstance()->getTemporaryInvoice($DemoData->entityUuid));
+            $invoice = Handler::getInstance()->getTemporaryInvoice($DemoData->entityUuid);
+            $invoiceDate = new DateTimeImmutable((string)$invoice->getAttribute('date'));
+
+            self::assertGreaterThanOrEqual(new DateTimeImmutable('2022-01-01 00:00:00'), $invoiceDate);
+            self::assertLessThanOrEqual(new DateTimeImmutable('2022-02-28 23:59:59'), $invoiceDate);
         }
 
         $DemoDataCollection = new DemoDataReferenceCollection([
