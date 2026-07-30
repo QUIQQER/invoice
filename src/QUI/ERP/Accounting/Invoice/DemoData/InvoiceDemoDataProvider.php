@@ -20,7 +20,7 @@ final class InvoiceDemoDataProvider implements DemoDataProviderInterface
     {
         $locale ??= \QUI::getLocale();
 
-        return (string)$locale->get('quiqqer/invoice', 'package.title');
+        return (string)$locale->get('quiqqer/invoice', 'demo_data.provider.title');
     }
 
     public function getDemoDataCreator(Connection $connection): DemoDataCreatorInterface
