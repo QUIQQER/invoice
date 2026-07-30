@@ -22,7 +22,8 @@ use QUI\ERP\DemoData\Exception\DemoDataException;
 final class InvoiceDemoDataCreator implements DemoDataCreatorInterface
 {
     private const PROVIDER_IDENTIFIER = 'quiqqer.invoice';
-    private const ENTITY_TYPE = 'invoice_temporary';
+    private const TEMPORARY_ENTITY_TYPE = 'invoice_temporary';
+    private const POSTED_ENTITY_TYPE = 'invoice';
 
     public function getDependencies(): array
     {
@@ -59,6 +60,20 @@ final class InvoiceDemoDataCreator implements DemoDataCreatorInterface
                     'Demo software subscription',
                     "business_invoice_$monthReference"
                 );
+                $createdDemoData[] = $this->createInvoice(
+                    $privateCustomer,
+                    $privateInvoiceDate,
+                    'Demo consulting service',
+                    "private_posted_invoice_$monthReference",
+                    true
+                );
+                $createdDemoData[] = $this->createInvoice(
+                    $businessCustomer,
+                    $businessInvoiceDate,
+                    'Demo software subscription',
+                    "business_posted_invoice_$monthReference",
+                    true
+                );
             }
         }
 
@@ -91,11 +106,20 @@ final class InvoiceDemoDataCreator implements DemoDataCreatorInterface
         $systemUser = QUI::getUsers()->getSystemUser();
 
         foreach ($demoData->forProvider(self::PROVIDER_IDENTIFIER) as $reference) {
-            if ($reference->entityType !== self::ENTITY_TYPE) {
-                throw new DemoDataException('Invoice demo data reference has an invalid entity type.');
+            if ($reference->entityType === self::TEMPORARY_ENTITY_TYPE) {
+                Handler::getInstance()->delete($reference->entityUuid, $systemUser);
+                continue;
             }
 
-            Handler::getInstance()->delete($reference->entityUuid, $systemUser);
+            if ($reference->entityType === self::POSTED_ENTITY_TYPE) {
+                QUI::getDataBaseConnection()->delete(
+                    Handler::getInstance()->invoiceTable(),
+                    ['hash' => $reference->entityUuid]
+                );
+                continue;
+            }
+
+            throw new DemoDataException('Invoice demo data reference has an invalid entity type.');
         }
     }
 
@@ -103,7 +127,8 @@ final class InvoiceDemoDataCreator implements DemoDataCreatorInterface
         DemoDataReference $customerReference,
         DateTimeImmutable $date,
         string $articleTitle,
-        string $referenceKey
+        string $referenceKey,
+        bool $post = false
     ): CreatedDemoData {
         $systemUser = QUI::getUsers()->getSystemUser();
         $invoice = Factory::getInstance()->createInvoice($systemUser);
@@ -130,7 +155,13 @@ final class InvoiceDemoDataCreator implements DemoDataCreatorInterface
         ]));
         $invoice->save($systemUser);
 
-        return new CreatedDemoData(self::ENTITY_TYPE, $invoice->getUUID(), $referenceKey);
+        if ($post) {
+            $invoice = $invoice->post($systemUser);
+
+            return new CreatedDemoData(self::POSTED_ENTITY_TYPE, $invoice->getUUID(), $referenceKey);
+        }
+
+        return new CreatedDemoData(self::TEMPORARY_ENTITY_TYPE, $invoice->getUUID(), $referenceKey);
     }
 
     private function getCustomerReference(DemoDataCreationContext $context, string $referenceKey): DemoDataReference

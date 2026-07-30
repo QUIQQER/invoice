@@ -68,7 +68,7 @@ class InvoiceDemoDataCreatorTest extends TestCase
         parent::tearDown();
     }
 
-    public function testCreatesAndDeletesTemporaryInvoicesForCustomerDemoData(): void
+    public function testCreatesTemporaryAndPostedInvoicesForCustomerDemoData(): void
     {
         $PrivateCustomer = $this->createCustomer('Private');
         $BusinessCustomer = $this->createCustomer('Business');
@@ -110,37 +110,44 @@ class InvoiceDemoDataCreatorTest extends TestCase
             $CreatedDemoData
         );
 
-        self::assertCount(4, $CreatedDemoData);
+        self::assertCount(8, $CreatedDemoData);
 
         foreach ($CreatedDemoData as $DemoData) {
-            self::assertSame('invoice_temporary', $DemoData->entityType);
-            $invoice = Handler::getInstance()->getTemporaryInvoice($DemoData->entityUuid);
+            $invoice = match ($DemoData->entityType) {
+                'invoice_temporary' => Handler::getInstance()->getTemporaryInvoice($DemoData->entityUuid),
+                'invoice' => Handler::getInstance()->getInvoice($DemoData->entityUuid),
+                default => self::fail('Unexpected invoice entity type.')
+            };
             $invoiceDate = new DateTimeImmutable((string)$invoice->getAttribute('date'));
 
             self::assertGreaterThanOrEqual(new DateTimeImmutable('2022-01-01 00:00:00'), $invoiceDate);
             self::assertLessThanOrEqual(new DateTimeImmutable('2022-02-28 23:59:59'), $invoiceDate);
         }
 
-        $DemoDataCollection = new DemoDataReferenceCollection([
+        $demoDataCollection = new DemoDataReferenceCollection([
             'quiqqer.invoice' => array_map(
-                static fn (CreatedDemoData $DemoData): DemoDataReference => new DemoDataReference(
+                static fn (CreatedDemoData $demoData): DemoDataReference => new DemoDataReference(
                     'quiqqer.invoice',
-                    $DemoData->entityType,
-                    $DemoData->entityUuid,
-                    $DemoData->referenceKey,
+                    $demoData->entityType,
+                    $demoData->entityUuid,
+                    $demoData->referenceKey,
                     []
                 ),
                 $CreatedDemoData
             )
         ]);
 
-        $Creator->deleteDemoData($DemoDataCollection);
+        $Creator->deleteDemoData($demoDataCollection);
         $this->invoiceUuids = [];
 
-        foreach ($CreatedDemoData as $DemoData) {
+        foreach ($CreatedDemoData as $demoData) {
             try {
-                Handler::getInstance()->getTemporaryInvoice($DemoData->entityUuid);
-                self::fail('The temporary invoice was not deleted.');
+                match ($demoData->entityType) {
+                    'invoice_temporary' => Handler::getInstance()->getTemporaryInvoice($demoData->entityUuid),
+                    'invoice' => Handler::getInstance()->getInvoice($demoData->entityUuid),
+                    default => self::fail('Unexpected invoice entity type.')
+                };
+                self::fail('The demo invoice was not deleted.');
             } catch (\QUI\Exception) {
                 self::assertTrue(true);
             }
