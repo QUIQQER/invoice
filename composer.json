@@ -23,10 +23,10 @@
     "quiqqer/utils": "^2",
     "ramsey/uuid": "^3|^4",
     "chillerlan/php-qrcode": "^6",
-      "horstoeko/zugferd": "^1"
+    "horstoeko/zugferd": "^1"
     },
     "suggest": {
-      "quiqqer/erp-demo-data": "dev-feat/demo-data-provider-infrastructure"
+      "quiqqer/erp-demo-data": "Create demo invoices for testing."
     },
     "autoload": {
     "psr-4": {
