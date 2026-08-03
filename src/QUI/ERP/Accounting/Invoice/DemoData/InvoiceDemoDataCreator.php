@@ -1,0 +1,177 @@
+<?php
+
+declare(strict_types=1);
+
+namespace QUI\ERP\Accounting\Invoice\DemoData;
+
+use DateTimeImmutable;
+use QUI;
+use QUI\ERP\Accounting\Article;
+use QUI\ERP\Accounting\Invoice\Factory;
+use QUI\ERP\Accounting\Invoice\Handler;
+use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
+use QUI\ERP\DemoData\Contract\DemoDataCreatorInterface;
+use QUI\ERP\DemoData\DTO\CreatedDemoData;
+use QUI\ERP\DemoData\DTO\CreatedDemoDataCollection;
+use QUI\ERP\DemoData\DTO\DemoDataCreationContext;
+use QUI\ERP\DemoData\DTO\DemoDataDateRange;
+use QUI\ERP\DemoData\DTO\DemoDataReference;
+use QUI\ERP\DemoData\DTO\DemoDataReferenceCollection;
+use QUI\ERP\DemoData\Exception\DemoDataException;
+
+final class InvoiceDemoDataCreator implements DemoDataCreatorInterface
+{
+    private const PROVIDER_IDENTIFIER = 'quiqqer.invoice';
+    private const TEMPORARY_ENTITY_TYPE = 'invoice_temporary';
+    private const POSTED_ENTITY_TYPE = 'invoice';
+
+    public function getDependencies(): array
+    {
+        return ['quiqqer.customer'];
+    }
+
+    public function createDemoData(DemoDataCreationContext $context): CreatedDemoDataCollection
+    {
+        $privateCustomer = $this->getCustomerReference($context, 'private_customer');
+        $businessCustomer = $this->getCustomerReference($context, 'business_customer');
+        $dateRanges = $context->getDateRanges();
+
+        if ($dateRanges === []) {
+            $now = new DateTimeImmutable();
+            $dateRanges = [new DemoDataDateRange($now, $now)];
+        }
+
+        $createdDemoData = [];
+
+        foreach ($dateRanges as $index => $dateRange) {
+            $rangeNumber = $index + 1;
+
+            foreach ($this->getInvoiceDates($dateRange) as $monthNumber => [$privateInvoiceDate, $businessInvoiceDate]) {
+                $monthReference = $rangeNumber . '_' . ($monthNumber + 1);
+                $createdDemoData[] = $this->createInvoice(
+                    $privateCustomer,
+                    $privateInvoiceDate,
+                    'Demo consulting service',
+                    "private_invoice_$monthReference"
+                );
+                $createdDemoData[] = $this->createInvoice(
+                    $businessCustomer,
+                    $businessInvoiceDate,
+                    'Demo software subscription',
+                    "business_invoice_$monthReference"
+                );
+                $createdDemoData[] = $this->createInvoice(
+                    $privateCustomer,
+                    $privateInvoiceDate,
+                    'Demo consulting service',
+                    "private_posted_invoice_$monthReference",
+                    true
+                );
+                $createdDemoData[] = $this->createInvoice(
+                    $businessCustomer,
+                    $businessInvoiceDate,
+                    'Demo software subscription',
+                    "business_posted_invoice_$monthReference",
+                    true
+                );
+            }
+        }
+
+        return new CreatedDemoDataCollection($createdDemoData);
+    }
+
+    /**
+     * @return list<array{DateTimeImmutable, DateTimeImmutable}>
+     */
+    private function getInvoiceDates(DemoDataDateRange $dateRange): array
+    {
+        $monthStart = $dateRange->startDate->modify('first day of this month midnight');
+        $lastMonthStart = $dateRange->endDate->modify('first day of this month midnight');
+        $invoiceDates = [];
+
+        while ($monthStart <= $lastMonthStart) {
+            $monthEnd = $monthStart->modify('last day of this month 23:59:59');
+            $invoiceDates[] = [
+                max($monthStart, $dateRange->startDate),
+                min($monthEnd, $dateRange->endDate)
+            ];
+            $monthStart = $monthStart->modify('first day of next month midnight');
+        }
+
+        return $invoiceDates;
+    }
+
+    public function deleteDemoData(DemoDataReferenceCollection $demoData): void
+    {
+        $systemUser = QUI::getUsers()->getSystemUser();
+
+        foreach ($demoData->forProvider(self::PROVIDER_IDENTIFIER) as $reference) {
+            if ($reference->entityType === self::TEMPORARY_ENTITY_TYPE) {
+                Handler::getInstance()->delete($reference->entityUuid, $systemUser);
+                continue;
+            }
+
+            if ($reference->entityType === self::POSTED_ENTITY_TYPE) {
+                QUI::getDataBaseConnection()->delete(
+                    Handler::getInstance()->invoiceTable(),
+                    ['hash' => $reference->entityUuid]
+                );
+                continue;
+            }
+
+            throw new DemoDataException('Invoice demo data reference has an invalid entity type.');
+        }
+    }
+
+    private function createInvoice(
+        DemoDataReference $customerReference,
+        DateTimeImmutable $date,
+        string $articleTitle,
+        string $referenceKey,
+        bool $post = false
+    ): CreatedDemoData {
+        $systemUser = QUI::getUsers()->getSystemUser();
+        $invoice = Factory::getInstance()->createInvoice($systemUser);
+        $customer = QUI::getUsers()->get($customerReference->entityUuid);
+        $address = $customer->getStandardAddress();
+
+        if ($address === null) {
+            throw new DemoDataException('Invoice demo data customer has no standard address.');
+        }
+
+        $invoice->setCustomer($customer);
+        $invoice->setAttribute('invoice_address_id', $address->getUUID());
+        $invoice->setAttribute('invoice_address', $address->toJSON());
+        $invoice->setAttribute('payment_method', -1);
+        $invoice->setAttribute(InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL, 1);
+        $invoice->setAttribute('date', $date->format('Y-m-d H:i:s'));
+        $invoice->addArticle(new Article([
+            'id' => 1,
+            'articleNo' => 'DEMO-' . strtoupper($referenceKey),
+            'title' => $articleTitle,
+            'unitPrice' => 99,
+            'quantity' => 1,
+            'vat' => 19
+        ]));
+        $invoice->save($systemUser);
+
+        if ($post) {
+            $invoice = $invoice->post($systemUser);
+
+            return new CreatedDemoData(self::POSTED_ENTITY_TYPE, $invoice->getUUID(), $referenceKey);
+        }
+
+        return new CreatedDemoData(self::TEMPORARY_ENTITY_TYPE, $invoice->getUUID(), $referenceKey);
+    }
+
+    private function getCustomerReference(DemoDataCreationContext $context, string $referenceKey): DemoDataReference
+    {
+        foreach ($context->getDependencyData('quiqqer.customer') as $reference) {
+            if ($reference->referenceKey === $referenceKey && $reference->entityType === 'customer') {
+                return $reference;
+            }
+        }
+
+        throw new DemoDataException("Customer demo data reference '$referenceKey' is missing.");
+    }
+}
