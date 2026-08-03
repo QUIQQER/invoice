@@ -32,6 +32,7 @@
 
         <provider>
             <erp src="\QUI\ERP\Accounting\Invoice\ErpProvider"/>
+            <erpDemoDataProvider src="\QUI\ERP\Accounting\Invoice\DemoData\InvoiceDemoDataProvider"/>
 
             <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice"/>
             <erpOutput src="\QUI\ERP\Accounting\Invoice\Output\OutputProviderCreditNote"/>

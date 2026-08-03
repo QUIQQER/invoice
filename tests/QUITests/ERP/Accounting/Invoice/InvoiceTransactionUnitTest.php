@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Invoice;
+use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 
 class InvoiceTransactionUnitTest extends TestCase
@@ -50,6 +51,21 @@ class InvoiceTransactionUnitTest extends TestCase
 
         self::assertGreaterThanOrEqual($before, $Invoice->getAttribute('paid_date'));
         self::assertLessThanOrEqual(time(), $Invoice->getAttribute('paid_date'));
+    }
+
+    public function testTemporaryInvoicePersistsPaymentCalculation(): void
+    {
+        $Invoice = $this->getMockBuilder(InvoiceTemporary::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getUUID', 'getInvoiceType', 'calculatePayments', 'addHistory'])
+            ->getMock();
+        $Invoice->method('getUUID')->willReturn('phpunit-invoice');
+        $Invoice->method('getInvoiceType')->willReturn(QUI\ERP\Constants::TYPE_INVOICE);
+        $Invoice->expects(self::exactly(2))->method('calculatePayments');
+        $Invoice->expects(self::once())->method('addHistory');
+        $Invoice->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_OPEN);
+
+        $Invoice->addTransaction($this->createTransactionMock(10, '2026-07-17 12:00:00'));
     }
 
     private function createInvoiceMock(int $invoiceType, int $calculationCalls): Invoice

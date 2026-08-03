@@ -27,3 +27,12 @@ require_once __DIR__ . '/stubs/QUI/ERP/Order/Handler.php';
 require_once __DIR__ . '/stubs/QUI/ERP/Order/Exception.php';
 
 require_once __DIR__ . '/../../../../bootstrap.php';
+require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/CreatedDemoData.php';
+require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/CreatedDemoDataCollection.php';
+require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/DemoDataReference.php';
+require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/DemoDataReferenceCollection.php';
+require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/DemoDataDateRange.php';
+require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/DemoDataCreationContext.php';
+require_once __DIR__ . '/stubs/QUI/ERP/DemoData/Exception/DemoDataException.php';
+require_once __DIR__ . '/stubs/QUI/ERP/DemoData/Contract/DemoDataCreatorInterface.php';
+require_once __DIR__ . '/stubs/QUI/ERP/DemoData/Contract/DemoDataProviderInterface.php';

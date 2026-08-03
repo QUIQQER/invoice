@@ -10,7 +10,7 @@
     "email": "support@pcsg.de",
     "url": "https://www.pcsg.de"
   },
-  "require": {
+    "require": {
     "php": "^8.2",
     "php81_bc/strftime": "^0.7",
     "quiqqer/core": "^2.25.1",
@@ -24,8 +24,11 @@
     "ramsey/uuid": "^3|^4",
     "chillerlan/php-qrcode": "^6",
     "horstoeko/zugferd": "^1"
-  },
-  "autoload": {
+    },
+    "suggest": {
+      "quiqqer/erp-demo-data": "Create demo invoices for testing."
+    },
+    "autoload": {
     "psr-4": {
       "QUI\\ERP\\": "src/QUI/ERP"
     }
