@@ -1836,7 +1836,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
         $currentPaidStatus = $this->getAttribute('paid_status');
 
-        QUI\ERP\Accounting\Calc::calculatePayments($this);
+        $this->calculatePayments();
 
         if (
             $this->getInvoiceType() == QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
@@ -1941,8 +1941,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             ]
         );
 
-        //$this->calculatePayments();
-        QUI\ERP\Accounting\Calc::calculatePayments($this);
+        $this->calculatePayments();
 
 
         QUI::getEvents()->fireEvent(
