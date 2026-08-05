@@ -2061,9 +2061,9 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     /**
      * Add an article
      *
-     * @param QUI\ERP\Accounting\Article $Article
+     * @param QUI\ERP\Accounting\ArticleInterface $Article
      */
-    public function addArticle(QUI\ERP\Accounting\Article $Article): void
+    public function addArticle(QUI\ERP\Accounting\ArticleInterface $Article): void
     {
         $this->Articles->addArticle($Article);
     }
