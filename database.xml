@@ -1,76 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database>
-
     <global>
-
         <table name="invoice">
-            <field type="INT NOT NULL">id</field>
-            <field type="VARCHAR(10)">id_prefix</field>
-            <field type="VARCHAR(255) NULL DEFAULT NULL">id_with_prefix</field>
-            <field type="VARCHAR(50) NOT NULL">customer_id</field>
-            <field type="VARCHAR(250) NULL DEFAULT NULL">customer_reference</field>
-            <field type="VARCHAR(250) NOT NULL">hash</field>
-            <field type="VARCHAR(250) NOT NULL">global_process_id</field>
-            <field type="INT(3) NOT NULL">type</field>
+            <field type="integer" autoincrement="true" primary="true">id</field>
+            <field type="string" length="10" nullable="true" default="null">id_prefix</field>
+            <field type="string" length="255" nullable="true" default="null">id_with_prefix</field>
+            <field type="string" length="50">customer_id</field>
+            <field type="string" length="250" nullable="true" default="null">customer_reference</field>
+            <field type="string" length="250">hash</field>
+            <field type="string" length="250">global_process_id</field>
+            <field type="integer">type</field>
 
-            <field type="VARCHAR(255) NULL">order_id</field>
-            <field type="VARCHAR(50) NULL">ordered_by</field>
-            <field type="DATETIME NULL DEFAULT NULL">order_date</field>
-            <field type="VARCHAR(200) NOT NULL">ordered_by_name</field>
-            <field type="VARCHAR(250) NULL">contact_person</field>
-            <!--<field type="int(11) NOT NULL">contract_id</field>--> <!-- wird normal nicht gebraucht, muss in data -->
+            <field type="string" length="255" nullable="true" default="null">order_id</field>
+            <field type="string" length="50" nullable="true" default="null">ordered_by</field>
+            <field type="datetime" nullable="true" default="null">order_date</field>
+            <field type="string" length="200">ordered_by_name</field>
+            <field type="string" length="250" nullable="true" default="null">contact_person</field>
+            <field type="string" length="250" nullable="true" default="null">project_name</field>
+            <field type="timestamp" nullable="true" default="CURRENT_TIMESTAMP">date</field>
 
-            <field type="VARCHAR(250) NULL">project_name</field>
-            <field type="timestamp NULL DEFAULT CURRENT_TIMESTAMP">date</field>
+            <field type="text" nullable="true" default="null">invoice_address</field>
+            <field type="text" nullable="true" default="null">delivery_address</field>
+            <field type="text" nullable="true" default="null">service_period</field>
 
-            <field type="TEXT NULL">invoice_address</field>
-            <field type="TEXT NULL">delivery_address</field>
-            <field type="TEXT NULL">service_period</field>
+            <field type="string" length="200">payment_method</field>
+            <field type="text" nullable="true" default="null">payment_method_data</field>
+            <field type="text" nullable="true" default="null">payment_data</field>
+            <field type="datetime" nullable="true" default="null">payment_time</field>
+            <field type="datetime" nullable="true" default="null">time_for_payment</field>
 
-            <field type="VARCHAR(200) NOT NULL">payment_method</field>
-            <field type="TEXT NULL">payment_method_data</field>
-            <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
-            <field type="DATETIME NULL DEFAULT NULL">payment_time</field>
-            <field type="DATETIME NULL DEFAULT NULL">time_for_payment</field>
+            <field type="integer">paid_status</field>
+            <field type="integer" nullable="true" default="null">paid_date</field>
+            <field type="text" nullable="true" default="null">paid_data</field>
 
-            <field type="INT(2) NOT NULL">paid_status</field>
-            <field type="INT(11) NULL">paid_date</field>
-            <field type="TEXT NULL">paid_data</field>
+            <field type="boolean" nullable="true" default="0">canceled</field>
+            <field type="text" nullable="true" default="null">canceled_data</field>
+            <field type="string" length="50">c_user</field>
+            <field type="timestamp" nullable="true" default="CURRENT_TIMESTAMP">c_date</field>
+            <field type="string" length="200">c_username</field>
+            <field type="string" length="50" nullable="true" default="null">editor_id</field>
+            <field type="string" length="200" nullable="true" default="null">editor_name</field>
+            <field type="text" nullable="true" default="null">data</field>
+            <field type="text" nullable="true" default="null">additional_invoice_text</field>
+            <field type="text" nullable="true" default="null">transaction_invoice_text</field>
+            <field type="text">articles</field>
+            <field type="text" nullable="true" default="null">history</field>
+            <field type="text" nullable="true" default="null">comments</field>
+            <field type="text" nullable="true" default="null">custom_data</field>
+            <field type="text" nullable="true" default="null">customer_data</field>
+            <field type="float">isbrutto</field>
 
-            <field type="INT(1) DEFAULT 0">canceled</field> <!-- storno -->
-            <field type="TEXT NULL">canceled_data</field> <!-- storno grund -->
-            <field type="VARCHAR(50) NOT NULL">c_user</field>
-            <field type="timestamp NULL DEFAULT CURRENT_TIMESTAMP">c_date</field>
-            <field type="VARCHAR(200) NOT NULL">c_username</field>
-            <field type="VARCHAR(50) NULL">editor_id</field>
-            <field type="VARCHAR(200) NULL">editor_name</field>
-            <field type="TEXT NULL">data</field>
-            <field type="TEXT NULL">additional_invoice_text</field>
-            <field type="TEXT NULL">transaction_invoice_text</field>
-            <field type="TEXT NOT NULL">articles</field>
-            <field type="TEXT NULL">history</field>
-            <field type="TEXT NULL">comments</field>
-            <field type="TEXT NULL">custom_data</field>
-            <field type="TEXT NULL">customer_data</field>
-            <field type="FLOAT NOT NULL">isbrutto</field>
+            <field type="text">currency_data</field>
+            <field type="string" length="10" nullable="true" default="null">currency</field>
 
-            <field type="TEXT NOT NULL">currency_data</field>
-            <field type="VARCHAR(10) NULL">currency</field>
+            <field type="float">nettosum</field>
+            <field type="float">nettosubsum</field>
+            <field type="float">subsum</field>
+            <field type="float">sum</field>
+            <field type="text">vat_array</field>
 
-            <field type="FLOAT NOT NULL">nettosum</field>
-            <field type="FLOAT NOT NULL">nettosubsum</field>
-            <field type="FLOAT NOT NULL">subsum</field>
-            <field type="FLOAT NOT NULL">sum</field>
-            <field type="TEXT NOT NULL">vat_array</field>
+            <field type="integer" nullable="true" default="null">shipping_id</field>
+            <field type="text" nullable="true" default="null">shipping_data</field>
+            <field type="integer" nullable="true" default="null">processing_status</field>
 
-            <field type="INT(11) NULL DEFAULT NULL">shipping_id</field>
-            <field type="TEXT NULL">shipping_data</field>
-            <field type="INT(5) NULL">processing_status</field>
-
-            <!--<field type="int(2) NOT NULL">dunning_level</field>--> <!-- eigenes modul -->
-            <!--<field type="int(11) NOT NULL">dunning_time</field>--> <!-- eigenes modul -->
-
-            <primary>id</primary>
             <index>customer_id</index>
             <index>order_id</index>
             <index>payment_method</index>
@@ -79,72 +71,67 @@
             <index>hash</index>
             <index>global_process_id</index>
             <index>id_with_prefix</index>
-            <auto_increment>id</auto_increment>
         </table>
 
-
         <table name="invoice_temporary">
-            <field type="INT NOT NULL">id</field>
-            <field type="VARCHAR(50) NOT NULL">customer_id</field>
-            <field type="VARCHAR(250) NULL DEFAULT NULL">customer_reference</field>
-            <field type="VARCHAR(40) NOT NULL">hash</field>
-            <field type="VARCHAR(250) NOT NULL">global_process_id</field>
-            <field type="INT(3) NOT NULL">type</field>
+            <field type="integer" autoincrement="true" primary="true">id</field>
+            <field type="string" length="50">customer_id</field>
+            <field type="string" length="250" nullable="true" default="null">customer_reference</field>
+            <field type="string" length="40">hash</field>
+            <field type="string" length="250">global_process_id</field>
+            <field type="integer">type</field>
 
-            <field type="VARCHAR(50) NULL">invoice_address_id</field>
-            <field type="TEXT NULL">invoice_address</field>
+            <field type="string" length="50" nullable="true" default="null">invoice_address_id</field>
+            <field type="text" nullable="true" default="null">invoice_address</field>
 
-            <field type="VARCHAR(50) NULL">delivery_address_id</field>
-            <field type="TEXT NULL">delivery_address</field>
-            <field type="TEXT NULL">service_period</field>
+            <field type="string" length="50" nullable="true" default="null">delivery_address_id</field>
+            <field type="text" nullable="true" default="null">delivery_address</field>
+            <field type="text" nullable="true" default="null">service_period</field>
 
-            <field type="VARCHAR(255) NULL">order_id</field>
-            <field type="VARCHAR(50) NULL">ordered_by</field>
-            <field type="DATETIME NULL DEFAULT NULL">order_date</field>
-            <field type="VARCHAR(200) NULL">ordered_by_name</field>
-            <field type="VARCHAR(250) NULL">contact_person</field>
+            <field type="string" length="255" nullable="true" default="null">order_id</field>
+            <field type="string" length="50" nullable="true" default="null">ordered_by</field>
+            <field type="datetime" nullable="true" default="null">order_date</field>
+            <field type="string" length="200" nullable="true" default="null">ordered_by_name</field>
+            <field type="string" length="250" nullable="true" default="null">contact_person</field>
+            <field type="string" length="250" nullable="true" default="null">project_name</field>
 
-            <field type="VARCHAR(250) NULL">project_name</field>
+            <field type="string" length="200" nullable="true" default="null">payment_method</field>
+            <field type="text" nullable="true" default="null">payment_data</field>
+            <field type="datetime" nullable="true" default="null">payment_time</field>
+            <field type="integer" nullable="true" default="null">time_for_payment</field>
 
-            <field type="VARCHAR(200) NULL">payment_method</field>
-            <field type="TEXT NULL">payment_data</field> <!-- muss verschlüsselt sein -->
-            <field type="DATETIME NULL DEFAULT NULL">payment_time</field>
-            <field type="INT(3) NULL">time_for_payment</field>
+            <field type="integer">paid_status</field>
+            <field type="integer" nullable="true" default="null">paid_date</field>
+            <field type="text" nullable="true" default="null">paid_data</field>
 
-            <field type="INT(2) NOT NULL">paid_status</field>
-            <field type="INT(11) NULL">paid_date</field>
-            <field type="TEXT NULL">paid_data</field>
+            <field type="timestamp" default="CURRENT_TIMESTAMP">date</field>
+            <field type="string" length="50">c_user</field>
+            <field type="timestamp" nullable="true" default="CURRENT_TIMESTAMP">c_date</field>
+            <field type="string" length="50" nullable="true" default="null">editor_id</field>
+            <field type="string" length="200" nullable="true" default="null">editor_name</field>
+            <field type="text" nullable="true" default="null">data</field>
+            <field type="text" nullable="true" default="null">additional_invoice_text</field>
+            <field type="text" nullable="true" default="null">articles</field>
+            <field type="text" nullable="true" default="null">history</field>
+            <field type="text" nullable="true" default="null">comments</field>
+            <field type="text" nullable="true" default="null">custom_data</field>
+            <field type="text" nullable="true" default="null">customer_data</field>
 
-            <field type="timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP">date</field>
-            <field type="VARCHAR(50) NOT NULL">c_user</field>
-            <field type="timestamp NULL DEFAULT CURRENT_TIMESTAMP">c_date</field>
-            <field type="VARCHAR(50) NULL">editor_id</field>
-            <field type="VARCHAR(200) NULL">editor_name</field>
-            <field type="TEXT NULL">data</field>
-            <field type="TEXT NULL">additional_invoice_text</field>
-            <field type="TEXT NULL">articles</field>
-            <field type="TEXT NULL">history</field>
-            <field type="TEXT NULL">comments</field>
-            <field type="TEXT NULL">custom_data</field>
-            <field type="TEXT NULL">customer_data</field>
+            <field type="float" nullable="true" default="null">isbrutto</field>
 
-            <field type="FLOAT NULL">isbrutto</field>
+            <field type="text" nullable="true" default="null">currency_data</field>
+            <field type="string" length="10" nullable="true" default="null">currency</field>
 
-            <field type="TEXT NULL">currency_data</field>
-            <field type="VARCHAR(10) NULL">currency</field>
+            <field type="float" nullable="true" default="null">nettosum</field>
+            <field type="float" nullable="true" default="null">nettosubsum</field>
+            <field type="float" nullable="true" default="null">subsum</field>
+            <field type="float" nullable="true" default="null">sum</field>
+            <field type="text" nullable="true" default="null">vat_array</field>
 
-            <field type="FLOAT NULL">nettosum</field>
-            <field type="FLOAT NULL">nettosubsum</field>
-            <field type="FLOAT NULL">subsum</field>
-            <field type="FLOAT NULL">sum</field>
-            <field type="TEXT NULL">vat_array</field>
+            <field type="integer" nullable="true" default="null">shipping_id</field>
+            <field type="text" nullable="true" default="null">shipping_data</field>
+            <field type="integer" nullable="true" default="null">processing_status</field>
 
-            <field type="INT(11) NULL DEFAULT NULL">shipping_id</field>
-            <field type="TEXT NULL">shipping_data</field>
-
-            <field type="INT(5) NULL">processing_status</field>
-
-            <primary>id</primary>
             <index>customer_id</index>
             <index>order_id</index>
             <index>payment_method</index>
@@ -152,8 +139,6 @@
             <index>c_date</index>
             <index>hash</index>
             <index>global_process_id</index>
-            <auto_increment>id</auto_increment>
         </table>
-
     </global>
 </database>
