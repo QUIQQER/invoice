@@ -59,7 +59,7 @@ class Provider implements QUI\REST\ProviderInterface
      *
      * @param RequestInterface $Request
      * @param ResponseInterface $Response
-     * @param array $args
+     * @param array<string, mixed> $args
      *
      * @return MessageInterface
      * @throws QUI\Database\Exception
@@ -198,7 +198,11 @@ class Provider implements QUI\REST\ProviderInterface
                 // Set default address
                 if (!$Address) {
                     try {
-                        $InvoiceDraft->setAttribute('invoice_address_id', $User->getStandardAddress()->getUUID());
+                        $DefaultAddress = $User->getStandardAddress();
+
+                        if ($DefaultAddress !== null) {
+                            $InvoiceDraft->setAttribute('invoice_address_id', $DefaultAddress->getUUID());
+                        }
                     } catch (Exception $Exception) {
                         QUI\System\Log::writeException($Exception);
                     }
@@ -515,7 +519,8 @@ class Provider implements QUI\REST\ProviderInterface
             'errorCode' => $errorCode
         ];
 
-        $Body->write(json_encode($body));
+        $json = json_encode($body);
+        $Body->write($json === false ? '{}' : $json);
 
         return $Response->withHeader('Content-Type', 'application/json')->withBody($Body);
     }
@@ -523,7 +528,7 @@ class Provider implements QUI\REST\ProviderInterface
     /**
      * Get generic Response with Exception code and message
      *
-     * @param array|string $msg
+     * @param array<string, mixed>|string $msg
      * @return MessageInterface
      */
     protected function getSuccessResponse(array|string $msg): MessageInterface
@@ -536,7 +541,8 @@ class Provider implements QUI\REST\ProviderInterface
             'error' => false
         ];
 
-        $Body->write(json_encode($body));
+        $json = json_encode($body);
+        $Body->write($json === false ? '{}' : $json);
 
         return $Response->withHeader('Content-Type', 'application/json')->withBody($Body);
     }
@@ -558,7 +564,8 @@ class Provider implements QUI\REST\ProviderInterface
             'errorCode' => self::ERROR_CODE_SERVER_ERROR
         ];
 
-        $Body->write(json_encode($body));
+        $json = json_encode($body);
+        $Body->write($json === false ? '{}' : $json);
 
         return $Response->withHeader('Content-Type', 'application/json')->withBody($Body);
     }

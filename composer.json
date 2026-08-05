@@ -1,16 +1,24 @@
 {
   "name": "quiqqer/invoice",
   "type": "quiqqer-module",
-  "description": "",
-  "license": [
-    "PCSG QEL-1.0"
+  "description": "The QUIQQER Invoice Module integrates complete invoice management in QUIQQER.",
+  "homepage": "https://www.quiqqer.com",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "PCSG - Computer & Internet Service OHG",
+      "email": "info@quiqqer.com",
+      "homepage": "https://www.quiqqer.com",
+      "role": "Maintainer"
+    }
   ],
-  "authors": [],
   "support": {
     "email": "support@pcsg.de",
-    "url": "https://www.pcsg.de"
+    "issues": "https://dev.quiqqer.com/quiqqer/invoice/issues",
+    "source": "https://dev.quiqqer.com/quiqqer/invoice",
+    "url": "https://www.quiqqer.com"
   },
-    "require": {
+  "require": {
     "php": "^8.2",
     "php81_bc/strftime": "^0.7",
     "quiqqer/core": "^2.25.1",
@@ -24,11 +32,11 @@
     "ramsey/uuid": "^3|^4",
     "chillerlan/php-qrcode": "^6",
     "horstoeko/zugferd": "^1"
-    },
-    "suggest": {
-      "quiqqer/erp-demo-data": "Create demo invoices for testing."
-    },
-    "autoload": {
+  },
+  "suggest": {
+    "quiqqer/erp-demo-data": "Create demo invoices for testing."
+  },
+  "autoload": {
     "psr-4": {
       "QUI\\ERP\\": "src/QUI/ERP"
     }

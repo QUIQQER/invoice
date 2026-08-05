@@ -39,8 +39,8 @@ class InvoiceDemoDataCreatorTest extends TestCase
     protected function setUp(): void
     {
         try {
-            QUI::getDataBase()->fetchOne('SELECT 1');
-        } catch (Throwable) {
+            QUI::getDataBaseConnection()->fetchOne('SELECT 1');
+        } catch (\Doctrine\DBAL\Exception) {
             $this->markTestSkipped('A configured QUIQQER database is required for this integration test.');
         }
     }
@@ -164,15 +164,16 @@ class InvoiceDemoDataCreatorTest extends TestCase
             'lastname' => 'Customer'
         ], $SystemUser);
 
-        $User->addAddress([
+        $Address = $User->addAddress([
             'firstname' => $type,
             'lastname' => 'Customer',
-            'street' => 'Demo Street',
-            'street_no' => '1',
+            'street_no' => 'Demo Street 1',
             'zip' => '12345',
             'city' => 'Demo City',
             'country' => 'DE'
         ], $SystemUser);
+        $User->setAttribute('address', $Address->getUUID());
+        $User->save($SystemUser);
 
         $this->customerUuids[] = $User->getUUID();
 

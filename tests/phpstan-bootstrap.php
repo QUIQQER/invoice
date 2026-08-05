@@ -36,3 +36,10 @@ require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/DemoDataCreationContext.php'
 require_once __DIR__ . '/stubs/QUI/ERP/DemoData/Exception/DemoDataException.php';
 require_once __DIR__ . '/stubs/QUI/ERP/DemoData/Contract/DemoDataCreatorInterface.php';
 require_once __DIR__ . '/stubs/QUI/ERP/DemoData/Contract/DemoDataProviderInterface.php';
+require_once __DIR__ . '/stubs/Slim/App.php';
+require_once __DIR__ . '/stubs/Slim/Routing/RouteCollectorProxy.php';
+require_once __DIR__ . '/stubs/QUI/REST/Server.php';
+require_once __DIR__ . '/stubs/QUI/REST/ProviderInterface.php';
+require_once __DIR__ . '/stubs/QUI/REST/ResponseStream.php';
+require_once __DIR__ . '/stubs/QUI/REST/Response.php';
+require_once __DIR__ . '/stubs/QUI/REST/Utils/RequestUtils.php';
