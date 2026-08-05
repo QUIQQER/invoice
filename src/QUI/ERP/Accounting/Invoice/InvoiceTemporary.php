@@ -1322,7 +1322,7 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             ?: $this->getAttribute('customer_id');
         $Handler = Handler::getInstance();
 
-        if (QUI\Permissions\Permission::hasPermission('quiqqer.invoice.changeDate')) {
+        if (QUI\Permissions\Permission::hasPermission('quiqqer.invoice.changeDate', $PermissionUser)) {
             if (
                 $this->getAttribute('date')
                 && Orthos::checkMySqlDatetimeSyntax($this->getAttribute('date'))
