@@ -6,7 +6,8 @@
 
 namespace QUI\ERP\Accounting\Invoice\Search;
 
-use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Exception;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Handler;
@@ -16,21 +17,23 @@ use QUI\ERP\Accounting\Invoice\Settings;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Payments as Payments;
 use QUI\ERP\Currency\Handler as Currencies;
+use QUI\Utils\Doctrine;
 use QUI\Utils\Singleton;
 
 use function array_flip;
 use function array_map;
-use function count;
+use function array_pad;
 use function date;
-use function implode;
+use function explode;
+use function in_array;
 use function is_array;
 use function is_numeric;
 use function json_decode;
+use function mb_strtolower;
 use function strip_tags;
 use function strlen;
 use function strtotime;
 use function substr;
-use function substr_replace;
 use function time;
 use function trim;
 
@@ -327,167 +330,132 @@ class InvoiceSearch extends Singleton
     }
 
     /**
-     * @return array<string, mixed>
+     * @return QueryBuilder
      * @throws QUI\Exception
      */
-    protected function getQueryCount(): array
+    protected function getQueryCount(): QueryBuilder
     {
         return $this->getQuery(true);
     }
 
     /**
      * @param bool $count - Use count select, or not
-     * @return array<string, mixed>
+     * @return QueryBuilder
      * @throws QUI\Exception
      */
-    protected function getQuery(bool $count = false): array
+    protected function getQuery(bool $count = false): QueryBuilder
     {
-        $Invoices = Handler::getInstance();
+        $table = Handler::getInstance()->invoiceTable();
+        $QueryBuilder = QUI::getQueryBuilder()
+            ->from(Doctrine::quoteIdentifier($table));
 
-        $table = $Invoices->invoiceTable();
-        $order = $this->order;
-
-        // limit
-        $limit = '';
-
-        if ($this->limit && isset($this->limit[0]) && isset($this->limit[1])) {
-            $start = $this->limit[0];
-            $end = $this->limit[1];
-            $limit = " LIMIT $start,$end";
+        if ($count) {
+            $QueryBuilder->select('COUNT(' . Doctrine::quoteIdentifier('id') . ') AS count');
+        } else {
+            $QueryBuilder->select(Doctrine::quoteIdentifier('id'));
         }
 
-        if (empty($this->filter) && empty($this->search)) {
-            if ($count) {
-                return [
-                    'query' => " SELECT COUNT(*)  AS count FROM $table",
-                    'binds' => []
-                ];
-            }
+        $hasSearchCriteria = !empty($this->filter) || !empty($this->search) || !empty($this->currency);
 
-            return [
-                'query' => "
-                    SELECT id
-                    FROM {$table}
-                    ORDER BY {$order}
-                    {$limit}
-                ",
-                'binds' => []
-            ];
+        if (!$hasSearchCriteria) {
+            return $this->applyOrderAndLimit($QueryBuilder, $count);
         }
 
-        // filter
-        $where = [];
-        $binds = [];
         $fc = 0;
-
-        // currency
         $DefaultCurrency = QUI\ERP\Defaults::getCurrency();
 
         if (empty($this->currency)) {
             $this->currency = $DefaultCurrency->getCode();
         }
 
-        // fallback for old invoices
         if ($DefaultCurrency->getCode() === $this->currency) {
-            $where[] = "(currency = :currency OR currency = '' OR currency IS NULL)";
+            $QueryBuilder->andWhere($QueryBuilder->expr()->or(
+                Doctrine::quoteIdentifier('currency') . ' = :currency',
+                Doctrine::quoteIdentifier('currency') . " = ''",
+                $QueryBuilder->expr()->isNull(Doctrine::quoteIdentifier('currency'))
+            ));
         } else {
-            $where[] = 'currency = :currency';
+            $QueryBuilder->andWhere(Doctrine::quoteIdentifier('currency') . ' = :currency');
         }
 
-        $binds[':currency'] = [
-            'value' => $this->currency,
-            'type' => ParameterType::STRING
-        ];
+        $QueryBuilder->setParameter('currency', $this->currency);
 
-        // filter
         foreach ($this->filter as $filter) {
-            $bind = ':filter' . $fc;
-            $flr = $filter['filter'];
+            $parameter = 'filter' . $fc;
+            $field = $filter['filter'];
 
-            switch ($flr) {
+            switch ($field) {
                 case 'from':
-                    $where[] = 'date >= ' . $bind;
+                    $QueryBuilder->andWhere(Doctrine::quoteIdentifier('date') . ' >= :' . $parameter);
+                    $QueryBuilder->setParameter($parameter, $filter['value']);
                     break;
 
                 case 'to':
-                    $where[] = 'date <= ' . $bind;
+                    $QueryBuilder->andWhere(Doctrine::quoteIdentifier('date') . ' <= :' . $parameter);
+                    $QueryBuilder->setParameter($parameter, $filter['value']);
                     break;
 
                 case 'paid_status':
                     if ((int)$filter['value'] === QUI\ERP\Constants::PAYMENT_STATUS_OPEN) {
-                        $bind1 = ':filter' . $fc;
+                        $openParameter = 'filter' . $fc;
                         $fc++;
-                        $bind2 = ':filter' . $fc;
+                        $partParameter = 'filter' . $fc;
 
-                        $where[] = '(paid_status = ' . $bind1 . ' OR paid_status = ' . $bind2 . ')';
-
-                        $binds[$bind1] = [
-                            'value' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
-                            'type' => ParameterType::INTEGER
-                        ];
-
-                        $binds[$bind2] = [
-                            'value' => QUI\ERP\Constants::PAYMENT_STATUS_PART,
-                            'type' => ParameterType::INTEGER
-                        ];
-
+                        $QueryBuilder->andWhere($QueryBuilder->expr()->or(
+                            Doctrine::quoteIdentifier('paid_status') . ' = :' . $openParameter,
+                            Doctrine::quoteIdentifier('paid_status') . ' = :' . $partParameter
+                        ));
+                        $QueryBuilder->setParameter(
+                            $openParameter,
+                            QUI\ERP\Constants::PAYMENT_STATUS_OPEN
+                        );
+                        $QueryBuilder->setParameter(
+                            $partParameter,
+                            QUI\ERP\Constants::PAYMENT_STATUS_PART
+                        );
                         break;
                     }
 
-                    $where[] = 'paid_status = ' . $bind;
-
-                    $binds[$bind] = [
-                        'value' => (int)$filter['value'],
-                        'type' => ParameterType::INTEGER
-                    ];
-
+                    $QueryBuilder->andWhere(
+                        Doctrine::quoteIdentifier('paid_status') . ' = :' . $parameter
+                    );
+                    $QueryBuilder->setParameter($parameter, (int)$filter['value']);
                     break;
 
                 case 'customer_id':
                     $value = (string)$filter['value'];
-                    $where[] = $flr . ' = ' . $bind;
 
-                    // remove customer prefix, for better search
                     if (QUI::getPackageManager()->isInstalled('quiqqer/customer')) {
                         $CustomerConfig = QUI::getpackage('quiqqer/customer')->getConfig();
                         $prefix = $CustomerConfig?->getValue('customer', 'customerNoPrefix');
 
-                        if (!is_string($prefix)) {
-                            $prefix = '';
-                        }
-
-                        if (str_starts_with($value, $prefix)) {
-                            $value = substr_replace($value, '', 0, strlen($value));
+                        if (is_string($prefix) && $prefix !== '' && str_starts_with($value, $prefix)) {
+                            $value = substr($value, strlen($prefix));
                         }
                     }
 
-                    $binds[$bind] = [
-                        'value' => (int)$value,
-                        'type' => ParameterType::INTEGER
-                    ];
-
+                    $QueryBuilder->andWhere(
+                        Doctrine::quoteIdentifier('customer_id') . ' = :' . $parameter
+                    );
+                    $QueryBuilder->setParameter($parameter, $value);
                     break;
 
-                case 'c_user':
                 case 'id':
-                case 'order_id':
-                case 'taxId':
-                case 'hash':
+                case 'type':
                 case 'isbrutto':
-                    $where[] = $flr . ' = ' . $bind;
-
-                    $binds[$bind] = [
-                        'value' => (int)$filter['value'],
-                        'type' => ParameterType::INTEGER
-                    ];
-
+                case 'canceled':
+                    $QueryBuilder->andWhere(Doctrine::quoteIdentifier($field) . ' = :' . $parameter);
+                    $QueryBuilder->setParameter($parameter, (int)$filter['value']);
                     break;
-            }
 
-            $binds[$bind] = [
-                'value' => $filter['value'],
-                'type' => ParameterType::STRING
-            ];
+                default:
+                    if (!in_array($field, $this->getAllowedFields(), true)) {
+                        break;
+                    }
+
+                    $QueryBuilder->andWhere(Doctrine::quoteIdentifier($field) . ' = :' . $parameter);
+                    $QueryBuilder->setParameter($parameter, $filter['value']);
+            }
 
             $fc++;
         }
@@ -495,145 +463,136 @@ class InvoiceSearch extends Singleton
         if (!empty($this->search)) {
             $customerIdSearch = $this->search;
 
-            // remove customer prefix, for better search
             if (QUI::getPackageManager()->isInstalled('quiqqer/customer')) {
                 $CustomerConfig = QUI::getpackage('quiqqer/customer')->getConfig();
-                $prefix = $CustomerConfig?->getValue('customer', 'customerNoPrefix');
+                $customerPrefix = $CustomerConfig?->getValue('customer', 'customerNoPrefix');
 
-                if (!is_string($prefix)) {
-                    $prefix = '';
-                }
-
-                if (str_starts_with($customerIdSearch, $prefix)) {
-                    $customerIdSearch = substr_replace($customerIdSearch, '', 0, strlen($prefix));
+                if (
+                    is_string($customerPrefix)
+                    && $customerPrefix !== ''
+                    && str_starts_with($customerIdSearch, $customerPrefix)
+                ) {
+                    $customerIdSearch = substr($customerIdSearch, strlen($customerPrefix));
                 }
             }
 
-            $binds['customerIdSearch'] = [
-                'value' => '%' . $customerIdSearch . '%',
-                'type' => ParameterType::STRING
-            ];
+            $invoicePrefix = Settings::getInstance()->getInvoicePrefix();
+            $temporaryInvoicePrefix = Settings::getInstance()->getTemporaryInvoicePrefix();
 
-            $where[] = '(
-                id LIKE :searchId OR
-                customer_id LIKE :customerIdSearch OR
-                hash LIKE :search OR
-                global_process_id LIKE :search OR
-                type LIKE :search OR
-                order_id LIKE :search OR
-                ordered_by LIKE :search OR
-                ordered_by_name LIKE :search OR
-                project_name LIKE :search OR
-                invoice_address LIKE :search OR
-                delivery_address LIKE :search OR
-                service_period LIKE :search OR
-                payment_time LIKE :search OR
-                time_for_payment LIKE :search OR
-                paid_status LIKE :search OR
-                paid_date LIKE :search OR
-                paid_data LIKE :search OR
-                c_user LIKE :search OR
-                c_date LIKE :search OR
-                c_username LIKE :search OR
-                editor_id LIKE :search OR
-                editor_name LIKE :search OR
-                data LIKE :search OR
-                additional_invoice_text LIKE :search OR
-                customer_data LIKE :customerIdSearch OR
-                currency_data LIKE :search OR
-                nettosum LIKE :search OR
-                nettosubsum LIKE :search OR
-                subsum LIKE :search OR
-                sum LIKE :search
-            )';
-
-            $prefix = Settings::getInstance()->getInvoicePrefix();
-            $tempPrefix = Settings::getInstance()->getTemporaryInvoicePrefix();
-
-            if (str_starts_with($this->search, $prefix)) {
-                $idSearch = substr($this->search, strlen($prefix));
-
-                $binds['searchId'] = [
-                    'value' => $idSearch . '%',
-                    'type' => ParameterType::STRING
-                ];
-            } elseif (str_starts_with($this->search, $tempPrefix)) {
-                $idSearch = substr($this->search, strlen($tempPrefix));
-
-                $binds['searchId'] = [
-                    'value' => $idSearch . '%',
-                    'type' => ParameterType::STRING
-                ];
+            if ($invoicePrefix !== '' && str_starts_with($this->search, $invoicePrefix)) {
+                $idSearch = substr($this->search, strlen($invoicePrefix));
+            } elseif (
+                $temporaryInvoicePrefix !== ''
+                && str_starts_with($this->search, $temporaryInvoicePrefix)
+            ) {
+                $idSearch = substr($this->search, strlen($temporaryInvoicePrefix));
             } else {
-                $binds['searchId'] = [
-                    'value' => '%' . $this->search . '%',
-                    'type' => ParameterType::STRING
-                ];
+                $idSearch = '%' . $this->search;
             }
 
-            $binds['search'] = [
-                'value' => '%' . $this->search . '%',
-                'type' => ParameterType::STRING
-            ];
+            $Platform = QUI::getDataBaseConnection()->getDatabasePlatform();
+            $castType = $Platform instanceof AbstractMySQLPlatform ? 'CHAR' : 'VARCHAR';
+            $searchExpressions = [];
+
+            foreach ($this->getSearchFields() as $field) {
+                $searchParameter = match ($field) {
+                    'id' => 'searchId',
+                    'customer_id', 'customer_data' => 'customerIdSearch',
+                    default => 'search'
+                };
+                $searchExpressions[] = 'LOWER(CAST(' . Doctrine::quoteIdentifier($field) .
+                    ' AS ' . $castType . ')) LIKE :' . $searchParameter;
+            }
+
+            $QueryBuilder->andWhere($QueryBuilder->expr()->or(...$searchExpressions));
+            $QueryBuilder->setParameter('search', '%' . mb_strtolower($this->search) . '%');
+            $QueryBuilder->setParameter('searchId', mb_strtolower($idSearch) . '%');
+            $QueryBuilder->setParameter(
+                'customerIdSearch',
+                '%' . mb_strtolower($customerIdSearch) . '%'
+            );
         }
 
-        $whereQuery = 'WHERE ' . implode(' AND ', $where);
-
-        if (!count($where)) {
-            $whereQuery = '';
-        }
-
-        if ($count) {
-            return [
-                "query" => "
-                    SELECT COUNT(*) AS count
-                    FROM {$table}
-                    {$whereQuery}
-                ",
-                'binds' => $binds
-            ];
-        }
-
-        return [
-            "query" => "
-                SELECT id
-                FROM {$table}
-                {$whereQuery}
-                ORDER BY {$order}
-                {$limit}
-            ",
-            'binds' => $binds
-        ];
+        return $this->applyOrderAndLimit($QueryBuilder, $count);
     }
 
     /**
-     * @param array<string, mixed> $queryData
+     * @param QueryBuilder $QueryBuilder
      * @return list<array<string, mixed>>
      * @throws QUI\Exception
      */
-    protected function executeQueryParams(array $queryData = []): array
+    protected function executeQueryParams(QueryBuilder $QueryBuilder): array
     {
-        $binds = $queryData['binds'];
-        $query = $queryData['query'];
-        $parameters = [];
-        $types = [];
-
-        foreach ($binds as $var => $bind) {
-            $parameter = ltrim($var, ':');
-            $parameters[$parameter] = $bind['value'];
-            $types[$parameter] = $bind['type'];
-        }
-
         try {
-            return QUI::getDataBaseConnection()
-                ->executeQuery($query, $parameters, $types)
-                ->fetchAllAssociative();
+            return $QueryBuilder->executeQuery()->fetchAllAssociative();
         } catch (Exception $Exception) {
             QUI\System\Log::writeRecursive($Exception);
-            QUI\System\Log::writeRecursive($query);
-            QUI\System\Log::writeRecursive($binds);
+            QUI\System\Log::writeRecursive($QueryBuilder->getSQL());
+            QUI\System\Log::writeRecursive($QueryBuilder->getParameters());
             throw new QUI\Exception('Something went wrong');
         }
+    }
+
+    private function applyOrderAndLimit(QueryBuilder $QueryBuilder, bool $count): QueryBuilder
+    {
+        if ($count) {
+            return $QueryBuilder;
+        }
+
+        [$orderField, $orderDirection] = array_pad(explode(' ', trim($this->order), 2), 2, 'ASC');
+
+        if (!in_array($orderField, $this->getAllowedFields(), true)) {
+            $orderField = 'id';
+            $orderDirection = 'DESC';
+        }
+
+        $QueryBuilder->orderBy(Doctrine::quoteIdentifier($orderField), strtoupper($orderDirection));
+
+        if ($this->limit !== false) {
+            $QueryBuilder->setFirstResult($this->limit[0]);
+            $QueryBuilder->setMaxResults($this->limit[1]);
+        }
+
+        return $QueryBuilder;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getSearchFields(): array
+    {
+        return [
+            'id',
+            'customer_id',
+            'hash',
+            'global_process_id',
+            'type',
+            'order_id',
+            'ordered_by',
+            'ordered_by_name',
+            'project_name',
+            'invoice_address',
+            'delivery_address',
+            'service_period',
+            'payment_time',
+            'time_for_payment',
+            'paid_status',
+            'paid_date',
+            'paid_data',
+            'c_user',
+            'c_date',
+            'c_username',
+            'editor_id',
+            'editor_name',
+            'data',
+            'additional_invoice_text',
+            'customer_data',
+            'currency_data',
+            'nettosum',
+            'nettosubsum',
+            'subsum',
+            'sum'
+        ];
     }
 
     /**

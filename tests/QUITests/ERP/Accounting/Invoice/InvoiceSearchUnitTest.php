@@ -2,6 +2,7 @@
 
 namespace QUITests\ERP\Accounting\Invoice;
 
+use Doctrine\DBAL\Query\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Search\InvoiceSearch;
@@ -13,21 +14,27 @@ class InvoiceSearchUnitTest extends TestCase
     {
         $Search = $this->createSearch();
 
-        self::assertStringContainsString('SELECT id', $Search->query()['query']);
-        self::assertStringContainsString('LIMIT 0,20', $Search->query()['query']);
-        self::assertStringContainsString('COUNT(*)', $Search->query(true)['query']);
+        $QueryBuilder = $Search->query();
+        self::assertSame(0, $QueryBuilder->getFirstResult());
+        self::assertSame(20, $QueryBuilder->getMaxResults());
+        self::assertStringContainsString('ORDER BY', $QueryBuilder->getSQL());
+
+        $CountQueryBuilder = $Search->query(true);
+        self::assertNull($CountQueryBuilder->getMaxResults());
+        self::assertStringContainsString('COUNT(', $CountQueryBuilder->getSQL());
 
         $Search->order('display_sum DESC');
-        self::assertStringContainsString('ORDER BY sum DESC', $Search->query()['query']);
+        self::assertStringContainsString('sum', $Search->query()->getSQL());
 
         $Search->order('not_allowed DESC');
-        self::assertStringContainsString('ORDER BY sum DESC', $Search->query()['query']);
+        self::assertStringContainsString('sum', $Search->query()->getSQL());
 
         $Search->limit('10', '5');
-        self::assertStringContainsString('LIMIT 10,5', $Search->query()['query']);
+        self::assertSame(10, $Search->query()->getFirstResult());
+        self::assertSame(5, $Search->query()->getMaxResults());
 
         $Search->noLimit();
-        self::assertStringNotContainsString('LIMIT', $Search->query()['query']);
+        self::assertNull($Search->query()->getMaxResults());
         self::assertContains('paid_status', $Search->allowedFields());
     }
 
@@ -47,17 +54,19 @@ class InvoiceSearchUnitTest extends TestCase
         $Search->setFilter('id', '42');
         $Search->setFilter('currency', '---');
 
-        $query = $Search->query();
+        $QueryBuilder = $Search->query();
+        $parameters = $QueryBuilder->getParameters();
 
-        self::assertStringContainsString('date >= :filter0', $query['query']);
-        self::assertStringContainsString('date <= :filter1', $query['query']);
-        self::assertStringContainsString('paid_status = :filter2', $query['query']);
-        self::assertStringContainsString('paid_status = :filter3', $query['query']);
-        self::assertStringContainsString('id = :filter5', $query['query']);
-        self::assertArrayHasKey(':currency', $query['binds']);
+        self::assertSame(date('Y-m-d 00:00:00', $timestamp), $parameters['filter0']);
+        self::assertSame(date('Y-m-d 23:59:59', $timestamp), $parameters['filter1']);
+        self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_OPEN, $parameters['filter2']);
+        self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_PART, $parameters['filter3']);
+        self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_PAID, $parameters['filter4']);
+        self::assertSame(42, $parameters['filter5']);
+        self::assertArrayHasKey('currency', $parameters);
 
         $Search->clearFilter();
-        self::assertStringNotContainsString('date >=', $Search->query()['query']);
+        self::assertArrayNotHasKey('filter0', $Search->query()->getParameters());
     }
 
     public function testSearchTextSupportsInvoiceTemporaryAndGenericPrefixes(): void
@@ -73,12 +82,11 @@ class InvoiceSearchUnitTest extends TestCase
             $Search->setFilter('search', $searchValue);
             $Search->setFilter('currency', QUI\ERP\Defaults::getCurrency()->getCode());
 
-            $query = $Search->query();
+            $parameters = $Search->query()->getParameters();
 
-            self::assertStringContainsString('global_process_id LIKE :search', $query['query']);
-            self::assertArrayHasKey('searchId', $query['binds']);
-            self::assertArrayHasKey('customerIdSearch', $query['binds']);
-            self::assertArrayHasKey('search', $query['binds']);
+            self::assertArrayHasKey('searchId', $parameters);
+            self::assertArrayHasKey('customerIdSearch', $parameters);
+            self::assertArrayHasKey('search', $parameters);
         }
     }
 
@@ -92,20 +100,19 @@ class InvoiceSearchUnitTest extends TestCase
         $Search->setFilter('hash', '78');
         $Search->setFilter('isbrutto', '1');
 
-        $query = $Search->query();
+        $parameters = $Search->query()->getParameters();
 
-        foreach (['customer_id', 'c_user', 'order_id', 'hash', 'isbrutto'] as $field) {
-            self::assertStringContainsString($field . ' = ', $query['query']);
-        }
+        self::assertCount(6, $parameters);
+        self::assertContains('12', $parameters, true);
+        self::assertContains('34', $parameters, true);
+        self::assertContains('78', $parameters, true);
+        self::assertContains(1, $parameters, true);
     }
 
     private function createSearch(): InvoiceSearch
     {
         return new class () extends InvoiceSearch {
-            /**
-             * @return array{query: string, binds: array<mixed>}
-             */
-            public function query(bool $count = false): array
+            public function query(bool $count = false): QueryBuilder
             {
                 return $this->getQuery($count);
             }
