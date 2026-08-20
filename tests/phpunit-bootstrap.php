@@ -68,7 +68,7 @@ register_shutdown_function(static function () use (
     }
 });
 
-foreach (['quiqqer/invoice', 'quiqqer/erp'] as $packageName) {
+foreach (['quiqqer/invoice', 'quiqqer/erp', 'quiqqer/tax'] as $packageName) {
     $Package = QUI::getPackage($packageName);
 
     if ($Package->getConfig() === null) {

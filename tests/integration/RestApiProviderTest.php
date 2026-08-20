@@ -13,6 +13,13 @@ use QUI\ERP\Accounting\Invoice\ProcessingStatus\Factory as ProcessingStatusFacto
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatusHandler;
 use QUI\ERP\Accounting\Invoice\RestApi\Provider;
 use QUI\ERP\Accounting\Payments\Methods\Standard\Payment as StandardPayment;
+use QUI\ERP\Customer\CustomerFiles;
+use QUI\ERP\Products\EventHandling as ProductsEventHandling;
+use QUI\ERP\Products\Handler\Cache as ProductCache;
+use QUI\ERP\Products\Handler\Fields as ProductFields;
+use QUI\ERP\Products\Handler\Products;
+use QUI\ERP\Products\Product\Types\Product;
+use QUI\ERP\Products\Utils\Tables as ProductTables;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUI\REST\Response;
 use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
@@ -27,6 +34,8 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
     private ?string $postedGlobalProcessId = null;
     private ?string $customerUuid = null;
     private ?int $processingStatusId = null;
+    private ?int $productId = null;
+    private ?string $customerFileName = null;
 
     /** @var list<string> */
     private array $temporaryInvoiceIds = [];
@@ -75,6 +84,21 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
         if ($this->processingStatusId !== null) {
             try {
                 ProcessingStatusHandler::getInstance()->deleteProcessingStatus($this->processingStatusId);
+            } catch (Throwable) {
+            }
+        }
+
+        if ($this->productId !== null) {
+            QUI\Cache\LongTermCache::clear(ProductCache::getProductCachePath($this->productId));
+            Products::cleanProductInstanceMemCache($this->productId);
+            QUI::getDataBaseConnection()->delete(ProductTables::getProductTableName(), [
+                'id' => $this->productId
+            ]);
+        }
+
+        if ($this->customerUuid !== null && $this->customerFileName !== null) {
+            try {
+                CustomerFiles::deleteFiles($this->customerUuid, [$this->customerFileName]);
             } catch (Throwable) {
             }
         }
@@ -318,6 +342,82 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
             ->fetchOne();
 
         self::assertSame($this->processingStatusId, (int)$storedStatus);
+    }
+
+    public function testCreateInvoiceResolvesExistingProduct(): void
+    {
+        (new ReflectionMethod(ProductsEventHandling::class, 'setDefaultProductFields'))->invoke(null);
+
+        $fieldData = [
+            ['id' => ProductFields::FIELD_TITLE, 'value' => ['de' => 'REST SQLite product']],
+            ['id' => ProductFields::FIELD_PRICE, 'value' => 12.5],
+            ['id' => ProductFields::FIELD_PRODUCT_NO, 'value' => 'REST-PRODUCT-42'],
+            ['id' => ProductFields::FIELD_VAT, 'value' => self::SQLITE_TAX_TYPE_ID],
+            ['id' => ProductFields::FIELD_UNIT, 'value' => 'piece'],
+            ['id' => ProductFields::FIELD_EAN, 'value' => '4006381333931']
+        ];
+
+        QUI::getDataBaseConnection()->insert(ProductTables::getProductTableName(), [
+            'type' => Product::class,
+            'category' => 0,
+            'categories' => ',0,',
+            'fieldData' => json_encode($fieldData, JSON_THROW_ON_ERROR),
+            'active' => 1,
+            'c_user' => QUI::getUsers()->getSystemUser()->getUUID(),
+            'c_date' => '2026-08-20 12:00:00'
+        ]);
+        $this->productId = (int)QUI::getDataBaseConnection()->lastInsertId();
+        QUI\Cache\LongTermCache::clear(ProductCache::getProductCachePath($this->productId));
+
+        $Draft = $this->createDraft([
+            'articles' => [[
+                'quiqqerProductId' => $this->productId,
+                'quantity' => 3
+            ]],
+            'payment_method' => -1
+        ]);
+
+        self::assertSame(1, $Draft->getArticles()->count());
+        $Article = $Draft->getArticles()->getArticle(0);
+        self::assertNotNull($Article);
+        self::assertSame($this->productId, $Article->getId());
+        self::assertSame('REST-PRODUCT-42', $Article->getArticleNo());
+        self::assertSame('REST SQLite product', $Article->getTitle());
+        self::assertSame(3, $Article->getQuantity());
+        self::assertSame(12.5, $Article->getUnitPrice()->value());
+        self::assertSame('4006381333931', $Article->getGtin());
+    }
+
+    public function testCreateInvoiceStoresUploadedCustomerFileAndOptions(): void
+    {
+        [$User, $Address, $customerNumber] = $this->createCustomer('file-upload');
+        $this->customerFileName = 'invoice-rest-' . bin2hex(random_bytes(8)) . '.txt';
+        $content = "Invoice REST upload\n";
+
+        $Draft = $this->createDraft([
+            'customer_no' => $customerNumber,
+            'invoice_address_id' => $Address->getUUID(),
+            'payment_method' => -1,
+            'files' => [[
+                'name' => $this->customerFileName,
+                'content' => bin2hex($content),
+                'options' => ['attachToEmail' => true]
+            ]]
+        ]);
+
+        $fileHash = hash('sha256', $this->customerFileName);
+        $customerFile = CustomerFiles::getFileByHash($User->getUUID(), $fileHash);
+
+        self::assertIsArray($customerFile);
+        self::assertSame($this->customerFileName, $customerFile['basename']);
+        self::assertSame(
+            $content,
+            file_get_contents(CustomerFiles::getFolderPath($User) . DIRECTORY_SEPARATOR . $this->customerFileName)
+        );
+        self::assertSame([[
+            'hash' => $fileHash,
+            'options' => ['attachToEmail' => true]
+        ]], $Draft->getCustomerFiles());
     }
 
     /**

@@ -20,6 +20,8 @@ use ReflectionProperty;
 
 abstract class SqliteIntegrationTestCase extends TestCase
 {
+    protected const SQLITE_TAX_TYPE_ID = 900;
+
     protected Connection $connection;
 
     private Connection $originalConnection;
@@ -159,6 +161,7 @@ abstract class SqliteIntegrationTestCase extends TestCase
                 OPT_DIR . 'quiqqer/payments/database.xml',
                 OPT_DIR . 'quiqqer/payment-transactions/database.xml',
                 OPT_DIR . 'quiqqer/erp/database.xml',
+                OPT_DIR . 'quiqqer/products/database.xml',
                 OPT_DIR . 'quiqqer/order/database.xml',
                 dirname(__DIR__, 5) . '/database.xml'
             ] as $schema
@@ -208,6 +211,26 @@ abstract class SqliteIntegrationTestCase extends TestCase
             'id' => 1,
             'countries' => 'DE',
             'data' => '{}'
+        ]);
+        $TaxConfig = (new QUI\ERP\Tax\Handler())->getConfig();
+        $taxTypes = $TaxConfig->getSection('taxtypes');
+        $taxGroups = $TaxConfig->getSection('taxgroups');
+        $taxTypes = is_array($taxTypes) ? $taxTypes : [];
+        $taxGroups = is_array($taxGroups) ? $taxGroups : [];
+        $taxTypes[self::SQLITE_TAX_TYPE_ID] = 'taxType.' . self::SQLITE_TAX_TYPE_ID . '.title';
+        $taxGroups[0] = implode(',', array_unique(array_filter([
+            ...explode(',', (string)($taxGroups[0] ?? '')),
+            (string)self::SQLITE_TAX_TYPE_ID
+        ], 'strlen')));
+        $TaxConfig->setSection('taxtypes', $taxTypes);
+        $TaxConfig->setSection('taxgroups', $taxGroups);
+        $connection->insert(QUI::getDBTableName('tax'), [
+            'taxTypeId' => self::SQLITE_TAX_TYPE_ID,
+            'taxGroupId' => 0,
+            'vat' => 19,
+            'areaId' => 1,
+            'active' => 1,
+            'euvat' => 1
         ]);
         $connection->insert(CountriesManager::getDataBaseTableName(), [
             'countries_name' => 'Germany',
