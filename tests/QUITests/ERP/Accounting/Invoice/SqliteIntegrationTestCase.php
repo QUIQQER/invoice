@@ -39,6 +39,10 @@ abstract class SqliteIntegrationTestCase extends TestCase
 
     private mixed $originalSessionCountry;
 
+    private string $originalLocaleCurrent;
+
+    private mixed $originalLocaleTemporaryCurrent;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -62,6 +66,11 @@ abstract class SqliteIntegrationTestCase extends TestCase
             'availableLanguages'
         ))->getValue();
         $this->originalSessionCountry = QUI::getSession()->get('country');
+        $this->originalLocaleCurrent = QUI::getLocale()->getCurrent();
+        $this->originalLocaleTemporaryCurrent = (new ReflectionProperty(
+            QUI\Locale::class,
+            'tempCurrent'
+        ))->getValue(QUI::getLocale());
 
         $this->connection = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
@@ -115,6 +124,12 @@ abstract class SqliteIntegrationTestCase extends TestCase
         } else {
             QUI::getSession()->set('country', $this->originalSessionCountry);
         }
+
+        QUI::getLocale()->setCurrent($this->originalLocaleCurrent);
+        (new ReflectionProperty(QUI\Locale::class, 'tempCurrent'))->setValue(
+            QUI::getLocale(),
+            $this->originalLocaleTemporaryCurrent
+        );
 
         $this->connection->close();
 
