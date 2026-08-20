@@ -411,15 +411,18 @@ class Handler extends QUI\Utils\Singleton
         if ($result === false) {
             $prefix = Settings::getInstance()->getTemporaryInvoicePrefix();
             $id = QUI\Utils\Security\Orthos::clear((string)$id);
+            $invoiceId = str_replace($prefix, '', $id);
 
-            $result = $Connection->createQueryBuilder()
-                ->select('*')
-                ->from(Doctrine::quoteIdentifier(self::temporaryInvoiceTable()))
-                ->where(Doctrine::quoteIdentifier('id') . ' = :id')
-                ->setParameter('id', (int)str_replace($prefix, '', $id))
-                ->setMaxResults(1)
-                ->executeQuery()
-                ->fetchAssociative();
+            if (is_numeric($invoiceId)) {
+                $result = $Connection->createQueryBuilder()
+                    ->select('*')
+                    ->from(Doctrine::quoteIdentifier(self::temporaryInvoiceTable()))
+                    ->where(Doctrine::quoteIdentifier('id') . ' = :id')
+                    ->setParameter('id', (int)$invoiceId)
+                    ->setMaxResults(1)
+                    ->executeQuery()
+                    ->fetchAssociative();
+            }
         }
 
         if ($result === false) {
