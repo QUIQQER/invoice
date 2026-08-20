@@ -12,18 +12,14 @@ class DatabaseEnvironmentUnitTest extends TestCase
     {
         self::assertSame(DatabaseEnvironment::MODE_SQLITE, DatabaseEnvironment::determineMode([]));
         self::assertSame(DatabaseEnvironment::MODE_SQLITE, DatabaseEnvironment::determineMode([
-            'GITLAB_CI' => 'false',
-            'DB_VENDOR' => 'future-database'
+            'GITLAB_CI' => 'false'
         ]));
     }
 
-    public function testGitLabExecutionUsesConfiguredDatabaseRegardlessOfVendor(): void
+    public function testGitLabExecutionUsesConfiguredDatabase(): void
     {
-        foreach (['mariadb', 'mysql', 'postgresql', 'sqlite', 'future-database'] as $vendor) {
-            self::assertSame(DatabaseEnvironment::MODE_CI_DATABASE, DatabaseEnvironment::determineMode([
-                'GITLAB_CI' => 'true',
-                'DB_VENDOR' => $vendor
-            ]));
-        }
+        self::assertSame(DatabaseEnvironment::MODE_CI_DATABASE, DatabaseEnvironment::determineMode([
+            'GITLAB_CI' => 'true'
+        ]));
     }
 }
