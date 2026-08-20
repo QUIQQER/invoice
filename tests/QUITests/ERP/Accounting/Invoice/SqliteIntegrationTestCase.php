@@ -163,7 +163,13 @@ abstract class SqliteIntegrationTestCase extends TestCase
             return self::SQLITE_TAX_TYPE_ID;
         }
 
-        return QUI\ERP\Tax\Utils::getTaxTypeByArea(QUI\ERP\Defaults::getArea())->getId();
+        $taxTypes = (new QUI\ERP\Tax\Handler())->getTaxTypes();
+
+        if ($taxTypes === []) {
+            throw new \RuntimeException('The CI database has no configured tax type.');
+        }
+
+        return $taxTypes[0]->getId();
     }
 
     public static function initializeConnection(Connection $connection): void

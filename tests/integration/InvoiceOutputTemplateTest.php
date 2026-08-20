@@ -91,7 +91,7 @@ class InvoiceOutputTemplateTest extends SqliteIntegrationTestCase
         self::assertFalse($templateData['DeliveryAddress']);
     }
 
-    public function testTemplateDataSuppressesDuplicateDeliveryAddressAndResolvesOrder(): void
+    public function testTemplateDataSuppressesDuplicateDeliveryAddressAndResolvesAvailableOrder(): void
     {
         $Users = QUI::getUsers();
         $SystemUser = $Users->getSystemUser();
@@ -114,25 +114,31 @@ class InvoiceOutputTemplateTest extends SqliteIntegrationTestCase
             'mail' => $username . '@example.invalid'
         ], $SystemUser);
 
-        $this->orderHash = self::TEST_PREFIX . QUI\Utils\Uuid::get();
-        $orderNumber = 'ORDER-OUTPUT-42';
-        QUI::getDataBaseConnection()->insert(OrderHandler::getInstance()->table(), [
-            'hash' => $this->orderHash,
-            'id_str' => $orderNumber,
-            'global_process_id' => $this->globalProcessId,
-            'status' => 1,
-            'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
-            'successful' => 1,
-            'c_date' => '2026-08-20 12:00:00',
-            'c_user' => $SystemUser->getUUID()
-        ]);
+        $orderNumber = '';
+
+        if (class_exists(OrderHandler::class)) {
+            $this->orderHash = self::TEST_PREFIX . QUI\Utils\Uuid::get();
+            $orderNumber = 'ORDER-OUTPUT-42';
+            QUI::getDataBaseConnection()->insert(OrderHandler::getInstance()->table(), [
+                'hash' => $this->orderHash,
+                'id_str' => $orderNumber,
+                'global_process_id' => $this->globalProcessId,
+                'status' => 1,
+                'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
+                'successful' => 1,
+                'c_date' => '2026-08-20 12:00:00',
+                'c_user' => $SystemUser->getUUID()
+            ]);
+        }
 
         $Draft = Factory::getInstance()->createInvoice($SystemUser, $this->globalProcessId);
         $Draft->setCustomer($User);
         $Draft->setAttribute('invoice_address_id', $Address->getUUID());
         $Draft->setAttribute('invoice_address', $Address->toJSON());
         $Draft->setAttribute('payment_method', -1);
-        $Draft->setAttribute('order_id', $this->orderHash);
+        if ($this->orderHash !== null) {
+            $Draft->setAttribute('order_id', $this->orderHash);
+        }
         $Draft->setAttribute(InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL, 1);
         $Draft->setCurrency('EUR');
         $Draft->setDeliveryAddress(json_decode($Address->toJSON(), true, 512, JSON_THROW_ON_ERROR));
