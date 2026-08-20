@@ -355,8 +355,10 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
             (new ReflectionMethod(ProductsEventHandling::class, 'setDefaultProductFields'))->invoke(null);
         }
 
+        $productTitle = 'REST existing product';
+        $productLanguage = Products::getLocale()->getCurrent();
         $fieldData = [
-            ['id' => ProductFields::FIELD_TITLE, 'value' => ['de' => 'REST SQLite product']],
+            ['id' => ProductFields::FIELD_TITLE, 'value' => [$productLanguage => $productTitle]],
             ['id' => ProductFields::FIELD_PRICE, 'value' => 12.5],
             ['id' => ProductFields::FIELD_PRODUCT_NO, 'value' => 'REST-PRODUCT-42'],
             ['id' => ProductFields::FIELD_VAT, 'value' => $this->getTestTaxTypeId()],
@@ -389,7 +391,7 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
         self::assertNotNull($Article);
         self::assertSame($this->productId, $Article->getId());
         self::assertSame('REST-PRODUCT-42', $Article->getArticleNo());
-        self::assertSame('REST SQLite product', $Article->getTitle());
+        self::assertSame($productTitle, $Article->getTitle());
         self::assertSame(3, $Article->getQuantity());
         self::assertSame(12.5, $Article->getUnitPrice()->value());
         self::assertSame('4006381333931', $Article->getGtin());
