@@ -35,6 +35,8 @@ abstract class SqliteIntegrationTestCase extends TestCase
     /** @var array<string, mixed> */
     private array $originalCountriesState;
 
+    private mixed $originalAvailableLanguages;
+
     private mixed $originalSessionCountry;
 
     protected function setUp(): void
@@ -55,6 +57,10 @@ abstract class SqliteIntegrationTestCase extends TestCase
             CountriesManager::class,
             ['countries', 'DefaultCountry']
         );
+        $this->originalAvailableLanguages = (new ReflectionProperty(
+            QUI\Translator::class,
+            'availableLanguages'
+        ))->getValue();
         $this->originalSessionCountry = QUI::getSession()->get('country');
 
         $this->connection = DriverManager::getConnection([
@@ -99,6 +105,10 @@ abstract class SqliteIntegrationTestCase extends TestCase
         );
         $this->setStaticState(CurrencyHandler::class, $this->originalCurrencyState);
         $this->setStaticState(CountriesManager::class, $this->originalCountriesState);
+        (new ReflectionProperty(QUI\Translator::class, 'availableLanguages'))->setValue(
+            null,
+            $this->originalAvailableLanguages
+        );
 
         if ($this->originalSessionCountry === false) {
             QUI::getSession()->del('country');
@@ -140,6 +150,9 @@ abstract class SqliteIntegrationTestCase extends TestCase
         ) {
             Update::importDatabase($schema);
         }
+
+        // Older translator versions use MySQL-specific SHOW COLUMNS when their language cache is cold.
+        (new ReflectionProperty(QUI\Translator::class, 'availableLanguages'))->setValue(null, ['de']);
 
         foreach (
             [
