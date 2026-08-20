@@ -8,7 +8,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Handler;
+use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Factory as ProcessingStatusFactory;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatusHandler;
 use QUI\ERP\Accounting\Invoice\RestApi\Provider;
+use QUI\ERP\Accounting\Payments\Methods\Standard\Payment as StandardPayment;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUI\REST\Response;
 use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
@@ -20,9 +24,15 @@ use Throwable;
 class RestApiProviderTest extends SqliteIntegrationTestCase
 {
     private ?UserInterface $previousSessionUser = null;
-    private ?string $temporaryInvoiceId = null;
     private ?string $postedGlobalProcessId = null;
     private ?string $customerUuid = null;
+    private ?int $processingStatusId = null;
+
+    /** @var list<string> */
+    private array $temporaryInvoiceIds = [];
+
+    /** @var list<int> */
+    private array $paymentIds = [];
 
     protected function setUp(): void
     {
@@ -33,10 +43,10 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
 
     protected function tearDown(): void
     {
-        if ($this->temporaryInvoiceId !== null) {
+        foreach ($this->temporaryInvoiceIds as $temporaryInvoiceId) {
             QUI::getDataBaseConnection()->delete(
                 Handler::getInstance()->temporaryInvoiceTable(),
-                ['id' => $this->temporaryInvoiceId]
+                ['id' => $temporaryInvoiceId]
             );
         }
 
@@ -54,6 +64,17 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
         if ($this->customerUuid !== null) {
             try {
                 QUI::getUsers()->deleteUser($this->customerUuid);
+            } catch (Throwable) {
+            }
+        }
+
+        foreach ($this->paymentIds as $paymentId) {
+            QUI::getDataBaseConnection()->delete(QUI::getDBTableName('payments'), ['id' => $paymentId]);
+        }
+
+        if ($this->processingStatusId !== null) {
+            try {
+                ProcessingStatusHandler::getInstance()->deleteProcessingStatus($this->processingStatusId);
             } catch (Throwable) {
             }
         }
@@ -137,7 +158,7 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
         $Draft = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString(
             $body['msg']['invoice_id']
         );
-        $this->temporaryInvoiceId = (string)$Draft->getId();
+        $this->temporaryInvoiceIds[] = (string)$Draft->getId();
 
         self::assertSame('REST provider test', $Draft->getAttribute('project_name'));
         self::assertSame(1, $Draft->getArticles()->count());
@@ -217,6 +238,153 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
 
         self::assertSame($User->getUUID(), $Invoice->getCustomer()->getUUID());
         self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_PAID, $Invoice->getAttribute('paid_status'));
+    }
+
+    public function testCreateInvoiceUsesCustomerDefaultPaymentBeforeRequestedPayment(): void
+    {
+        [$User, $Address, $customerNumber] = $this->createCustomer('default-payment');
+        $paymentId = 42001;
+        QUI::getDataBaseConnection()->insert(QUI::getDBTableName('payments'), [
+            'id' => $paymentId,
+            'active' => 1,
+            'payment_type' => StandardPayment::class,
+            'icon' => '',
+            'priority' => 1
+        ]);
+        $this->paymentIds[] = $paymentId;
+
+        $User->setAttribute('quiqqer.erp.standard.payment', $paymentId);
+        $User->save(QUI::getUsers()->getSystemUser());
+
+        $Draft = $this->createDraft([
+            'customer_no' => $customerNumber,
+            'invoice_address_id' => $Address->getUUID(),
+            'payment_method' => -1
+        ]);
+
+        self::assertSame($User->getUUID(), $Draft->getCustomer()?->getUUID());
+        self::assertSame($paymentId, (int)$Draft->getAttribute('payment_method'));
+        self::assertSame(StandardPayment::class, $Draft->getPayment()->getPaymentType());
+    }
+
+    public function testCreateInvoiceFallsBackForInvalidCustomerAndAddressData(): void
+    {
+        [$User, , $customerNumber] = $this->createCustomer('invalid-data');
+        $defaultAddressUuid = $User->getStandardAddress()->getUUID();
+
+        $DraftWithoutCustomer = $this->createDraft([
+            'customer_no' => 'missing-customer',
+            'invoice_address_id' => 'missing-address',
+            'payment_method' => -1
+        ]);
+
+        self::assertNull($DraftWithoutCustomer->getCustomer());
+        self::assertFalse($DraftWithoutCustomer->getAttribute('customer_id'));
+        self::assertSame('', $DraftWithoutCustomer->getAttribute('invoice_address_id'));
+
+        $DraftWithDefaultAddress = $this->createDraft([
+            'customer_no' => $customerNumber,
+            'invoice_address_id' => 'missing-address',
+            'payment_method' => -1
+        ]);
+
+        self::assertSame($User->getUUID(), $DraftWithDefaultAddress->getCustomer()?->getUUID());
+        self::assertSame($defaultAddressUuid, $DraftWithDefaultAddress->getAttribute('invoice_address_id'));
+    }
+
+    public function testCreateInvoicePersistsValidProcessingStatus(): void
+    {
+        $this->processingStatusId = ProcessingStatusFactory::getInstance()->getNextId() + 2000;
+        ProcessingStatusFactory::getInstance()->createProcessingStatus(
+            $this->processingStatusId,
+            '#224466',
+            ['de' => 'REST processing status'],
+            [ProcessingStatusHandler::STATUS_OPTION_PREVENT_INVOICE_POSTING => false]
+        );
+
+        $Draft = $this->createDraft([
+            'processing_status' => $this->processingStatusId,
+            'payment_method' => -1
+        ]);
+
+        self::assertSame($this->processingStatusId, (int)$Draft->getAttribute('processing_status'));
+
+        $storedStatus = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select('processing_status')
+            ->from(Handler::getInstance()->temporaryInvoiceTable())
+            ->where('id = :id')
+            ->setParameter('id', $Draft->getId())
+            ->executeQuery()
+            ->fetchOne();
+
+        self::assertSame($this->processingStatusId, (int)$storedStatus);
+    }
+
+    /**
+     * @param array<string, mixed> $invoiceData
+     */
+    private function createDraft(array $invoiceData): InvoiceTemporary
+    {
+        $invoiceData += [
+            'source' => 'phpunit-rest-special-case',
+            'articles' => [[
+                'title' => 'REST special case article',
+                'articleNo' => 'REST-SPECIAL-1',
+                'unitPrice' => 10,
+                'quantity' => 1,
+                'vat' => 19
+            ]]
+        ];
+
+        $Response = (new Provider())->createInvoice(
+            $this->request(['invoiceData' => $invoiceData]),
+            new Response(),
+            []
+        );
+
+        self::assertSame(
+            200,
+            $Response->getStatusCode(),
+            json_encode($this->body($Response), JSON_THROW_ON_ERROR)
+        );
+        self::assertFalse($this->body($Response)['error']);
+
+        $Draft = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString(
+            $this->body($Response)['msg']['invoice_id']
+        );
+        $this->temporaryInvoiceIds[] = (string)$Draft->getId();
+
+        return $Draft;
+    }
+
+    /**
+     * @return array{0: UserInterface, 1: QUI\Users\Address, 2: string}
+     */
+    private function createCustomer(string $suffix): array
+    {
+        $Users = QUI::getUsers();
+        $SystemUser = $Users->getSystemUser();
+        $customerNumber = (string)random_int(800000, 899999);
+        $username = 'invoice-rest-' . $suffix . '-' . uniqid();
+        $User = $Users->createChildWithAttributes([
+            'username' => $username,
+            'email' => $username . '@example.invalid',
+            'firstname' => 'REST',
+            'lastname' => 'Customer',
+            'customerId' => $customerNumber
+        ], $SystemUser);
+        $this->customerUuid = $User->getUUID();
+        $Address = $User->addAddress([
+            'firstname' => 'REST',
+            'lastname' => 'Customer',
+            'street_no' => 'API-Straße 8',
+            'zip' => '10115',
+            'city' => 'Berlin',
+            'country' => 'DE',
+            'mail' => $username . '@example.invalid'
+        ], $SystemUser);
+
+        return [$User, $Address, $customerNumber];
     }
 
     private function request(array $body): ServerRequestInterface
