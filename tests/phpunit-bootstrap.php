@@ -8,6 +8,8 @@ if (!defined('QUIQQER_AJAX')) {
     define('QUIQQER_AJAX', true);
 }
 
+require_once __DIR__ . '/QUITests/ERP/Accounting/Invoice/DatabaseEnvironment.php';
+
 putenv("QUIQQER_OTHER_AUTOLOADERS=KEEP");
 
 require_once __DIR__ . '/stubs/Mcp/Server/Builder.php';
@@ -30,19 +32,46 @@ if (!defined('ETC_DIR')) {
 require_once $coreRoot . '/src/autoload.php';
 require_once $coreRoot . '/src/minimalHeader.php';
 
-$phpunitBootstrapConnection = Doctrine\DBAL\DriverManager::getConnection([
-    'driver' => 'pdo_sqlite',
-    'memory' => true
-]);
+if (QUITests\ERP\Accounting\Invoice\DatabaseEnvironment::usesCiDatabase()) {
+    $databasePlatform = QUI::getDataBaseConnection()->getDatabasePlatform();
+    $databasePlatformClass = $databasePlatform::class;
+    $databaseVendor = QUITests\ERP\Accounting\Invoice\DatabaseEnvironment::getCiVendor();
 
-(new ReflectionProperty(QUI::class, 'QueryBuilder'))->setValue(
-    null,
-    $phpunitBootstrapConnection
-);
+    if (!$databasePlatform instanceof Doctrine\DBAL\Platforms\AbstractMySQLPlatform) {
+        throw new RuntimeException(
+            'GitLab invoice tests expected a MySQL-compatible DBAL platform, got ' . $databasePlatformClass . '.'
+        );
+    }
 
-register_shutdown_function(static function () use ($phpunitBootstrapConnection): void {
-    $phpunitBootstrapConnection->close();
-});
+    $isMariaDbPlatform = str_contains(strtolower($databasePlatformClass), 'maria');
+
+    if (
+        ($databaseVendor === 'mariadb' && !$isMariaDbPlatform)
+        || ($databaseVendor === 'mysql' && $isMariaDbPlatform)
+    ) {
+        throw new RuntimeException(
+            'GitLab DB_VENDOR=' . $databaseVendor . ' does not match DBAL platform ' . $databasePlatformClass . '.'
+        );
+    }
+}
+
+$phpunitBootstrapConnection = null;
+
+if (!QUITests\ERP\Accounting\Invoice\DatabaseEnvironment::usesCiDatabase()) {
+    $phpunitBootstrapConnection = Doctrine\DBAL\DriverManager::getConnection([
+        'driver' => 'pdo_sqlite',
+        'memory' => true
+    ]);
+
+    (new ReflectionProperty(QUI::class, 'QueryBuilder'))->setValue(
+        null,
+        $phpunitBootstrapConnection
+    );
+
+    register_shutdown_function(static function () use ($phpunitBootstrapConnection): void {
+        $phpunitBootstrapConnection->close();
+    });
+}
 
 if (file_exists(__DIR__ . '/../../../autoload.php')) {
     require_once __DIR__ . '/../../../autoload.php';
@@ -142,6 +171,8 @@ QUI::getSession()->set('country', 'DE');
     QUI::getUsers()->getSystemUser()
 );
 
-QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase::initializeConnection(
-    $phpunitBootstrapConnection
-);
+if ($phpunitBootstrapConnection instanceof Doctrine\DBAL\Connection) {
+    QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase::initializeConnection(
+        $phpunitBootstrapConnection
+    );
+}

@@ -25,6 +25,7 @@ abstract class SqliteIntegrationTestCase extends TestCase
     protected Connection $connection;
 
     private Connection $originalConnection;
+    private bool $ownsTestConnection = false;
     private ?PermissionManager $originalPermissionManager;
     private mixed $originalPermissionUser;
     private mixed $originalUsersManager;
@@ -74,12 +75,16 @@ abstract class SqliteIntegrationTestCase extends TestCase
             'tempCurrent'
         ))->getValue(QUI::getLocale());
 
-        $this->connection = DriverManager::getConnection([
-            'driver' => 'pdo_sqlite',
-            'memory' => true
-        ]);
-
-        $this->setConnection($this->connection);
+        if (DatabaseEnvironment::usesCiDatabase()) {
+            $this->connection = $this->originalConnection;
+        } else {
+            $this->connection = DriverManager::getConnection([
+                'driver' => 'pdo_sqlite',
+                'memory' => true
+            ]);
+            $this->ownsTestConnection = true;
+            $this->setConnection($this->connection);
+        }
         QUI::$Rights = null;
         QUI::$Users = new QUI\Users\Manager();
         QUI::$ProjectManager = null;
@@ -97,7 +102,9 @@ abstract class SqliteIntegrationTestCase extends TestCase
         QUI::getSession()->set('country', 'DE');
         $this->replaceSessionUser(QUI::getUsers()->getSystemUser());
 
-        self::initializeConnection($this->connection);
+        if ($this->ownsTestConnection) {
+            self::initializeConnection($this->connection);
+        }
     }
 
     protected function tearDown(): void
@@ -133,7 +140,9 @@ abstract class SqliteIntegrationTestCase extends TestCase
             $this->originalLocaleTemporaryCurrent
         );
 
-        $this->connection->close();
+        if ($this->ownsTestConnection) {
+            $this->connection->close();
+        }
 
         parent::tearDown();
     }
@@ -146,6 +155,15 @@ abstract class SqliteIntegrationTestCase extends TestCase
         $Session->setValue($Users, $User);
 
         return $previousUser instanceof User ? $previousUser : null;
+    }
+
+    protected function getTestTaxTypeId(): int
+    {
+        if (!DatabaseEnvironment::usesCiDatabase()) {
+            return self::SQLITE_TAX_TYPE_ID;
+        }
+
+        return QUI\ERP\Tax\Utils::getTaxTypeByArea(QUI\ERP\Defaults::getArea())->getId();
     }
 
     public static function initializeConnection(Connection $connection): void

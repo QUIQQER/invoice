@@ -351,13 +351,15 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
 
     public function testCreateInvoiceResolvesExistingProduct(): void
     {
-        (new ReflectionMethod(ProductsEventHandling::class, 'setDefaultProductFields'))->invoke(null);
+        if (!\QUITests\ERP\Accounting\Invoice\DatabaseEnvironment::usesCiDatabase()) {
+            (new ReflectionMethod(ProductsEventHandling::class, 'setDefaultProductFields'))->invoke(null);
+        }
 
         $fieldData = [
             ['id' => ProductFields::FIELD_TITLE, 'value' => ['de' => 'REST SQLite product']],
             ['id' => ProductFields::FIELD_PRICE, 'value' => 12.5],
             ['id' => ProductFields::FIELD_PRODUCT_NO, 'value' => 'REST-PRODUCT-42'],
-            ['id' => ProductFields::FIELD_VAT, 'value' => self::SQLITE_TAX_TYPE_ID],
+            ['id' => ProductFields::FIELD_VAT, 'value' => $this->getTestTaxTypeId()],
             ['id' => ProductFields::FIELD_UNIT, 'value' => 'piece'],
             ['id' => ProductFields::FIELD_EAN, 'value' => '4006381333931']
         ];
