@@ -131,8 +131,8 @@ class InvoicePdfOutputTest extends SqliteIntegrationTestCase
             self::assertInstanceOf(Document::class, $Document);
             self::assertSame($Invoice->getUUID(), $Document->getAttribute('Entity')->getUUID());
             self::assertStringEndsWith('.pdf', $Document->options->filename);
-            self::assertTrue($Document->hasHeaderContent());
-            self::assertTrue($Document->hasFooterContent());
+            self::assertNotSame('', trim($Document->getHeaderHTML()));
+            self::assertNotSame('', trim($Document->getFooterHTML()));
             self::assertStringContainsString('PDF end-to-end article', $Document->getContentHTML());
             self::assertStringContainsString($Invoice->getPrefixedNumber(), $Document->getHeaderHTML());
 
