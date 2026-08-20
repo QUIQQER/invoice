@@ -501,6 +501,7 @@ class EventHandler
         $Console->writeLn('- Migrate invoice');
 
         $invoiceTable = Handler::getInstance()->invoiceTable();
+        $temporaryInvoiceTable = Handler::getInstance()->temporaryInvoiceTable();
 
         // migrate database
         $alterOrderId = function (string $table): void {
@@ -511,6 +512,7 @@ class EventHandler
                 'editor_id' => false,
                 'customer_id' => true,
                 'invoice_address_id' => false,
+                'delivery_address_id' => false,
                 'ordered_by' => false,
                 'order_id' => false,
             ];
@@ -557,48 +559,59 @@ class EventHandler
         };
 
         $alterOrderId($invoiceTable);
-        $alterOrderId(Handler::getInstance()->temporaryInvoiceTable());
+        $alterOrderId($temporaryInvoiceTable);
 
+        $userFields = [
+            'customer_id',
+            'ordered_by',
+            'c_user',
+            'editor_id'
+        ];
 
-        QUI\Utils\MigrationV1ToV2::migrateUsers(
-            Handler::getInstance()->invoiceTable(),
+        QUI\Utils\MigrationV1ToV2::migrateUsers($invoiceTable, $userFields);
+        QUI\Utils\MigrationV1ToV2::migrateUsers($temporaryInvoiceTable, $userFields);
+        QUI\Utils\MigrationV1ToV2::migrateAddresses(
+            $temporaryInvoiceTable,
             [
-                'customer_id',
-                'ordered_by',
-                'c_user',
-                'editor_id'
+                'invoice_address_id',
+                'delivery_address_id'
             ]
         );
 
+        if (!class_exists(QUI\ERP\Order\Handler::class)) {
+            return;
+        }
 
         // migrate order ids
-        $result = QUI::getDataBaseConnection()->createQueryBuilder()
-            ->select(
-                Doctrine::quoteIdentifier('id'),
-                Doctrine::quoteIdentifier('order_id')
-            )
-            ->from(Doctrine::quoteIdentifier(Handler::getInstance()->invoiceTable()))
-            ->executeQuery()
-            ->fetchAllAssociative();
+        foreach ([$invoiceTable, $temporaryInvoiceTable] as $table) {
+            $result = QUI::getDataBaseConnection()->createQueryBuilder()
+                ->select(
+                    Doctrine::quoteIdentifier('id'),
+                    Doctrine::quoteIdentifier('order_id')
+                )
+                ->from(Doctrine::quoteIdentifier($table))
+                ->executeQuery()
+                ->fetchAllAssociative();
 
-        foreach ($result as $invoice) {
-            if (!is_numeric($invoice['order_id'])) {
-                continue;
-            }
+            foreach ($result as $invoice) {
+                if (!is_numeric($invoice['order_id'])) {
+                    continue;
+                }
 
-            if ($invoice['order_id'] == 0) {
-                continue;
-            }
+                if ($invoice['order_id'] == 0) {
+                    continue;
+                }
 
-            try {
-                $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById((string)$invoice['order_id']);
+                try {
+                    $Order = QUI\ERP\Order\Handler::getInstance()->getOrderById((string)$invoice['order_id']);
 
-                QUI::getDataBaseConnection()->update(
-                    $invoiceTable,
-                    ['order_id' => $Order->getUUID()],
-                    ['id' => $invoice['id']]
-                );
-            } catch (QUI\Exception) {
+                    QUI::getDataBaseConnection()->update(
+                        $table,
+                        ['order_id' => $Order->getUUID()],
+                        ['id' => $invoice['id']]
+                    );
+                } catch (QUI\Exception) {
+                }
             }
         }
     }
