@@ -46,6 +46,14 @@ abstract class SqliteIntegrationTestCase extends TestCase
 
     private mixed $originalLocaleTemporaryCurrent;
 
+    private ?QUI\Config $ciTaxConfig = null;
+
+    /** @var array<string, mixed>|null */
+    private ?array $originalCiTaxConfigState = null;
+
+    private ?int $ciAreaId = null;
+    private ?int $ciTaxTypeId = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -104,11 +112,14 @@ abstract class SqliteIntegrationTestCase extends TestCase
 
         if ($this->ownsTestConnection) {
             self::initializeConnection($this->connection);
+        } else {
+            $this->initializeCiDefaults();
         }
     }
 
     protected function tearDown(): void
     {
+        $this->removeCiDefaults();
         $this->setConnection($this->originalConnection);
         QUI::$Rights = $this->originalPermissionManager;
         QUI::$Users = $this->originalUsersManager;
@@ -159,17 +170,7 @@ abstract class SqliteIntegrationTestCase extends TestCase
 
     protected function getTestTaxTypeId(): int
     {
-        if (!DatabaseEnvironment::usesCiDatabase()) {
-            return self::SQLITE_TAX_TYPE_ID;
-        }
-
-        $taxTypes = (new QUI\ERP\Tax\Handler())->getTaxTypes();
-
-        if ($taxTypes === []) {
-            throw new \RuntimeException('The CI database has no configured tax type.');
-        }
-
-        return $taxTypes[0]->getId();
+        return $this->ciTaxTypeId ?? self::SQLITE_TAX_TYPE_ID;
     }
 
     public static function initializeConnection(Connection $connection): void
@@ -287,6 +288,96 @@ abstract class SqliteIntegrationTestCase extends TestCase
     private function setConnection(Connection $Connection): void
     {
         (new ReflectionProperty(QUI::class, 'QueryBuilder'))->setValue(null, $Connection);
+    }
+
+    private function initializeCiDefaults(): void
+    {
+        $this->ciTaxConfig = QUI::getPackage('quiqqer/tax')->getConfig();
+
+        if (!$this->ciTaxConfig instanceof QUI\Config) {
+            throw new \RuntimeException('The tax configuration is not available.');
+        }
+
+        $ConfigState = new ReflectionProperty($this->ciTaxConfig, 'iniParsedArray');
+        $configState = $ConfigState->getValue($this->ciTaxConfig);
+
+        if (!is_array($configState)) {
+            throw new \RuntimeException('The tax configuration has an invalid state.');
+        }
+
+        $this->originalCiTaxConfigState = $configState;
+
+        try {
+            $areaTable = QUI::getDBTableName('areas');
+            $taxTable = QUI::getDBTableName('tax');
+            $maxAreaId = $this->connection->createQueryBuilder()
+                ->select('MAX(id)')
+                ->from($areaTable)
+                ->executeQuery()
+                ->fetchOne();
+            $this->ciAreaId = (int)$maxAreaId + 1000;
+
+            $taxTypes = $this->ciTaxConfig->getSection('taxtypes');
+            $taxGroups = $this->ciTaxConfig->getSection('taxgroups');
+            $shop = $this->ciTaxConfig->getSection('shop');
+            $taxTypes = is_array($taxTypes) ? $taxTypes : [];
+            $taxGroups = is_array($taxGroups) ? $taxGroups : [];
+            $shop = is_array($shop) ? $shop : [];
+            $taxTypeIds = array_map('intval', array_keys($taxTypes));
+            $taxGroupIds = array_map('intval', array_keys($taxGroups));
+            $this->ciTaxTypeId = max([0, ...$taxTypeIds]) + 1000;
+            $taxGroupId = max([0, ...$taxGroupIds]) + 1000;
+
+            $taxTypes[$this->ciTaxTypeId] = 'taxType.' . $this->ciTaxTypeId . '.title';
+            $taxGroups[$taxGroupId] = (string)$this->ciTaxTypeId;
+            $shop['area'] = (string)$this->ciAreaId;
+            $this->ciTaxConfig->setSection('taxtypes', $taxTypes);
+            $this->ciTaxConfig->setSection('taxgroups', $taxGroups);
+            $this->ciTaxConfig->setSection('shop', $shop);
+
+            $this->connection->insert($areaTable, [
+                'id' => $this->ciAreaId,
+                'countries' => 'DE',
+                'data' => '{}'
+            ]);
+            $this->connection->insert($taxTable, [
+                'taxTypeId' => $this->ciTaxTypeId,
+                'taxGroupId' => $taxGroupId,
+                'vat' => 19,
+                'areaId' => $this->ciAreaId,
+                'active' => 1,
+                'euvat' => 1
+            ]);
+        } catch (\Throwable $Exception) {
+            $this->removeCiDefaults();
+            throw $Exception;
+        }
+    }
+
+    private function removeCiDefaults(): void
+    {
+        if ($this->ciTaxTypeId !== null && $this->ciAreaId !== null) {
+            $this->connection->delete(QUI::getDBTableName('tax'), [
+                'taxTypeId' => $this->ciTaxTypeId,
+                'areaId' => $this->ciAreaId
+            ]);
+        }
+
+        if ($this->ciAreaId !== null) {
+            $this->connection->delete(QUI::getDBTableName('areas'), ['id' => $this->ciAreaId]);
+        }
+
+        if ($this->ciTaxConfig instanceof QUI\Config && $this->originalCiTaxConfigState !== null) {
+            (new ReflectionProperty($this->ciTaxConfig, 'iniParsedArray'))->setValue(
+                $this->ciTaxConfig,
+                $this->originalCiTaxConfigState
+            );
+        }
+
+        $this->ciTaxConfig = null;
+        $this->originalCiTaxConfigState = null;
+        $this->ciAreaId = null;
+        $this->ciTaxTypeId = null;
     }
 
     /**
