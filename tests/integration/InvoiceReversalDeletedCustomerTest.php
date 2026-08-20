@@ -105,4 +105,60 @@ class InvoiceReversalDeletedCustomerTest extends SqliteIntegrationTestCase
         self::assertSame('Deleted', $Reversal->getCustomer()->getAttribute('firstname'));
         self::assertSame('Customer', $Reversal->getCustomer()->getAttribute('lastname'));
     }
+
+    public function testStornoAliasCreatesAndPersistsReversal(): void
+    {
+        $Users = QUI::getUsers();
+        $SystemUser = $Users->getSystemUser();
+        $username = self::TEST_PREFIX . uniqid();
+        $User = $Users->createChildWithAttributes([
+            'username' => $username,
+            'email' => $username . '@example.invalid',
+            'firstname' => 'Storno',
+            'lastname' => 'Customer'
+        ], $SystemUser);
+
+        $this->customerUuid = $User->getUUID();
+        $Address = $User->addAddress([
+            'firstname' => 'Storno',
+            'lastname' => 'Customer',
+            'street_no' => 'Teststraße 2',
+            'zip' => '54321',
+            'city' => 'Teststadt',
+            'country' => 'DE',
+            'mail' => $username . '@example.invalid'
+        ], $SystemUser);
+
+        $Draft = Factory::getInstance()->createInvoice($SystemUser, $this->globalProcessId);
+        $Draft->setCustomer($User);
+        $Draft->setAttribute('invoice_address_id', $Address->getUUID());
+        $Draft->setAttribute('invoice_address', $Address->toJSON());
+        $Draft->setAttribute('payment_method', -1);
+        $Draft->addArticle(new Article([
+            'id' => 1,
+            'articleNo' => 'STORNO-1',
+            'title' => 'Storno alias test article',
+            'unitPrice' => 20,
+            'quantity' => 1,
+            'vat' => 19
+        ]));
+
+        $Invoice = $Draft->post($SystemUser);
+        $reason = 'Direct storno alias test';
+        $reversalUuid = $Invoice->storno($reason, $SystemUser);
+        $Reversal = Handler::getInstance()->getInvoiceByHash($reversalUuid);
+        $canceledInvoiceData = Handler::getInstance()->getInvoiceData($Invoice->getUUID());
+
+        self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_REVERSAL, $Reversal->getInvoiceType());
+        self::assertSame($Invoice->getGlobalProcessId(), $Reversal->getGlobalProcessId());
+        self::assertSame(QUI\ERP\Constants::TYPE_INVOICE_CANCEL, (int)$canceledInvoiceData['type']);
+        self::assertSame(
+            QUI\ERP\Constants::PAYMENT_STATUS_CANCELED,
+            (int)$canceledInvoiceData['paid_status']
+        );
+
+        $storedData = json_decode((string)$canceledInvoiceData['data'], true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame($reversalUuid, $storedData['canceledId']);
+        self::assertContains($reason, array_column($Invoice->getComments()->toArray(), 'message'));
+    }
 }
