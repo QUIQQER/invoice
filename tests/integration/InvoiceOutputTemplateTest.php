@@ -10,6 +10,7 @@ use QUI\ERP\Accounting\Invoice\Factory;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
+use QUI\ERP\Accounting\Payments\Methods\Invoice\Payment as InvoicePayment;
 use QUI\ERP\Order\Handler as OrderHandler;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
@@ -23,6 +24,7 @@ class InvoiceOutputTemplateTest extends SqliteIntegrationTestCase
     private ?string $globalProcessId = null;
     private ?string $customerUuid = null;
     private ?string $orderHash = null;
+    private ?int $paymentId = null;
 
     protected function setUp(): void
     {
@@ -49,6 +51,10 @@ class InvoiceOutputTemplateTest extends SqliteIntegrationTestCase
 
         if ($this->orderHash !== null) {
             $Connection->delete(OrderHandler::getInstance()->table(), ['hash' => $this->orderHash]);
+        }
+
+        if ($this->paymentId !== null) {
+            $Connection->delete(QUI::getDBTableName('payments'), ['id' => $this->paymentId]);
         }
 
         if ($this->customerUuid !== null) {
@@ -153,6 +159,86 @@ class InvoiceOutputTemplateTest extends SqliteIntegrationTestCase
         self::assertSame('Hamburg', $differentTemplateData['DeliveryAddress']->getAttribute('city'));
     }
 
+    public function testTemplateDataContainsSuccessfulEpcQrCode(): void
+    {
+        $Users = QUI::getUsers();
+        $SystemUser = $Users->getSystemUser();
+        $username = self::TEST_PREFIX . 'epc-' . uniqid();
+        $customerNumber = (string)random_int(910000, 919999);
+        $User = $Users->createChildWithAttributes([
+            'username' => $username,
+            'email' => $username . '@example.invalid',
+            'firstname' => 'EPC',
+            'lastname' => 'Customer',
+            'customerId' => $customerNumber
+        ], $SystemUser);
+        $this->customerUuid = $User->getUUID();
+        $Address = $User->addAddress([
+            'firstname' => 'EPC',
+            'lastname' => 'Customer',
+            'street_no' => 'QR-Weg 9',
+            'zip' => '10115',
+            'city' => 'Berlin',
+            'country' => 'DE',
+            'mail' => $username . '@example.invalid'
+        ], $SystemUser);
+
+        $this->paymentId = 49001;
+        QUI::getDataBaseConnection()->insert(QUI::getDBTableName('payments'), [
+            'id' => $this->paymentId,
+            'active' => 1,
+            'payment_type' => InvoicePayment::class,
+            'icon' => '',
+            'priority' => 1
+        ]);
+
+        $Draft = Factory::getInstance()->createInvoice($SystemUser, $this->globalProcessId);
+        $Draft->setCustomer($User);
+        $Draft->setAttribute('invoice_address_id', $Address->getUUID());
+        $Draft->setAttribute('invoice_address', $Address->toJSON());
+        $Draft->setAttribute('payment_method', $this->paymentId);
+        $Draft->setAttribute(InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL, 1);
+        $Draft->setCurrency('EUR');
+        $Draft->addArticle($this->createArticle('EPC-QR'));
+        $Invoice = $Draft->post($SystemUser);
+
+        $InvoiceConfig = QUI::getPackage('quiqqer/invoice')->getConfig();
+        $ErpConfig = QUI::getPackage('quiqqer/erp')->getConfig();
+        self::assertNotNull($InvoiceConfig);
+        self::assertNotNull($ErpConfig);
+        $originalIncludeQrCode = $InvoiceConfig->getValue('invoice', 'includeQrCode');
+        $originalBankAccounts = $ErpConfig->getValue('bankAccounts', 'accounts');
+
+        try {
+            $InvoiceConfig->set('invoice', 'includeQrCode', 1);
+            $ErpConfig->set('bankAccounts', 'accounts', json_encode([
+                901 => [
+                    'id' => 901,
+                    'title' => 'PHPUnit bank account',
+                    'name' => 'Example Company',
+                    'accountHolder' => 'Example Company',
+                    'iban' => 'DE89370400440532013000',
+                    'bic' => 'COBADEFFXXX',
+                    'creditorId' => '',
+                    'default' => 1,
+                    'financialAccountNo' => ''
+                ]
+            ], JSON_THROW_ON_ERROR));
+
+            $templateData = OutputProviderInvoice::getTemplateData($Invoice->getUUID());
+            $imageSource = $templateData['epcQrCodeImageSrc'];
+
+            self::assertIsString($imageSource);
+            self::assertStringStartsWith('data:image/png;base64,', $imageSource);
+            $imageData = base64_decode(substr($imageSource, strlen('data:image/png;base64,')), true);
+            self::assertIsString($imageData);
+            self::assertStringStartsWith("\x89PNG\r\n\x1a\n", $imageData);
+        } finally {
+            $this->restoreConfigValue($InvoiceConfig, 'invoice', 'includeQrCode', $originalIncludeQrCode);
+            $this->restoreConfigValue($ErpConfig, 'bankAccounts', 'accounts', $originalBankAccounts);
+        }
+    }
+
     private function createArticle(string $articleNumber): Article
     {
         return new Article([
@@ -163,5 +249,15 @@ class InvoiceOutputTemplateTest extends SqliteIntegrationTestCase
             'quantity' => 1,
             'vat' => 19
         ]);
+    }
+
+    private function restoreConfigValue(QUI\Config $Config, string $section, string $key, mixed $value): void
+    {
+        if ($value === false) {
+            $Config->del($section, $key);
+            return;
+        }
+
+        $Config->set($section, $key, $value);
     }
 }
