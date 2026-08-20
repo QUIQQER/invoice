@@ -4,7 +4,6 @@ namespace QUITests\ERP\Accounting\Invoice\Integration;
 
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
-use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use QUI;
@@ -12,13 +11,13 @@ use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\RestApi\Provider;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUI\REST\Response;
+use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
 use ReflectionMethod;
-use ReflectionProperty;
 use Throwable;
 
 #[PreserveGlobalState(false)]
 #[RunClassInSeparateProcess]
-class RestApiProviderTest extends TestCase
+class RestApiProviderTest extends SqliteIntegrationTestCase
 {
     private ?UserInterface $previousSessionUser = null;
     private ?string $temporaryInvoiceId = null;
@@ -27,11 +26,7 @@ class RestApiProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        try {
-            QUI::getDataBaseConnection()->executeQuery('SELECT 1')->free();
-        } catch (Throwable $Exception) {
-            self::markTestSkipped('QUIQQER database is not available: ' . $Exception->getMessage());
-        }
+        parent::setUp();
 
         $this->previousSessionUser = $this->replaceSessionUser(QUI::getUsers()->getSystemUser());
     }
@@ -66,6 +61,8 @@ class RestApiProviderTest extends TestCase
         if ($this->previousSessionUser !== null) {
             $this->replaceSessionUser($this->previousSessionUser);
         }
+
+        parent::tearDown();
     }
 
     public function testCreateInvoiceValidatesRequestData(): void
@@ -210,7 +207,11 @@ class RestApiProviderTest extends TestCase
             []
         );
 
-        self::assertSame(200, $Response->getStatusCode());
+        self::assertSame(
+            200,
+            $Response->getStatusCode(),
+            json_encode($this->body($Response), JSON_THROW_ON_ERROR)
+        );
         $Invoice = Handler::getInstance()->get($this->body($Response)['msg']['invoice_id']);
         $this->postedGlobalProcessId = $Invoice->getGlobalProcessId();
 
@@ -234,17 +235,5 @@ class RestApiProviderTest extends TestCase
     private function body(\Psr\Http\Message\MessageInterface $Response): array
     {
         return json_decode((string)$Response->getBody(), true);
-    }
-
-    private function replaceSessionUser(UserInterface $User): ?UserInterface
-    {
-        $Users = QUI::getUsers();
-        $Property = new ReflectionProperty($Users, 'Session');
-        $Property->setAccessible(true);
-
-        $PreviousUser = $Property->getValue($Users);
-        $Property->setValue($Users, $User);
-
-        return $PreviousUser instanceof UserInterface ? $PreviousUser : null;
     }
 }

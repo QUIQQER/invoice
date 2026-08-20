@@ -2,17 +2,16 @@
 
 namespace QUITests\ERP\Accounting\Invoice\Integration;
 
-use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\ERP\Accounting\Article;
 use QUI\ERP\Accounting\Invoice\Factory;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\Interfaces\Users\User as UserInterface;
-use ReflectionProperty;
+use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
 use Throwable;
 
-class InvoiceReversalDeletedCustomerTest extends TestCase
+class InvoiceReversalDeletedCustomerTest extends SqliteIntegrationTestCase
 {
     private const TEST_PREFIX = 'invoice-reversal-deleted-customer-';
 
@@ -22,11 +21,7 @@ class InvoiceReversalDeletedCustomerTest extends TestCase
 
     protected function setUp(): void
     {
-        try {
-            QUI::getDataBaseConnection()->executeQuery('SELECT 1')->free();
-        } catch (Throwable $Exception) {
-            self::markTestSkipped('QUIQQER database is not available: ' . $Exception->getMessage());
-        }
+        parent::setUp();
 
         $this->previousSessionUser = $this->replaceSessionUser(QUI::getUsers()->getSystemUser());
         $this->globalProcessId = QUI\Utils\Uuid::get();
@@ -57,6 +52,8 @@ class InvoiceReversalDeletedCustomerTest extends TestCase
         if ($this->previousSessionUser !== null) {
             $this->replaceSessionUser($this->previousSessionUser);
         }
+
+        parent::tearDown();
     }
 
     public function testInvoiceCanBeReversedAfterCustomerWasDeleted(): void
@@ -107,17 +104,5 @@ class InvoiceReversalDeletedCustomerTest extends TestCase
         self::assertSame($originalCustomerId, $Reversal->getAttribute('customer_id'));
         self::assertSame('Deleted', $Reversal->getCustomer()->getAttribute('firstname'));
         self::assertSame('Customer', $Reversal->getCustomer()->getAttribute('lastname'));
-    }
-
-    private function replaceSessionUser(UserInterface $User): ?UserInterface
-    {
-        $Users = QUI::getUsers();
-        $Property = new ReflectionProperty($Users, 'Session');
-        $Property->setAccessible(true);
-
-        $PreviousUser = $Property->getValue($Users);
-        $Property->setValue($Users, $User);
-
-        return $PreviousUser instanceof UserInterface ? $PreviousUser : null;
     }
 }
