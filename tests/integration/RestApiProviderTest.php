@@ -36,6 +36,7 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
     private ?int $processingStatusId = null;
     private ?int $productId = null;
     private ?string $customerFileName = null;
+    private ?string $invoiceUploadDirectory = null;
 
     /** @var list<string> */
     private array $temporaryInvoiceIds = [];
@@ -70,6 +71,17 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
             );
         }
 
+        if ($this->customerUuid !== null && $this->customerFileName !== null) {
+            try {
+                CustomerFiles::deleteFiles($this->customerUuid, [$this->customerFileName]);
+            } catch (Throwable) {
+            }
+        }
+
+        if ($this->invoiceUploadDirectory !== null && is_dir($this->invoiceUploadDirectory)) {
+            rmdir($this->invoiceUploadDirectory);
+        }
+
         if ($this->customerUuid !== null) {
             try {
                 QUI::getUsers()->deleteUser($this->customerUuid);
@@ -94,13 +106,6 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
             QUI::getDataBaseConnection()->delete(ProductTables::getProductTableName(), [
                 'id' => $this->productId
             ]);
-        }
-
-        if ($this->customerUuid !== null && $this->customerFileName !== null) {
-            try {
-                CustomerFiles::deleteFiles($this->customerUuid, [$this->customerFileName]);
-            } catch (Throwable) {
-            }
         }
 
         if ($this->previousSessionUser !== null) {
@@ -404,6 +409,8 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
                 'options' => ['attachToEmail' => true]
             ]]
         ]);
+        $this->invoiceUploadDirectory = QUI::getPackage('quiqqer/invoice')->getVarDir()
+            . 'uploads/' . $Draft->getUUID();
 
         $fileHash = hash('sha256', $this->customerFileName);
         $customerFile = CustomerFiles::getFileByHash($User->getUUID(), $fileHash);
