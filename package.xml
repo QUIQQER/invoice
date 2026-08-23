@@ -9,6 +9,27 @@
             <locale group="quiqqer/invoice" var="package.description"/>
         </description>
 
+        <capabilities schemaVersion="1">
+            <capability id="billing.invoices">
+                <title>Invoice management</title>
+                <description>
+                    Creates, posts, delivers and manages invoice drafts and invoices with payment and processing status.
+                </description>
+            </capability>
+            <capability id="billing.credit-notes">
+                <title>Credit notes and invoice reversals</title>
+                <description>
+                    Creates credit notes and reversal invoices from posted invoices.
+                </description>
+            </capability>
+            <capability id="billing.electronic-invoices">
+                <title>Electronic invoices</title>
+                <description>
+                    Generates EN 16931 and ZUGFeRD electronic documents for invoices and credit notes.
+                </description>
+            </capability>
+        </capabilities>
+
         <image src="URL_OPT_DIR/quiqqer/invoice/bin/images/Logo.jpg"/>
 
         <preview>
