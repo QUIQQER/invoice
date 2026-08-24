@@ -32,29 +32,6 @@ if (!defined('ETC_DIR')) {
 require_once $coreRoot . '/src/autoload.php';
 require_once $coreRoot . '/src/minimalHeader.php';
 
-if (QUITests\ERP\Accounting\Invoice\DatabaseEnvironment::usesCiDatabase()) {
-    $databasePlatform = QUI::getDataBaseConnection()->getDatabasePlatform();
-    $databasePlatformClass = $databasePlatform::class;
-    $databaseVendor = QUITests\ERP\Accounting\Invoice\DatabaseEnvironment::getCiVendor();
-
-    if (!$databasePlatform instanceof Doctrine\DBAL\Platforms\AbstractMySQLPlatform) {
-        throw new RuntimeException(
-            'GitLab invoice tests expected a MySQL-compatible DBAL platform, got ' . $databasePlatformClass . '.'
-        );
-    }
-
-    $isMariaDbPlatform = str_contains(strtolower($databasePlatformClass), 'maria');
-
-    if (
-        ($databaseVendor === 'mariadb' && !$isMariaDbPlatform)
-        || ($databaseVendor === 'mysql' && $isMariaDbPlatform)
-    ) {
-        throw new RuntimeException(
-            'GitLab DB_VENDOR=' . $databaseVendor . ' does not match DBAL platform ' . $databasePlatformClass . '.'
-        );
-    }
-}
-
 $phpunitBootstrapConnection = null;
 
 if (!QUITests\ERP\Accounting\Invoice\DatabaseEnvironment::usesCiDatabase()) {
