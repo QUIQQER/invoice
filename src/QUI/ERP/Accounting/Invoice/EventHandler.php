@@ -37,6 +37,9 @@ use function strtotime;
  */
 class EventHandler
 {
+    /** Document attribute for callers that control electronic invoice embedding themselves. */
+    public const PDF_SKIP_ELECTRONIC_INVOICE = 'quiqqerInvoiceSkipElectronicInvoice';
+
     /**
      * event: on package setup
      *
@@ -384,6 +387,10 @@ class EventHandler
 
     public static function onQuiqqerHtmlToPDFCreated(QUI\HtmlToPdf\Document $Document, string $filename): void
     {
+        if ($Document->getAttribute(self::PDF_SKIP_ELECTRONIC_INVOICE)) {
+            return;
+        }
+
         $Entity = $Document->getAttribute('Entity');
 
         if (!($Entity instanceof Invoice)) {
