@@ -1,0 +1,1442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locales>
+
+    <groups name="quiqqer/invoice" datatype="php,js">
+        <locale name="package.title">
+<pl><![CDATA[QUIQQER - Sklep - Fakturowanie]]></pl>
+        </locale>
+        <locale name="demo_data.provider.title">
+<pl><![CDATA[Faktury]]></pl>
+        </locale>
+        <locale name="package.description">
+<pl><![CDATA[Moduł fakturowania QUIQQER zapewnia kompleksowe zarządzanie fakturami w QUIQQER.]]></pl>
+        </locale>
+
+        <locale name="erp.panel.accounting.text">
+<pl><![CDATA[Księgowość]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.text">
+<pl><![CDATA[Faktury]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.create.text">
+<pl><![CDATA[Utwórz fakturę]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.drafts.text">
+<pl><![CDATA[Faktury (wersje robocze)]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.journal.text">
+<pl><![CDATA[Faktury (dziennik)]]></pl>
+        </locale>
+
+        <locale name="invoice.type.1">
+<pl><![CDATA[Faktura]]></pl>
+        </locale>
+        <locale name="invoice.type.2">
+<pl><![CDATA[Wersja robocza faktury]]></pl>
+        </locale>
+        <locale name="invoice.type.3">
+<pl><![CDATA[Nota uznaniowa]]></pl>
+        </locale>
+        <locale name="invoice.type.4">
+<pl><![CDATA[Anulowana faktura]]></pl>
+        </locale>
+        <locale name="invoice.type.5">
+<pl><![CDATA[Anulowana faktura]]></pl>
+        </locale>
+
+        <locale name="permission.quiqqer.frontendUsers.profile.view.erp._header">
+<pl><![CDATA[Kategorie profilu: fakturowanie]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice._header">
+<pl><![CDATA[Sklep - Fakturowanie]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.temporary._header">
+<pl><![CDATA[Wersje robocze faktur]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.create">
+<pl><![CDATA[Może tworzyć faktury.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.edit">
+<pl><![CDATA[Może edytować faktury.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.delete">
+<pl><![CDATA[Może usuwać faktury.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.post">
+<pl><![CDATA[Może księgować faktury.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.addPayment">
+<pl><![CDATA[Może dodawać transakcje (płatności).]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.addComment">
+<pl><![CDATA[Może dodawać komentarze.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.createCreditNote">
+<pl><![CDATA[Może tworzyć noty uznaniowe.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.copy">
+<pl><![CDATA[Może kopiować faktury.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.reversal">
+<pl><![CDATA[Może anulować faktury.]]></pl>
+        </locale>
+
+        <locale name="permission.quiqqer.invoice.timeForPayment">
+<pl><![CDATA[Domyślny termin płatności]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.canEditCancelInvoice">
+<pl><![CDATA[Może edytować anulowane faktury.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.temporary.edit">
+<pl><![CDATA[Może edytować wersje robocze faktur.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.temporary.delete">
+<pl><![CDATA[Może usuwać wersje robocze faktur.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.temporary.copy">
+<pl><![CDATA[Może kopiować wersje robocze faktur.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.changeDate">
+<pl><![CDATA[Może ustawiać datę faktury.]]></pl>
+        </locale>
+        <locale name="permission.quiqqer.invoice.mcp">
+<pl><![CDATA[Może korzystać z interfejsu MCP fakturowania.]]></pl>
+        </locale>
+
+        <locale name="paidstatus.open">
+<pl><![CDATA[oczekujące]]></pl>
+        </locale>
+        <locale name="paidstatus.paid">
+<pl><![CDATA[zapłacone]]></pl>
+        </locale>
+        <locale name="paidstatus.partial">
+<pl><![CDATA[Płatność częściowa]]></pl>
+        </locale>
+        <locale name="paidstatus.canceled">
+<pl><![CDATA[anulowane]]></pl>
+        </locale>
+        <locale name="paidstatus.debit">
+<pl><![CDATA[Polecenie zapłaty]]></pl>
+        </locale>
+
+        <locale name="invoice.numberrange.title">
+<pl><![CDATA[Faktury]]></pl>
+        </locale>
+        <locale name="invoice.temporary.numberrange.title">
+<pl><![CDATA[Wersje robocze faktur]]></pl>
+        </locale>
+
+        <locale name="invoice.products.articleNo">
+<pl><![CDATA[Nr artykułu]]></pl>
+        </locale>
+        <locale name="invoice.products.description">
+<pl><![CDATA[Opis produktu]]></pl>
+        </locale>
+        <locale name="invoice.products.quantity">
+<pl><![CDATA[Ilość]]></pl>
+        </locale>
+        <locale name="invoice.products.unitPrice">
+<pl><![CDATA[Cena jednostkowa]]></pl>
+        </locale>
+        <locale name="invoice.products.price">
+<pl><![CDATA[Cena]]></pl>
+        </locale>
+        <locale name="invoice.products.vat">
+<pl><![CDATA[VAT]]></pl>
+        </locale>
+        <locale name="invoice.products.table.vat">
+<pl><![CDATA[Stawka VAT]]></pl>
+        </locale>
+        <locale name="invoice.products.discount">
+<pl><![CDATA[Rabat]]></pl>
+        </locale>
+        <locale name="invoice.products.sum">
+<pl><![CDATA[Suma]]></pl>
+        </locale>
+        <locale name="invoice.articleList.article.button.delete">
+<pl><![CDATA[Usuń pozycję]]></pl>
+        </locale>
+        <locale name="invoice.articleList.article.button.replace">
+<pl><![CDATA[Zastąp pozycję]]></pl>
+        </locale>
+
+        <locale name="cutomerData">
+<pl><![CDATA[Dane klienta]]></pl>
+        </locale>
+        <locale name="customer">
+<pl><![CDATA[Klient]]></pl>
+        </locale>
+        <locale name="address">
+<pl><![CDATA[Adres]]></pl>
+        </locale>
+        <locale name="company">
+<pl><![CDATA[Firma]]></pl>
+        </locale>
+        <locale name="street">
+<pl><![CDATA[Ulica]]></pl>
+        </locale>
+        <locale name="zip">
+<pl><![CDATA[Kod pocztowy]]></pl>
+        </locale>
+        <locale name="city">
+<pl><![CDATA[Miejscowość]]></pl>
+        </locale>
+        <locale name="country">
+<pl><![CDATA[Kraj]]></pl>
+        </locale>
+        <locale name="salutation">
+<pl><![CDATA[Forma grzecznościowa]]></pl>
+        </locale>
+        <locale name="firstname">
+<pl><![CDATA[Imię]]></pl>
+        </locale>
+        <locale name="lastname">
+<pl><![CDATA[Nazwisko]]></pl>
+        </locale>
+
+        <locale name="invoice.temporary.extend.view.open">
+<pl><![CDATA[Otwórz widok rozszerzony]]></pl>
+        </locale>
+        <locale name="invoice.temporary.extend.view.close">
+<pl><![CDATA[Zamknij widok rozszerzony]]></pl>
+        </locale>
+        <locale name="invoice.temporary.extend.userEdit">
+<pl><![CDATA[Edytuj klienta]]></pl>
+        </locale>
+
+        <locale name="netto">
+<pl><![CDATA[Netto]]></pl>
+        </locale>
+        <locale name="brutto">
+<pl><![CDATA[Brutto]]></pl>
+        </locale>
+
+        <locale name="netto.panel.title">
+<pl><![CDATA[Klient rozliczany według cen netto]]></pl>
+        </locale>
+        <locale name="brutto.panel.title">
+<pl><![CDATA[Klient rozliczany według cen brutto]]></pl>
+        </locale>
+
+        <locale name="payment.status.0">
+<pl><![CDATA[oczekujące]]></pl>
+        </locale>
+        <locale name="payment.status.1">
+<pl><![CDATA[zapłacone]]></pl>
+        </locale>
+        <locale name="payment.status.2">
+<pl><![CDATA[płatność częściowa]]></pl>
+        </locale>
+        <locale name="payment.status.3">
+<pl><![CDATA[anulowane]]></pl>
+        </locale>
+        <locale name="payment.status.4">
+<pl><![CDATA[błąd]]></pl>
+        </locale>
+        <locale name="payment.status.5">
+<pl><![CDATA[anulowane]]></pl>
+        </locale>
+        <locale name="payment.status.11">
+<pl><![CDATA[Polecenie zapłaty]]></pl>
+        </locale>
+        <locale name="payment.status.12">
+<pl><![CDATA[Subskrypcja]]></pl>
+        </locale>
+        <locale name="dunning.level.0">
+<pl><![CDATA[---]]></pl>
+        </locale>
+        <locale name="dunning.level.1" html="true">
+<pl><![CDATA[Przypomnienie o płatności]]></pl>
+        </locale>
+        <locale name="dunning.level.2" html="true">
+<pl><![CDATA[Pierwszy monit]]></pl>
+        </locale>
+        <locale name="dunning.level.3" html="true">
+<pl><![CDATA[Drugi monit]]></pl>
+        </locale>
+        <locale name="dunning.level.4" html="true">
+<pl><![CDATA[W windykacji]]></pl>
+        </locale>
+
+        <locale name="window.erp.title">
+<pl><![CDATA[Sklep]]></pl>
+        </locale>
+        <locale name="window.erp.invoice.title">
+<pl><![CDATA[Faktury]]></pl>
+        </locale>
+        <locale name="invoice.settings.title">
+<pl><![CDATA[Ogólne ustawienia fakturowania]]></pl>
+        </locale>
+        <locale name="invoice.settings.template">
+<pl><![CDATA[Domyślny szablon faktury]]></pl>
+        </locale>
+        <locale name="invoice.settings.deactivateDefaultTemplate">
+<pl><![CDATA[Wyłącz domyślny szablon faktury]]></pl>
+        </locale>
+        <locale name="invoice.settings.deactivateDefaultTemplate.description">
+<pl><![CDATA[Po wyłączeniu domyślny szablon faktury nie będzie dostępny w oknach drukowania.]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.prefix">
+<pl><![CDATA[Prefiks numerów faktur]]></pl>
+        </locale>
+        <locale name="invoice.settings.temporaryInvoice.prefix">
+<pl><![CDATA[Prefiks numerów niezaksięgowanych faktur]]></pl>
+        </locale>
+        <locale name="invoice.settings.sendMailAtCreation">
+<pl><![CDATA[Wyślij fakturę e-mailem przy jej tworzeniu]]></pl>
+        </locale>
+        <locale name="invoice.settings.sendMailAtCreation.description">
+<pl><![CDATA[Automatyczne wysyłanie e-maili nie jest uruchamiane w backendzie. To ustawienie dotyczy tylko frontendu.]]></pl>
+        </locale>
+
+        <locale name="invoice.settings.invoice.prefix.description">
+<pl><![CDATA[Prefiksy obsługują również formaty daty. Dostępne formaty opisano tutaj:<a href="https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters" target="_blank">https://php.net/manual/de/function.strftime.php#refsect1-function.strftime-parameters</a>]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.time_for_payment">
+<pl><![CDATA[Termin płatności]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.time_for_payment.description">
+<pl><![CDATA[Podaj termin płatności w dniach, który będzie używany domyślnie dla wszystkich faktur. Można go również ustawić osobno dla każdej faktury.]]></pl>
+        </locale>
+
+        <locale name="invoice.settings.processingStatus.title">
+<pl><![CDATA[Status faktury]]></pl>
+        </locale>
+        <locale name="invoice.settings.processingStatus.preview.change">
+<pl><![CDATA[Zmień status faktury:]]></pl>
+        </locale>
+
+        <locale name="invoice.settings.e-invoice.title">
+<pl><![CDATA[Faktura elektroniczna]]></pl>
+        </locale>
+        <locale name="invoice.settings.e-invoice.xInvoiceAttachment.text">
+<pl><![CDATA[Dołącz XRechnung]]></pl>
+        </locale>
+        <locale name="invoice.settings.e-invoice.xInvoiceAttachment.description">
+<pl><![CDATA[Do e-maili z fakturami są automatycznie dołączane także faktury w formacie XML XRechnung, aby spełnić standard fakturowania elektronicznego.]]></pl>
+        </locale>
+        <locale name="invoice.settings.e-invoice.xInvoiceAttachmentType.text">
+<pl><![CDATA[Profil XRechnung]]></pl>
+        </locale>
+
+        <locale name="invoice.settings.e-invoice.zugferdInvoiceAttachment.text">
+<pl><![CDATA[Dołącz fakturę ZUGFeRD]]></pl>
+        </locale>
+        <locale name="invoice.settings.e-invoice.zugferdInvoiceAttachment.description">
+<pl><![CDATA[Do e-maili z fakturami są automatycznie dołączane faktury w formacie PDF ZUGFeRD.]]></pl>
+        </locale>
+        <locale name="invoice.settings.e-invoice.zugferdInvoiceAttachmentType.text">
+<pl><![CDATA[Profil faktury ZUGFeRD]]></pl>
+        </locale>
+        <locale name="invoice.settings.e-invoice.buyerEmailFallback.text">
+<pl><![CDATA[Zastępczy adres e-mail]]></pl>
+        </locale>
+        <locale name="invoice.settings.e-invoice.buyerEmailFallback.description" html="true">
+<pl><![CDATA[Używany w fakturach elektronicznych, gdy klient nie ma adresu e-mail. Dostępne zmienne:<ul><li><strong>%HASH%</strong> - Hash faktury</li><li><strong>%ID%</strong> - Identyfikator faktury</li><li><strong>%INO%</strong> - Numer faktury</li><li><strong>%DATE%</strong> - Data faktury</li><li><strong>%YEAR%</strong> - Rok daty faktury</li><li><strong>%MONTH%</strong> - Miesiąc daty faktury</li><li><strong>%DAY%</strong> - Dzień daty faktury</li><li><strong>%CUSTOMER_ID%</strong> - Identyfikator klienta</li><li><strong>%CUSTOMER_NO%</strong> - Numer klienta</li><li><strong>%CUSTOMER_NAME%</strong> - Nazwa klienta na fakturze</li><li><strong>%COMPANY%</strong> - Firma</li><li><strong>%FIRSTNAME%</strong> - Imię</li><li><strong>%LASTNAME%</strong> - Nazwisko</li></ul>Przykład: <strong>invoice-%INO%@example.com</strong>]]></pl>
+        </locale>
+
+
+        <locale name="invoice.type.creditNote">
+<pl><![CDATA[Nota uznaniowa]]></pl>
+        </locale>
+        <locale name="invoice.type.reversal">
+<pl><![CDATA[Faktura stornująca]]></pl>
+        </locale>
+        <locale name="invoice.type.cancel">
+<pl><![CDATA[Anulowana faktura]]></pl>
+        </locale>
+        <locale name="invoice.type.invoice">
+<pl><![CDATA[Faktura]]></pl>
+        </locale>
+
+        <locale name="profile.invoice.title">
+<pl><![CDATA[Moje faktury]]></pl>
+        </locale>
+
+        <locale name="message.invoice.save.successfully">
+<pl><![CDATA[Wersja robocza faktury została zapisana.]]></pl>
+        </locale>
+
+        <locale name="message.different,delivery.address">
+<pl><![CDATA[Adres dostawy jest inny niż adres do faktury.]]></pl>
+        </locale>
+
+        <locale name="deliveryAddress">
+<pl><![CDATA[Adres dostawy]]></pl>
+        </locale>
+        <locale name="customer">
+<pl><![CDATA[Klient]]></pl>
+        </locale>
+        <locale name="customerTitle">
+<pl><![CDATA[Dane klienta]]></pl>
+        </locale>
+        <locale name="address">
+<pl><![CDATA[Adres]]></pl>
+        </locale>
+        <locale name="company">
+<pl><![CDATA[Firma]]></pl>
+        </locale>
+        <locale name="street">
+<pl><![CDATA[Ulica]]></pl>
+        </locale>
+        <locale name="zip">
+<pl><![CDATA[Kod pocztowy]]></pl>
+        </locale>
+        <locale name="city">
+<pl><![CDATA[Miejscowość]]></pl>
+        </locale>
+        <locale name="country">
+<pl><![CDATA[Kraj]]></pl>
+        </locale>
+
+        <locale name="OutputProvider.entity.title.Invoice">
+<pl><![CDATA[Faktura]]></pl>
+        </locale>
+        <locale name="OutputProvider.entity.title.CreditNote">
+<pl><![CDATA[Nota uznaniowa]]></pl>
+        </locale>
+        <locale name="OutputProvider.entity.title.Canceled">
+<pl><![CDATA[Faktura stornująca]]></pl>
+        </locale>
+        <locale name="service.period.display.date">
+<pl><![CDATA[Data dostawy: [date]]]></pl>
+        </locale>
+        <locale name="service.period.display.period">
+<pl><![CDATA[Okres świadczenia usług: [start] - [end]]]></pl>
+        </locale>
+        <locale name="service.period.display.default">
+<pl><![CDATA[Data dostawy lub wykonania usługi jest zgodna z datą faktury.]]></pl>
+        </locale>
+
+        <locale name="global.invoice.text">
+<pl><![CDATA[ ]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.globalInvoiceText">
+<pl><![CDATA[Globalny tekst faktur]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.globalInvoiceText.description">
+<pl><![CDATA[Ten tekst jest dodawany do każdej faktury jako dodatkowa informacja.]]></pl>
+        </locale>
+
+        <locale name="invoice.settings.invoice.productDescriptionSource">
+<pl><![CDATA[Źródło opisu produktu]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.productDescriptionSource.description">
+<pl><![CDATA[Określa pole produktu, którego treść jest używana jako domyślny opis pozycji przy dodawaniu jej do faktury.<br/><br/>Pole produktu można utworzyć w sekcji <b>Administracja -> Sklep -> Pola produktu</b>. Wybierz pole tekstowe, zwykłe lub wielojęzyczne.]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.includeQrCode">
+<pl><![CDATA[Pokaż kod QR EPC (GiroCode) na fakturze]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.includeQrCode.description">
+<pl><![CDATA[Wyświetla kod QR EPC, zwany też „GiroCode”, na fakturach z płatnością na podstawie faktury lub przedpłatą. Zeskanowanie go w zgodnej aplikacji bankowej udostępnia wszystkie dane potrzebne do wykonania przelewu SEPA.]]></pl>
+        </locale>
+
+        <locale name="invoice.settings.invoice.invoiceAddressRequirement">
+<pl><![CDATA[Wymagany adres]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.invoiceAddressRequirement.description">
+<pl><![CDATA[Jeśli ta opcja jest włączona, adres odbiorcy jest wymagany na wszystkich fakturach niezależnie od kwoty. Jeśli jest wyłączona, adres jest wymagany dopiero po osiągnięciu progu określonego poniżej.]]></pl>
+        </locale>
+        <locale name="invoice.invoiceAddressRequirementThreshold">
+<pl><![CDATA[Próg wymagania adresu]]></pl>
+        </locale>
+        <locale name="invoice.invoiceAddressRequirementThreshold.description">
+<pl><![CDATA[Określ kwotę, od której wymagany jest pełny adres odbiorcy faktury. Domyślna wartość wynosi 200 euro, aby spełnić wymogi dotyczące faktur na niewielkie kwoty. To ustawienie wpływa na wprowadzanie adresu tylko wtedy, gdy opcja wymaganego adresu jest wyłączona.]]></pl>
+        </locale>
+
+        <locale name="invoice.send.mail.message.description" html="true">
+<pl><![CDATA[<p>Treść e-maila z fakturą. Dostępne zmienne:</p><ul><li><b>[invoiceId]:</b> Identyfikator faktury</li><li><b>[hash]:</b> Hash faktury</li><li><b>[date]:</b> Data faktury</li><li><b>[systemCompany]:</b> Nazwa firmy systemu QUIQQER</li><li><b>[user]:</b> Nazwa klienta</li><li><b>[company]:</b> Firma klienta</li><li><b>[companyOrName]:</b> Firma klienta; jeśli pusta, używane jest [name]</li><li><b>[contactPerson]:</b> Osoba kontaktowa</li><li><b>[contactPersonOrName]:</b> Osoba kontaktowa; jeśli pusta, używane jest [name]</li><li><b>[email]:</b> E-mail klienta</li><li><b>[salutationText]:</b> Pełna formuła powitalna</li><li><b>[salutation]:</b> Forma grzecznościowa klienta</li><li><b>[firstname]:</b> Imię klienta</li><li><b>[lastname]:</b> Nazwisko klienta</li></ul>]]></pl>
+        </locale>
+        <locale name="invoice.send.mail.subject.description" html="true">
+<pl><![CDATA[<p>Temat e-maila z fakturą. Dostępne zmienne:</p><ul><li><b>[invoiceId]:</b> Identyfikator faktury</li><li><b>[hash]:</b> Hash faktury</li><li><b>[date]:</b> Data faktury</li><li><b>[systemCompany]:</b> Nazwa firmy systemu QUIQQER</li><li><b>[user]:</b> Nazwa klienta</li><li><b>[company]:</b> Firma klienta</li><li><b>[companyOrName]:</b> Firma klienta; jeśli pusta, używane jest [name]</li><li><b>[contactPerson]:</b> Osoba kontaktowa</li><li><b>[contactPersonOrName]:</b> Osoba kontaktowa; jeśli pusta, używane jest [name]</li><li><b>[email]:</b> E-mail klienta</li><li><b>[salutationText]:</b> Pełna formuła powitalna</li><li><b>[salutation]:</b> Forma grzecznościowa klienta</li><li><b>[firstname]:</b> Imię klienta</li><li><b>[lastname]:</b> Nazwisko klienta</li></ul>]]></pl>
+        </locale>
+
+        <locale name="invoice.cancelled.subject.description" html="true">
+<pl><![CDATA[<p>Temat e-maila z fakturą stornującą. Dostępne zmienne:</p><ul><li><b>[invoiceId]:</b> Numer faktury</li><li><b>[cancelledInvoiceId]:</b> Numer <b>anulowanej</b> faktury</li><li><b>[hash]:</b> Hash faktury</li><li><b>[date]:</b> Data faktury</li><li><b>[systemCompany]:</b> Nazwa firmy systemu QUIQQER</li><li><b>[user]:</b> Nazwa klienta</li><li><b>[company]:</b> Firma klienta</li><li><b>[companyOrName]:</b> Firma klienta; jeśli pusta, używane jest [name]</li><li><b>[contactPerson]:</b> Osoba kontaktowa</li><li><b>[contactPersonOrName]:</b> Osoba kontaktowa; jeśli pusta, używane jest [name]</li><li><b>[email]:</b> E-mail klienta</li><li><b>[salutationText]:</b> Pełna formuła powitalna</li><li><b>[salutation]:</b> Forma grzecznościowa klienta</li><li><b>[firstname]:</b> Imię klienta</li><li><b>[lastname]:</b> Nazwisko klienta</li></ul>]]></pl>
+        </locale>
+        <locale name="invoice.cancelled.message.description" html="true">
+<pl><![CDATA[<p>Treść e-maila z fakturą stornującą. Dostępne zmienne:</p><ul><li><b>[invoiceId]:</b> Numer faktury</li><li><b>[cancelledInvoiceId]:</b> Numer <b>anulowanej</b> faktury</li><li><b>[hash]:</b> Hash faktury</li><li><b>[date]:</b> Data faktury</li><li><b>[systemCompany]:</b> Nazwa firmy systemu QUIQQER</li><li><b>[user]:</b> Nazwa klienta</li><li><b>[company]:</b> Firma klienta</li><li><b>[companyOrName]:</b> Firma klienta; jeśli pusta, używane jest [name]</li><li><b>[contactPerson]:</b> Osoba kontaktowa</li><li><b>[contactPersonOrName]:</b> Osoba kontaktowa; jeśli pusta, używane jest [name]</li><li><b>[email]:</b> E-mail klienta</li><li><b>[salutationText]:</b> Pełna formuła powitalna</li><li><b>[salutation]:</b> Forma grzecznościowa klienta</li><li><b>[firstname]:</b> Imię klienta</li><li><b>[lastname]:</b> Nazwisko klienta</li></ul>]]></pl>
+        </locale>
+
+
+        <locale name="invoice.credit_note.subject.description" html="true">
+<pl><![CDATA[<p>Temat e-maila z notą uznaniową. Dostępne zmienne:</p><ul><li><b>[invoiceId]:</b> Numer faktury</li><li><b>[creditedInvoiceId]:</b> Numer faktury, do której wystawiono notę uznaniową</li><li><b>[hash]:</b> Hash faktury</li><li><b>[date]:</b> Data faktury</li><li><b>[systemCompany]:</b> Nazwa firmy systemu QUIQQER</li><li><b>[user]:</b> Nazwa klienta</li><li><b>[company]:</b> Firma klienta</li><li><b>[companyOrName]:</b> Firma klienta; jeśli pusta, używane jest [name]</li><li><b>[contactPerson]:</b> Osoba kontaktowa</li><li><b>[contactPersonOrName]:</b> Osoba kontaktowa; jeśli pusta, używane jest [name]</li><li><b>[email]:</b> E-mail klienta</li><li><b>[salutationText]:</b> Pełna formuła powitalna</li><li><b>[salutation]:</b> Forma grzecznościowa klienta</li><li><b>[firstname]:</b> Imię klienta</li><li><b>[lastname]:</b> Nazwisko klienta</li></ul>]]></pl>
+        </locale>
+        <locale name="invoice.credit_note.message.description" html="true">
+<pl><![CDATA[<p>Treść e-maila z notą uznaniową. Dostępne zmienne:</p><ul><li><b>[invoiceId]:</b> Numer faktury</li><li><b>[creditedInvoiceId]:</b> Numer faktury, do której wystawiono notę uznaniową</li><li><b>[hash]:</b> Hash faktury</li><li><b>[date]:</b> Data faktury</li><li><b>[systemCompany]:</b> Nazwa firmy systemu QUIQQER</li><li><b>[user]:</b> Nazwa klienta</li><li><b>[company]:</b> Firma klienta</li><li><b>[companyOrName]:</b> Firma klienta; jeśli pusta, używane jest [name]</li><li><b>[contactPerson]:</b> Osoba kontaktowa</li><li><b>[contactPersonOrName]:</b> Osoba kontaktowa; jeśli pusta, używane jest [name]</li><li><b>[email]:</b> E-mail klienta</li><li><b>[salutationText]:</b> Pełna formuła powitalna</li><li><b>[salutation]:</b> Forma grzecznościowa klienta</li><li><b>[firstname]:</b> Imię klienta</li><li><b>[lastname]:</b> Nazwisko klienta</li></ul>]]></pl>
+        </locale>
+    </groups>
+
+    <groups name="quiqqer/invoice" datatype="js">
+
+        <locale name="controls.panels.TemporaryInvoice.invoice_files_no_customer">
+<pl><![CDATA[Najpierw wybierz klienta, aby móc powiązać jego pliki z tą fakturą.]]></pl>
+        </locale>
+
+        <locale name="journal.btn.paymentBook">
+<pl><![CDATA[Zaksięguj płatność]]></pl>
+        </locale>
+        <locale name="journal.btn.pdf">
+<pl><![CDATA[Drukuj / PDF]]></pl>
+        </locale>
+        <locale name="journal.btn.cancelInvoice">
+<pl><![CDATA[Anuluj fakturę]]></pl>
+        </locale>
+        <locale name="journal.btn.copyInvoice">
+<pl><![CDATA[Kopiuj fakturę]]></pl>
+        </locale>
+        <locale name="journal.btn.createCreditNote">
+<pl><![CDATA[Utwórz notę uznaniową]]></pl>
+        </locale>
+        <locale name="journal.btn.post">
+<pl><![CDATA[Zaksięguj fakturę]]></pl>
+        </locale>
+        <locale name="journal.btn.actions">
+<pl><![CDATA[Działania]]></pl>
+        </locale>
+        <locale name="journal.btn.open">
+<pl><![CDATA[Otwórz fakturę]]></pl>
+        </locale>
+        <locale name="journal.btn.create">
+<pl><![CDATA[Nowa faktura]]></pl>
+        </locale>
+        <locale name="journal.btn.total">
+<pl><![CDATA[Pokaż sumę]]></pl>
+        </locale>
+        <locale name="journal.contextMenu.open.invoice">
+<pl><![CDATA[Otwórz fakturę]]></pl>
+        </locale>
+        <locale name="journal.contextMenu.open.user">
+<pl><![CDATA[Otwórz klienta]]></pl>
+        </locale>
+
+        <locale name="temporary.btn.deleteInvoice">
+<pl><![CDATA[Usuń wersję roboczą]]></pl>
+        </locale>
+        <locale name="temporary.btn.createInvoice">
+<pl><![CDATA[Nowa faktura]]></pl>
+        </locale>
+        <locale name="temporary.btn.copyInvoice">
+<pl><![CDATA[Kopiuj wersję roboczą]]></pl>
+        </locale>
+
+        <locale name="journal.grid.type">
+<pl><![CDATA[&nbsp;]]></pl>
+        </locale>
+        <locale name="journal.grid.invoiceNo">
+<pl><![CDATA[Nr faktury]]></pl>
+        </locale>
+        <locale name="journal.grid.orderNo">
+<pl><![CDATA[Nr zamówienia]]></pl>
+        </locale>
+        <locale name="journal.grid.customerNo">
+<pl><![CDATA[Nr klienta]]></pl>
+        </locale>
+        <locale name="journal.grid.date">
+<pl><![CDATA[Data]]></pl>
+        </locale>
+        <locale name="journal.grid.status">
+<pl><![CDATA[Status płatności]]></pl>
+        </locale>
+        <locale name="journal.grid.vat">
+<pl><![CDATA[VAT]]></pl>
+        </locale>
+        <locale name="journal.grid.sum">
+<pl><![CDATA[Suma]]></pl>
+        </locale>
+        <locale name="journal.grid.paymentMethod">
+<pl><![CDATA[Metoda płatności]]></pl>
+        </locale>
+        <locale name="journal.grid.timeForPayment">
+<pl><![CDATA[Termin płatności]]></pl>
+        </locale>
+        <locale name="temporary.grid.timeForPayment">
+<pl><![CDATA[Termin płatności (dni)]]></pl>
+        </locale>
+        <locale name="journal.grid.paymentDate">
+<pl><![CDATA[Data płatności]]></pl>
+        </locale>
+        <locale name="journal.grid.paid">
+<pl><![CDATA[zapłacone]]></pl>
+        </locale>
+        <locale name="journal.grid.open">
+<pl><![CDATA[oczekujące]]></pl>
+        </locale>
+
+        <locale name="journal.grid.brutto">
+<pl><![CDATA[Brutto]]></pl>
+        </locale>
+        <locale name="journal.grid.netto">
+<pl><![CDATA[Suma netto]]></pl>
+        </locale>
+        <locale name="journal.grid.taxId">
+<pl><![CDATA[Numer VAT]]></pl>
+        </locale>
+        <locale name="journal.grid.orderDate">
+<pl><![CDATA[Data zamówienia]]></pl>
+        </locale>
+        <locale name="journal.grid.dunning">
+<pl><![CDATA[Poziom monitu]]></pl>
+        </locale>
+        <locale name="journal.grid.processingStatus">
+<pl><![CDATA[Status faktury]]></pl>
+        </locale>
+        <locale name="journal.grid.processing">
+<pl><![CDATA[Status faktury]]></pl>
+        </locale>
+        <locale name="journal.grid.comments">
+<pl><![CDATA[Uwagi]]></pl>
+        </locale>
+        <locale name="journal.grid.paymentData">
+<pl><![CDATA[Dane płatności]]></pl>
+        </locale>
+        <locale name="journal.grid.hash">
+<pl><![CDATA[Hash]]></pl>
+        </locale>
+        <locale name="journal.grid.globalProcessId">
+<pl><![CDATA[Numer sprawy]]></pl>
+        </locale>
+
+        <locale name="journal.paidstatus.all">
+<pl><![CDATA[Status: wszystkie]]></pl>
+        </locale>
+        <locale name="journal.paidstatus.open">
+<pl><![CDATA[Status: oczekujące]]></pl>
+        </locale>
+        <locale name="journal.paidstatus.paid">
+<pl><![CDATA[Status: zapłacone]]></pl>
+        </locale>
+        <locale name="journal.paidstatus.partial">
+<pl><![CDATA[Status: płatność częściowa]]></pl>
+        </locale>
+        <locale name="journal.paidstatus.canceled">
+<pl><![CDATA[Status: anulowane]]></pl>
+        </locale>
+        <locale name="journal.paidstatus.debit">
+<pl><![CDATA[Status: polecenie zapłaty]]></pl>
+        </locale>
+
+        <locale name="erp.panel.temporary.invoice.title">
+<pl><![CDATA[Wersje robocze faktur]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.buttonAdd">
+<pl><![CDATA[Dodaj pozycję]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.buttonAdd.custom">
+<pl><![CDATA[Pozycja niestandardowa]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.buttonAdd.text">
+<pl><![CDATA[Tekst]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.button.article.sort.text">
+<pl><![CDATA[Sortuj pozycje]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data">
+<pl><![CDATA[Dane faktury]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.pos">
+<pl><![CDATA[Pozycje (artykuły)]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.review">
+<pl><![CDATA[Weryfikacja]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.review.btnGoto">
+<pl><![CDATA[Przejdź do weryfikacji]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoiceData">
+<pl><![CDATA[Dane faktury]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoiceDate">
+<pl><![CDATA[Data faktury]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriod">
+<pl><![CDATA[Data dostawy / okres świadczenia usług]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodPlaceholder">
+<pl><![CDATA[Wpisz datę dostawy lub okres świadczenia usług]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodDefault">
+<pl><![CDATA[Tak jak data faktury]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodDate">
+<pl><![CDATA[Data dostawy]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodPeriod">
+<pl><![CDATA[Okres świadczenia usług]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textServicePeriodSelect">
+<pl><![CDATA[Wybierz okres]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoicePayment">
+<pl><![CDATA[Płatność]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textPaymentMethod">
+<pl><![CDATA[Metoda płatności]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textTermOfPayment">
+<pl><![CDATA[Termin płatności (dni)]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textEditor">
+<pl><![CDATA[Osoba odpowiedzialna]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textProjectName">
+<pl><![CDATA[Nazwa projektu]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textCustomerReference">
+<pl><![CDATA[Referencja klienta / kod referencyjny]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textOrderedBy">
+<pl><![CDATA[Zamówione przez]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textInvoiceText">
+<pl><![CDATA[Dodatkowe informacje na fakturze]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textStatus">
+<pl><![CDATA[Status]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textContactPerson">
+<pl><![CDATA[Osoba kontaktowa]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textCurrency">
+<pl><![CDATA[Waluta]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.data.textCurrencyRate">
+<pl><![CDATA[Kurs wymiany]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.comments">
+<pl><![CDATA[Komentarze]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.category.invoiceFiles">
+<pl><![CDATA[Pliki]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.deleteButton.title">
+<pl><![CDATA[Usuń fakturę]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.button.nextToArticles">
+<pl><![CDATA[Zarządzaj pozycjami]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.button.data">
+<pl><![CDATA[Przejdź do danych faktury]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.replace.article.title">
+<pl><![CDATA[Zastąp pozycję przez...]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.replace.article.text">
+<pl><![CDATA[Wybierz typ pozycji, która ma zastąpić obecną.]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoice.replace.article.withProduct">
+<pl><![CDATA[Produkt]]></pl>
+        </locale>
+        <locale name="erp.panel.temporary.invoices.no.article">
+<pl><![CDATA[Faktura nie zawiera jeszcze żadnych pozycji.]]></pl>
+        </locale>
+
+        <locale name="dialog.ti.delete.title">
+<pl><![CDATA[Usuń fakturę]]></pl>
+        </locale>
+        <locale name="dialog.ti.delete.text">
+<pl><![CDATA[Czy na pewno usunąć tę fakturę?]]></pl>
+        </locale>
+        <locale name="dialog.ti.delete.information" html="true">
+<pl><![CDATA[Następujące faktury zostaną trwale usunięte:<br />[invoices]]]></pl>
+        </locale>
+        <locale name="dialog.ti.copy.title">
+<pl><![CDATA[Kopiuj fakturę]]></pl>
+        </locale>
+        <locale name="dialog.ti.copy.text">
+<pl><![CDATA[Czy na pewno skopiować tę fakturę?]]></pl>
+        </locale>
+        <locale name="dialog.ti.copy.information" html="true">
+<pl><![CDATA[Zostanie utworzona nowa faktura z danymi faktury <b>[id]</b>.]]></pl>
+        </locale>
+        <locale name="dialog.invoice.copy.title">
+<pl><![CDATA[Kopiuj fakturę]]></pl>
+        </locale>
+        <locale name="dialog.invoice.copy.text">
+<pl><![CDATA[Czy na pewno skopiować tę fakturę?]]></pl>
+        </locale>
+        <locale name="dialog.invoice.copy.information" html="true">
+<pl><![CDATA[Zostanie utworzona nowa wersja robocza faktury z danymi faktury <b>[id]</b>.]]></pl>
+        </locale>
+
+        <locale name="dialog.invoice.createCreditNote.title">
+<pl><![CDATA[Utwórz notę uznaniową]]></pl>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.text">
+<pl><![CDATA[Utwórz notę uznaniową]]></pl>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.information" html="true">
+<pl><![CDATA[Czy utworzyć notę uznaniową do faktury #[invoiceId]?<br /><br />Zostanie utworzona wersja robocza faktury, którą będzie można od razu edytować.]]></pl>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.submit">
+<pl><![CDATA[Utwórz notę uznaniową]]></pl>
+        </locale>
+        <locale name="dialog.invoice.createCreditNote.refund" html="true">
+<pl><![CDATA[Wykonaj również zwrot środków.]]></pl>
+        </locale>
+
+        <locale name="dialog.invoice.reversal.title">
+<pl><![CDATA[Anuluj fakturę]]></pl>
+        </locale>
+        <locale name="dialog.invoice.reversal.text">
+<pl><![CDATA[Czy na pewno anulować tę fakturę?]]></pl>
+        </locale>
+        <locale name="dialog.invoice.reversal.information" html="true">
+<pl><![CDATA[Faktura #[invoiceId] zostanie anulowana.<br />Tej operacji nie można cofnąć.]]></pl>
+        </locale>
+        <locale name="dialog.invoice.reversal.submit">
+<pl><![CDATA[Potwierdź anulowanie]]></pl>
+        </locale>
+        <locale name="dialog.invoice.reversal.reason.title">
+<pl><![CDATA[Powód anulowania]]></pl>
+        </locale>
+        <locale name="dialog.invoice.reversal.reason.placeholder">
+<pl><![CDATA[Podaj powód anulowania.]]></pl>
+        </locale>
+
+        <locale name="dialog.invoice.download.button">
+<pl><![CDATA[Pobierz fakturę]]></pl>
+        </locale>
+        <locale name="dialog.invoice.download.title">
+<pl><![CDATA[Pobierz fakturę w różnych formatach]]></pl>
+        </locale>
+        <locale name="dialog.invoice.download.header">
+<pl><![CDATA[Pobierz fakturę]]></pl>
+        </locale>
+        <locale name="dialog.invoice.download.text" html="true">
+<pl><![CDATA[<p>Wybierz format, w którym chcesz pobrać fakturę.</p>]]></pl>
+        </locale>
+
+        <locale name="dialog.create.address.title">
+<pl><![CDATA[Utwórz adres do faktury]]></pl>
+        </locale>
+
+        <locale name="exception.invoice.address.create">
+<pl><![CDATA[Nie udało się utworzyć adresu do faktury.]]></pl>
+        </locale>
+
+        <locale name="exception.invoice.reversal.invalidEntity">
+<pl><![CDATA[Można anulować tylko zaksięgowane faktury.]]></pl>
+        </locale>
+
+        <locale name="dialog.edit.description.title">
+<pl><![CDATA[Opis artykułu: [articleNo] [articleTitle]]]></pl>
+        </locale>
+
+        <locale name="invoice.create.address.message" html="true">
+<pl><![CDATA[Użytkownik nie ma adresu. Utwórz dla niego adres.<br />Będzie on również używany jako adres do faktury.]]></pl>
+        </locale>
+
+        <locale name="processingStatus.grid.id">
+<pl><![CDATA[ID]]></pl>
+        </locale>
+        <locale name="processingStatus.grid.color">
+<pl><![CDATA[Kolor]]></pl>
+        </locale>
+        <locale name="processingStatus.grid.preventInvoicePosting">
+<pl><![CDATA[blokuje księgowanie]]></pl>
+        </locale>
+
+        <locale name="dialog.processingStatus.delete.title">
+<pl><![CDATA[Usuń status faktury]]></pl>
+        </locale>
+        <locale name="dialog.processingStatus.delete.text">
+<pl><![CDATA[Czy na pewno usunąć ten status faktury?]]></pl>
+        </locale>
+        <locale name="dialog.processingStatus.delete.information" html="true">
+<pl><![CDATA[Zostanie usunięty następujący status faktury:<br /><strong>#[id] - [title]</strong><br /><br />Przywrócenie tego statusu nie będzie możliwe.]]></pl>
+        </locale>
+        <locale name="processingStatus.tpl.labelTitle">
+<pl><![CDATA[Tytuł]]></pl>
+        </locale>
+        <locale name="processingStatus.tpl.labelId">
+<pl><![CDATA[Nr statusu]]></pl>
+        </locale>
+        <locale name="processingStatus.tpl.labelColor">
+<pl><![CDATA[Kolor]]></pl>
+        </locale>
+        <locale name="processingStatus.tpl.labelPreventInvoicePosting">
+<pl><![CDATA[Blokuj księgowanie wersji roboczych faktur]]></pl>
+        </locale>
+        <locale name="processingStatus.tpl.descPreventInvoicePosting">
+<pl><![CDATA[Wersji roboczych faktur z tym statusem <b>nie można zaksięgować</b>, dopóki ich status się nie zmieni. Przydatne dla statusów wymagających ręcznej weryfikacji faktury.]]></pl>
+        </locale>
+
+        <locale name="dialog.processingStatus.create.title">
+<pl><![CDATA[Utwórz status faktury]]></pl>
+        </locale>
+
+        <locale name="dialog.processingStatus.edit.title">
+<pl><![CDATA[Edytuj status faktury]]></pl>
+        </locale>
+
+        <locale name="erp.panel.invoice.data">
+<pl><![CDATA[Dane]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.articles">
+<pl><![CDATA[Pozycje]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.history">
+<pl><![CDATA[Historia]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.comments">
+<pl><![CDATA[Komentarze]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.payments">
+<pl><![CDATA[Płatności]]></pl>
+        </locale>
+
+        <locale name="erp.panel.invoice.button.storno">
+<pl><![CDATA[Anuluj]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.button.print">
+<pl><![CDATA[Drukuj]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.button.copy">
+<pl><![CDATA[Kopiuj]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.button.createCreditNote">
+<pl><![CDATA[Utwórz notę uznaniową]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.button.refund">
+<pl><![CDATA[Zwrot środków]]></pl>
+        </locale>
+
+        <locale name="quiqqer.invoice.refund.window.title">
+<pl><![CDATA[Zwrot środków dla #[invoiceId]]]></pl>
+        </locale>
+        <locale name="quiqqer.invoice.refund.not.available.no.transactions" html="true">
+<pl><![CDATA[Brak transakcji dla tej faktury.<br />Nie można więc wykonać zwrotu środków.]]></pl>
+        </locale>
+
+        <locale name="erp.panel.invoice.title">
+<pl><![CDATA[Faktura: [id] - [hash]]]></pl>
+        </locale>
+
+        <locale name="erp.panel.invoice.data.title">
+<pl><![CDATA[Dane faktury]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.data.date">
+<pl><![CDATA[Data faktury]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.data.servicePeriod">
+<pl><![CDATA[Data dostawy / okres świadczenia usług]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.data.payment">
+<pl><![CDATA[Płatność]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.data.projectName">
+<pl><![CDATA[Nazwa projektu]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.data.orderedBy">
+<pl><![CDATA[Zamówione przez]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.data.editor">
+<pl><![CDATA[Osoba odpowiedzialna]]></pl>
+        </locale>
+
+        <locale name="erp.panel.invoice.data.payment">
+<pl><![CDATA[Płatność]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.data.paymentMethod">
+<pl><![CDATA[Metoda płatności]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.data.termOfPayment">
+<pl><![CDATA[Termin płatności]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.data.contactPerson">
+<pl><![CDATA[Osoba kontaktowa]]></pl>
+        </locale>
+
+        <locale name="erp.panel.invoice.data.invoiceText">
+<pl><![CDATA[Dodatkowe informacje na fakturze]]></pl>
+        </locale>
+        <locale name="erp.panel.invoice.preview">
+<pl><![CDATA[Podgląd]]></pl>
+        </locale>
+
+        <locale name="journal.payments.date">
+<pl><![CDATA[Data]]></pl>
+        </locale>
+        <locale name="journal.payments.amount">
+<pl><![CDATA[Kwota]]></pl>
+        </locale>
+        <locale name="journal.payments.paymentMethod">
+<pl><![CDATA[Metoda płatności]]></pl>
+        </locale>
+        <locale name="journal.payments.txid">
+<pl><![CDATA[Identyfikator transakcji]]></pl>
+        </locale>
+
+        <locale name="dialog.print.title">
+<pl><![CDATA[Drukuj / PDF]]></pl>
+        </locale>
+        <locale name="dialog.print.data.id">
+<pl><![CDATA[Identyfikator faktury]]></pl>
+        </locale>
+        <locale name="dialog.print.data.number">
+<pl><![CDATA[Numer faktury]]></pl>
+        </locale>
+        <locale name="dialog.print.data.template">
+<pl><![CDATA[Szablon faktury]]></pl>
+        </locale>
+        <locale name="dialog.print.data.output">
+<pl><![CDATA[Sposób generowania]]></pl>
+        </locale>
+        <locale name="dialog.print.data.output.print">
+<pl><![CDATA[Drukuj]]></pl>
+        </locale>
+        <locale name="dialog.print.data.output.pdf">
+<pl><![CDATA[Zapisz jako PDF]]></pl>
+        </locale>
+        <locale name="dialog.print.data.output.email">
+<pl><![CDATA[Wyślij e-mailem]]></pl>
+        </locale>
+
+        <locale name="dialog.print.data.output.print.btn">
+<pl><![CDATA[Drukuj]]></pl>
+        </locale>
+        <locale name="dialog.print.data.output.pdf.btn">
+<pl><![CDATA[Pobierz]]></pl>
+        </locale>
+        <locale name="dialog.print.data.output.email.btn">
+<pl><![CDATA[Wyślij]]></pl>
+        </locale>
+
+        <locale name="dialog.order.delete.invoiceAddress">
+<pl><![CDATA[Czy na pewno usunąć ten adres?]]></pl>
+        </locale>
+
+        <locale name="dialog.ti.post.title">
+<pl><![CDATA[Zaksięgować faktury?]]></pl>
+        </locale>
+        <locale name="dialog.ti.post.text">
+<pl><![CDATA[Czy na pewno zaksięgować te faktury?]]></pl>
+        </locale>
+        <locale name="dialog.ti.post.information">
+<pl><![CDATA[Zostaną zaksięgowane następujące faktury:<br />[invoices]]]></pl>
+        </locale>
+        <locale name="dialog.ti.post.button">
+<pl><![CDATA[Zaksięguj]]></pl>
+        </locale>
+
+        <locale name="dialog.add.payment.amount">
+<pl><![CDATA[Kwota]]></pl>
+        </locale>
+        <locale name="dialog.add.payment.paymentMethod">
+<pl><![CDATA[Metoda płatności]]></pl>
+        </locale>
+        <locale name="dialog.add.payment.date">
+<pl><![CDATA[Data]]></pl>
+        </locale>
+
+        <locale name="dialog.add.comment.title">
+<pl><![CDATA[Dodaj komentarz]]></pl>
+        </locale>
+
+        <locale name="exception.post.invoices.missing.attributes">
+<pl><![CDATA[Nie można zaksięgować faktur, ponieważ niektóre pola zawierają błędy.]]></pl>
+        </locale>
+
+        <locale name="window.unlock.invoice.title">
+<pl><![CDATA[Faktura zablokowana]]></pl>
+        </locale>
+        <locale name="window.unlock.invoice.text">
+<pl><![CDATA[W trakcie edycji]]></pl>
+        </locale>
+
+        <locale name="message.invoice.is.locked" html="true">
+<pl><![CDATA[Użytkownik [username] ([id]) edytuje tę fakturę. Niektóre działania są z tego powodu niedostępne.]]></pl>
+        </locale>
+
+        <locale name="button.unlock.invoice.is.locked">
+<pl><![CDATA[Odblokuj fakturę i mimo to edytuj]]></pl>
+        </locale>
+
+        <locale name="quiqqer.refund.data">
+<pl><![CDATA[Dane]]></pl>
+        </locale>
+        <locale name="quiqqer.refund.invoiceNo">
+<pl><![CDATA[Numer faktury]]></pl>
+        </locale>
+        <locale name="quiqqer.refund.contactData">
+<pl><![CDATA[Dane kontaktowe]]></pl>
+        </locale>
+        <locale name="quiqqer.refund.txid">
+<pl><![CDATA[Kod transakcji]]></pl>
+        </locale>
+        <locale name="quiqqer.refund.original.payment">
+<pl><![CDATA[Pierwotna płatność]]></pl>
+        </locale>
+        <locale name="quiqqer.refund.refundAmount">
+<pl><![CDATA[Kwota zwrotu]]></pl>
+        </locale>
+        <locale name="quiqqer.refund.message">
+<pl><![CDATA[Wiadomość do kupującego]]></pl>
+        </locale>
+        <locale name="quiqqer.refund.information">
+<pl><![CDATA[Kwotę można zmienić w nocie uznaniowej.]]></pl>
+        </locale>
+
+        <locale name="message.invoice.missing" html="true">
+<pl><![CDATA[Brakuje danych niezbędnych do zaksięgowania faktury.<br/>Uzupełnij wszystkie wymagane informacje.]]></pl>
+        </locale>
+        <locale name="message.invoice.ok" html="true">
+<pl><![CDATA[Faktura zawiera wszystkie wymagane dane.<br/>Możesz ją teraz zaksięgować.]]></pl>
+        </locale>
+        <locale name="currency.select.all">
+<pl><![CDATA[Wszystkie]]></pl>
+        </locale>
+
+        <locale name="permissions.set.invoice.date">
+<pl><![CDATA[Nie masz uprawnień do ustawiania daty faktury. Zostanie użyta dzisiejsza data.]]></pl>
+        </locale>
+
+        <locale name="invoice.panel.comment.add">
+<pl><![CDATA[Dodaj komentarz]]></pl>
+        </locale>
+
+        <locale name="message.select.customer">
+<pl><![CDATA[Wybierz klienta.]]></pl>
+        </locale>
+
+        <locale name="window.invoice.date.past.title">
+<pl><![CDATA[Data faktury jest w przeszłości]]></pl>
+        </locale>
+        <locale name="window.invoice.date.past.content" html="true">
+<pl><![CDATA[Uwaga: Data faktury jest w przeszłości.<br />Czy użyć dzisiejszej daty?]]></pl>
+        </locale>
+        <locale name="window.invoice.date.past.cancel.text">
+<pl><![CDATA[Zachowaj datę]]></pl>
+        </locale>
+        <locale name="window.invoice.date.past.ok.text">
+<pl><![CDATA[Użyj dzisiejszej daty]]></pl>
+        </locale>
+
+
+        <locale name="journal.contextMenu.change.status">
+<pl><![CDATA[Zmień status faktury]]></pl>
+        </locale>
+        <locale name="window.status.title">
+<pl><![CDATA[Zmiana statusu faktury: [invoiceId]]]></pl>
+        </locale>
+        <locale name="window.status.text" html="true">
+<pl><![CDATA[Zmień status faktury <strong>[invoiceId]</strong>. Pamiętaj, że zmiany statusu mogą uruchamiać różne działania.]]></pl>
+        </locale>
+
+    </groups>
+
+    <groups name="quiqqer/invoice" datatype="php">
+
+        <locale name="message.ajax.backend.linkTransaction.error.tx_already_linked">
+<pl><![CDATA[Transakcja „[txId]” jest już powiązana z fakturą „[invoiceNo]”.]]></pl>
+        </locale>
+
+        <locale name="history.InvoiceTemporary.new_hash_on_post">
+<pl><![CDATA[Podczas księgowania faktury wygenerowano nowy numer sprawy („hash”), ponieważ istniała już inna wersja robocza z tym samym numerem. Poprzedni numer: [oldHash]. Nowy numer: [newHash]]]></pl>
+        </locale>
+
+        <locale name="OutputProvider.epc_qr_code_purpose">
+<pl><![CDATA[Faktura [invoiceNo]; Nr klienta: [customerNo]]]></pl>
+        </locale>
+        <locale name="exception.Invoice.addCustomerFile.no_customer">
+<pl><![CDATA[Do faktury nie przypisano jeszcze klienta. Najpierw przypisz klienta, zanim dodasz jego pliki do faktury.]]></pl>
+        </locale>
+        <locale name="exception.Invoice.addCustomerFile.file_not_found">
+<pl><![CDATA[Ten plik nie został jeszcze przesłany do plików klienta i nie można go dodać do faktury.]]></pl>
+        </locale>
+
+        <locale name="RestApi.Provider.invoice.comment.source">
+<pl><![CDATA[Faktura utworzona przez REST API. Źródło: [source]]]></pl>
+        </locale>
+
+        <locale name="PaymentReceiver.Invoice.title">
+<pl><![CDATA[Faktura]]></pl>
+        </locale>
+
+        <locale name="message.create.credit.from">
+<pl><![CDATA[Utworzono notę uznaniową na podstawie faktury #[invoiceId]]]></pl>
+        </locale>
+        <locale name="message.create.credit">
+<pl><![CDATA[Utworzono notę uznaniową. Identyfikator nowej noty: #[invoiceId]]]></pl>
+        </locale>
+        <locale name="message.create.credit.post">
+<pl><![CDATA[Zaksięgowano notę uznaniową. Identyfikator: #[invoiceId]]]></pl>
+        </locale>
+        <locale name="message.invoice.creditNote.additionalInvoiceText" html="true">
+<pl><![CDATA[Nota uznaniowa do faktury #[id] z dnia [date]]]></pl>
+        </locale>
+        <locale name="message.create.reversal.from">
+<pl><![CDATA[Utworzono fakturę stornującą na podstawie faktury #[invoiceId]]]></pl>
+        </locale>
+        <locale name="message.invoice.reversal.additionalInvoiceText" html="true">
+<pl><![CDATA[Faktura stornująca do faktury #[id] z dnia [date]]]></pl>
+        </locale>
+        <locale name="message.invoice.reversal.additionalInvoiceText.creditNote" html="true">
+<pl><![CDATA[Faktura stornująca do noty uznaniowej #[id] z dnia [date]]]></pl>
+        </locale>
+        <locale name="message.create.reversal">
+<pl><![CDATA[Utworzono fakturę stornującą. Identyfikator nowej faktury stornującej: #[invoiceId]]]></pl>
+        </locale>
+        <locale name="message.invoice.cancellationInvoice.additionalInvoiceText" html="true">
+<pl><![CDATA[Faktura stornująca do faktury #[id] z dnia [date]]]></pl>
+        </locale>
+        <locale name="message.add.history.sent.to">
+<pl><![CDATA[Wysłano fakturę do [recipient]]]></pl>
+        </locale>
+        <locale name="message.invoice.send.successfully">
+<pl><![CDATA[Faktura [ID] została wysłana do [recipient]]]></pl>
+        </locale>
+        <locale name="invoice.send.mail.subject">
+<pl><![CDATA[Twoja faktura - [invoiceId]]]></pl>
+        </locale>
+        <locale name="invoice.send.mail.title">
+<pl><![CDATA[E-mail z fakturą]]></pl>
+        </locale>
+        <locale name="invoice.send.mail.description">
+<pl><![CDATA[ ]]></pl>
+        </locale>
+        <locale name="invoice.cancelled.title">
+<pl><![CDATA[E-mail z fakturą stornującą]]></pl>
+        </locale>
+        <locale name="invoice.cancelled.description">
+<pl><![CDATA[ ]]></pl>
+        </locale>
+        <locale name="invoice.credit_note.title">
+<pl><![CDATA[E-mail z notą uznaniową]]></pl>
+        </locale>
+        <locale name="invoice.credit_note.description">
+<pl><![CDATA[ ]]></pl>
+        </locale>
+        <locale name="invoice.send.mail.message">
+<pl><![CDATA[<h1>[salutationText]</h1><p>W załączeniu przesyłamy Twoją fakturę nr [invoiceId] w formacie PDF. Kliknij załącznik, aby ją otworzyć.</p><p>Do wyświetlenia dokumentu potrzebujesz czytnika PDF, np. Adobe Acrobat Reader. Jeśli nie masz jeszcze takiego programu, możesz bezpłatnie pobrać Acrobat Reader z jego strony pobierania. Otwórz ten adres w przeglądarce:<br />https://get.adobe.com/reader/</p><p>Twoje faktury są również dostępne w Twoim profilu w sekcjach „Moje faktury” lub „Moje zamówienia”.</p><p>Jeśli masz pytania lub uwagi, odpowiedz na tę wiadomość. Nasz zespół wsparcia wkrótce się z Tobą skontaktuje.</p><p>Z poważaniem,<br />[systemCompany]</p>]]></pl>
+        </locale>
+
+        <locale name="invoice.cancelled.send.mail.subject">
+<pl><![CDATA[Twoja faktura stornująca - [invoiceId]]]></pl>
+        </locale>
+        <locale name="invoice.cancelled.send.mail.message">
+<pl><![CDATA[<h1>[salutationText]</h1><p>W załączeniu przesyłamy Twoją fakturę stornującą nr [invoiceId] w formacie PDF. Kliknij załącznik, aby ją otworzyć.</p><p>Do wyświetlenia dokumentu potrzebujesz czytnika PDF, np. Adobe Acrobat Reader. Jeśli nie masz jeszcze takiego programu, możesz bezpłatnie pobrać Acrobat Reader z jego strony pobierania. Otwórz ten adres w przeglądarce:<br />https://get.adobe.com/reader/</p><p>Twoje faktury są również dostępne w Twoim profilu w sekcjach „Moje faktury” lub „Moje zamówienia”.</p><p>Jeśli masz pytania lub uwagi, odpowiedz na tę wiadomość. Nasz zespół wsparcia wkrótce się z Tobą skontaktuje.</p><p>Z poważaniem,<br />[systemCompany]</p>]]></pl>
+        </locale>
+        <locale name="invoice.credit_note.send.mail.subject">
+<pl><![CDATA[Twoja nota uznaniowa - [invoiceId]]]></pl>
+        </locale>
+        <locale name="invoice.credit_note.send.mail.message">
+<pl><![CDATA[<h1>[salutationText]</h1><p>W załączeniu przesyłamy Twoją notę uznaniową nr [invoiceId] w formacie PDF. Kliknij załącznik, aby ją otworzyć.</p><p>Do wyświetlenia dokumentu potrzebujesz czytnika PDF, np. Adobe Acrobat Reader. Jeśli nie masz jeszcze takiego programu, możesz bezpłatnie pobrać Acrobat Reader z jego strony pobierania. Otwórz ten adres w przeglądarce:<br />https://get.adobe.com/reader/</p><p>Jeśli masz pytania lub uwagi, odpowiedz na tę wiadomość. Nasz zespół wsparcia wkrótce się z Tobą skontaktuje.</p><p>Z poważaniem,<br />[systemCompany]</p>]]></pl>
+        </locale>
+
+        <locale name="exception.invoice.verification.customer">
+<pl><![CDATA[Do faktury nie przypisano klienta.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.address">
+<pl><![CDATA[Do faktury nie przypisano adresu do faktury.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.firstname">
+<pl><![CDATA[Imię odbiorcy faktury jest nieprawidłowe.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.lastname">
+<pl><![CDATA[Nazwisko odbiorcy faktury jest nieprawidłowe.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.street_no">
+<pl><![CDATA[Ulica w adresie odbiorcy faktury jest nieprawidłowa.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.zip">
+<pl><![CDATA[Kod pocztowy odbiorcy faktury jest nieprawidłowy.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.city">
+<pl><![CDATA[Miejscowość w adresie odbiorcy faktury jest nieprawidłowa.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.country">
+<pl><![CDATA[Kraj odbiorcy faktury jest nieprawidłowy.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.empty.articles">
+<pl><![CDATA[Faktura nie zawiera pozycji.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.missingPayment">
+<pl><![CDATA[Faktura nie ma metody płatności.]]></pl>
+        </locale>
+        <locale name="exception.invoice.verification.status_prevents_posting">
+<pl><![CDATA[Obecny status faktury uniemożliwia jej zaksięgowanie. Sprawdź fakturę.]]></pl>
+        </locale>
+
+        <locale name="exception.invoice.not.found" html="true">
+<pl><![CDATA[Nie znaleziono faktury [id].]]></pl>
+        </locale>
+        <locale name="exception.temporary.invoice.not.found" html="true">
+<pl><![CDATA[Nie znaleziono faktury [id].]]></pl>
+        </locale>
+
+        <locale name="exception.parted.invoice.cant.be.canceled">
+<pl><![CDATA[Nie można anulować faktury opłaconej częściowo.]]></pl>
+        </locale>
+        <locale name="exception.canceled.invoice.cant.be.canceled">
+<pl><![CDATA[Nie można ponownie anulować już anulowanej faktury.]]></pl>
+        </locale>
+        <locale name="exception.missing.reason.in.reversal">
+<pl><![CDATA[Podaj powód anulowania.]]></pl>
+        </locale>
+        <locale name="exception.canceled.invoice.is.not.allowed">
+<pl><![CDATA[Anulowanie faktur nie jest dozwolone. Sprawdź ustawienia.]]></pl>
+        </locale>
+        <locale name="exception.credit.note.cant.create.credit.note">
+<pl><![CDATA[Nie można utworzyć kolejnej noty uznaniowej na podstawie noty uznaniowej.]]></pl>
+        </locale>
+
+        <locale name="history.message.linkTransaction">
+<pl><![CDATA[Użytkownik [username] #[uid] powiązał transakcję „[txId]” na kwotę [txAmount] z fakturą.]]></pl>
+        </locale>
+        <locale name="history.message.addPayment">
+<pl><![CDATA[Użytkownik [username] #[uid] dodał płatność. Metoda płatności: [payment].]]></pl>
+        </locale>
+        <locale name="history.message.edit">
+<pl><![CDATA[Użytkownik [username] #[uid] zmienił fakturę.]]></pl>
+        </locale>
+        <locale name="history.message.addComment">
+<pl><![CDATA[Użytkownik [username] #[uid] dodał komentarz.]]></pl>
+        </locale>
+        <locale name="history.message.copy">
+<pl><![CDATA[Użytkownik [username] #[uid] skopiował fakturę.]]></pl>
+        </locale>
+        <locale name="history.message.reversal">
+<pl><![CDATA[Użytkownik [username] #[uid] anulował fakturę.]]></pl>
+        </locale>
+        <locale name="history.message.reversal.created">
+<pl><![CDATA[Utworzono notę uznaniową do anulowania. Identyfikator #[creditNoteId]]]></pl>
+        </locale>
+        <locale name="history.message.temporaryInvoice.type.changed">
+<pl><![CDATA[Zmieniono typ faktury na [type] [typeTitle]]]></pl>
+        </locale>
+        <locale name="history.message.set_payment_status">
+<pl><![CDATA[Użytkownik [username] #[uid] zmienił status płatności z „[oldStatus]” na „[newStatus]”.]]></pl>
+        </locale>
+
+        <locale name="pdf.download.name">
+<pl><![CDATA[Invoice-%INO%-%DATE%]]></pl>
+        </locale>
+        <locale name="pdf.export.footer.1">
+<pl><![CDATA[&nbsp;]]></pl>
+        </locale>
+        <locale name="pdf.export.footer.2">
+<pl><![CDATA[&nbsp;]]></pl>
+        </locale>
+        <locale name="pdf.export.footer.3">
+<pl><![CDATA[&nbsp;]]></pl>
+        </locale>
+        <locale name="pdf.export.footer.4">
+<pl><![CDATA[&nbsp;]]></pl>
+        </locale>
+
+        <locale name="processing.status.default.1">
+<pl><![CDATA[Nowa]]></pl>
+        </locale>
+        <locale name="processing.status.default.2">
+<pl><![CDATA[W trakcie obsługi]]></pl>
+        </locale>
+        <locale name="processing.status.default.3">
+<pl><![CDATA[Zakończona]]></pl>
+        </locale>
+
+        <locale name="user.profile.invoice.address.title">
+<pl><![CDATA[Adres do faktury]]></pl>
+        </locale>
+        <locale name="user.profile.invoice.address.description">
+<pl><![CDATA[Wybierz adres do faktury.]]></pl>
+        </locale>
+
+        <locale name="invoice.settings.download.title">
+<pl><![CDATA[Pobieranie faktur]]></pl>
+        </locale>
+        <locale name="invoice.settings.download.name.title">
+<pl><![CDATA[Nazwa pliku faktury]]></pl>
+        </locale>
+        <locale name="invoice.settings.download.name.description" html="true">
+<pl><![CDATA[Określa nazwę pliku faktury. Możesz ją dostosować za pomocą następujących zmiennych:<ul><li><strong>%HASH%</strong> - Hash faktury</li><li><strong>%ID%</strong> - Identyfikator faktury</li><li><strong>%INO%</strong> - Numer faktury</li><li><strong>%DATE%</strong> - Data faktury</li><li><strong>%YEAR%</strong> - Rok daty faktury</li><li><strong>%MONTH%</strong> - Miesiąc daty faktury</li><li><strong>%DAY%</strong> - Dzień daty faktury</li><li><strong>%CUSTOMER_ID%</strong> - Identyfikator klienta</li><li><strong>%CUSTOMER_NO%</strong> - Numer klienta</li><li><strong>%CUSTOMER_NAME%</strong> - Nazwa klienta na fakturze</li><li><strong>%COMPANY%</strong> - Firma</li><li><strong>%FIRSTNAME%</strong> - Imię</li><li><strong>%LASTNAME%</strong> - Nazwisko</li></ul>]]></pl>
+        </locale>
+        <locale name="invoice.settings.download.useDate.title">
+<pl><![CDATA[Użyj daty w nazwie pliku]]></pl>
+        </locale>
+        <locale name="invoice.settings.download.useDate.description">
+<pl><![CDATA[Określa, czy data faktury jest dodawana do nazwy pliku faktury.]]></pl>
+        </locale>
+        <locale name="additional.invoice.text" html="true">
+<pl><![CDATA[ ]]></pl>
+        </locale>
+        <locale name="additional.invoice.text.timeForPayment">
+<pl><![CDATA[Termin płatności]]></pl>
+        </locale>
+        <locale name="additional.invoice.text.timeForPayment.inclVar" html="true">
+<pl><![CDATA[<span class="additional-invoice-title">Termin płatności:</span><span class="additional-invoice-value">[timeForPayment]</span>]]></pl>
+        </locale>
+        <locale name="additional.invoice.text.paymentMethod">
+<pl><![CDATA[Metoda płatności]]></pl>
+        </locale>
+        <locale name="additional.invoice.text.timeForPayment.0">
+<pl><![CDATA[Natychmiast]]></pl>
+        </locale>
+
+
+        <locale name="control.frontendUsers.invoices.title">
+<pl><![CDATA[Moje faktury]]></pl>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.id">
+<pl><![CDATA[Nr faktury]]></pl>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.date">
+<pl><![CDATA[Data]]></pl>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.download">
+<pl><![CDATA[Pobierz]]></pl>
+        </locale>
+        <locale name="control.frontendUsers.invoices.table.empty.message">
+<pl><![CDATA[Nie masz żadnych faktur.]]></pl>
+        </locale>
+
+        <locale name="invoice.settings.invoice.storno">
+<pl><![CDATA[Sposób anulowania]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.storno.desc" html="true">
+<pl><![CDATA[To ustawienie określa sposób anulowania faktur z powiązanymi transakcjami.]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.storno.no">
+<pl><![CDATA[Anulowanie niedozwolone (tylko nota uznaniowa)]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.storno.allowed">
+<pl><![CDATA[Anulowanie dozwolone]]></pl>
+        </locale>
+        <locale name="invoice.view.payment.transaction.text">
+<pl><![CDATA[Otrzymaliśmy Twoją płatność w dniu [date]. Metoda płatności: [payment].]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.openPrintDialogAfterPost">
+<pl><![CDATA[Automatycznie otwieraj okno drukowania faktury]]></pl>
+        </locale>
+        <locale name="invoice.settings.invoice.openPrintDialogAfterPost.description">
+<pl><![CDATA[Po zaksięgowaniu faktury automatycznie otwiera się jej okno drukowania.]]></pl>
+        </locale>
+
+        <locale name="erp.comment.invoice.created">
+<pl><![CDATA[Utworzono fakturę #[invoiceId]]]></pl>
+        </locale>
+
+        <locale name="history.invoiceTemporary.created">
+<pl><![CDATA[Utworzono wersję roboczą faktury]]></pl>
+        </locale>
+        <locale name="history.invoiceTemporary.post">
+<pl><![CDATA[Faktura zaksięgowana przez #[userId] - [username]]]></pl>
+        </locale>
+    </groups>
+
+    <groups name="quiqqer/products">
+        <locale name="products.field.102.title">
+<pl><![CDATA[Tekst faktury]]></pl>
+        </locale>
+    </groups>
+
+    <groups name="quiqqer/frontend-users">
+        <locale name="profile.data.title" priority="2">
+<pl><![CDATA[Dane klienta]]></pl>
+        </locale>
+        <locale name="profile.userdata.title" priority="2">
+<pl><![CDATA[Dane klienta]]></pl>
+        </locale>
+    </groups>
+</locales>
