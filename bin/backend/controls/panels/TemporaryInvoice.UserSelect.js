@@ -155,7 +155,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice.Use
                 }
 
                 new QUIButton({
-                    text: QUILocale.get('quiqqer/system', 'accept'),
+                    text: QUILocale.get('quiqqer/core', 'accept'),
                     styles: {
                         'float': 'none'
                     },
