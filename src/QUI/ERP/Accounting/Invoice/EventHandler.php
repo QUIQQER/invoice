@@ -229,7 +229,7 @@ class EventHandler
         }
 
         $Request = QUI::getRequest();
-        $addressId = $Request->get('quiqqer-frontendUsers-userdata-invoice-address');
+        $addressId = $Request->request->getString('quiqqer-frontendUsers-userdata-invoice-address');
 
         if (!$addressId) {
             return;
