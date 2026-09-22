@@ -22,6 +22,8 @@ use QUI\ERP\Output\OutputProviderInterface;
 use QUI\Interfaces\Users\User;
 use QUI\Locale;
 
+use function array_flip;
+use function array_intersect_key;
 use function array_merge;
 use function class_exists;
 use function get_class;
@@ -193,8 +195,32 @@ class OutputProviderInvoice implements OutputProviderInterface
             $DeliveryAddress->clearMail();
             $DeliveryAddress->clearPhone();
 
-            if ($Address !== null && $DeliveryAddress->equals($Address)) {
-                $DeliveryAddress = false;
+            if ($Address !== null) {
+                $addressFields = array_flip([
+                    'id',
+                    'salutation',
+                    'firstname',
+                    'lastname',
+                    'street_no',
+                    'zip',
+                    'city',
+                    'country',
+                    'company',
+                    'isCompany'
+                ]);
+
+                $ComparableInvoiceAddress = new QUI\ERP\Address(
+                    array_intersect_key($Address->getAttributes(), $addressFields),
+                    $Customer
+                );
+                $ComparableDeliveryAddress = new QUI\ERP\Address(
+                    array_intersect_key($DeliveryAddress->getAttributes(), $addressFields),
+                    $Customer
+                );
+
+                if ($ComparableDeliveryAddress->equals($ComparableInvoiceAddress)) {
+                    $DeliveryAddress = false;
+                }
             }
         }
 

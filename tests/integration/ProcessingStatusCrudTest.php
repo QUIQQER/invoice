@@ -2,14 +2,14 @@
 
 namespace QUITests\ERP\Accounting\Invoice\Integration;
 
-use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Exception;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Factory;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler;
+use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
 use Throwable;
 
-class ProcessingStatusCrudTest extends TestCase
+class ProcessingStatusCrudTest extends SqliteIntegrationTestCase
 {
     public function testChangesAreImmediatelyVisibleThroughHandlerCache(): void
     {

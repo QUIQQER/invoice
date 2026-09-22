@@ -4,44 +4,59 @@ namespace QUITests\ERP\Accounting\Invoice\Integration;
 
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
-use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use QUI;
 use QUI\ERP\Accounting\Invoice\Handler;
+use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Factory as ProcessingStatusFactory;
+use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatusHandler;
 use QUI\ERP\Accounting\Invoice\RestApi\Provider;
+use QUI\ERP\Accounting\Payments\Methods\Standard\Payment as StandardPayment;
+use QUI\ERP\Customer\CustomerFiles;
+use QUI\ERP\Products\EventHandling as ProductsEventHandling;
+use QUI\ERP\Products\Handler\Cache as ProductCache;
+use QUI\ERP\Products\Handler\Fields as ProductFields;
+use QUI\ERP\Products\Handler\Products;
+use QUI\ERP\Products\Product\Types\Product;
+use QUI\ERP\Products\Utils\Tables as ProductTables;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUI\REST\Response;
+use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
 use ReflectionMethod;
-use ReflectionProperty;
 use Throwable;
 
 #[PreserveGlobalState(false)]
 #[RunClassInSeparateProcess]
-class RestApiProviderTest extends TestCase
+class RestApiProviderTest extends SqliteIntegrationTestCase
 {
     private ?UserInterface $previousSessionUser = null;
-    private ?string $temporaryInvoiceId = null;
     private ?string $postedGlobalProcessId = null;
     private ?string $customerUuid = null;
+    private ?int $processingStatusId = null;
+    private ?int $productId = null;
+    private ?string $customerFileName = null;
+    private ?string $invoiceUploadDirectory = null;
+
+    /** @var list<string> */
+    private array $temporaryInvoiceIds = [];
+
+    /** @var list<int> */
+    private array $paymentIds = [];
 
     protected function setUp(): void
     {
-        try {
-            QUI::getDataBaseConnection()->executeQuery('SELECT 1')->free();
-        } catch (Throwable $Exception) {
-            self::markTestSkipped('QUIQQER database is not available: ' . $Exception->getMessage());
-        }
+        parent::setUp();
 
         $this->previousSessionUser = $this->replaceSessionUser(QUI::getUsers()->getSystemUser());
     }
 
     protected function tearDown(): void
     {
-        if ($this->temporaryInvoiceId !== null) {
+        foreach ($this->temporaryInvoiceIds as $temporaryInvoiceId) {
             QUI::getDataBaseConnection()->delete(
                 Handler::getInstance()->temporaryInvoiceTable(),
-                ['id' => $this->temporaryInvoiceId]
+                ['id' => $temporaryInvoiceId]
             );
         }
 
@@ -56,6 +71,17 @@ class RestApiProviderTest extends TestCase
             );
         }
 
+        if ($this->customerUuid !== null && $this->customerFileName !== null) {
+            try {
+                CustomerFiles::deleteFiles($this->customerUuid, [$this->customerFileName]);
+            } catch (Throwable) {
+            }
+        }
+
+        if ($this->invoiceUploadDirectory !== null && is_dir($this->invoiceUploadDirectory)) {
+            rmdir($this->invoiceUploadDirectory);
+        }
+
         if ($this->customerUuid !== null) {
             try {
                 QUI::getUsers()->deleteUser($this->customerUuid);
@@ -63,9 +89,30 @@ class RestApiProviderTest extends TestCase
             }
         }
 
+        foreach ($this->paymentIds as $paymentId) {
+            QUI::getDataBaseConnection()->delete(QUI::getDBTableName('payments'), ['id' => $paymentId]);
+        }
+
+        if ($this->processingStatusId !== null) {
+            try {
+                ProcessingStatusHandler::getInstance()->deleteProcessingStatus($this->processingStatusId);
+            } catch (Throwable) {
+            }
+        }
+
+        if ($this->productId !== null) {
+            QUI\Cache\LongTermCache::clear(ProductCache::getProductCachePath($this->productId));
+            Products::cleanProductInstanceMemCache($this->productId);
+            QUI::getDataBaseConnection()->delete(ProductTables::getProductTableName(), [
+                'id' => $this->productId
+            ]);
+        }
+
         if ($this->previousSessionUser !== null) {
             $this->replaceSessionUser($this->previousSessionUser);
         }
+
+        parent::tearDown();
     }
 
     public function testCreateInvoiceValidatesRequestData(): void
@@ -140,7 +187,7 @@ class RestApiProviderTest extends TestCase
         $Draft = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString(
             $body['msg']['invoice_id']
         );
-        $this->temporaryInvoiceId = (string)$Draft->getId();
+        $this->temporaryInvoiceIds[] = (string)$Draft->getId();
 
         self::assertSame('REST provider test', $Draft->getAttribute('project_name'));
         self::assertSame(1, $Draft->getArticles()->count());
@@ -210,12 +257,245 @@ class RestApiProviderTest extends TestCase
             []
         );
 
-        self::assertSame(200, $Response->getStatusCode());
+        self::assertSame(
+            200,
+            $Response->getStatusCode(),
+            json_encode($this->body($Response), JSON_THROW_ON_ERROR)
+        );
         $Invoice = Handler::getInstance()->get($this->body($Response)['msg']['invoice_id']);
         $this->postedGlobalProcessId = $Invoice->getGlobalProcessId();
 
         self::assertSame($User->getUUID(), $Invoice->getCustomer()->getUUID());
         self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_PAID, $Invoice->getAttribute('paid_status'));
+    }
+
+    public function testCreateInvoiceUsesCustomerDefaultPaymentBeforeRequestedPayment(): void
+    {
+        [$User, $Address, $customerNumber] = $this->createCustomer('default-payment');
+        $paymentId = 42001;
+        QUI::getDataBaseConnection()->insert(QUI::getDBTableName('payments'), [
+            'id' => $paymentId,
+            'active' => 1,
+            'payment_type' => StandardPayment::class,
+            'icon' => '',
+            'priority' => 1
+        ]);
+        $this->paymentIds[] = $paymentId;
+
+        $User->setAttribute('quiqqer.erp.standard.payment', $paymentId);
+        $User->save(QUI::getUsers()->getSystemUser());
+
+        $Draft = $this->createDraft([
+            'customer_no' => $customerNumber,
+            'invoice_address_id' => $Address->getUUID(),
+            'payment_method' => -1
+        ]);
+
+        self::assertSame($User->getUUID(), $Draft->getCustomer()?->getUUID());
+        self::assertSame($paymentId, (int)$Draft->getAttribute('payment_method'));
+        self::assertSame(StandardPayment::class, $Draft->getPayment()->getPaymentType());
+    }
+
+    public function testCreateInvoiceFallsBackForInvalidCustomerAndAddressData(): void
+    {
+        [$User, , $customerNumber] = $this->createCustomer('invalid-data');
+        $defaultAddressUuid = $User->getStandardAddress()->getUUID();
+
+        $DraftWithoutCustomer = $this->createDraft([
+            'customer_no' => 'missing-customer',
+            'invoice_address_id' => 'missing-address',
+            'payment_method' => -1
+        ]);
+
+        self::assertNull($DraftWithoutCustomer->getCustomer());
+        self::assertFalse($DraftWithoutCustomer->getAttribute('customer_id'));
+        self::assertSame('', $DraftWithoutCustomer->getAttribute('invoice_address_id'));
+
+        $DraftWithDefaultAddress = $this->createDraft([
+            'customer_no' => $customerNumber,
+            'invoice_address_id' => 'missing-address',
+            'payment_method' => -1
+        ]);
+
+        self::assertSame($User->getUUID(), $DraftWithDefaultAddress->getCustomer()?->getUUID());
+        self::assertSame($defaultAddressUuid, $DraftWithDefaultAddress->getAttribute('invoice_address_id'));
+    }
+
+    public function testCreateInvoicePersistsValidProcessingStatus(): void
+    {
+        $this->processingStatusId = ProcessingStatusFactory::getInstance()->getNextId() + 2000;
+        ProcessingStatusFactory::getInstance()->createProcessingStatus(
+            $this->processingStatusId,
+            '#224466',
+            ['de' => 'REST processing status'],
+            [ProcessingStatusHandler::STATUS_OPTION_PREVENT_INVOICE_POSTING => false]
+        );
+
+        $Draft = $this->createDraft([
+            'processing_status' => $this->processingStatusId,
+            'payment_method' => -1
+        ]);
+
+        self::assertSame($this->processingStatusId, (int)$Draft->getAttribute('processing_status'));
+
+        $storedStatus = QUI::getDataBaseConnection()->createQueryBuilder()
+            ->select('processing_status')
+            ->from(Handler::getInstance()->temporaryInvoiceTable())
+            ->where('id = :id')
+            ->setParameter('id', $Draft->getId())
+            ->executeQuery()
+            ->fetchOne();
+
+        self::assertSame($this->processingStatusId, (int)$storedStatus);
+    }
+
+    public function testCreateInvoiceResolvesExistingProduct(): void
+    {
+        if (!\QUITests\ERP\Accounting\Invoice\DatabaseEnvironment::usesCiDatabase()) {
+            (new ReflectionMethod(ProductsEventHandling::class, 'setDefaultProductFields'))->invoke(null);
+        }
+
+        $productTitle = 'REST existing product';
+        $productLanguage = Products::getLocale()->getCurrent();
+        $fieldData = [
+            ['id' => ProductFields::FIELD_TITLE, 'value' => [$productLanguage => $productTitle]],
+            ['id' => ProductFields::FIELD_PRICE, 'value' => 12.5],
+            ['id' => ProductFields::FIELD_PRODUCT_NO, 'value' => 'REST-PRODUCT-42'],
+            ['id' => ProductFields::FIELD_VAT, 'value' => $this->getTestTaxTypeId()],
+            ['id' => ProductFields::FIELD_UNIT, 'value' => 'piece'],
+            ['id' => ProductFields::FIELD_EAN, 'value' => '4006381333931']
+        ];
+
+        QUI::getDataBaseConnection()->insert(ProductTables::getProductTableName(), [
+            'type' => Product::class,
+            'category' => 0,
+            'categories' => ',0,',
+            'fieldData' => json_encode($fieldData, JSON_THROW_ON_ERROR),
+            'active' => 1,
+            'c_user' => QUI::getUsers()->getSystemUser()->getUUID(),
+            'c_date' => '2026-08-20 12:00:00'
+        ]);
+        $this->productId = (int)QUI::getDataBaseConnection()->lastInsertId();
+        QUI\Cache\LongTermCache::clear(ProductCache::getProductCachePath($this->productId));
+
+        $Draft = $this->createDraft([
+            'articles' => [[
+                'quiqqerProductId' => $this->productId,
+                'quantity' => 3
+            ]],
+            'payment_method' => -1
+        ]);
+
+        self::assertSame(1, $Draft->getArticles()->count());
+        $Article = $Draft->getArticles()->getArticle(0);
+        self::assertNotNull($Article);
+        self::assertSame($this->productId, $Article->getId());
+        self::assertSame('REST-PRODUCT-42', $Article->getArticleNo());
+        self::assertSame($productTitle, $Article->getTitle());
+        self::assertSame(3, $Article->getQuantity());
+        self::assertSame(12.5, $Article->getUnitPrice()->value());
+        self::assertSame('4006381333931', $Article->getGtin());
+    }
+
+    public function testCreateInvoiceStoresUploadedCustomerFileAndOptions(): void
+    {
+        [$User, $Address, $customerNumber] = $this->createCustomer('file-upload');
+        $this->customerFileName = 'invoice-rest-' . bin2hex(random_bytes(8)) . '.txt';
+        $content = "Invoice REST upload\n";
+
+        $Draft = $this->createDraft([
+            'customer_no' => $customerNumber,
+            'invoice_address_id' => $Address->getUUID(),
+            'payment_method' => -1,
+            'files' => [[
+                'name' => $this->customerFileName,
+                'content' => bin2hex($content),
+                'options' => ['attachToEmail' => true]
+            ]]
+        ]);
+        $this->invoiceUploadDirectory = QUI::getPackage('quiqqer/invoice')->getVarDir()
+            . 'uploads/' . $Draft->getUUID();
+
+        $fileHash = hash('sha256', $this->customerFileName);
+        $customerFile = CustomerFiles::getFileByHash($User->getUUID(), $fileHash);
+
+        self::assertIsArray($customerFile);
+        self::assertSame($this->customerFileName, $customerFile['basename']);
+        self::assertSame(
+            $content,
+            file_get_contents(CustomerFiles::getFolderPath($User) . DIRECTORY_SEPARATOR . $this->customerFileName)
+        );
+        self::assertSame([[
+            'hash' => $fileHash,
+            'options' => ['attachToEmail' => true]
+        ]], $Draft->getCustomerFiles());
+    }
+
+    /**
+     * @param array<string, mixed> $invoiceData
+     */
+    private function createDraft(array $invoiceData): InvoiceTemporary
+    {
+        $invoiceData += [
+            'source' => 'phpunit-rest-special-case',
+            'articles' => [[
+                'title' => 'REST special case article',
+                'articleNo' => 'REST-SPECIAL-1',
+                'unitPrice' => 10,
+                'quantity' => 1,
+                'vat' => 19
+            ]]
+        ];
+
+        $Response = (new Provider())->createInvoice(
+            $this->request(['invoiceData' => $invoiceData]),
+            new Response(),
+            []
+        );
+
+        self::assertSame(
+            200,
+            $Response->getStatusCode(),
+            json_encode($this->body($Response), JSON_THROW_ON_ERROR)
+        );
+        self::assertFalse($this->body($Response)['error']);
+
+        $Draft = QUI\ERP\Accounting\Invoice\Utils\Invoice::getTemporaryInvoiceByString(
+            $this->body($Response)['msg']['invoice_id']
+        );
+        $this->temporaryInvoiceIds[] = (string)$Draft->getId();
+
+        return $Draft;
+    }
+
+    /**
+     * @return array{0: UserInterface, 1: QUI\Users\Address, 2: string}
+     */
+    private function createCustomer(string $suffix): array
+    {
+        $Users = QUI::getUsers();
+        $SystemUser = $Users->getSystemUser();
+        $customerNumber = (string)random_int(800000, 899999);
+        $username = 'invoice-rest-' . $suffix . '-' . uniqid();
+        $User = $Users->createChildWithAttributes([
+            'username' => $username,
+            'email' => $username . '@example.invalid',
+            'firstname' => 'REST',
+            'lastname' => 'Customer',
+            'customerId' => $customerNumber
+        ], $SystemUser);
+        $this->customerUuid = $User->getUUID();
+        $Address = $User->addAddress([
+            'firstname' => 'REST',
+            'lastname' => 'Customer',
+            'street_no' => 'API-Straße 8',
+            'zip' => '10115',
+            'city' => 'Berlin',
+            'country' => 'DE',
+            'mail' => $username . '@example.invalid'
+        ], $SystemUser);
+
+        return [$User, $Address, $customerNumber];
     }
 
     private function request(array $body): ServerRequestInterface
@@ -234,17 +514,5 @@ class RestApiProviderTest extends TestCase
     private function body(\Psr\Http\Message\MessageInterface $Response): array
     {
         return json_decode((string)$Response->getBody(), true);
-    }
-
-    private function replaceSessionUser(UserInterface $User): ?UserInterface
-    {
-        $Users = QUI::getUsers();
-        $Property = new ReflectionProperty($Users, 'Session');
-        $Property->setAccessible(true);
-
-        $PreviousUser = $Property->getValue($Users);
-        $Property->setValue($Users, $User);
-
-        return $PreviousUser instanceof UserInterface ? $PreviousUser : null;
     }
 }

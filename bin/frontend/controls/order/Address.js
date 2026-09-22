@@ -216,7 +216,7 @@ define('package/quiqqer/invoice/bin/frontend/controls/order/Address', [
 
                 new Element('button', {
                     'class': 'quiqqer-order-step-address-container-delete-button',
-                    html   : QUILocale.get('quiqqer/system', 'delete'),
+                    html   : QUILocale.get('quiqqer/core', 'delete'),
                     events : {
                         click: function (event) {
                             var Target = event.target;

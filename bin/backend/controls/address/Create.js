@@ -63,15 +63,15 @@ define('package/quiqqer/invoice/bin/backend/controls/address/Create', [
                 html: Mustache.render(template, {
                     message       : QUILocale.get(lg, 'invoice.create.address.message'),
                     textData      : QUILocale.get('quiqqer/core', 'data'),
-                    textCompany   : QUILocale.get('quiqqer/system', 'company'),
-                    textSalutation: QUILocale.get('quiqqer/system', 'salutation'),
-                    textFirstName : QUILocale.get('quiqqer/system', 'firstname'),
-                    textLastName  : QUILocale.get('quiqqer/system', 'lastname'),
-                    textAddress   : QUILocale.get('quiqqer/system', 'address'),
-                    textStreet    : QUILocale.get('quiqqer/system', 'street'),
-                    textZIP       : QUILocale.get('quiqqer/system', 'zip'),
-                    textCity      : QUILocale.get('quiqqer/system', 'city'),
-                    textCountry   : QUILocale.get('quiqqer/system', 'country')
+                    textCompany   : QUILocale.get('quiqqer/core', 'company'),
+                    textSalutation: QUILocale.get('quiqqer/core', 'salutation'),
+                    textFirstName : QUILocale.get('quiqqer/core', 'firstname'),
+                    textLastName  : QUILocale.get('quiqqer/core', 'lastname'),
+                    textAddress   : QUILocale.get('quiqqer/core', 'address'),
+                    textStreet    : QUILocale.get('quiqqer/core', 'street'),
+                    textZIP       : QUILocale.get('quiqqer/core', 'zip'),
+                    textCity      : QUILocale.get('quiqqer/core', 'city'),
+                    textCountry   : QUILocale.get('quiqqer/core', 'country')
 
                 })
             });

@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace QUITests\ERP\Accounting\Invoice\Integration;
 
 use DateTimeImmutable;
-use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\ERP\Accounting\Invoice\DemoData\InvoiceDemoDataCreator;
 use QUI\ERP\Accounting\Invoice\Handler;
@@ -22,9 +21,10 @@ use QUI\ERP\DemoData\DTO\DemoDataDateRange;
 use QUI\ERP\DemoData\DTO\DemoDataReference;
 use QUI\ERP\DemoData\DTO\DemoDataReferenceCollection;
 use QUI\Interfaces\Users\User;
+use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
 use Throwable;
 
-class InvoiceDemoDataCreatorTest extends TestCase
+class InvoiceDemoDataCreatorTest extends SqliteIntegrationTestCase
 {
     /**
      * @var string[]
@@ -38,11 +38,7 @@ class InvoiceDemoDataCreatorTest extends TestCase
 
     protected function setUp(): void
     {
-        try {
-            QUI::getDataBaseConnection()->fetchOne('SELECT 1');
-        } catch (\Doctrine\DBAL\Exception) {
-            $this->markTestSkipped('A configured QUIQQER database is required for this integration test.');
-        }
+        parent::setUp();
     }
 
     protected function tearDown(): void

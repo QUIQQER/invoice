@@ -111,7 +111,7 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                 width      : w,
                 buttons    : [{
                     name  : 'add',
-                    text  : QUILocale.get('quiqqer/system', 'add'),
+                    text  : QUILocale.get('quiqqer/core', 'add'),
                     events: {
                         onClick: this.openCreateDialog
                     }
@@ -119,14 +119,14 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                     type: 'separator'
                 }, {
                     name    : 'edit',
-                    text    : QUILocale.get('quiqqer/system', 'edit'),
+                    text    : QUILocale.get('quiqqer/core', 'edit'),
                     disabled: true,
                     events  : {
                         onClick: this.$onEditClick
                     }
                 }, {
                     name    : 'delete',
-                    text    : QUILocale.get('quiqqer/system', 'remove'),
+                    text    : QUILocale.get('quiqqer/core', 'remove'),
                     disabled: true,
                     events  : {
                         onClick: this.$onDeleteClick
@@ -143,7 +143,7 @@ define('package/quiqqer/invoice/bin/backend/controls/settings/ProcessingStatus',
                     dataType : 'node',
                     width    : 60
                 }, {
-                    header   : QUILocale.get('quiqqer/system', 'title'),
+                    header   : QUILocale.get('quiqqer/core', 'title'),
                     dataIndex: 'title',
                     dataType : 'integer',
                     width    : 200

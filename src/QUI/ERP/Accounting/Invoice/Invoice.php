@@ -708,6 +708,7 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
 
         // set the invoice status
         $this->type = QUI\ERP\Constants::TYPE_INVOICE_CANCEL;
+        $this->setAttribute('paid_status', QUI\ERP\Constants::PAYMENT_STATUS_CANCELED);
 
         $Reversal = $Reversal->post(QUI::getUsers()->getSystemUser());
 

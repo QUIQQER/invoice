@@ -188,7 +188,7 @@ define('package/quiqqer/invoice/bin/backend/utils/Dialogs', [
                         maxWidth: 600,
                         autoclose: false,
                         ok_button: {
-                            text: QUILocale.get('quiqqer/system', 'copy'),
+                            text: QUILocale.get('quiqqer/core', 'copy'),
                             textimage: 'fa fa-copy'
                         },
                         events: {

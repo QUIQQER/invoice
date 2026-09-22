@@ -2,7 +2,6 @@
 
 namespace QUITests\ERP\Accounting\Invoice\Integration;
 
-use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\ERP\Accounting\Article;
 use QUI\ERP\Accounting\Invoice\EventHandler;
@@ -23,11 +22,12 @@ use QUI\ERP\Customer\CustomerFiles;
 use QUI\Interfaces\Users\User as UserInterface;
 use QUI\Mail\Mailer;
 use QUI\Smarty\Collector;
+use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
 use ReflectionMethod;
 use ReflectionProperty;
 use Throwable;
 
-class InvoiceLifecycleTest extends TestCase
+class InvoiceLifecycleTest extends SqliteIntegrationTestCase
 {
     private const TEST_PREFIX = 'invoice-lifecycle-';
 
@@ -40,11 +40,7 @@ class InvoiceLifecycleTest extends TestCase
 
     protected function setUp(): void
     {
-        try {
-            QUI::getDataBaseConnection()->executeQuery('SELECT 1')->free();
-        } catch (Throwable $Exception) {
-            self::markTestSkipped('QUIQQER database is not available: ' . $Exception->getMessage());
-        }
+        parent::setUp();
 
         $this->previousSessionUser = $this->replaceSessionUser(QUI::getUsers()->getSystemUser());
         $this->globalProcessId = QUI\Utils\Uuid::get();
@@ -79,6 +75,8 @@ class InvoiceLifecycleTest extends TestCase
         if ($this->previousSessionUser !== null) {
             $this->replaceSessionUser($this->previousSessionUser);
         }
+
+        parent::tearDown();
     }
 
     public function testDraftCanBeEditedReloadedAndPosted(): void
@@ -744,8 +742,6 @@ class InvoiceLifecycleTest extends TestCase
         $Config = QUI::getPackage('quiqqer/invoice')->getConfig();
         $previousCurrentId = $Config->getValue('invoice', 'temporaryInvoiceCurrentIdIndex');
         $nextId = $NumberRange->getRange();
-        $FirstInvoice = null;
-        $SecondInvoice = null;
 
         try {
             $NumberRange->setRange($nextId);
@@ -756,14 +752,13 @@ class InvoiceLifecycleTest extends TestCase
             self::assertSame($nextId, $FirstInvoice->getCleanId());
             self::assertSame($nextId + 1, $SecondInvoice->getCleanId());
         } finally {
-            if ($SecondInvoice === null) {
-                $Config->setValue(
-                    'invoice',
-                    'temporaryInvoiceCurrentIdIndex',
-                    $FirstInvoice?->getCleanId() ?? $previousCurrentId
-                );
-                $Config->save();
+            if ($previousCurrentId === false || $previousCurrentId === null) {
+                $Config->del('invoice', 'temporaryInvoiceCurrentIdIndex');
+            } else {
+                $Config->setValue('invoice', 'temporaryInvoiceCurrentIdIndex', $previousCurrentId);
             }
+
+            $Config->save();
         }
     }
 
@@ -797,17 +792,5 @@ class InvoiceLifecycleTest extends TestCase
             'quantity' => 1,
             'vat' => 19
         ]);
-    }
-
-    private function replaceSessionUser(UserInterface $User): ?UserInterface
-    {
-        $Users = QUI::getUsers();
-        $Property = new ReflectionProperty($Users, 'Session');
-        $Property->setAccessible(true);
-
-        $PreviousUser = $Property->getValue($Users);
-        $Property->setValue($Users, $User);
-
-        return $PreviousUser instanceof UserInterface ? $PreviousUser : null;
     }
 }

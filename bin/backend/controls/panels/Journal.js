@@ -667,13 +667,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         width: 80
                     },
                     {
-                        header: QUILocale.get('quiqqer/system', 'c_date'),
+                        header: QUILocale.get('quiqqer/core', 'c_date'),
                         dataIndex: 'c_date',
                         dataType: 'date',
                         width: 140
                     },
                     {
-                        header: QUILocale.get('quiqqer/system', 'c_user'),
+                        header: QUILocale.get('quiqqer/core', 'c_user'),
                         dataIndex: 'c_username',
                         dataType: 'string',
                         width: 130,

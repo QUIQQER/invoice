@@ -5,3 +5,9 @@ include:
       php-83: true
       php-84: true
       php-85: true
+
+upgrade-tests-php8.5:
+  extends: phpunit-php8.5
+  script:
+    - !reference [phpunit-php8.5, script]
+    - ./tools/phpunit --configuration phpunit.upgrade.xml --cache-directory "${PHPUNIT_CACHE_DIRECTORY}-upgrade"
