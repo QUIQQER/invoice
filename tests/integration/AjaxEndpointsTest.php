@@ -10,6 +10,8 @@ use QUI\Ajax;
 use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\ProcessingStatus\Handler as ProcessingStatusHandler;
+use QUI\ERP\Accounting\Payments\Methods\Cash\Payment as CashPayment;
+use QUI\ERP\Accounting\Payments\Types\Factory as PaymentFactory;
 use QUI\Interfaces\Users\User;
 use QUITests\ERP\Accounting\Invoice\SqliteIntegrationTestCase;
 use RecursiveDirectoryIterator;
@@ -53,7 +55,7 @@ class AjaxEndpointsTest extends SqliteIntegrationTestCase
     public function testProcessingStatusEndpointsPersistAndExposeCrudLifecycle(): void
     {
         $callables = Ajax::getRegisteredCallables();
-        self::assertCount(45, $callables);
+        self::assertCount(46, $callables);
 
         $permissions = $this->ajaxState('permissions');
         self::assertSame(array_keys($callables), array_keys($permissions));
@@ -331,6 +333,72 @@ class AjaxEndpointsTest extends SqliteIntegrationTestCase
             'Ajax reversal test'
         );
         self::assertNotSame($invoiceUuid, $reversalUuid);
+    }
+
+    public function testSetPaymentMethodEndpointChecksPermissionAndUpdatesInvoiceText(): void
+    {
+        [$customer, $address] = $this->createCustomer('payment-method');
+        $draft = QUI\ERP\Accounting\Invoice\Factory::getInstance()->createInvoice();
+        $draft->setCustomer($customer);
+        $draft->setAttribute('invoice_address_id', $address->getUUID());
+        $draft->setAttribute('invoice_address', $address->toJSON());
+        $draft->setAttribute('payment_method', -1);
+        $draft->setAttribute(
+            QUI\ERP\Accounting\Invoice\InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL,
+            1
+        );
+        $draft->importArticles(['articles' => [$this->articleData('AJAX-PAYMENT-METHOD')]]);
+        $invoice = $draft->post();
+        $paymentMethod = PaymentFactory::getInstance()->createChild([
+            'payment_type' => CashPayment::class,
+            'active' => 1
+        ]);
+        $previousUser = $this->replaceSessionUser($customer);
+
+        try {
+            try {
+                $this->endpoint('package_quiqqer_invoice_ajax_invoices_setPaymentMethod')(
+                    $invoice->getUUID(),
+                    $paymentMethod->getId(),
+                    'Keine Berechtigung'
+                );
+                self::fail('Changing the payment method without permission must fail.');
+            } catch (QUI\Exception $exception) {
+                self::assertSame(403, $exception->getCode());
+            }
+
+            self::assertSame('-1', (string)Handler::getInstance()
+                ->getInvoiceByHash($invoice->getUUID())
+                ->getAttribute('payment_method'));
+
+            $this->replaceSessionUser(QUI::getUsers()->getSystemUser());
+            $this->endpoint('package_quiqqer_invoice_ajax_invoices_setPaymentMethod')(
+                $invoice->getUUID(),
+                $paymentMethod->getId(),
+                'Kundenwunsch'
+            );
+
+            $reloaded = Handler::getInstance()->getInvoiceByHash($invoice->getUUID());
+            self::assertSame((string)$paymentMethod->getId(), (string)$reloaded->getAttribute('payment_method'));
+            self::assertSame(
+                $paymentMethod->getPaymentType()->getInvoiceInformationText($reloaded),
+                $reloaded->getCustomDataEntry('InvoiceInformationText')
+            );
+            self::assertStringContainsString(
+                'Kundenwunsch',
+                json_encode($reloaded->getHistory()->toArray(), JSON_UNESCAPED_UNICODE)
+            );
+
+            $this->expectException(QUI\Exception::class);
+            $this->endpoint('package_quiqqer_invoice_ajax_invoices_setPaymentMethod')(
+                $invoice->getUUID(),
+                999999,
+                'Ungültige Zahlungsart'
+            );
+        } finally {
+            $this->replaceSessionUser($previousUser);
+            $paymentMethod->delete();
+        }
     }
 
     private function endpoint(string $name): Closure
