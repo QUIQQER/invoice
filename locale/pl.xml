@@ -11,6 +11,13 @@
         <locale name="package.description">
 <pl><![CDATA[Moduł fakturowania QUIQQER zapewnia kompleksowe zarządzanie fakturami w QUIQQER.]]></pl>
         </locale>
+        <locale name="invoice.paymentMethod.change.confirm.information" html="true">
+<pl><![CDATA[
+<ul>
+<li><b>Istniejące transakcje pozostają przypisane do faktury</b> i w razie potrzeby należy je ręcznie cofnąć.</li>
+<li><b>Treść faktury zmienia się wraz z nową metodą płatności.</b> Dlatego metodę płatności należy zmieniać tylko wtedy, gdy faktura nie została jeszcze wysłana. W przeciwnym razie lepiej anulować fakturę i utworzyć nową.</li>
+</ul>]]></pl>
+        </locale>
 
         <locale name="erp.panel.accounting.text">
 <pl><![CDATA[Księgowość]]></pl>
