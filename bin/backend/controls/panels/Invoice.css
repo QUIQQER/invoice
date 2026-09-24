@@ -2,6 +2,28 @@
     color: #666699;
 }
 
+.invoice-payment-method-select {
+    display: block;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.invoice-payment-method-reason-label {
+    display: block;
+    margin-top: 16px;
+}
+
+.invoice-payment-method-reason {
+    box-sizing: border-box;
+    display: block;
+    min-height: 90px;
+    width: 100%;
+}
+
+.quiqqer-invoice-invoice .invoice-payment-method-save {
+    margin-top: 0;
+}
+
 .journal-grid-amount {
     text-align: right !important;
     padding-right: 5px;
