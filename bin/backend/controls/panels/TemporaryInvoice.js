@@ -610,7 +610,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                 address.userId = self.getAttribute('customer_id');
                 address.addressId = self.getAttribute('invoice_address_id');
-                address.contactPerson = self.getAttribute('contact_person') ? self.getAttribute('contact_person') : '';
+                if (self.getAttribute('contact_person')) {
+                    address.contactPerson = self.getAttribute('contact_person');
+                } else {
+                    delete address.contactPerson;
+                }
 
                 if (self.getAttribute('contactEmail')) {
                     address.contactEmail = self.getAttribute('contactEmail');
@@ -628,6 +632,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 let Data = QUI.Controls.getById(dataQUIID);
 
                 self.setAttribute('invoice_address', Data.getAddress());
+                self.setAttribute('contact_person', Data.getValue().contactPerson);
 
                 // delivery address
                 self.$AddressDelivery = QUI.Controls.getById(

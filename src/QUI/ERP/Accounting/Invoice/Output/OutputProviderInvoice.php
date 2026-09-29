@@ -384,39 +384,22 @@ class OutputProviderInvoice implements OutputProviderInterface
             );
         }
 
-        $CustomerAddress = $Customer->getAddress();
-        $user = $CustomerAddress->getAttribute('contactPerson');
-
-        if (empty($user)) {
-            $user = $Customer->getName();
-        }
-
-        if (empty($user)) {
-            $user = $Customer->getAddress()->getName();
-        }
-
-        $user = trim($user);
+        $customerVariables = self::getCustomerVariables($Customer);
 
         // contact person
-        $contactPerson = $Invoice->getAttribute('contact_person');
+        $contactPerson = trim((string)$Invoice->getAttribute('contact_person'));
 
         if (empty($contactPerson)) {
             // Fetch contact person from live user (if existing)
             $ContactPersonAddress = CustomerUtils::getInstance()->getContactPersonAddress($Customer);
 
             if ($ContactPersonAddress) {
-                $contactPerson = $ContactPersonAddress->getName();
+                $contactPerson = trim($ContactPersonAddress->getName());
             }
         }
 
         if (empty($contactPerson)) {
-            $contactPerson = $user;
-        }
-
-        $contactPersonOrName = $contactPerson;
-
-        if (empty($contactPersonOrName)) {
-            $contactPersonOrName = $user;
+            $contactPerson = $customerVariables['name'];
         }
 
         return array_merge([
@@ -426,9 +409,9 @@ class OutputProviderInvoice implements OutputProviderInterface
             'systemCompany' => self::getCompanyName(),
 
             'contactPerson' => $contactPerson,
-            'contactPersonOrName' => $contactPersonOrName,
+            'contactPersonOrName' => $contactPerson,
             'salutationText' => QUI\ERP\Utils\User::getUserSalutation($Customer)
-        ], self::getCustomerVariables($Customer));
+        ], $customerVariables);
     }
 
     /**
@@ -465,13 +448,7 @@ class OutputProviderInvoice implements OutputProviderInterface
      */
     protected static function getCompanyOrName(QUI\ERP\User $Customer): string
     {
-        $Address = $Customer->getStandardAddress();
-
-        if (!empty($Address->getAttribute('company'))) {
-            return $Address->getAttribute('company');
-        }
-
-        return $Customer->getName();
+        return self::getCustomerVariables($Customer)['companyOrName'];
     }
 
     /**
@@ -483,34 +460,42 @@ class OutputProviderInvoice implements OutputProviderInterface
         $Address = $Customer->getAddress();
 
         // customer name
-        $user = $Address->getAttribute('contactPerson');
+        $user = trim((string)$Address->getAttribute('contactPerson'));
 
         if (empty($user)) {
-            $user = $Customer->getName();
+            $user = trim($Customer->getName());
         }
 
         if (empty($user)) {
-            $user = $Address->getName();
+            $user = trim($Address->getName());
         }
-
-        $user = trim($user);
 
         // email
-        $email = $Customer->getAttribute('email');
+        $email = trim((string)$Customer->getAttribute('email'));
 
         if (empty($email)) {
             $mailList = $Address->getMailList();
 
             if (isset($mailList[0])) {
-                $email = $mailList[0];
+                $email = trim($mailList[0]);
             }
         }
+
+        if ($email === '') {
+            $email = trim((string)$Customer->getAttribute('contactEmail'));
+        }
+
+        if ($user === '') {
+            $user = $email;
+        }
+
+        $company = trim((string)$Customer->getStandardAddress()->getAttribute('company'));
 
         return [
             'user' => $user,
             'name' => $user,
             'company' => $Customer->getStandardAddress()->getAttribute('company'),
-            'companyOrName' => self::getCompanyOrName($Customer),
+            'companyOrName' => $company !== '' ? $company : $user,
             'address' => $Address->render(),
             'email' => $email,
             'salutation' => $Address->getAttribute('salutation'),

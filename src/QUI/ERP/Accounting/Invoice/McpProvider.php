@@ -6,12 +6,16 @@
 
 namespace QUI\ERP\Accounting\Invoice;
 
+use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
+use horstoeko\zugferd\ZugferdProfiles;
 use Mcp;
 use Mcp\Server\Builder;
 use QUI;
 use QUI\AI\MCP\ProviderInterface;
 use QUI\AI\MCP\Server;
 use QUI\AI\MCP\ToolHelper;
+use QUI\Cache\Manager as Cache;
+use QUI\ERP\Accounting\Invoice\Output\OutputProviderInvoice;
 use QUI\ERP\Accounting\Invoice\Search\InvoiceSearch;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\Permissions\Permission;
@@ -29,11 +33,13 @@ use function min;
 use function strtotime;
 
 /**
- * MCP provider for invoice read access.
+ * MCP provider for invoice access and draft management.
  */
 class McpProvider implements ProviderInterface
 {
     private const PERMISSION = 'quiqqer.invoice.mcp';
+    private const MAX_DOWNLOAD_BYTES = 5_242_880;
+    private const DOWNLOAD_SNAPSHOT_TTL = 900;
 
     public function register(Builder $serverBuilder): void
     {
@@ -269,6 +275,244 @@ class McpProvider implements ProviderInterface
                 ]
             ]
         );
+
+        $this->registerDownload($serverBuilder);
+    }
+
+    private function registerDownload(Builder $serverBuilder): void
+    {
+        $serverBuilder->addTool(
+            function (
+                string $invoiceId,
+                bool $draft = false,
+                int $offset = 0,
+                int $maxBytes = self::MAX_DOWNLOAD_BYTES,
+                ?string $downloadId = null,
+                ?string $format = null
+            ): array | Mcp\Schema\Result\CallToolResult {
+                try {
+                    $this->checkPermission();
+
+                    $format ??= $this->getDefaultDownloadFormat();
+
+                    if (!in_array($format, ['pdf', 'xrechnung', 'zugferd'], true)) {
+                        throw new QUI\Exception('Unsupported invoice format. Use pdf, xrechnung or zugferd.');
+                    }
+
+                    $Invoice = $draft
+                        ? $this->getTemporaryInvoice($invoiceId)
+                        : Handler::getInstance()->getInvoice($invoiceId);
+
+                    return $this->downloadInvoiceFile($Invoice, $draft, $offset, $maxBytes, $downloadId, $format);
+                } catch (\Throwable $Exception) {
+                    return ToolHelper::parseExceptionToResult($Exception);
+                }
+            },
+            name: 'invoice_download',
+            description: 'Downloads an invoice as PDF, XRechnung 3.0 XML or ZUGFeRD PDF. '
+                . 'The default follows invoice.zugferdInvoiceAttachment (ZUGFeRD when enabled or unset, PDF otherwise). '
+                . 'Set draft=true for a temporary invoice. Returns Base64 chunks of up to 5 MiB. '
+                . 'For subsequent chunks pass downloadId and download.nextOffset with the same invoice, draft flag and format. '
+                . 'Downloads expire after 15 minutes; restart without downloadId.',
+            inputSchema: [
+                'type' => 'object',
+                'additionalProperties' => false,
+                'required' => ['invoiceId'],
+                'properties' => [
+                    'invoiceId' => [
+                        'type' => 'string',
+                        'description' => 'Numeric id, prefixed invoice number, or UUID/hash.'
+                    ],
+                    'draft' => [
+                        'type' => 'boolean',
+                        'default' => false,
+                        'description' => 'Download a temporary invoice draft instead of a posted invoice.'
+                    ],
+                    'format' => [
+                        'type' => 'string',
+                        'enum' => ['pdf', 'xrechnung', 'zugferd'],
+                        'default' => $this->getDefaultDownloadFormat(),
+                        'description' => 'pdf: standard PDF without embedded invoice XML, using the configured ERP template; '
+                            . 'xrechnung: standalone XRechnung 3.0 XML (CII); '
+                            . 'zugferd: PDF with embedded invoice XML using invoice.zugferdInvoiceAttachmentType '
+                            . '(EN16931 when unset). Omit format to follow invoice.zugferdInvoiceAttachment; '
+                            . 'if that setting is missing, ZUGFeRD is used. An explicit format overrides the setting. '
+                            . 'Electronic formats require complete invoice and customer data.'
+                    ],
+                    'offset' => ['type' => 'integer', 'minimum' => 0, 'default' => 0],
+                    'maxBytes' => [
+                        'type' => 'integer',
+                        'minimum' => 1,
+                        'maximum' => self::MAX_DOWNLOAD_BYTES,
+                        'default' => self::MAX_DOWNLOAD_BYTES
+                    ],
+                    'downloadId' => [
+                        'type' => 'string',
+                        'pattern' => '^[a-f0-9]{64}$',
+                        'description' => 'ID returned by the first chunk. Required when offset is greater than zero.'
+                    ]
+                ]
+            ]
+        );
+    }
+
+    private function getDefaultDownloadFormat(): string
+    {
+        $settings = Settings::getConfig()->toArray();
+
+        return ($settings['invoice']['zugferdInvoiceAttachment'] ?? true) ? 'zugferd' : 'pdf';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function downloadInvoiceFile(
+        Invoice | InvoiceTemporary $Invoice,
+        bool $draft,
+        int $offset,
+        int $maxBytes,
+        ?string $downloadId,
+        string $format
+    ): array {
+        $offset = max(0, $offset);
+        $maxBytes = min(self::MAX_DOWNLOAD_BYTES, max(1, $maxBytes));
+        $cachePrefix = 'quiqqer/invoice/mcp/download/' . hash('sha256', json_encode([
+            Server::getRequestUser()->getUUID(),
+            $Invoice->getUUID(),
+            $draft,
+            $format
+        ], JSON_THROW_ON_ERROR)) . '/';
+
+        if ($downloadId !== null) {
+            if (!preg_match('/\A[a-f0-9]{64}\z/', $downloadId)) {
+                throw new QUI\Exception('Invalid invoice download ID.');
+            }
+
+            $Snapshot = Cache::getStash($cachePrefix . $downloadId);
+            $file = $Snapshot->get();
+
+            if ($Snapshot->isMiss()) {
+                throw new QUI\Exception('Invoice download expired or unavailable. Restart without downloadId.', 404);
+            }
+
+            if (
+                !is_array($file)
+                || !isset($file['content'], $file['filename'])
+                || !is_string($file['content'])
+                || !is_string($file['filename'])
+            ) {
+                throw new QUI\Exception('Invalid invoice download snapshot. Restart without downloadId.');
+            }
+        } else {
+            if ($offset !== 0) {
+                throw new QUI\Exception('Continuing an invoice download requires downloadId.');
+            }
+
+            $file = $this->createInvoiceFile($Invoice, $format);
+            $downloadId = bin2hex(random_bytes(32));
+
+            // Preserve the exact bytes across chunks, even if the draft changes after rendering.
+            if (strlen($file['content']) > $maxBytes) {
+                // Stash also retains download state when the general content cache is disabled.
+                $Snapshot = Cache::getStash($cachePrefix . $downloadId);
+                $Snapshot->set($file);
+                $Snapshot->expiresAfter(self::DOWNLOAD_SNAPSHOT_TTL);
+
+                if (!$Snapshot->save()) {
+                    throw new QUI\Exception('Could not store invoice download for subsequent chunks.');
+                }
+            }
+        }
+
+        $size = strlen($file['content']);
+
+        if ($offset > $size) {
+            throw new QUI\Exception('Download offset exceeds the file size.');
+        }
+
+        $content = substr($file['content'], $offset, $maxBytes);
+        $chunkSize = strlen($content);
+        $nextOffset = $offset + $chunkSize;
+        $complete = $nextOffset >= $size;
+
+        return [
+            'invoiceId' => $Invoice->getId(),
+            'invoiceHash' => $Invoice->getUUID(),
+            'prefixedNumber' => $Invoice->getPrefixedNumber(),
+            'draft' => $draft,
+            'format' => $format,
+            'downloadId' => $downloadId,
+            'download' => [
+                'filename' => $file['filename'],
+                'mimeType' => $format === 'xrechnung' ? 'application/xml' : 'application/pdf',
+                'size' => $size,
+                'encoding' => 'base64',
+                'offset' => $offset,
+                'chunkSize' => $chunkSize,
+                'nextOffset' => $complete ? null : $nextOffset,
+                'complete' => $complete,
+                'contentBase64' => base64_encode($content)
+            ]
+        ];
+    }
+
+    /**
+     * @return array{content: string, filename: string}
+     */
+    private function createInvoiceFile(Invoice | InvoiceTemporary $Invoice, string $format): array
+    {
+        if ($format === 'xrechnung') {
+            return [
+                'content' => InvoiceUtils::getElectronicInvoice($Invoice, ZugferdProfiles::PROFILE_XRECHNUNG_3)
+                    ->getContent(),
+                'filename' => InvoiceUtils::getInvoiceFilename($Invoice) . '.xml'
+            ];
+        }
+
+        $pdf = $this->createInvoicePdf($Invoice);
+
+        if ($format === 'zugferd') {
+            $settings = Settings::getConfig()->toArray();
+            $profile = (int)($settings['invoice']['zugferdInvoiceAttachmentType'] ?? ZugferdProfiles::PROFILE_EN16931);
+            $ElectronicInvoice = InvoiceUtils::getElectronicInvoice($Invoice, $profile);
+            $PdfBuilder = new ZugferdDocumentPdfBuilder($ElectronicInvoice, $pdf['content']);
+            $pdf['content'] = $PdfBuilder->generateDocument()->downloadString();
+        }
+
+        return $pdf;
+    }
+
+    /**
+     * @return array{content: string, filename: string}
+     */
+    protected function createInvoicePdf(Invoice | InvoiceTemporary $Invoice): array
+    {
+        $Document = $Invoice->getView()->toPDF();
+        // The selected download format controls embedding, independently of the mail/PDF defaults.
+        $Document->setAttribute(EventHandler::PDF_SKIP_ELECTRONIC_INVOICE, true);
+        $PdfHandler = new QUI\HtmlToPdf\Handler();
+
+        // Older HTML-to-PDF 4.x versions expose rendering through the document itself.
+        if (in_array('getPdfCreator', get_class_methods($PdfHandler), true)) {
+            $path = $PdfHandler->getPdfCreator()->createPdf($Document);
+        } else {
+            $path = $Document->createPDF();
+        }
+
+        try {
+            $content = file_get_contents($path);
+
+            if ($content === false) {
+                throw new QUI\Exception('Could not read generated invoice PDF.');
+            }
+
+            return [
+                'content' => $content,
+                'filename' => OutputProviderInvoice::getDownloadFileName($Invoice->getUUID()) . '.pdf'
+            ];
+        } finally {
+            QUI\Utils\System\File::unlink($path);
+        }
     }
 
     /**

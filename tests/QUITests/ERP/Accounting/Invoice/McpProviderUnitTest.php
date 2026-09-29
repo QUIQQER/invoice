@@ -32,7 +32,8 @@ class McpProviderUnitTest extends TestCase
             'invoice_search',
             'invoice_temporary_create',
             'invoice_temporary_update',
-            'invoice_temporary_post'
+            'invoice_temporary_post',
+            'invoice_download'
         ], array_keys($tools));
 
         foreach ($tools as $tool) {

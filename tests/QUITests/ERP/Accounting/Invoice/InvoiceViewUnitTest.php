@@ -2,15 +2,42 @@
 
 namespace QUITests\ERP\Accounting\Invoice;
 
+require_once __DIR__ . '/MailOutputFake.php';
+
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use QUI;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Accounting\Invoice\Invoice;
+use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Invoice\InvoiceView;
 use QUI\ERP\Accounting\Invoice\Payment;
 
 class InvoiceViewUnitTest extends TestCase
 {
+    #[PreserveGlobalState(false)]
+    #[RunInSeparateProcess]
+    public function testPdfUsesDistinctUuidsForInvoiceAndDraftWithTheSameNumericId(): void
+    {
+        self::assertFalse(class_exists(QUI\ERP\Output\Output::class, false));
+        class_alias(MailOutputFake::class, QUI\ERP\Output\Output::class);
+
+        foreach ([Invoice::class, InvoiceTemporary::class] as $class) {
+            $Invoice = $this->createMock($class);
+            $Invoice->method('getCleanId')->willReturn(42);
+            $Invoice->method('getUUID')->willReturn('uuid-' . $class);
+            $Invoice->method('getInvoiceType')->willReturn(QUI\ERP\Constants::TYPE_INVOICE);
+
+            self::assertInstanceOf(QUI\HtmlToPdf\Document::class, (new InvoiceView($Invoice))->toPDF());
+        }
+
+        self::assertSame([
+            ['uuid-' . Invoice::class, 'Invoice'],
+            ['uuid-' . InvoiceTemporary::class, 'Invoice']
+        ], MailOutputFake::$calls);
+    }
+
     public function testViewDelegatesInvoiceData(): void
     {
         $Articles = new ArticleListUnique([
