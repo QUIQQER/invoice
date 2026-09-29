@@ -11,6 +11,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     'qui/controls/buttons/Button',
     'qui/controls/windows/Confirm',
     'package/quiqqer/invoice/bin/Invoices',
+    'package/quiqqer/payments/bin/backend/Payments',
     'package/quiqqer/erp/bin/backend/controls/Comments',
     'package/quiqqer/customer/bin/backend/controls/customer/userFiles/Select',
     'qui/controls/elements/Sandbox',
@@ -19,11 +20,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
     'Ajax',
     'Mustache',
     'Users',
+    'Permissions',
 
     'css!package/quiqqer/invoice/bin/backend/controls/panels/Invoice.css'
 
-], function (QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Comments,
-             CustomerFileSelect, Sandbox, Locker, QUILocale, QUIAjax, Mustache, Users
+], function (QUI, QUIPanel, QUIButton, QUIConfirm, Invoices, Payments, Comments,
+             CustomerFileSelect, Sandbox, Locker, QUILocale, QUIAjax, Mustache, Users, Permissions
 ) {
     'use strict';
 
@@ -686,6 +688,129 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Invoice', [
                                 Form.elements.payment_method.value = paymentData.paymentType.title;
                             }
                         } catch (e) {
+                        }
+
+                        if (
+                            Number(data.type) === 1
+                            && Number(data.paid_status) !== 5
+                        ) {
+                            Permissions.hasPermission('quiqqer.invoice.changePaymentMethod').then(function (hasPermission) {
+                                if (!hasPermission) {
+                                    return;
+                                }
+
+                                const button = new QUIButton({
+                                    'class': 'invoice-payment-method-save',
+                                    text: QUILocale.get(lg, 'invoice.paymentMethod.change.button')
+                                }).inject(Form.elements.payment_method, 'after');
+
+                                button.addEvent('onClick', function () {
+                                    new QUIConfirm({
+                                        title: QUILocale.get(lg, 'invoice.paymentMethod.change.confirm.title'),
+                                        icon: 'fa fa-warning',
+                                        texticon: 'fa fa-warning',
+                                        text: QUILocale.get(lg, 'invoice.paymentMethod.change.confirm.text'),
+                                        information: QUILocale.get(lg, 'invoice.paymentMethod.change.confirm.information'),
+                                        autoclose: false,
+                                        maxHeight: 520,
+                                        maxWidth: 600,
+                                        ok_button: {
+                                            icon: 'fa fa-check',
+                                            text: QUILocale.get(lg, 'invoice.paymentMethod.change.confirm.button')
+                                        },
+                                        events: {
+                                            onOpen: async function (Win) {
+                                                Win.Loader.show();
+
+                                                try {
+                                                    const payments = await Payments.getPayments();
+                                                    const select = new Element('select', {
+                                                        'class': 'invoice-payment-method-select'
+                                                    }).inject(Win.getContent().getElement('.textbody'));
+                                                    const currentLanguage = QUILocale.getCurrent();
+
+                                                    new Element('option', {
+                                                        value: '',
+                                                        text: QUILocale.get(lg, 'invoice.paymentMethod.change.placeholder')
+                                                    }).inject(select);
+
+                                                    payments.forEach(function (payment) {
+                                                        new Element('option', {
+                                                            value: payment.id,
+                                                            disabled: String(payment.id) === String(data.payment_method),
+                                                            text: payment.title[currentLanguage] ||
+                                                            payment.title[Object.keys(payment.title)[0]] || ''
+                                                        }).inject(select);
+                                                    });
+
+                                                    const reasonLabel = new Element('label', {
+                                                        'class': 'invoice-payment-method-reason-label',
+                                                        text: QUILocale.get(lg, 'invoice.paymentMethod.change.reason.label')
+                                                    }).inject(Win.getContent().getElement('.textbody'));
+
+                                                    new Element('textarea', {
+                                                        'class': 'invoice-payment-method-reason',
+                                                        required: true
+                                                    }).inject(reasonLabel);
+
+                                                    select.focus();
+                                                } catch (error) {
+                                                    Win.close();
+                                                    const messageHandler = await QUI.getMessageHandler();
+                                                    messageHandler.addError(error.getMessage ? error.getMessage() : String(error));
+                                                } finally {
+                                                    Win.Loader.hide();
+                                                }
+                                            },
+                                            onSubmit: async function (Win) {
+                                                const select = Win.getContent().getElement('.invoice-payment-method-select');
+                                                const reasonField = Win.getContent().getElement('.invoice-payment-method-reason');
+
+                                                if (!select || !select.value ||
+                                                    String(select.value) === String(data.payment_method)) {
+                                                    const messageHandler = await QUI.getMessageHandler();
+                                                    messageHandler.addError(QUILocale.get(
+                                                        lg,
+                                                        'invoice.paymentMethod.change.selectRequired'
+                                                    ));
+                                                    return;
+                                                }
+
+                                                const reason = reasonField ? reasonField.value.trim() : '';
+
+                                                if (!reason) {
+                                                    const messageHandler = await QUI.getMessageHandler();
+                                                    messageHandler.addError(QUILocale.get(
+                                                        lg,
+                                                        'invoice.paymentMethod.change.reason.required'
+                                                    ));
+                                                    reasonField?.focus();
+                                                    return;
+                                                }
+
+                                                Win.Loader.show();
+
+                                                try {
+                                                    await Invoices.setPaymentMethod(data.hash, select.value, reason);
+                                                    await self.doRefresh();
+                                                    await self.openInfo();
+                                                    Win.close();
+                                                } catch (error) {
+                                                    Win.Loader.hide();
+                                                    const messageHandler = await QUI.getMessageHandler();
+                                                    const errorMessage = error.getMessage ? error.getMessage() : String(error);
+
+                                                    messageHandler.addError(
+                                                        errorMessage || QUILocale.get(lg, 'invoice.paymentMethod.change.error')
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }).open();
+                                });
+                            }).catch(function (error) {
+                                console.error(error);
+                            });
                         }
 
                         if (data.delivery_address !== '') {

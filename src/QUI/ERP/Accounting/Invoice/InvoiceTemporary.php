@@ -813,6 +813,8 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             [$this]
         );
 
+        $this->setDefaultContactPerson();
+
         // attributes
         $projectName = '';
         $customerReference = '';
@@ -2739,10 +2741,30 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
 
 
         $this->setAttribute('customer_id', $customerId);
+        $this->setDefaultContactPerson();
         QUI::getEvents()->fireEvent('onQuiqqerInvoiceCustomerSet', [$this]);
 
         if ($customerId !== $oldCustomerId) {
             QUI::getEvents()->fireEvent('onQuiqqerInvoiceCustomerChange', [$this]);
+        }
+    }
+
+    private function setDefaultContactPerson(): void
+    {
+        if (trim((string)$this->getAttribute('contact_person')) !== '') {
+            return;
+        }
+
+        $Customer = $this->getCustomer();
+
+        if ($Customer === null) {
+            return;
+        }
+
+        $Address = QUI\ERP\Customer\Utils::getInstance()->getContactPersonAddress($Customer);
+
+        if ($Address) {
+            $this->setAttribute('contact_person', trim($Address->getName()));
         }
     }
 }

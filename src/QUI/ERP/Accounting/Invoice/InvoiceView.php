@@ -243,7 +243,7 @@ class InvoiceView extends QUI\QDOM
      */
     public function toPDF(): QUI\HtmlToPdf\Document
     {
-        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getCleanId(), $this->getOutputType());
+        return QUI\ERP\Output\Output::getDocumentPdf($this->Invoice->getUUID(), $this->getOutputType());
     }
 
     /**

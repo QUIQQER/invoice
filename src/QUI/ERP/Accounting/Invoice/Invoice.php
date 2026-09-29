@@ -546,6 +546,90 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
     }
 
     /**
+     * Change the payment method without changing existing payment transactions.
+     *
+     * @param string $reason Reason recorded in the invoice history.
+     * @param bool $changeInvoiceText Recalculate the payment-specific invoice text.
+     * @throws QUI\Exception
+     */
+    public function changePaymentMethod(
+        int | string $paymentMethodId,
+        string $reason,
+        bool $changeInvoiceText = false
+    ): void {
+        $reason = trim($reason);
+
+        if ($reason === '') {
+            throw new QUI\Exception(
+                QUI::getLocale()->get('quiqqer/invoice', 'exception.invoice.changePaymentMethod.missingReason')
+            );
+        }
+
+        if (
+            $this->getInvoiceType() !== QUI\ERP\Constants::TYPE_INVOICE
+            || (int)$this->getAttribute('paid_status') === QUI\ERP\Constants::PAYMENT_STATUS_CANCELED
+        ) {
+            throw new QUI\Exception(
+                QUI::getLocale()->get('quiqqer/invoice', 'exception.invoice.changePaymentMethod.invalidStatus')
+            );
+        }
+
+        $paymentMethod = QUI\ERP\Accounting\Payments\Payments::getInstance()->getPayment($paymentMethodId);
+
+        if ((string)$paymentMethod->getId() === (string)$this->getAttribute('payment_method')) {
+            return;
+        }
+
+        $paymentMethodData = $paymentMethod->toArray();
+        $locale = new QUI\Locale();
+        $paymentMethodData['title'] = [];
+        $paymentMethodData['workingTitle'] = [];
+        $paymentMethodData['description'] = [];
+
+        foreach (QUI::availableLanguages() as $language) {
+            $locale->setCurrent($language);
+            $paymentMethodData['title'][$language] = $paymentMethod->getTitle($locale);
+            $paymentMethodData['workingTitle'][$language] = $paymentMethod->getWorkingTitle($locale);
+            $paymentMethodData['description'][$language] = $paymentMethod->getDescription($locale);
+        }
+
+        $updatedData = [
+            'payment_method' => $paymentMethod->getId(),
+            'payment_method_data' => json_encode($paymentMethodData)
+        ];
+
+        if ($changeInvoiceText) {
+            $customData = $this->customData;
+            $customData['InvoiceInformationText'] = $paymentMethod->getPaymentType()->getInvoiceInformationText($this);
+            $updatedData['custom_data'] = json_encode($customData);
+        }
+
+        QUI::getDataBaseConnection()->update(
+            Handler::getInstance()->invoiceTable(),
+            $updatedData,
+            ['id' => $this->getId()]
+        );
+
+        $oldPaymentMethod = $this->getPayment()->getTitle();
+        $this->setAttribute('payment_method', $paymentMethod->getId());
+        $this->setAttribute('payment_method_data', json_encode($paymentMethodData));
+
+        if ($changeInvoiceText) {
+            $this->customData = $customData;
+            $this->setAttribute('custom_data', json_encode($customData));
+        }
+
+        $historyMessage = QUI::getLocale()->get('quiqqer/invoice', 'history.message.changePaymentMethod', [
+            'username' => QUI::getUserBySession()->getName(),
+            'oldPaymentMethod' => $oldPaymentMethod,
+            'newPaymentMethod' => $paymentMethod->getTitle()
+        ]);
+        $this->addHistory(
+            $historyMessage . '<br />' . nl2br(htmlspecialchars($reason, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'))
+        );
+    }
+
+    /**
      * Return the Shipping, if a shipping is set
      *
      * @return int|QUI\ERP\Shipping\Types\ShippingUnique|null

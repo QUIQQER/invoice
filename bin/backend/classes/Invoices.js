@@ -497,6 +497,27 @@ define('package/quiqqer/invoice/bin/backend/classes/Invoices', [
         },
 
         /**
+         * Change the payment method of a posted invoice.
+         *
+         * @param {String} invoiceId
+         * @param {String|Number} paymentMethod
+         * @param {String} reason
+         * @return {Promise}
+         */
+        setPaymentMethod: function(invoiceId, paymentMethod, reason) {
+            return new Promise(function(resolve, reject) {
+                QUIAjax.post('package_quiqqer_invoice_ajax_invoices_setPaymentMethod', resolve, {
+                    'package': 'quiqqer/invoice',
+                    invoiceId: invoiceId,
+                    paymentMethod: paymentMethod,
+                    reason: reason,
+                    onError: reject,
+                    showError: false
+                });
+            });
+        },
+
+        /**
          * Link an existing transaction to an invoice.
          *
          * @param {String} invoiceHash
