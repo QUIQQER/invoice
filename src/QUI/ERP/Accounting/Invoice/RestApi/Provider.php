@@ -178,7 +178,7 @@ class Provider implements QUI\REST\ProviderInterface
         if (!empty($invoiceData['customer_no'])) {
             try {
                 $User = QUI\ERP\Customer\Customers::getInstance()->getCustomerByCustomerNo($invoiceData['customer_no']);
-                $InvoiceDraft->setAttribute('customer_id', $User->getUUID());
+                $InvoiceDraft->setCustomer($User);
             } catch (Exception $Exception) {
                 QUI\System\Log::writeException($Exception);
             }

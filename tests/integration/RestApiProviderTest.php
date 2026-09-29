@@ -269,6 +269,40 @@ class RestApiProviderTest extends SqliteIntegrationTestCase
         self::assertSame(QUI\ERP\Constants::PAYMENT_STATUS_PAID, $Invoice->getAttribute('paid_status'));
     }
 
+    public function testDraftsUseDefaultContactAndPreserveExplicitContact(): void
+    {
+        [$User, , $customerNumber] = $this->createCustomer('default-contact');
+        $SystemUser = QUI::getUsers()->getSystemUser();
+        $ContactAddress = $User->addAddress([
+            'firstname' => 'Erika',
+            'lastname' => 'Kontakt',
+            'mail' => 'contact@example.invalid'
+        ], $SystemUser);
+        $User->setAttribute('quiqqer.erp.customer.contact.person', $ContactAddress->getUUID());
+        $User->save($SystemUser);
+
+        $Draft = $this->createDraft(['customer_no' => $customerNumber]);
+        self::assertSame('Erika Kontakt', $Draft->getAttribute('contact_person'));
+
+        $ExplicitDraft = $this->createDraft([
+            'customer_no' => $customerNumber,
+            'contact_person' => 'Manueller Ansprechpartner'
+        ]);
+        self::assertSame('Manueller Ansprechpartner', $ExplicitDraft->getAttribute('contact_person'));
+        $ExplicitDraft->setCustomer($User);
+        self::assertSame('Manueller Ansprechpartner', $ExplicitDraft->getAttribute('contact_person'));
+
+        $ServerDraft = QUI\ERP\Accounting\Invoice\Factory::getInstance()->createInvoice($SystemUser);
+        $this->temporaryInvoiceIds[] = (string)$ServerDraft->getId();
+        $ServerDraft->setCustomer($User);
+        self::assertSame('Erika Kontakt', $ServerDraft->getAttribute('contact_person'));
+
+        $ServerDraft->setAttribute('contact_person', '');
+        $ServerDraft->save($SystemUser);
+        $Reloaded = Handler::getInstance()->getTemporaryInvoice($ServerDraft->getId());
+        self::assertSame('Erika Kontakt', $Reloaded->getAttribute('contact_person'));
+    }
+
     public function testCreateInvoiceUsesCustomerDefaultPaymentBeforeRequestedPayment(): void
     {
         [$User, $Address, $customerNumber] = $this->createCustomer('default-payment');
