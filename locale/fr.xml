@@ -11,6 +11,13 @@
         <locale name="package.description">
 <fr><![CDATA[Le module de facturation QUIQQER intègre une gestion complète des factures dans QUIQQER.]]></fr>
         </locale>
+        <locale name="invoice.paymentMethod.change.confirm.information" html="true">
+<fr><![CDATA[
+<ul>
+<li><b>Les transactions existantes restent associées à la facture</b> et doivent, le cas échéant, être annulées manuellement.</li>
+<li><b>Le texte de la facture change avec le nouveau mode de paiement.</b> Il convient donc de ne modifier le mode de paiement que si la facture n'a pas encore été envoyée. Dans le cas contraire, il est préférable d'annuler la facture et d'en créer une nouvelle.</li>
+</ul>]]></fr>
+        </locale>
 
         <locale name="erp.panel.accounting.text">
 <fr><![CDATA[Comptabilité]]></fr>

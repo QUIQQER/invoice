@@ -99,6 +99,58 @@
         <locale name="permission.quiqqer.invoice.changeDate">
 <de><![CDATA[Darf Rechnungsdatum setzen.]]></de>
         </locale>
+        <locale name="permission.quiqqer.invoice.changePaymentMethod">
+<de><![CDATA[Darf die Zahlungsart gebuchter Rechnungen ändern.]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.button">
+<de><![CDATA[Zahlungsart ändern]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.placeholder">
+<de><![CDATA[Neue Zahlungsart auswählen]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.selectRequired">
+<de><![CDATA[Bitte wählen Sie eine andere Zahlungsart aus.]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.reason.label">
+<de><![CDATA[Begründung für die Änderung]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.reason.required">
+<de><![CDATA[Bitte geben Sie eine Begründung für die Änderung der Zahlungsart an.]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.confirm.title">
+<de><![CDATA[Zahlungsart ändern]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.confirm.text">
+<de><![CDATA[Zahlungsart dieser Rechnung wirklich ändern?]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.confirm.information" html="true">
+<de><![CDATA[
+<ul>
+<li><b>Vorhandene Transaktionen bleiben bestehen</b> und müssen gegebenenfalls händisch rückgängig gemacht werden.</li>
+<li><b>Der Rechnungstext ändert sich durch die neue Zahlungsart.</b> Die Zahlungsart sollte daher nur geändert werden, solange die Rechnung noch nicht rausgeschickt wurde. Andernfalls ist die Stornierung und Neu-Erstellung die bessere Option.</li>
+</ul>]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.confirm.button">
+<de><![CDATA[Änderung bestätigen]]></de>
+        </locale>
+        <locale name="invoice.paymentMethod.change.error">
+<de><![CDATA[Die Zahlungsart konnte nicht geändert werden.]]></de>
+        </locale>
+        <locale name="exception.invoice.changePaymentMethod.invalidStatus">
+<de><![CDATA[Die Zahlungsart kann nur bei nicht stornierten Rechnungen geändert werden.]]></de>
+        </locale>
+        <locale name="exception.invoice.changePaymentMethod.missingReason">
+<de><![CDATA[Für die Änderung der Zahlungsart ist eine Begründung erforderlich.]]></de>
+        </locale>
+        <locale name="exception.invoice.changePaymentMethod.failed">
+<de><![CDATA[Änderung der Zahlungsart fehlgeschlagen: [message]]]></de>
+        </locale>
+        <locale name="exception.invoice.changePaymentMethod.unexpected">
+<de><![CDATA[Die Zahlungsart konnte wegen eines unerwarteten Fehlers nicht geändert werden.]]></de>
+        </locale>
+        <locale name="history.message.changePaymentMethod">
+<de><![CDATA[Zahlungsart von „[oldPaymentMethod]“ auf „[newPaymentMethod]“ durch [username] geändert. Begründung:]]></de>
+        </locale>
         <locale name="permission.quiqqer.invoice.mcp">
 <de><![CDATA[Darf die Rechnungs-MCP-Schnittstelle nutzen.]]></de>
         </locale>

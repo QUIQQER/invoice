@@ -11,6 +11,13 @@
         <locale name="package.description">
 <pt><![CDATA[O módulo de faturação do QUIQQER integra uma gestão completa de faturas no QUIQQER.]]></pt>
         </locale>
+        <locale name="invoice.paymentMethod.change.confirm.information" html="true">
+<pt><![CDATA[
+<ul>
+<li><b>As transações existentes permanecem associadas à fatura</b> e, se necessário, têm de ser revertidas manualmente.</li>
+<li><b>O texto da fatura altera-se com o novo método de pagamento.</b> Por isso, o método de pagamento só deve ser alterado se a fatura ainda não tiver sido enviada. Caso contrário, é preferível anular a fatura e criar uma nova.</li>
+</ul>]]></pt>
+        </locale>
 
         <locale name="erp.panel.accounting.text">
 <pt><![CDATA[Contabilidade]]></pt>

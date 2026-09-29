@@ -99,6 +99,58 @@
         <locale name="permission.quiqqer.invoice.changeDate">
 <en><![CDATA[Is allowed to set invoice date.]]></en>
         </locale>
+        <locale name="permission.quiqqer.invoice.changePaymentMethod">
+<en><![CDATA[May change the payment method of posted invoices.]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.button">
+<en><![CDATA[Change payment method]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.placeholder">
+<en><![CDATA[Select a new payment method]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.selectRequired">
+<en><![CDATA[Please select a different payment method.]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.reason.label">
+<en><![CDATA[Reason for the change]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.reason.required">
+<en><![CDATA[Please enter a reason for changing the payment method.]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.confirm.title">
+<en><![CDATA[Change payment method]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.confirm.text">
+<en><![CDATA[Change the payment method of this invoice?]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.confirm.information" html="true">
+<en><![CDATA[
+<ul>
+<li><b>Existing transactions remain on the invoice</b> and may need to be reversed manually.</li>
+<li><b>The invoice text changes with the new payment method.</b> Therefore, the payment method should only be changed if the invoice has not yet been sent. Otherwise, canceling the invoice and creating a new one is the better option.</li>
+</ul>]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.confirm.button">
+<en><![CDATA[Confirm change]]></en>
+        </locale>
+        <locale name="invoice.paymentMethod.change.error">
+<en><![CDATA[The payment method could not be changed.]]></en>
+        </locale>
+        <locale name="exception.invoice.changePaymentMethod.invalidStatus">
+<en><![CDATA[The payment method can only be changed on invoices that have not been canceled.]]></en>
+        </locale>
+        <locale name="exception.invoice.changePaymentMethod.missingReason">
+<en><![CDATA[A reason is required to change the payment method.]]></en>
+        </locale>
+        <locale name="exception.invoice.changePaymentMethod.failed">
+<en><![CDATA[Changing the payment method failed: [message]]]></en>
+        </locale>
+        <locale name="exception.invoice.changePaymentMethod.unexpected">
+<en><![CDATA[The payment method could not be changed because of an unexpected error.]]></en>
+        </locale>
+        <locale name="history.message.changePaymentMethod">
+<en><![CDATA[Payment method changed from “[oldPaymentMethod]” to “[newPaymentMethod]” by [username]. Reason:]]></en>
+        </locale>
         <locale name="permission.quiqqer.invoice.mcp">
 <en><![CDATA[Is allowed to use the invoice MCP interface.]]></en>
         </locale>
