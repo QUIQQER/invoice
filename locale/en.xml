@@ -547,6 +547,7 @@
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
                 <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[name]:</b> Customer name; if no name is available, [email] is used (same as [user])</li>
                 <li><b>[company]:</b> - Company of the customer</li>
                 <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
                 <li><b>[contactPerson]:</b> - Contact person</li>
@@ -568,6 +569,7 @@
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
                 <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[name]:</b> Customer name; if no name is available, [email] is used (same as [user])</li>
                 <li><b>[company]:</b> - Company of the customer</li>
                 <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
                 <li><b>[contactPerson]:</b> - Contact person</li>
@@ -591,6 +593,7 @@
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
                 <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[name]:</b> Customer name; if no name is available, [email] is used (same as [user])</li>
                 <li><b>[company]:</b> - Company of the customer</li>
                 <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
                 <li><b>[contactPerson]:</b> - Contact person</li>
@@ -613,6 +616,7 @@
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
                 <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[name]:</b> Customer name; if no name is available, [email] is used (same as [user])</li>
                 <li><b>[company]:</b> - Company of the customer</li>
                 <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
                 <li><b>[contactPerson]:</b> - Contact person</li>
@@ -637,6 +641,7 @@
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
                 <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[name]:</b> Customer name; if no name is available, [email] is used (same as [user])</li>
                 <li><b>[company]:</b> - Company of the customer</li>
                 <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
                 <li><b>[contactPerson]:</b> - Contact person</li>
@@ -659,6 +664,7 @@
                 <li><b>[date]:</b> Invoice date</li>
                 <li><b>[systemCompany]:</b> Company of the QUIQQER system</li>
                 <li><b>[user]:</b> - Name of the customer</li>
+                <li><b>[name]:</b> Customer name; if no name is available, [email] is used (same as [user])</li>
                 <li><b>[company]:</b> - Company of the customer</li>
                 <li><b>[companyOrName]:</b> - Company of the customer, if this is empty [name] is used</li>
                 <li><b>[contactPerson]:</b> - Contact person</li>
