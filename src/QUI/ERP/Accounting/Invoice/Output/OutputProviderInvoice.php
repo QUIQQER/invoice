@@ -5,6 +5,7 @@ namespace QUI\ERP\Accounting\Invoice\Output;
 use chillerlan\QRCode\Common\EccLevel;
 use chillerlan\QRCode\Common\Version;
 use chillerlan\QRCode\Output\QRGdImagePNG;
+use chillerlan\QRCode\Output\QRImagick;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use Exception;
@@ -21,11 +22,13 @@ use QUI\ERP\Customer\Utils as CustomerUtils;
 use QUI\ERP\Output\OutputProviderInterface;
 use QUI\Interfaces\Users\User;
 use QUI\Locale;
+use Throwable;
 
 use function array_flip;
 use function array_intersect_key;
 use function array_merge;
 use function class_exists;
+use function extension_loaded;
 use function get_class;
 use function implode;
 use function in_array;
@@ -250,7 +253,14 @@ class OutputProviderInvoice implements OutputProviderInterface
         $epcQrCodeImageSrc = false;
 
         if (Settings::getInstance()->isIncludeQrCode()) {
-            $epcQrCodeImageSrc = self::getEpcQrCodeImageImgSrc($Invoice);
+            try {
+                $epcQrCodeImageSrc = self::getEpcQrCodeImageImgSrc($Invoice);
+            } catch (Throwable $Exception) {
+                QUI\System\Log::addError('Could not generate EPC QR code: ' . $Exception->getMessage(), [
+                    'invoiceId' => $Invoice->getUUID(),
+                    'exception' => $Exception
+                ]);
+            }
         }
 
         $servicePeriodDisplay = InvoiceUtils::getServicePeriodDisplayText($Invoice, $Customer->getLocale());
@@ -631,7 +641,7 @@ class OutputProviderInvoice implements OutputProviderInterface
 
         $QrOptions = new QROptions([
             'version' => Version::AUTO,
-            'outputInterface' => QRGdImagePNG::class,
+            'outputInterface' => extension_loaded('gd') ? QRGdImagePNG::class : QRImagick::class,
             'eccLevel' => EccLevel::M,
             'quality' => -1
         ]);

@@ -108,6 +108,13 @@ foreach (['quiqqer/invoice', 'quiqqer/erp', 'quiqqer/tax'] as $packageName) {
 
 require_once __DIR__ . '/QUITests/ERP/Accounting/Invoice/SqliteIntegrationTestCase.php';
 
+require_once __DIR__ . '/stubs/QUI/ERP/Order/OrderInterface.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Order/AbstractOrder.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Order/Order.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Order/OrderInProcess.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Order/Handler.php';
+require_once __DIR__ . '/stubs/QUI/ERP/Order/EventHandling.php';
+
 require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/CreatedDemoData.php';
 require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/CreatedDemoDataCollection.php';
 require_once __DIR__ . '/stubs/QUI/ERP/DemoData/DTO/DemoDataReference.php';
