@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace QUITests\ERP\Accounting\Invoice\Integration;
 
+use Monolog\Handler\TestHandler;
 use QUI;
 use QUI\ERP\Accounting\Article;
 use QUI\ERP\Accounting\Invoice\Factory;
@@ -165,7 +166,7 @@ class InvoiceOutputTemplateTest extends SqliteIntegrationTestCase
         self::assertSame('Hamburg', $differentTemplateData['DeliveryAddress']->getAttribute('city'));
     }
 
-    public function testTemplateDataContainsSuccessfulEpcQrCode(): void
+    public function testTemplateDataHandlesEpcQrCodeRendering(): void
     {
         $Users = QUI::getUsers();
         $SystemUser = $Users->getSystemUser();
@@ -231,9 +232,29 @@ class InvoiceOutputTemplateTest extends SqliteIntegrationTestCase
                 ]
             ], JSON_THROW_ON_ERROR));
 
-            $templateData = OutputProviderInvoice::getTemplateData($Invoice->getUUID());
+            $LogHandler = new TestHandler(bubble: false);
+            $Logger = QUI\Log\Logger::getLogger();
+            $Logger->pushHandler($LogHandler);
+
+            try {
+                $templateData = OutputProviderInvoice::getTemplateData($Invoice->getUUID());
+            } finally {
+                $Logger->popHandler();
+            }
+
+            self::assertSame($Invoice->getUUID(), $templateData['this']->getInvoice()->getUUID());
             $imageSource = $templateData['epcQrCodeImageSrc'];
 
+            if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+                self::assertFalse($imageSource);
+                self::assertTrue($LogHandler->hasErrorThatContains('Could not generate EPC QR code:'));
+                self::assertTrue($LogHandler->hasErrorThatContains('ext-imagick not loaded'));
+                $records = $LogHandler->getRecords();
+                self::assertSame($Invoice->getUUID(), $records[0]['context']['invoiceId']);
+                return;
+            }
+
+            self::assertFalse($LogHandler->hasErrorRecords());
             self::assertIsString($imageSource);
             self::assertStringStartsWith('data:image/png;base64,', $imageSource);
             $imageData = base64_decode(substr($imageSource, strlen('data:image/png;base64,')), true);

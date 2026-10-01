@@ -5,12 +5,58 @@ namespace QUITests\ERP\Accounting\Invoice;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use QUI;
+use QUI\ERP\Accounting\Invoice\EventHandler;
+use QUI\ERP\Accounting\Invoice\Handler;
 use QUI\ERP\Accounting\Invoice\Invoice;
 use QUI\ERP\Accounting\Invoice\InvoiceTemporary;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
+use QUI\Utils\Singleton;
+use ReflectionProperty;
 
 class InvoiceTransactionUnitTest extends TestCase
 {
+    public function testStatusChangeUpdatesEachLinkedInvoiceOnceAndSkipsUnknownHashes(): void
+    {
+        $Invoice = $this->createMock(Invoice::class);
+        $Invoice->expects(self::once())->method('calculatePayments');
+        $Draft = $this->createMock(InvoiceTemporary::class);
+        $Draft->expects(self::once())->method('calculatePayments');
+
+        $Transaction = $this->createMock(Transaction::class);
+        $Transaction->method('getHash')->willReturn('invoice');
+        $Transaction->method('getLinkedHashes')->willReturn([
+            'invoice',
+            '',
+            'missing-entity',
+            'draft',
+            'draft'
+        ]);
+
+        $Handler = $this->createMock(Handler::class);
+        $Handler->expects(self::exactly(3))->method('getInvoiceByHash')->willReturnCallback(
+            static function (string $hash) use ($Invoice, $Draft): Invoice | InvoiceTemporary {
+                return match ($hash) {
+                    'invoice' => $Invoice,
+                    'draft' => $Draft,
+                    'missing-entity' => throw new QUI\Exception('Entity is not an invoice'),
+                    default => throw new \LogicException('Unexpected invoice lookup: ' . $hash)
+                };
+            }
+        );
+
+        $Instances = new ReflectionProperty(Singleton::class, 'instances');
+        $originalInstances = $Instances->getValue();
+        $instances = $originalInstances;
+        $instances[Handler::class] = $Handler;
+        $Instances->setValue(null, $instances);
+
+        try {
+            EventHandler::onTransactionStatusChange($Transaction);
+        } finally {
+            $Instances->setValue(null, $originalInstances);
+        }
+    }
+
     public static function guardedInvoiceTypeProvider(): array
     {
         return [
