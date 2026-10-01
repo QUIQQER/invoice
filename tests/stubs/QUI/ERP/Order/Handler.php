@@ -56,7 +56,7 @@ if (!class_exists(Handler::class)) {
                 $Table->setPrimaryKey(['id']);
 
                 foreach (['hash', 'id_str', 'global_process_id', 'customerId', 'c_date', 'c_user', 'invoice_id'] as $column) {
-                    $Table->addColumn($column, 'string', ['notnull' => false]);
+                    $Table->addColumn($column, 'string', ['length' => 255, 'notnull' => false]);
                 }
 
                 foreach (['customer', 'addressInvoice', 'addressDelivery', 'articles', 'currency_data'] as $column) {
