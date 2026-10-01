@@ -22,6 +22,7 @@ use QUI\Package\Package;
 use QUI\Smarty\Collector;
 use QUI\Utils\Doctrine;
 
+use function array_unique;
 use function dirname;
 use function file_exists;
 use function file_get_contents;
@@ -172,17 +173,26 @@ class EventHandler
      */
     public static function onTransactionStatusChange(Transaction $Transaction): void
     {
-        $hash = $Transaction->getHash();
+        $hashes = array_unique([
+            $Transaction->getHash(),
+            ...$Transaction->getLinkedHashes()
+        ]);
 
-        try {
-            $Invoice = Handler::getInstance()->getInvoiceByHash($hash);
-        } catch (QUI\Exception $Exception) {
-            QUI\System\Log::writeDebugException($Exception);
+        foreach ($hashes as $hash) {
+            if ($hash === '') {
+                continue;
+            }
 
-            return;
+            try {
+                $Invoice = Handler::getInstance()->getInvoiceByHash($hash);
+            } catch (QUI\Exception $Exception) {
+                QUI\System\Log::writeDebugException($Exception);
+
+                continue;
+            }
+
+            $Invoice->calculatePayments();
         }
-
-        $Invoice->calculatePayments();
     }
 
     /**
