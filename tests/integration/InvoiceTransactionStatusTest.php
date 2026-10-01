@@ -53,7 +53,7 @@ class InvoiceTransactionStatusTest extends SqliteIntegrationTestCase
             );
         }
 
-        if ($this->orderHash !== null && class_exists(OrderHandler::class)) {
+        if ($this->orderHash !== null) {
             $Connection->delete(OrderHandler::getInstance()->table(), ['hash' => $this->orderHash]);
         }
 
@@ -130,36 +130,31 @@ class InvoiceTransactionStatusTest extends SqliteIntegrationTestCase
         self::assertFalse($Invoice->isPaid());
         $this->orderHash = QUI\Utils\Uuid::get();
         $Connection = QUI::getDataBaseConnection();
-        $withOrder = class_exists(OrderHandler::class);
-
-        if ($withOrder) {
-            $Connection->insert(OrderHandler::getInstance()->table(), [
-                'hash' => $this->orderHash,
-                'global_process_id' => $this->globalProcessId,
-                'customerId' => $User->getUUID(),
-                'customer' => json_encode($User->getAttributes()),
-                'addressInvoice' => $Address->toJSON(),
-                'addressDelivery' => $Address->toJSON(),
-                'articles' => json_encode($Draft->getArticles()->toArray()),
-                'currency_data' => json_encode($Draft->getCurrency()->toArray()),
-                'status' => 1,
-                'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
-                'successful' => 1,
-                'c_date' => '2026-10-01 10:00:00',
-                'c_user' => $SystemUser->getUUID(),
-                'payment_id' => $this->paymentId,
-                'invoice_id' => $Invoice->getUUID()
-            ]);
-            $Connection->update(
-                Handler::getInstance()->invoiceTable(),
-                ['order_id' => $this->orderHash],
-                ['hash' => $Invoice->getUUID()]
-            );
-            $Order = OrderHandler::getInstance()->getOrderByHash($this->orderHash);
-            self::assertFalse($Order->isPaid());
-            self::assertSame($Invoice->getUUID(), $Order->getInvoice()->getUUID());
-        }
-
+        $Connection->insert(OrderHandler::getInstance()->table(), [
+            'hash' => $this->orderHash,
+            'global_process_id' => $this->globalProcessId,
+            'customerId' => $User->getUUID(),
+            'customer' => json_encode($User->getAttributes()),
+            'addressInvoice' => $Address->toJSON(),
+            'addressDelivery' => $Address->toJSON(),
+            'articles' => json_encode($Draft->getArticles()->toArray()),
+            'currency_data' => json_encode($Draft->getCurrency()->toArray()),
+            'status' => 1,
+            'paid_status' => QUI\ERP\Constants::PAYMENT_STATUS_OPEN,
+            'successful' => 1,
+            'c_date' => '2026-10-01 10:00:00',
+            'c_user' => $SystemUser->getUUID(),
+            'payment_id' => $this->paymentId,
+            'invoice_id' => $Invoice->getUUID()
+        ]);
+        $Connection->update(
+            Handler::getInstance()->invoiceTable(),
+            ['order_id' => $this->orderHash],
+            ['hash' => $Invoice->getUUID()]
+        );
+        $Order = OrderHandler::getInstance()->getOrderByHash($this->orderHash);
+        self::assertFalse($Order->isPaid());
+        self::assertSame($Invoice->getUUID(), $Order->getInvoice()->getUUID());
         $originalTexts = $Connection->fetchAssociative(
             'SELECT custom_data, transaction_invoice_text FROM '
             . Handler::getInstance()->invoiceTable() . ' WHERE hash = ?',
@@ -182,22 +177,13 @@ class InvoiceTransactionStatusTest extends SqliteIntegrationTestCase
         try {
             // Ignore unrelated or stale entity links without skipping the actual invoice.
             $Transaction->addLinkedHash(QUI\Utils\Uuid::get());
-            if ($withOrder) {
-                OrderEvents::onTransactionCreate($Transaction);
-            } elseif (!$direct) {
-                // The optional order package associates payments through this invoice API.
-                $Invoice->linkTransaction($Transaction);
-            }
-
+            OrderEvents::onTransactionCreate($Transaction);
             EventHandler::onTransactionCreate($Transaction);
             self::assertTrue($Transaction->isHashLinked($Invoice->getUUID()));
 
             if ($pending) {
                 $Transaction->complete();
-                if ($withOrder) {
-                    OrderEvents::onTransactionStatusChange($Transaction);
-                }
-
+                OrderEvents::onTransactionStatusChange($Transaction);
                 EventHandler::onTransactionStatusChange($Transaction);
             }
 
@@ -218,7 +204,7 @@ class InvoiceTransactionStatusTest extends SqliteIntegrationTestCase
             self::assertSame($originalTexts['custom_data'], $storedInvoice['custom_data']);
             self::assertSame($originalTexts['transaction_invoice_text'], $storedInvoice['transaction_invoice_text']);
 
-            if ($withOrder && !$direct) {
+            if (!$direct) {
                 $orderStatus = $Connection->fetchOne(
                     'SELECT paid_status FROM ' . OrderHandler::getInstance()->table() . ' WHERE hash = ?',
                     [$this->orderHash]
