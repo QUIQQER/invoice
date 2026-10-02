@@ -108,34 +108,14 @@
  ================================================= */
 
 .invoices-invoice-details {
-    border: 1px solid #DDDDDD;
+    box-sizing: border-box;
     float: left;
-    margin-bottom: 10px;
-    max-width: 800px;
-    padding-bottom: 10px;
+    margin-bottom: 20px;
     width: 100%;
 }
 
-.invoices-invoice-details h1 {
+.invoices-invoice-details .articles-header {
     display: none;
-}
-
-.invoices-invoice-details .articles-article {
-    margin-top: 0;
-}
-
-.invoices-invoice-details .articles-article-header th {
-    background: #dedede;
-    line-height: normal;
-}
-
-.invoices-invoice-details td {
-    background: #fefefe;
-    border-right: 0 !important;
-}
-
-.invoices-invoice-details .articles-sum td {
-    text-align: right;
 }
 
 /** Total Display
@@ -181,42 +161,4 @@
 
 .journal-total-row:hover {
     background: #eaeff4;
-}
-
-/** invoice details
- ================================================= */
-
-.invoices-invoice-details table {
-    border-collapse: collapse;
-    border: 0 solid;
-    font: normal 11px verdana, arial, helvetica, sans-serif;
-    width: 100%;
-}
-
-.invoices-invoice-details thead,
-.invoices-invoice-details tfoot {
-    height: 24px;
-}
-
-.invoices-invoice-details tfoot th {
-    padding: 5px;
-}
-
-.invoices-invoice-details thead th {
-    padding: 5px;
-    border-right: 1px solid #DDDDDD;
-}
-
-.invoices-invoice-details td {
-    padding: 3px 10px;
-}
-
-.invoices-invoice-details .articles-sum td {
-    font-size: 14px !important;
-}
-
-.invoices-invoice-details .articles-sum-exchange-rate {
-    float: left;
-    font-size: 10px;
-    margin: 10px 10px 0 10px;
 }
