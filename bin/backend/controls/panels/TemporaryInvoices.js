@@ -370,6 +370,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     {
                         header: QUILocale.get(lg, 'journal.grid.status'),
                         dataIndex: 'paid_status_display',
+                        styles: {
+                            'text-align': 'center',
+                            'justify-content': 'center'
+                        },
                         dataType: 'html',
                         width: 120,
                         className: 'grid-align-center'
@@ -484,6 +488,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     {
                         header: QUILocale.get(lg, 'journal.grid.processing'),
                         dataIndex: 'processing_status_display',
+                        styles: {
+                            'text-align': 'center',
+                            'justify-content': 'center'
+                        },
+                        className: 'grid-align-center',
                         dataType: 'html',
                         width: 150
                     },
