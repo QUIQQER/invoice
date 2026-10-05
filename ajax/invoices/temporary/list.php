@@ -103,7 +103,9 @@ QUI::getAjax()->registerFunction(
             $paidStatus = $TemporaryInvoice->getAttribute('paid_status');
             $paidText = $Locale->get('quiqqer/erp', 'payment.status.' . $paidStatus);
 
-            $data[$key]['paid_status_display'] = '<span class="payment-status payment-status-' . $paidStatus . '">' . $paidText . '</span>';
+            $data[$key]['paid_status_display'] = '<span class="badge badge-pill badge-lg invoice-status '
+                . 'invoice-payment-status-' . (int)$paidStatus . '">'
+                . htmlspecialchars($paidText, ENT_QUOTES, 'UTF-8') . '</span>';
 
 
             // processing status
@@ -114,9 +116,13 @@ QUI::getAjax()->registerFunction(
                 $Status = $processing[$processStatus];
                 $color = $Status->getColor();
 
-                $data[$key]['processing_status_display'] = '<span class="processing-status" style="color: ' . $color . '">' .
-                    $Status->getTitle() .
-                    '</span>';
+                if (!preg_match('/^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i', $color)) {
+                    $color = 'var(--qui-colors-secondary)';
+                }
+
+                $statusTitle = htmlspecialchars($Status->getTitle(), ENT_QUOTES, 'UTF-8');
+                $data[$key]['processing_status_display'] = '<span class="badge badge-pill badge-lg invoice-status" '
+                    . 'style="--_q-controlConf-color: ' . $color . '">' . $statusTitle . '</span>';
             }
 
 
