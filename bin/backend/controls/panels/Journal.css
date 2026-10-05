@@ -1,3 +1,38 @@
+.invoice-status {
+    --_status-color: var(--quiqqer-invoice-status-color, var(--_q-controlConf-color, var(--qui-colors-secondary)));
+    --qui-badge-color: var(--quiqqer-invoice-status-text-color, color-mix(in srgb, var(--_status-color) 40%, var(--qui-colors-black)));
+    --qui-badge-bgColor: var(--quiqqer-invoice-status-background, color-mix(in srgb, var(--_status-color) 20%, var(--qui-colors-white)));
+}
+
+.invoice-payment-status-0 {
+    --_q-controlConf-color: var(--quiqqer-invoice-payment-open-color, var(--qui-colors-primary));
+}
+
+.invoice-payment-status-1 {
+    --_q-controlConf-color: var(--quiqqer-invoice-payment-paid-color, var(--qui-colors-success));
+}
+
+.invoice-payment-status-2 {
+    --_q-controlConf-color: var(--quiqqer-invoice-payment-partial-color, var(--qui-colors-warning));
+}
+
+.invoice-payment-status-4 {
+    --_q-controlConf-color: var(--quiqqer-invoice-payment-error-color, var(--qui-colors-danger));
+}
+
+.invoice-payment-status-5 {
+    --_q-controlConf-color: var(--quiqqer-invoice-payment-canceled-color, var(--qui-colors-gray));
+}
+
+.invoice-payment-status-11 {
+    --_q-controlConf-color: var(--quiqqer-invoice-payment-debit-color, color-mix(in srgb, var(--qui-colors-primary), var(--qui-colors-danger)));
+}
+
+.invoice-payment-status-12 {
+    --_q-controlConf-color: var(--quiqqer-invoice-payment-plan-color, var(--qui-colors-info));
+}
+
+
 
 .payment-status-amountCell {
     text-align: right !important;
