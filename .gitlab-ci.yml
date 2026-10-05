@@ -11,3 +11,60 @@ upgrade-tests-php8.5:
   script:
     - !reference [phpunit-php8.5, script]
     - ./tools/phpunit --configuration phpunit.upgrade.xml --cache-directory "${PHPUNIT_CACHE_DIRECTORY}-upgrade"
+
+# Run the same verification jobs for branch and merge-request pipelines.
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+.verification-rules:
+  rules: &verification-rules
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+validate-required-files:
+  rules: *verification-rules
+
+xml-lint:
+  rules: *verification-rules
+
+php-syntax-check-8.2:
+  rules: *verification-rules
+
+php-syntax-check-8.3:
+  rules: *verification-rules
+
+php-syntax-check-8.4:
+  rules: *verification-rules
+
+php-syntax-check-8.5:
+  rules: *verification-rules
+
+phpcs:
+  rules: *verification-rules
+
+composer-validation:
+  rules: *verification-rules
+
+semgrep:
+  rules: *verification-rules
+
+phpstan:
+  rules: *verification-rules
+
+phpunit-php8.2:
+  rules: *verification-rules
+
+phpunit-php8.3:
+  rules: *verification-rules
+
+phpunit-php8.4:
+  rules: *verification-rules
+
+phpunit-php8.5:
+  rules: *verification-rules
+
+trigger-update-server-on-protected-branch-push:
+  rules:
+    - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"'

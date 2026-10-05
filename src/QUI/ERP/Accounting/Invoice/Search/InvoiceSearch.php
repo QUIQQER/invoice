@@ -25,11 +25,13 @@ use function array_map;
 use function array_pad;
 use function date;
 use function explode;
+use function htmlspecialchars;
 use function in_array;
 use function is_array;
 use function is_numeric;
 use function json_decode;
 use function mb_strtolower;
+use function preg_match;
 use function strip_tags;
 use function strlen;
 use function strtotime;
@@ -750,7 +752,9 @@ class InvoiceSearch extends Singleton
             );
 
             $invoiceData['paid_status'] = $textStatus;
-            $invoiceData['paid_status_display'] = '<span class="payment-status payment-status-' . $paidStatus . '">' . $textStatus . '</span>';
+            $invoiceData['paid_status_display'] = '<span class="badge badge-pill badge-lg invoice-status '
+                . 'invoice-payment-status-' . (int)$paidStatus . '">'
+                . htmlspecialchars($textStatus, ENT_QUOTES, 'UTF-8') . '</span>';
             $invoiceData['paid_status_clean'] = strip_tags($textStatus);
 
             $invoiceData['dunning_level_display'] = $Locale->get(
@@ -811,8 +815,13 @@ class InvoiceSearch extends Singleton
                 $Status = $processing[$processStatus];
                 $color = $Status->getColor();
 
-                $invoiceData['processing_status_display'] = '<span class="processing-status" style="color: ' . $color . '">' .
-                    $Status->getTitle() . '</span>';
+                if (!preg_match('/^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i', $color)) {
+                    $color = 'var(--qui-colors-secondary)';
+                }
+
+                $statusTitle = htmlspecialchars($Status->getTitle(), ENT_QUOTES, 'UTF-8');
+                $invoiceData['processing_status_display'] = '<span class="badge badge-pill badge-lg invoice-status" '
+                    . 'style="--_q-controlConf-color: ' . $color . '">' . $statusTitle . '</span>';
             }
 
             // if status is paid = invoice is paid
