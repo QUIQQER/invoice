@@ -156,44 +156,234 @@
 /** Total Display
  ================================================= */
 
-.journal-total {
-    background: #fff;
-    border-top: 2px solid #DEDEDE;
-    bottom: -20px;
-    display: none;
-    float: left;
-    height: 100px;
-    left: 0;
-    opacity: 0;
-    position: absolute;
-    width: 100%;
-    z-index: 100;
+.quiqqer-invoice-grid-container {
+    padding: 10px;
 }
 
-.journal-total header,
-.journal-total-row {
-    clear: both;
-    float: left;
-    width: 100%;
+.qui-panel-buttons .quiqqer-invoice-totals-button {
+    --_surface: var(--quiqqer-invoice-totals-button-surface, var(--qui-colors-primary--accent));
+    --_border: var(--quiqqer-invoice-totals-button-border, var(--qui-colors-gray-200));
+    --_color: var(--quiqqer-invoice-totals-button-color, var(--qui-colors-gray-800));
+    --_focus: var(--quiqqer-invoice-totals-button-focus, var(--qui-colors-primary-700));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin: 8px 10px;
+    padding: 0;
+    border: 1px solid var(--_border);
+    border-radius: 5px;
+    background: var(--_surface);
+    color: var(--_color);
+    font-size: 18px;
+    line-height: 1;
 }
 
-.journal-total header > div,
-.journal-total-row > div {
+.qui-panel-buttons .quiqqer-invoice-totals-button .image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    line-height: 1;
+}
+
+.qui-panel-buttons .quiqqer-invoice-totals-button .image-container > span {
+    font-size: inherit;
+    line-height: 1;
+}
+
+.quiqqer-invoice-totals-button:focus-visible {
+    outline: 2px solid var(--_focus);
+    outline-offset: 1px;
+}
+
+.quiqqer-invoice-search {
+    --_surface: var(--quiqqer-invoice-search-surface, var(--qui-colors-primary--accent));
+    --_border: var(--quiqqer-invoice-search-border, var(--qui-colors-gray-200));
+    --_focus: var(--quiqqer-invoice-search-focus, var(--qui-colors-primary-700));
+    display: flex;
+    align-items: center;
     float: left;
-    line-height: 25px;
+    width: 310px;
+    max-width: 35%;
+    height: 34px;
+    margin: 8px 0;
+    border: 1px solid var(--_border);
+    border-radius: 5px;
+    background: var(--_surface);
+    overflow: hidden;
+}
+
+.quiqqer-invoice-search input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    height: 32px;
+    margin: 0;
     padding: 0 10px;
-    text-align: right;
-    width: 25%;
+    border: 0;
+    background: transparent;
 }
 
-.journal-total-row > div:first-child {
-    text-align: left;
+.qui-panel-buttons .quiqqer-invoice-search button {
+    flex-shrink: 0;
+    height: 32px;
+    line-height: 32px;
+    border: 0;
 }
 
-.journal-total-row:nth-child(even) {
-    background: #f7f7f7;
+.qui-panel-buttons .quiqqer-invoice-search .qui-button-text-image {
+    line-height: 32px;
 }
 
-.journal-total-row:hover {
-    background: #eaeff4;
+.quiqqer-invoice-search:focus-within {
+    outline: 2px solid var(--_focus);
+    outline-offset: 1px;
+}
+
+.quiqqer-invoice-totals {
+    --_spacing: var(--quiqqer-invoice-totals-spacing, 8px);
+    --_padding: var(--quiqqer-invoice-totals-padding, 10px);
+    --_padding-block: var(--quiqqer-invoice-totals-padding-block, 18px);
+    --_surface: var(--quiqqer-invoice-totals-surface, #fffae8);
+    --_color: var(--quiqqer-invoice-totals-color, var(--qui-colors-dark));
+    --_muted: var(--quiqqer-invoice-totals-muted, var(--qui-colors-gray-700));
+    --_top-shadow: var(--quiqqer-invoice-totals-top-shadow, linear-gradient(to bottom, color-mix(in srgb, var(--qui-colors-black) 14%, transparent), transparent));
+    --_group-surface: var(--quiqqer-invoice-totals-group-surface, color-mix(in srgb, var(--qui-colors-warning-200) 55%, var(--qui-colors-gray-100)));
+    --_group-padding: var(--quiqqer-invoice-totals-group-padding, 10px);
+    container: invoice-totals / inline-size;
+    overflow: auto;
+    width: 100%;
+    max-height: max(200px, 40%);
+    box-sizing: border-box;
+    background: var(--_surface);
+    background-image: var(--_top-shadow);
+    background-size: 100% 14px;
+    background-repeat: no-repeat;
+    color: var(--_color);
+}
+
+.quiqqer-invoice-totals:empty {
+    min-height: 80px;
+}
+
+.quiqqer-invoice-totals-row {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(0, 660px);
+    align-items: start;
+    gap: calc(2 * var(--_spacing));
+    padding: var(--_padding-block) var(--_padding);
+    transition: opacity 120ms ease;
+}
+
+.quiqqer-invoice-totals--resizing .quiqqer-invoice-totals-row {
+    visibility: hidden;
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .quiqqer-invoice-totals-row {
+        transition: none;
+    }
+}
+
+.quiqqer-invoice-totals-title {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.quiqqer-invoice-totals-context {
+    padding-top: var(--_group-padding);
+}
+
+.quiqqer-invoice-totals-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--_spacing);
+    color: var(--_muted);
+    font-size: 12px;
+}
+
+.quiqqer-invoice-totals-currency {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.quiqqer-invoice-totals-groups {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: calc(3 * var(--_spacing));
+    min-width: 0;
+}
+
+.quiqqer-invoice-totals-group {
+    min-width: 0;
+    padding: var(--_group-padding);
+    border-radius: 6px;
+    background: var(--_group-surface);
+}
+
+.quiqqer-invoice-totals-breakdown {
+    display: grid;
+    gap: 3px;
+    margin: 0;
+}
+
+.quiqqer-invoice-totals-metric {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 3px var(--_spacing);
+    min-width: 0;
+}
+
+.quiqqer-invoice-totals-metric dt {
+    margin: 0;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.quiqqer-invoice-totals-metric dd {
+    margin: 0;
+    margin-inline-start: auto;
+    font-size: 13px;
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+    overflow-wrap: anywhere;
+}
+
+.quiqqer-invoice-totals-metric--gross {
+    margin-top: 6px;
+}
+
+.quiqqer-invoice-totals-metric--gross dd {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.quiqqer-invoice-totals-group--total .quiqqer-invoice-totals-title {
+    font-weight: 700;
+}
+
+@container invoice-totals (max-width: 900px) {
+    .quiqqer-invoice-totals-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .quiqqer-invoice-totals-context {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: var(--_spacing);
+    }
 }

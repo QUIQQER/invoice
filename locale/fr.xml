@@ -507,6 +507,21 @@
         <locale name="journal.btn.create">
 <fr><![CDATA[Nouvelle facture]]></fr>
         </locale>
+        <locale name="journal.totals.title">
+<fr><![CDATA[Totaux des factures filtrées]]></fr>
+        </locale>
+        <locale name="journal.totals.toPay">
+<fr><![CDATA[À payer]]></fr>
+        </locale>
+        <locale name="journal.totals.paid">
+<fr><![CDATA[Payé]]></fr>
+        </locale>
+        <locale name="journal.totals.total">
+<fr><![CDATA[Total]]></fr>
+        </locale>
+        <locale name="journal.search.placeholder">
+<fr><![CDATA[Rechercher des factures …]]></fr>
+        </locale>
         <locale name="journal.btn.total">
 <fr><![CDATA[Afficher le total]]></fr>
         </locale>
