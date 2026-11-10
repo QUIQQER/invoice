@@ -713,6 +713,21 @@
         <locale name="journal.btn.create">
 <en><![CDATA[New invoice]]></en>
         </locale>
+        <locale name="journal.totals.title">
+<en><![CDATA[Totals for filtered invoices]]></en>
+        </locale>
+        <locale name="journal.totals.toPay">
+<en><![CDATA[Outstanding]]></en>
+        </locale>
+        <locale name="journal.totals.paid">
+<en><![CDATA[Paid]]></en>
+        </locale>
+        <locale name="journal.totals.total">
+<en><![CDATA[Total]]></en>
+        </locale>
+        <locale name="journal.search.placeholder">
+<en><![CDATA[Search invoices …]]></en>
+        </locale>
         <locale name="journal.btn.total">
 <en><![CDATA[Show sum]]></en>
         </locale>

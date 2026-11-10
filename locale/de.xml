@@ -709,6 +709,21 @@
         <locale name="journal.btn.create">
 <de><![CDATA[Neue Rechnung]]></de>
         </locale>
+        <locale name="journal.totals.title">
+<de><![CDATA[Summen der gefilterten Rechnungen]]></de>
+        </locale>
+        <locale name="journal.totals.toPay">
+<de><![CDATA[Offen]]></de>
+        </locale>
+        <locale name="journal.totals.paid">
+<de><![CDATA[Bezahlt]]></de>
+        </locale>
+        <locale name="journal.totals.total">
+<de><![CDATA[Gesamt]]></de>
+        </locale>
+        <locale name="journal.search.placeholder">
+<de><![CDATA[Rechnungen durchsuchen …]]></de>
+        </locale>
         <locale name="journal.btn.total">
 <de><![CDATA[Summe anzeigen]]></de>
         </locale>
