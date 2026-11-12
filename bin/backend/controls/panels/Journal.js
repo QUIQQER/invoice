@@ -8,7 +8,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     'qui/QUI',
     'qui/controls/desktop/Panel',
     'qui/controls/buttons/Button',
-    'qui/controls/buttons/Separator',
     'qui/controls/buttons/Select',
     'qui/controls/contextmenu/Item',
     'controls/grid/Grid',
@@ -26,7 +25,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
     QUI,
     QUIPanel,
     QUIButton,
-    QUISeparator,
     QUISelect,
     QUIContextMenuItem,
     Grid,
@@ -294,6 +292,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
          */
         $onCreate: function () {
             const self = this;
+            this.getElm().classList.add('quiqqer-invoice-panel');
 
             const Body = this.getContent();
             Body.style.padding = '0';
@@ -330,12 +329,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             // currency
             this.$Currency = new QUIButton({
                 name: 'currency',
+                'class': 'quiqqer-invoice-currency',
+                text: '---',
                 disabled: true,
                 showIcons: false,
+                dropDownIcon: false,
                 events: {
                     onChange: function (Menu, Item) {
                         self.$Currency.setAttribute('value', Item.getAttribute('value'));
-                        self.$Currency.setAttribute('text', Item.getAttribute('value'));
+                        self.$Currency.setAttribute('text', Item.getAttribute('value') || '---');
                         self.refresh();
                     }
                 }
@@ -343,8 +345,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             this.addButton(this.$Currency);
 
+            const CurrencyButton = this.$Currency.getElm();
+            CurrencyButton.tabIndex = 0;
+            CurrencyButton.style.removeProperty('outline');
+
+            const CurrencyArrow = document.createElement('span');
+            CurrencyArrow.className = 'quiqqer-invoice-currency-arrow fa fa-chevron-down';
+            CurrencyArrow.setAttribute('aria-hidden', 'true');
+            CurrencyButton.appendChild(CurrencyArrow);
 
             this.$Status = new QUISelect({
+                'class': 'quiqqer-invoice-status',
                 showIcons: false,
                 styles: {
                     'float': 'right'
@@ -365,14 +376,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             this.$Status.appendChild(QUILocale.get(lg, 'journal.paidstatus.debit'), Invoices.PAYMENT_STATUS_DEBIT);
 
             this.addButton(this.$Status);
-
-            const Separator = new QUISeparator();
-
-            this.addButton(Separator);
-
-            Separator.getElm().setStyles({
-                'float': 'right'
-            });
 
             this.$TimeFilter = new TimeFilter({
                 name: 'timeFilter',
@@ -405,6 +408,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
 
             const Actions = new QUIButton({
                 name: 'actions',
+                'class': 'quiqqer-invoice-actions-button',
                 text: QUILocale.get(lg, 'journal.btn.actions'),
                 menuCorner: 'topRight',
                 position: 'right'
@@ -508,7 +512,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                         header: '&nbsp;',
                         dataIndex: 'opener',
                         dataType: 'int',
-                        width: 35,
+                        width: 44,
                         showNotInExport: true,
                         export: false
                     },
@@ -731,8 +735,43 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 onDblClick: this.$onClickOpenInvoice
             });
 
+            const ActionsButton = Actions.getElm();
+            ActionsButton.tabIndex = 0;
+            ActionsButton.style.removeProperty('outline');
+            ActionsButton.setAttribute('aria-haspopup', 'menu');
+            ActionsButton.setAttribute('aria-expanded', 'false');
+
+            Actions.getContextMenu((Menu) => {
+                Menu.getElm().classList.add('quiqqer-invoice-actions-menu');
+                Menu.addEvent('show', () => {
+                    this.$positionActionsMenu(Actions, Menu);
+                    ActionsButton.setAttribute('aria-expanded', 'true');
+                });
+                Menu.addEvent('hide', () => ActionsButton.setAttribute('aria-expanded', 'false'));
+            });
 
             this.getButtons('total').enable();
+        },
+
+        $positionActionsMenu: function (Button, Menu) {
+            const MenuElement = Menu.getElm();
+            const button = Button.getElm().getBoundingClientRect();
+            const menu = MenuElement.getBoundingClientRect();
+            const left = Math.max(
+                8,
+                Math.min(button.right - menu.width, window.innerWidth - menu.width - 8)
+            );
+            const above =
+                button.bottom + menu.height + 8 > window.innerHeight &&
+                button.top - menu.height - 8 >= 8;
+            const top = above ? button.top - menu.height - 8 : button.bottom + 8;
+
+            MenuElement.classList.toggle('qui-context-corner-topRight', !above);
+            MenuElement.classList.toggle('qui-context-corner-bottomRight', above);
+            Menu.setPosition(
+                left + window.scrollX,
+                Math.max(8, Math.min(top, window.innerHeight - menu.height - 8)) + window.scrollY
+            );
         },
 
         /**
@@ -778,8 +817,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
             ], function (currencies, currency) {
                 let i, len, entry, text;
 
-                if (!currencies.length || currencies.length === 1) {
-                    self.$Currency.hide();
+                self.$Currency.setAttribute('value', currency.code);
+                self.$Currency.setAttribute('text', currency.code);
+
+                if (currencies.length <= 1) {
+                    self.$Currency.disable();
                     return;
                 }
 
@@ -797,8 +839,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/Journal', [
                 }
 
                 self.$Currency.enable();
-                self.$Currency.setAttribute('value', currency.code);
-                self.$Currency.setAttribute('text', currency.code);
             }, {
                 'package': 'quiqqer/currency'
             });

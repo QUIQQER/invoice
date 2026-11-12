@@ -339,13 +339,15 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                         header: '&nbsp;',
                         dataIndex: 'opener',
                         dataType: 'int',
-                        width: 30
+                        width: 44,
+                        className: 'grid-align-center quiqqer-invoice-drafts-opener'
                     },
                     {
                         header: QUILocale.get(lg, 'journal.grid.type'),
                         dataIndex: 'display_type',
                         dataType: 'node',
-                        width: 30
+                        width: 44,
+                        className: 'grid-align-center'
                     },
                     {
                         header: QUILocale.get(lg, 'journal.grid.invoiceNo'),

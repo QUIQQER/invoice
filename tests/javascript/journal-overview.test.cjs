@@ -19,6 +19,7 @@ function element() {
         classList: {
             add(name) { classes.add(name); },
             remove(name) { classes.delete(name); },
+            toggle(name, force) { force ? classes.add(name) : classes.delete(name); },
             contains(name) { return classes.has(name); }
         },
         setAttribute(name, value) { this.attributes[name] = value; },
@@ -27,9 +28,10 @@ function element() {
     };
 }
 
-function fixture({motion = false, reducedMotion = false} = {}) {
+function fixture({motion = false, reducedMotion = false, viewport = {}} = {}) {
     let definition;
     const requests = [];
+    const currencyCallbacks = [];
     const renders = [];
     const errors = [];
     const animations = [];
@@ -40,6 +42,10 @@ function fixture({motion = false, reducedMotion = false} = {}) {
                 return new Promise((resolve, reject) => requests.push({params, filters, resolve, reject}));
             },
             removeEvents() {}
+        },
+        Ajax: {get: (names, callback) => currencyCallbacks.push(callback)},
+        'qui/controls/contextmenu/Item': function(options) {
+            this.getAttribute = name => options[name];
         },
         Locale: {get: (group, key) => key},
         Mustache: {
@@ -58,7 +64,14 @@ function fixture({motion = false, reducedMotion = false} = {}) {
         document: {createElement: element},
         CSS: {supports: () => false},
         console: {error: error => errors.push(error)},
-        window: {matchMedia: () => ({matches: reducedMotion})},
+        window: {
+            matchMedia: () => ({matches: reducedMotion}),
+            innerWidth: 1280,
+            innerHeight: 720,
+            scrollX: 0,
+            scrollY: 0,
+            ...viewport
+        },
         setTimeout(callback) {
             const id = timers.size + 1;
             timers.set(id, callback);
@@ -115,7 +128,7 @@ function fixture({motion = false, reducedMotion = false} = {}) {
         };
     }
 
-    return {panel, requests, renders, buttonElement, gridData, heights, errors, timers, animations};
+    return {panel, requests, renders, buttonElement, gridData, heights, errors, timers, animations, currencyCallbacks};
 }
 
 function response(prefix = 'current') {
@@ -127,6 +140,75 @@ function response(prefix = 'current') {
     }
     return {grid: {data: [], total: 176}, total};
 }
+
+test('the actions menu aligns below the button at its right edge, including page scroll', () => {
+    const {panel} = fixture({viewport: {scrollX: 40, scrollY: 60}});
+    const Button = {getElm: () => ({
+        getBoundingClientRect: () => ({right: 1200, top: 120, bottom: 150})
+    })};
+    const menuElement = element();
+    menuElement.getBoundingClientRect = () => ({width: 200, height: 300});
+    let position;
+
+    panel.$positionActionsMenu(Button, {
+        getElm: () => menuElement,
+        setPosition: (left, top) => { position = {left, top}; }
+    });
+
+    assert.deepEqual(position, {left: 1040, top: 218});
+    assert.equal(menuElement.classList.contains('qui-context-corner-topRight'), true);
+    assert.equal(menuElement.classList.contains('qui-context-corner-bottomRight'), false);
+});
+
+test('the actions menu stays inside the viewport and opens above when space below is insufficient', () => {
+    const {panel} = fixture();
+    const Button = {getElm: () => ({
+        getBoundingClientRect: () => ({right: 150, top: 660, bottom: 690})
+    })};
+    const menuElement = element();
+    menuElement.getBoundingClientRect = () => ({width: 200, height: 300});
+    let position;
+
+    panel.$positionActionsMenu(Button, {
+        getElm: () => menuElement,
+        setPosition: (left, top) => { position = {left, top}; }
+    });
+
+    assert.deepEqual(position, {left: 8, top: 352});
+    assert.equal(menuElement.classList.contains('qui-context-corner-topRight'), false);
+    assert.equal(menuElement.classList.contains('qui-context-corner-bottomRight'), true);
+});
+
+test('currency loading keeps the default visible and allows changes only with multiple currencies', () => {
+    const eur = {code: 'EUR', sign: '€'};
+    const usd = {code: 'USD', sign: '$'};
+
+    for (const currencies of [[], [eur], [eur, usd]]) {
+        const {panel, currencyCallbacks} = fixture();
+        const attributes = {};
+        const entries = [];
+        let disabled = true;
+        panel.$Currency = {
+            setAttribute(name, value) { attributes[name] = value; },
+            appendChild(item) { entries.push(item); },
+            disable() { disabled = true; },
+            enable() { disabled = false; },
+            getContextMenu(callback) { callback({setAttribute() {}}); }
+        };
+
+        panel.$onInject();
+        currencyCallbacks[0](currencies, eur);
+
+        assert.equal(attributes.value, 'EUR');
+        assert.equal(attributes.text, 'EUR');
+        assert.equal(disabled, currencies.length <= 1);
+        assert.equal(entries.length, currencies.length > 1 ? 2 : 0);
+
+        if (currencies.length > 1) {
+            assert.equal(entries[1].getAttribute('value'), 'USD');
+        }
+    }
+});
 
 test('the hidden overview requests only rows and count, with the current filters', async () => {
     const {panel, requests, renders} = fixture();
