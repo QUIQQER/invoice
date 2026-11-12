@@ -54,6 +54,13 @@
     font-family: monospace, monospace;
 }
 
+.omnigrid div.bDiv .quiqqer-invoice-drafts-opener .toggleicon {
+    display: inline-block;
+    float: none;
+    margin: 0;
+    vertical-align: middle;
+}
+
 /** Invoice details
  ================================================= */
 
@@ -160,6 +167,20 @@
     padding: 10px;
 }
 
+.quiqqer-invoice-panel {
+    --_toolbar-hover-color: var(--quiqqer-invoice-toolbar-hover-color, color-mix(in srgb, var(--qui-colors-primary) 65%, var(--qui-colors-success)));
+    --_toolbar-hover-text: color-mix(in srgb, var(--_toolbar-hover-color) 75%, var(--qui-colors-black));
+    --_toolbar-hover-shadow: inset 0 0 0 1px var(--_toolbar-hover-color), 0 0 7px color-mix(in srgb, var(--_toolbar-hover-color) 45%, transparent);
+}
+
+.quiqqer-invoice-panel .qui-panel-buttons button:not(:disabled):hover,
+.quiqqer-invoice-panel .qui-panel-buttons .qui-select:not(.qui-select-disable):hover {
+    background: var(--qui-colors-white);
+    border-color: var(--_toolbar-hover-color);
+    box-shadow: var(--_toolbar-hover-shadow);
+    color: var(--_toolbar-hover-text);
+}
+
 .qui-panel-buttons .quiqqer-invoice-totals-button {
     --_surface: var(--quiqqer-invoice-totals-button-surface, var(--qui-colors-primary--accent));
     --_border: var(--quiqqer-invoice-totals-button-border, var(--qui-colors-gray-200));
@@ -202,7 +223,7 @@
 .quiqqer-invoice-search {
     --_surface: var(--quiqqer-invoice-search-surface, var(--qui-colors-primary--accent));
     --_border: var(--quiqqer-invoice-search-border, var(--qui-colors-gray-200));
-    --_focus: var(--quiqqer-invoice-search-focus, var(--qui-colors-primary-700));
+    --_focus: var(--quiqqer-invoice-search-focus, var(--qui-colors-danger));
     display: flex;
     align-items: center;
     float: left;
@@ -239,8 +260,79 @@
 }
 
 .quiqqer-invoice-search:focus-within {
-    outline: 2px solid var(--_focus);
-    outline-offset: 1px;
+    box-shadow: 0 0 3px 1px var(--_focus);
+}
+
+.quiqqer-invoice-search input:focus {
+    box-shadow: none;
+}
+
+.quiqqer-invoice-search button:focus-visible {
+    outline: none;
+}
+
+.qui-panel-buttons .quiqqer-invoice-currency {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 34px;
+    margin: 8px 10px;
+    padding: 0 10px;
+    border: 1px solid var(--qui-colors-gray-200);
+    border-radius: 5px;
+    background: var(--qui-colors-primary--accent);
+    color: var(--qui-colors-gray-800);
+    font-weight: 400;
+    line-height: 1;
+}
+
+.quiqqer-invoice-currency .qui-button-text {
+    margin: 0;
+}
+
+.quiqqer-invoice-currency-arrow {
+    font-size: 10px;
+}
+
+.qui-panel-buttons .quiqqer-invoice-currency:disabled {
+    background: var(--qui-colors-gray-50);
+    color: var(--qui-colors-gray-400);
+}
+
+.qui-panel-buttons .quiqqer-invoice-status {
+    height: 34px;
+    margin: 8px 10px;
+    border-color: var(--qui-colors-gray-200);
+    border-radius: 5px;
+    background: var(--qui-colors-primary--accent);
+    color: var(--qui-colors-gray-800);
+}
+
+.quiqqer-invoice-status .text,
+.quiqqer-invoice-status .drop-icon {
+    height: 32px;
+    line-height: 32px;
+}
+
+.quiqqer-invoice-actions-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.quiqqer-invoice-actions-button .qui-button-text {
+    margin: 0;
+}
+
+.quiqqer-invoice-actions-button .qui-button-drop {
+    position: static;
+    width: auto;
+    height: auto;
+    line-height: 1;
+}
+
+.quiqqer-invoice-actions-menu.qui-contextmenu::after {
+    right: 6px;
 }
 
 .quiqqer-invoice-totals {
