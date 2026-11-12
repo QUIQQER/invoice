@@ -54,6 +54,13 @@
     font-family: monospace, monospace;
 }
 
+.omnigrid div.bDiv .quiqqer-invoice-drafts-opener .toggleicon {
+    display: inline-block;
+    float: none;
+    margin: 0;
+    vertical-align: middle;
+}
+
 /** Invoice details
  ================================================= */
 
