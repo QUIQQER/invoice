@@ -167,14 +167,17 @@
     padding: 10px;
 }
 
-.quiqqer-invoice-panel {
+.quiqqer-invoice-panel,
+.quiqqer-invoice-drafts-panel {
     --_toolbar-hover-color: var(--quiqqer-invoice-toolbar-hover-color, color-mix(in srgb, var(--qui-colors-primary) 65%, var(--qui-colors-success)));
     --_toolbar-hover-text: color-mix(in srgb, var(--_toolbar-hover-color) 75%, var(--qui-colors-black));
     --_toolbar-hover-shadow: inset 0 0 0 1px var(--_toolbar-hover-color), 0 0 7px color-mix(in srgb, var(--_toolbar-hover-color) 45%, transparent);
 }
 
 .quiqqer-invoice-panel .qui-panel-buttons button:not(:disabled):hover,
-.quiqqer-invoice-panel .qui-panel-buttons .qui-select:not(.qui-select-disable):hover {
+.quiqqer-invoice-panel .qui-panel-buttons .qui-select:not(.qui-select-disable):hover,
+.quiqqer-invoice-drafts-panel .qui-panel-buttons button:not(:disabled):hover,
+.quiqqer-invoice-search:hover {
     background: var(--qui-colors-white);
     border-color: var(--_toolbar-hover-color);
     box-shadow: var(--_toolbar-hover-shadow);

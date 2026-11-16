@@ -117,7 +117,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
                 this.$Grid.setData(result);
 
-                const PDF = this.$Grid.getButtons('pdf')[0];
+                const PDF = this.$Grid.getButton('pdf');
                 const Actions = this.$Grid.getButtons().filter(function(Btn) {
                     return Btn.getAttribute('name') === 'actions';
                 })[0];
@@ -210,17 +210,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
          */
         $onCreate: function() {
             const self = this;
+            this.getElm().classList.add('quiqqer-invoice-drafts-panel');
 
             // Buttons
 
             // currency
             this.$Currency = new QUIButton({
                 name: 'currency',
+                'class': 'quiqqer-invoice-currency',
+                text: '---',
                 disabled: true,
                 showIcons: false,
-                menuCorner: 'topRight',
-                position: 'right',
-                order: 1,
+                dropDownIcon: false,
                 events: {
                     onChange: function(Menu, Item) {
                         const value = Item.getAttribute('value');
@@ -237,6 +238,16 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 }
             });
 
+            this.addButton(this.$Currency);
+
+            const CurrencyButton = this.$Currency.getElm();
+            CurrencyButton.tabIndex = 0;
+            CurrencyButton.style.removeProperty('outline');
+            const CurrencyArrow = document.createElement('span');
+            CurrencyArrow.className = 'quiqqer-invoice-currency-arrow fa fa-chevron-down';
+            CurrencyArrow.setAttribute('aria-hidden', 'true');
+            CurrencyButton.appendChild(CurrencyArrow);
+
             // Grid
             this.getContent().setStyles({
                 padding: 10
@@ -249,6 +260,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
 
             const Actions = new QUIButton({
                 name: 'actions',
+                'class': 'quiqqer-invoice-actions-button',
                 text: QUILocale.get(lg, 'journal.btn.actions'),
                 menuCorner: 'topRight',
                 position: 'right'
@@ -307,7 +319,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 },
 
                 buttons: [
-                    this.$Currency,
                     {
                         name: 'create',
                         text: QUILocale.get(lg, 'temporary.btn.createInvoice'),
@@ -664,6 +675,43 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                     );
                 }
             });
+
+            const ActionsButton = Actions.getElm();
+            ActionsButton.style.removeProperty('outline');
+            ActionsButton.setAttribute('aria-haspopup', 'menu');
+            ActionsButton.setAttribute('aria-expanded', 'false');
+
+            Actions.getContextMenu(Menu => {
+                Menu.getElm().classList.add('quiqqer-invoice-actions-menu');
+                Menu.addEvents({
+                    onShow: () => {
+                        this.$positionActionsMenu(Actions, Menu);
+                        ActionsButton.setAttribute('aria-expanded', 'true');
+                    },
+                    onHide: () => ActionsButton.setAttribute('aria-expanded', 'false')
+                });
+            });
+        },
+
+        $positionActionsMenu: function (Button, Menu) {
+            const MenuElement = Menu.getElm();
+            const button = Button.getElm().getBoundingClientRect();
+            const menu = MenuElement.getBoundingClientRect();
+            const left = Math.max(
+                8,
+                Math.min(button.right - menu.width, window.innerWidth - menu.width - 8)
+            );
+            const above =
+                button.bottom + menu.height + 8 > window.innerHeight &&
+                button.top - menu.height - 8 >= 8;
+            const top = above ? button.top - menu.height - 8 : button.bottom + 8;
+
+            MenuElement.classList.toggle('qui-context-corner-topRight', !above);
+            MenuElement.classList.toggle('qui-context-corner-bottomRight', above);
+            Menu.setPosition(
+                left + window.scrollX,
+                Math.max(8, Math.min(top, window.innerHeight - menu.height - 8)) + window.scrollY
+            );
         },
 
         /**
@@ -699,8 +747,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
             ], function(currencies, currency) {
                 let i, len, entry, text;
 
-                if (!currencies.length || currencies.length === 1) {
-                    self.$Currency.destroy();
+                self.$Currency.setAttribute('value', currency.code);
+                self.$Currency.setAttribute('text', currency.code);
+
+                if (currencies.length <= 1) {
+                    self.$Currency.disable();
                     return;
                 }
 
@@ -728,8 +779,6 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoices', 
                 );
 
                 self.$Currency.enable();
-                self.$Currency.setAttribute('value', currency.code);
-                self.$Currency.setAttribute('text', currency.code);
             }, {
                 'package': 'quiqqer/currency'
             });
