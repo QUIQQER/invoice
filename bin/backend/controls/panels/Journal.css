@@ -174,7 +174,8 @@
 }
 
 .quiqqer-invoice-panel .qui-panel-buttons button:not(:disabled):hover,
-.quiqqer-invoice-panel .qui-panel-buttons .qui-select:not(.qui-select-disable):hover {
+.quiqqer-invoice-panel .qui-panel-buttons .qui-select:not(.qui-select-disable):hover,
+.quiqqer-invoice-search:hover {
     background: var(--qui-colors-white);
     border-color: var(--_toolbar-hover-color);
     box-shadow: var(--_toolbar-hover-shadow);
