@@ -742,6 +742,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.Loader.show();
 
             return self.$closeCategory().then(function(Container) {
+                Container.style.padding = '0';
+
                 return new Promise(function(resolve) {
                     require([
                         'package/quiqqer/erp/bin/backend/controls/articles/ArticleList',
