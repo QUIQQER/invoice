@@ -17,6 +17,14 @@ QUI::getAjax()->registerFunction(
     function ($articles, $user) {
         $articles = json_decode($articles, true);
         $user = json_decode($user, true);
+        if (isset($articles['articles'])) {
+            if (($articles['calculationMode'] ?? 'automatic') === 'manual') {
+                return (new ArticleList($articles))->getCalculations();
+            }
+
+            $articles = $articles['articles'];
+        }
+
         $List = new ArticleList();
 
         try {

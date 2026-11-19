@@ -43,6 +43,8 @@ QUI::getAjax()->registerFunction(
             $Invoice->removeDeliveryAddress();
         }
 
+        $hasManualSnapshot = isset($data['articles']['articles'])
+            && ($data['articles']['calculationMode'] ?? 'automatic') === 'manual';
         $Invoice->clearArticles();
 
         if (isset($data['articles'])) {
@@ -50,7 +52,7 @@ QUI::getAjax()->registerFunction(
             unset($data['articles']);
         }
 
-        if (isset($data['priceFactors']) && is_array($data['priceFactors'])) {
+        if (!$hasManualSnapshot && isset($data['priceFactors']) && is_array($data['priceFactors'])) {
             try {
                 $List = new QUI\ERP\Accounting\PriceFactors\FactorList($data['priceFactors']);
                 $Invoice->getArticles()->importPriceFactors($List);

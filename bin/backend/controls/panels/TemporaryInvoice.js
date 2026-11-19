@@ -104,6 +104,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.$AdditionalText = null;
             this.$ArticleList = null;
             this.$ArticleListSummary = null;
+            this.$categoryButtons = [];
             this.$AddProduct = null;
             this.$ArticleSort = null;
             this.$AddressDelivery = null;
@@ -184,7 +185,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     }
 
                     if (this.$ArticleList) {
-                        this.$ArticleList.unserialize(this.$serializedList);
+                        const restored = this.$ArticleList.unserialize(this.$serializedList);
+
+                        if (this.$serializedList.calculationMode === 'manual') {
+                            return restored.then(() => {
+                                if (data.invoice_address) {
+                                    this.setAttribute('invoice_address', data.invoice_address);
+                                }
+
+                                this.refresh();
+                            });
+                        }
                     }
                 }
 
@@ -293,7 +304,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 invoice_address: this.getAttribute('invoice_address'),
                 project_name: this.getAttribute('project_name'),
                 customer_reference: this.getAttribute('customer_reference'),
-                articles: this.getAttribute('articles'),
+                articles: (this.$ArticleList?.getCalculationMode() ?? this.$serializedList?.calculationMode) === 'manual' ?
+                    (this.$ArticleList ? this.$ArticleList.serialize() : this.$serializedList) :
+                    this.getAttribute('articles'),
                 priceFactors: this.getAttribute('priceFactors'),
                 date: this.getAttribute('date'),
                 service_period: this.getAttribute('service_period'),
@@ -528,7 +541,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                         Content.getElement('[name="time_for_payment"]').value = paymentTime;
 
-                        self.setAttribute('isbrutto', !isNetto);
+                        if ((self.$ArticleList?.getCalculationMode() ??
+                            self.$serializedList?.calculationMode) !== 'manual') {
+                            self.setAttribute('isbrutto', !isNetto);
+                        }
                         self.setAttribute('time_for_payment', paymentTime);
                         self.refresh();
                     });
@@ -656,24 +672,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     self.$AddressDelivery.setValue(deliveryAddress);
                 }
             }).then(function() {
-                let Container = self.getContent().getElement('.container');
-
-                new QUIButton({
-                    text: QUILocale.get(lg, 'erp.panel.temporary.invoice.button.nextToArticles') +
-                        ' <span class="fa fa-angle-right"></span>',
-                    styles: {
-                        display: 'block',
-                        'float': 'right',
-                        margin: '0 0 20px'
-                    },
-                    events: {
-                        onClick: function() {
-                            self.openArticles().catch(function(e) {
-                                console.error(e);
-                            });
-                        }
-                    }
-                }).inject(Container);
+                self.$setCategoryActions('data');
             }).then(function() {
                 return Payments.getPayments();
             }).then(function(payments) {
@@ -742,7 +741,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             this.Loader.show();
 
             return self.$closeCategory().then(function(Container) {
-                return new Promise(function(resolve) {
+                Container.style.padding = '0';
+
+                return new Promise(function(resolve, reject) {
                     require([
                         'package/quiqqer/erp/bin/backend/controls/articles/ArticleList',
                         'package/quiqqer/erp/bin/backend/controls/articles/ArticleSummary'
@@ -754,7 +755,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                                 onArticleReplaceClick: self.$onArticleReplaceClick
                             },
                             styles: {
-                                height: 'calc(100% - 110px)'
+                                height: '100%'
                             }
                         }).inject(Container);
 
@@ -764,23 +765,18 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             currency: self.getAttribute('currency'),
                             List: self.$ArticleList,
                             styles: {
-                                bottom: -20,
-                                left: 0,
-                                opacity: 0,
-                                position: 'absolute'
+                                opacity: 0
                             }
-                        }).inject(Container.getParent());
+                        }).inject(self.$CategorySummary);
 
                         moofx(self.$ArticleListSummary.getElm()).animate({
-                            bottom: 0,
                             opacity: 1
                         });
 
                         self.$ArticleList.setUser(self.getUserData());
 
-                        if (self.$serializedList) {
-                            self.$ArticleList.unserialize(self.$serializedList);
-                        }
+                        const restored = self.$serializedList ?
+                            self.$ArticleList.unserialize(self.$serializedList) : Promise.resolve();
 
                         self.$AddProduct.show();
                         self.$AddSeparator.show();
@@ -789,31 +785,13 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                         self.getCategory('articles').setActive();
 
-                        new QUIButton({
-                            text: '<span class="fa fa-angle-left"></span> ' +
-                                QUILocale.get(lg, 'erp.panel.temporary.invoice.button.data'),
-                            styles: {
-                                'float': 'left',
-                                margin: '20px 0 0'
-                            },
-                            events: {
-                                onClick: self.openData
-                            }
-                        }).inject(Container);
+                        self.$setCategoryActions('articles');
 
-                        new QUIButton({
-                            text: QUILocale.get(lg, 'erp.panel.temporary.invoice.category.review.btnGoto') +
-                                ' <span class="fa fa-angle-right"></span>',
-                            styles: {
-                                'float': 'right',
-                                margin: '20px 0 0'
-                            },
-                            events: {
-                                onClick: self.openVerification
-                            }
-                        }).inject(Container);
-
-                        self.Loader.hide().then(resolve);
+                        if (self.$serializedList?.calculationMode === 'manual') {
+                            restored.then(() => self.Loader.hide()).then(resolve, reject);
+                        } else {
+                            self.Loader.hide().then(resolve);
+                        }
                     });
                 });
             }).then(function() {
@@ -1258,18 +1236,12 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             }
 
             if (self.$ArticleListSummary) {
-                moofx(self.$ArticleListSummary.getElm()).animate({
-                    bottom: -20,
-                    opacity: 0
-                }, {
-                    duration: 250,
-                    callback: function() {
-                        self.$ArticleListSummary.destroy();
-                        self.$ArticleListSummary = null;
-                    }
-                });
+                self.$ArticleListSummary.destroy();
+                self.$ArticleListSummary = null;
             }
 
+            self.$clearCategoryActions();
+            self.$CategorySummary?.replaceChildren();
             self.getContent().setStyle('padding', 0);
 
             return new Promise(function(resolve) {
@@ -1300,7 +1272,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                         }
 
                         Container.set('html', '');
-                        Container.setStyle('padding', 20);
+                        Container.setStyles({padding: 20, height: 'auto', overflow: 'auto'});
+                        Container.scrollTop = 0;
 
                         self.save().then(function() {
                             resolve(Container);
@@ -1310,6 +1283,51 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     }
                 });
             });
+        },
+
+        $clearCategoryActions: function() {
+            (this.$categoryButtons || []).forEach((Button) => Button.destroy());
+            this.$categoryButtons = [];
+
+            if (this.$CategoryActions) {
+                this.$CategoryActions.replaceChildren();
+                this.$CategoryActions.hidden = true;
+            }
+        },
+
+        $setCategoryActions: function(category) {
+            if (!this.$CategoryActions) {
+                return;
+            }
+
+            this.$clearCategoryActions();
+            const addButton = (name, label, action) => {
+                const Button = new QUIButton({
+                    text: QUILocale.get(lg, label),
+                    textimage: name === 'previous-category' ? 'fa fa-angle-left' : false,
+                    events: {onClick: action}
+                }).inject(this.$CategoryActions);
+                Button.getElm().dataset.name = name;
+
+                if (name === 'next-category') {
+                    const Arrow = document.createElement('span');
+                    Arrow.className = 'fa fa-angle-right';
+                    Arrow.setAttribute('aria-hidden', 'true');
+                    Button.getElm().appendChild(Arrow);
+                }
+
+                this.$categoryButtons.push(Button);
+                this.$CategoryActions.hidden = false;
+            };
+
+            if (category === 'data') {
+                addButton('next-category', 'erp.panel.temporary.invoice.button.nextToArticles', () => {
+                    this.openArticles().catch((error) => console.error(error));
+                });
+            } else if (category === 'articles') {
+                addButton('previous-category', 'erp.panel.temporary.invoice.button.data', this.openData);
+                addButton('next-category', 'erp.panel.temporary.invoice.category.review.btnGoto', this.openVerification);
+            }
         },
 
         /**
@@ -1666,6 +1684,19 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
         $onCreate: function() {
             const self = this;
 
+            const Content = this.getContent();
+            Content.classList.add('quiqqer-invoice-category-layout');
+            const Container = document.createElement('div');
+            Container.className = 'container';
+            Container.style.position = 'relative';
+            this.$CategorySummary = document.createElement('div');
+            this.$CategorySummary.className = 'quiqqer-invoice-category-summary';
+            this.$CategoryActions = document.createElement('div');
+            this.$CategoryActions.className = 'quiqqer-invoice-category-actions';
+            this.$CategoryActions.dataset.name = 'category-actions';
+            this.$CategoryActions.hidden = true;
+            Content.append(Container, this.$CategorySummary, this.$CategoryActions);
+
             this.Loader.show();
 
             require([
@@ -1926,6 +1957,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
          * event: on panel destroy
          */
         $onDestroy: function() {
+            this.$clearCategoryActions();
+            this.$ArticleListSummary?.destroy();
+            this.$ArticleListSummary = null;
+
             Invoices.removeEvents({
                 onDeleteInvoice: this.$onDeleteInvoice
             });

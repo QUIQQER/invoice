@@ -193,11 +193,8 @@
     align-items: center;
     justify-content: center;
     width: 34px;
-    height: 34px;
-    margin: 8px 10px;
     padding: 0;
     border: 1px solid var(--_border);
-    border-radius: 5px;
     background: var(--_surface);
     color: var(--_color);
     font-size: 18px;
@@ -233,7 +230,6 @@
     width: 310px;
     max-width: 35%;
     height: 34px;
-    margin: 8px 0;
     border: 1px solid var(--_border);
     border-radius: 5px;
     background: var(--_surface);
@@ -278,14 +274,10 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    height: 34px;
-    margin: 8px 10px;
     padding: 0 10px;
     border: 1px solid var(--qui-colors-gray-200);
-    border-radius: 5px;
     background: var(--qui-colors-primary--accent);
     color: var(--qui-colors-gray-800);
-    font-weight: 400;
     line-height: 1;
 }
 
@@ -303,10 +295,7 @@
 }
 
 .qui-panel-buttons .quiqqer-invoice-status {
-    height: 34px;
-    margin: 8px 10px;
     border-color: var(--qui-colors-gray-200);
-    border-radius: 5px;
     background: var(--qui-colors-primary--accent);
     color: var(--qui-colors-gray-800);
 }
