@@ -2,7 +2,6 @@
 
 namespace QUITests\ERP\Accounting\Invoice\Integration;
 
-use Doctrine\DBAL\Platforms\SQLitePlatform;
 use PHPUnit\Framework\Attributes\DataProvider;
 use QUI;
 use QUI\ERP\Accounting\ArticleList;
@@ -20,11 +19,11 @@ class ManualCalculationSnapshotTest extends SqliteIntegrationTestCase
     private mixed $offerConfigPath;
     private mixed $offerConfig;
     private string $isolatedOfferConfig;
+    private bool $transactionStarted = false;
 
     protected function setUp(): void
     {
         parent::setUp();
-        self::assertInstanceOf(SQLitePlatform::class, $this->connection->getDatabasePlatform());
         QUI\Update::importDatabase(OPT_DIR . 'quiqqer/offers/database.xml');
         QUI\Update::importPermissions(OPT_DIR . 'quiqqer/offers/permissions.xml', 'quiqqer/offers');
         $Package = QUI::getPackage('quiqqer/offers');
@@ -38,18 +37,28 @@ class ManualCalculationSnapshotTest extends SqliteIntegrationTestCase
         (new ReflectionProperty($Package, 'configPath'))->setValue($Package, $path);
         (new ReflectionProperty($Package, 'Config'))->setValue($Package, null);
         QUI\ERP\Accounting\Offers\Settings::getInstance()->set('offers', 'sendMailAtCreation', false);
+
+        // Use the base class's SQLite or CI connection and discard all test fixtures afterwards.
+        $this->connection->beginTransaction();
+        $this->transactionStarted = true;
     }
 
     protected function tearDown(): void
     {
-        if (isset($this->isolatedOfferConfig)) {
-            $Package = QUI::getPackage('quiqqer/offers');
-            (new ReflectionProperty($Package, 'configPath'))->setValue($Package, $this->offerConfigPath);
-            (new ReflectionProperty($Package, 'Config'))->setValue($Package, $this->offerConfig);
-            unlink($this->isolatedOfferConfig);
-        }
+        try {
+            if ($this->transactionStarted) {
+                $this->connection->rollBack();
+            }
+        } finally {
+            if (isset($this->isolatedOfferConfig)) {
+                $Package = QUI::getPackage('quiqqer/offers');
+                (new ReflectionProperty($Package, 'configPath'))->setValue($Package, $this->offerConfigPath);
+                (new ReflectionProperty($Package, 'Config'))->setValue($Package, $this->offerConfig);
+                unlink($this->isolatedOfferConfig);
+            }
 
-        parent::tearDown();
+            parent::tearDown();
+        }
     }
 
     public static function draftClasses(): iterable
@@ -255,24 +264,25 @@ class ManualCalculationSnapshotTest extends SqliteIntegrationTestCase
     private function invoiceDraft(): InvoiceTemporary
     {
         $SystemUser = QUI::getUsers()->getSystemUser();
-        $this->connection->update(QUI\Users\Manager::table(), [
+        $username = 'manual-snapshot-' . uniqid();
+        $Customer = QUI::getUsers()->createChildWithAttributes([
+            'username' => $username,
+            'email' => $username . '@example.invalid',
             'firstname' => 'Manual',
             'lastname' => 'Customer'
-        ], ['uuid' => 'sqlite-super-user']);
-        $Customer = QUI::getUsers()->get('sqlite-super-user');
-        $address = [
-            'uuid' => QUI\Utils\Uuid::get(),
+        ], $SystemUser);
+        $Address = $Customer->addAddress([
             'firstname' => 'Manual',
             'lastname' => 'Customer',
             'street_no' => 'Testweg 1',
             'zip' => '10115',
             'city' => 'Berlin',
             'country' => 'DE'
-        ];
+        ], $SystemUser);
         $Draft = Factory::getInstance()->createInvoice($SystemUser);
         $Draft->setCustomer($Customer);
-        $Draft->setAttribute('invoice_address_id', $address['uuid']);
-        $Draft->setAttribute('invoice_address', json_encode($address));
+        $Draft->setAttribute('invoice_address_id', $Address->getUUID());
+        $Draft->setAttribute('invoice_address', $Address->toJSON());
         $Draft->setAttribute('payment_method', -1);
         $Draft->setAttribute(InvoiceTemporary::SPECIAL_ATTRIBUTE_DO_NOT_SEND_CREATION_MAIL, 1);
         return $Draft;
