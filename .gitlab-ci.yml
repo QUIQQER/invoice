@@ -6,6 +6,17 @@ include:
       php-84: true
       php-85: true
 
+offer-tests-php8.5:
+  extends: phpunit-php8.5
+  before_script:
+    - cd /var/www/html
+    - ./console composer require --no-interaction "quiqqer/offers:dev-next-2.x"
+    - ./console setup
+    - cd "${CI_PROJECT_DIR}"
+  script:
+    - !reference [phpunit-php8.5, script]
+    - ./tools/phpunit --filter ManualCalculationSnapshotTest --fail-on-skipped --cache-directory "${PHPUNIT_CACHE_DIRECTORY}-offers"
+
 upgrade-tests-php8.5:
   extends: phpunit-php8.5
   script:
