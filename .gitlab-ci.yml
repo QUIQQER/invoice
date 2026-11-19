@@ -10,7 +10,7 @@ offer-tests-php8.5:
   extends: phpunit-php8.5
   before_script:
     - cd /var/www/html
-    - ./console composer require --no-interaction "quiqqer/offers:dev-next-2.x"
+    - ./console composer require --no-interaction "quiqqer/offers:^2.10.0"
     - ./console setup
     - cd "${CI_PROJECT_DIR}"
   script:
