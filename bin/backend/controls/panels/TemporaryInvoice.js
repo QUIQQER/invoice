@@ -184,7 +184,17 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                     }
 
                     if (this.$ArticleList) {
-                        this.$ArticleList.unserialize(this.$serializedList);
+                        const restored = this.$ArticleList.unserialize(this.$serializedList);
+
+                        if (this.$serializedList.calculationMode === 'manual') {
+                            return restored.then(() => {
+                                if (data.invoice_address) {
+                                    this.setAttribute('invoice_address', data.invoice_address);
+                                }
+
+                                this.refresh();
+                            });
+                        }
                     }
                 }
 
@@ -293,7 +303,9 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                 invoice_address: this.getAttribute('invoice_address'),
                 project_name: this.getAttribute('project_name'),
                 customer_reference: this.getAttribute('customer_reference'),
-                articles: this.getAttribute('articles'),
+                articles: (this.$ArticleList?.getCalculationMode() ?? this.$serializedList?.calculationMode) === 'manual' ?
+                    (this.$ArticleList ? this.$ArticleList.serialize() : this.$serializedList) :
+                    this.getAttribute('articles'),
                 priceFactors: this.getAttribute('priceFactors'),
                 date: this.getAttribute('date'),
                 service_period: this.getAttribute('service_period'),
@@ -528,7 +540,10 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                         Content.getElement('[name="time_for_payment"]').value = paymentTime;
 
-                        self.setAttribute('isbrutto', !isNetto);
+                        if ((self.$ArticleList?.getCalculationMode() ??
+                            self.$serializedList?.calculationMode) !== 'manual') {
+                            self.setAttribute('isbrutto', !isNetto);
+                        }
                         self.setAttribute('time_for_payment', paymentTime);
                         self.refresh();
                     });
@@ -744,7 +759,7 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
             return self.$closeCategory().then(function(Container) {
                 Container.style.padding = '0';
 
-                return new Promise(function(resolve) {
+                return new Promise(function(resolve, reject) {
                     require([
                         'package/quiqqer/erp/bin/backend/controls/articles/ArticleList',
                         'package/quiqqer/erp/bin/backend/controls/articles/ArticleSummary'
@@ -780,9 +795,8 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
 
                         self.$ArticleList.setUser(self.getUserData());
 
-                        if (self.$serializedList) {
-                            self.$ArticleList.unserialize(self.$serializedList);
-                        }
+                        const restored = self.$serializedList ?
+                            self.$ArticleList.unserialize(self.$serializedList) : Promise.resolve();
 
                         self.$AddProduct.show();
                         self.$AddSeparator.show();
@@ -815,7 +829,11 @@ define('package/quiqqer/invoice/bin/backend/controls/panels/TemporaryInvoice', [
                             }
                         }).inject(Container);
 
-                        self.Loader.hide().then(resolve);
+                        if (self.$serializedList?.calculationMode === 'manual') {
+                            restored.then(() => self.Loader.hide()).then(resolve, reject);
+                        } else {
+                            self.Loader.hide().then(resolve);
+                        }
                     });
                 });
             }).then(function() {

@@ -12,6 +12,11 @@ if (!class_exists(Shipping::class)) {
             return new self();
         }
 
+        public function shippingDisabled(): bool
+        {
+            return false;
+        }
+
         public function getShippingEntry(int $shippingId): ShippingEntry
         {
             return new ShippingEntry();

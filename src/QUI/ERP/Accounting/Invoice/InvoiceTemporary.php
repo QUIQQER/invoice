@@ -9,6 +9,7 @@ namespace QUI\ERP\Accounting\Invoice;
 use QUI;
 use QUI\ERP\Accounting\ArticleList;
 use QUI\ERP\Accounting\Calculations;
+use QUI\ERP\Enums\Accounting\CalculationMode;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Exception;
@@ -261,6 +262,11 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             } else {
                 $this->setAttribute('isbrutto', 1);
             }
+        }
+
+        if ($this->Articles->getCalculationMode() === CalculationMode::MANUAL) {
+            $calculations = $this->Articles->getCalculations();
+            $this->setAttribute('isbrutto', $calculations['isNetto'] ? 0 : 1);
         }
 
         $this->Articles->setCurrency($this->getCurrency());
@@ -899,6 +905,10 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $this->Articles->calc();
         $listCalculations = $this->Articles->getCalculations();
 
+        if ($this->Articles->getCalculationMode() === CalculationMode::MANUAL) {
+            $isBrutto = $listCalculations['isNetto'] ? 0 : 1;
+        }
+
         // payment
         $paymentMethod = '';
 
@@ -1063,66 +1073,75 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
             [$this]
         );
 
+        $updateData = [
+            'type' => $this->getInvoiceType(),
+
+            // user relationships
+            'customer_id' => $this->getAttribute('customer_id'),
+            'editor_id' => $editorId,
+            'editor_name' => $editorName,
+            'order_id' => $orderId,
+            'ordered_by' => $orderedBy,
+            'order_date' => $orderDate,
+            'ordered_by_name' => $orderedByName,
+            'contact_person' => $contactPerson,
+
+            // payments
+            'payment_method' => $paymentMethod,
+            'payment_data' => QUI\Security\Encryption::encrypt((string)json_encode($this->paymentData)),
+            'payment_time' => null,
+
+            // address
+            'invoice_address_id' => $this->getAttribute('invoice_address_id'),
+            'invoice_address' => $invoiceAddress,
+            'delivery_address_id' => $deliveryAddressId,
+            'delivery_address' => $deliveryAddress,
+
+            // processing
+            'time_for_payment' => $timeForPayment,
+            'paid_status' => $paidStatus,
+            'paid_date' => $paidDate,
+            'paid_data' => $paidData,
+            'processing_status' => $processingStatus,
+            'customer_data' => $this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
+                ? $this->getAttribute('customer_data')
+                : '', // nicht in gui
+
+            // shipping
+            'shipping_id' => $shippingId,
+            'shipping_data' => $shippingData,
+
+            // invoice data
+            'date' => $date,
+            'data' => json_encode($this->data),
+            'articles' => $this->Articles->toJSON(),
+            'history' => $this->History->toJSON(),
+            'comments' => $this->Comments->toJSON(),
+            'additional_invoice_text' => $invoiceText,
+            'project_name' => $projectName,
+            'customer_reference' => $customerReference,
+            'service_period' => $servicePeriod,
+
+            // Calc data
+            'isbrutto' => $isBrutto,
+            'currency_data' => json_encode($this->getCurrency()->toArray()),
+            'currency' => $this->getCurrency()->getCode(),
+            'nettosum' => $listCalculations['nettoSum'],
+            'subsum' => $listCalculations['subSum'],
+            'sum' => $listCalculations['sum'],
+            'vat_array' => json_encode($listCalculations['vatArray'])
+        ];
+
+        if ($this->Articles->getCalculationMode() === CalculationMode::MANUAL) {
+            $updateData['nettosubsum'] = $listCalculations['nettoSubSum'];
+        } else {
+            $updateData['subsum'] = InvoiceUtils::roundInvoiceSum($updateData['subsum'], $this->Currency);
+            $updateData['sum'] = InvoiceUtils::roundInvoiceSum($updateData['sum'], $this->Currency);
+        }
+
         QUI::getDataBaseConnection()->update(
             Handler::getInstance()->temporaryInvoiceTable(),
-            [
-                'type' => $this->getInvoiceType(),
-
-                // user relationships
-                'customer_id' => $this->getAttribute('customer_id'),
-                'editor_id' => $editorId,
-                'editor_name' => $editorName,
-                'order_id' => $orderId,
-                'ordered_by' => $orderedBy,
-                'order_date' => $orderDate,
-                'ordered_by_name' => $orderedByName,
-                'contact_person' => $contactPerson,
-
-                // payments
-                'payment_method' => $paymentMethod,
-                'payment_data' => QUI\Security\Encryption::encrypt((string)json_encode($this->paymentData)),
-                'payment_time' => null,
-
-                // address
-                'invoice_address_id' => $this->getAttribute('invoice_address_id'),
-                'invoice_address' => $invoiceAddress,
-                'delivery_address_id' => $deliveryAddressId,
-                'delivery_address' => $deliveryAddress,
-
-                // processing
-                'time_for_payment' => $timeForPayment,
-                'paid_status' => $paidStatus,
-                'paid_date' => $paidDate,
-                'paid_data' => $paidData,
-                'processing_status' => $processingStatus,
-                'customer_data' => $this->getInvoiceType() === QUI\ERP\Constants::TYPE_INVOICE_REVERSAL
-                    ? $this->getAttribute('customer_data')
-                    : '', // nicht in gui
-
-                // shipping
-                'shipping_id' => $shippingId,
-                'shipping_data' => $shippingData,
-
-                // invoice data
-                'date' => $date,
-                'data' => json_encode($this->data),
-                'articles' => $this->Articles->toJSON(),
-                'history' => $this->History->toJSON(),
-                'comments' => $this->Comments->toJSON(),
-                'additional_invoice_text' => $invoiceText,
-                'project_name' => $projectName,
-                'customer_reference' => $customerReference,
-                'service_period' => $servicePeriod,
-
-                // Calc data
-                'isbrutto' => $isBrutto,
-                'currency_data' => json_encode($this->getCurrency()->toArray()),
-                'currency' => $this->getCurrency()->getCode(),
-                'nettosum' => $listCalculations['nettoSum'],
-                'subsum' => InvoiceUtils::roundInvoiceSum($listCalculations['subSum'], $this->Currency),
-                'sum' => InvoiceUtils::roundInvoiceSum($listCalculations['sum'], $this->Currency),
-                'vat_array' => json_encode($listCalculations['vatArray'])
-            ],
+            $updateData,
             [
                 'id' => $this->getId()
             ]
@@ -1427,17 +1446,26 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
         $this->Articles->calc();
 
         $listCalculations = $this->Articles->getCalculations();
+
+        if ($this->Articles->getCalculationMode() === CalculationMode::MANUAL) {
+            $isBrutto = $listCalculations['isNetto']
+                ? QUI\ERP\Utils\User::IS_NETTO_USER
+                : QUI\ERP\Utils\User::IS_BRUTTO_USER;
+        }
+
         $uniqueList = $this->Articles->toUniqueList()->toArray();
 
-        $uniqueList['calculations']['sum'] = InvoiceUtils::roundInvoiceSum(
-            $uniqueList['calculations']['sum'],
-            $this->Currency
-        );
+        if ($this->Articles->getCalculationMode() === CalculationMode::AUTOMATIC) {
+            $uniqueList['calculations']['sum'] = InvoiceUtils::roundInvoiceSum(
+                $uniqueList['calculations']['sum'],
+                $this->Currency
+            );
 
-        $uniqueList['calculations']['subSum'] = InvoiceUtils::roundInvoiceSum(
-            $uniqueList['calculations']['subSum'],
-            $this->Currency
-        );
+            $uniqueList['calculations']['subSum'] = InvoiceUtils::roundInvoiceSum(
+                $uniqueList['calculations']['subSum'],
+                $this->Currency
+            );
+        }
 
         $uniqueList = json_encode($uniqueList);
 
@@ -1631,8 +1659,12 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
                 'currency' => $this->getCurrency()->getCode(),
                 'nettosum' => $listCalculations['nettoSum'],
                 'nettosubsum' => $listCalculations['nettoSubSum'],
-                'subsum' => InvoiceUtils::roundInvoiceSum($listCalculations['subSum'], $this->Currency),
-                'sum' => InvoiceUtils::roundInvoiceSum($listCalculations['sum'], $this->Currency),
+                'subsum' => $this->Articles->getCalculationMode() === CalculationMode::MANUAL
+                    ? $listCalculations['subSum']
+                    : InvoiceUtils::roundInvoiceSum($listCalculations['subSum'], $this->Currency),
+                'sum' => $this->Articles->getCalculationMode() === CalculationMode::MANUAL
+                    ? $listCalculations['sum']
+                    : InvoiceUtils::roundInvoiceSum($listCalculations['sum'], $this->Currency),
                 'vat_array' => json_encode($listCalculations['vatArray'])
             ]
         );
@@ -2121,9 +2153,20 @@ class InvoiceTemporary extends QUI\QDOM implements ErpEntityInterface, ErpTransa
     public function importArticles(array $articles = []): void
     {
         if (isset($articles['articles'])) {
+            if (($articles['calculationMode'] ?? 'automatic') === CalculationMode::MANUAL->value) {
+                $this->Articles = new ArticleList($articles);
+                $this->Articles->setCurrency($this->getCurrency());
+
+                return;
+            }
+
             $this->importArticles($articles['articles']);
 
             return;
+        }
+
+        if ($this->Articles->getCalculationMode() === CalculationMode::MANUAL) {
+            $this->Articles->setCalculationMode(CalculationMode::AUTOMATIC);
         }
 
         foreach ($articles as $article) {

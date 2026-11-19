@@ -10,6 +10,7 @@ use IntlDateFormatter;
 use QUI;
 use QUI\ERP\Accounting\ArticleListUnique;
 use QUI\ERP\Accounting\Calculations;
+use QUI\ERP\Enums\Accounting\CalculationMode;
 use QUI\ERP\Accounting\Invoice\Utils\Invoice as InvoiceUtils;
 use QUI\ERP\Accounting\Payments\Transactions\Transaction;
 use QUI\ERP\Address as ErpAddress;
@@ -1018,60 +1019,64 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         $Copy = $this->copy(QUI::getUsers()->getSystemUser(), $this->getGlobalProcessId());
         $articles = $Copy->getArticles()->getArticles();
 
-        // change all prices
-        $ArticleList = $Copy->getArticles();
-        $ArticleList->clear();
-        $ArticleList->setCurrency($this->getCurrency());
+        if ($Copy->getArticles()->getCalculationMode() === CalculationMode::MANUAL) {
+            $Copy->getArticles()->negate();
+        } else {
+            // change all prices
+            $ArticleList = $Copy->getArticles();
+            $ArticleList->clear();
+            $ArticleList->setCurrency($this->getCurrency());
 
-        $priceKeyList = [
-            'price',
-            'basisPrice',
-            'nettoPriceNotRounded',
-            'sum',
-            'nettoSum',
-            'nettoSubSum',
-            'nettoPrice',
-            'nettoBasisPrice',
-            'unitPrice',
-        ];
+            $priceKeyList = [
+                'price',
+                'basisPrice',
+                'nettoPriceNotRounded',
+                'sum',
+                'nettoSum',
+                'nettoSubSum',
+                'nettoPrice',
+                'nettoBasisPrice',
+                'unitPrice',
+            ];
 
-        foreach ($articles as $Article) {
-            $article = $Article->toArray();
+            foreach ($articles as $Article) {
+                $article = $Article->toArray();
 
-            foreach ($priceKeyList as $priceKey) {
-                if (isset($article[$priceKey])) {
-                    $article[$priceKey] = $article[$priceKey] * -1;
-                }
-            }
-
-            if (isset($article['calculated'])) {
                 foreach ($priceKeyList as $priceKey) {
-                    if (isset($article['calculated'][$priceKey])) {
-                        $article['calculated'][$priceKey] = $article['calculated'][$priceKey] * -1;
+                    if (isset($article[$priceKey])) {
+                        $article[$priceKey] = $article[$priceKey] * -1;
                     }
                 }
+
+                if (isset($article['calculated'])) {
+                    foreach ($priceKeyList as $priceKey) {
+                        if (isset($article['calculated'][$priceKey])) {
+                            $article['calculated'][$priceKey] = $article['calculated'][$priceKey] * -1;
+                        }
+                    }
+                }
+
+                if (isset($article['calculated']['vatArray'])) {
+                    $article['calculated']['vatArray']['sum'] = $article['calculated']['vatArray']['sum'] * -1;
+                }
+
+                $Clone = new QUI\ERP\Accounting\Article($article);
+                $ArticleList->addArticle($Clone);
             }
 
-            if (isset($article['calculated']['vatArray'])) {
-                $article['calculated']['vatArray']['sum'] = $article['calculated']['vatArray']['sum'] * -1;
+            $PriceFactors = $ArticleList->getPriceFactors();
+            $Currency = $this->getCurrency();
+
+            /* @var $PriceFactor QUI\ERP\Accounting\PriceFactors\Factor */
+            foreach ($PriceFactors as $PriceFactor) {
+                $PriceFactor->setNettoSum($PriceFactor->getNettoSum() * -1);
+                $PriceFactor->setSum($PriceFactor->getSum() * -1);
+                $PriceFactor->setValue($PriceFactor->getValue() * -1);
+
+                $PriceFactor->setNettoSumFormatted($Currency->format($PriceFactor->getNettoSum()));
+                $PriceFactor->setSumFormatted($Currency->format($PriceFactor->getSum()));
+                $PriceFactor->setValueText($Currency->format($PriceFactor->getValue()));
             }
-
-            $Clone = new QUI\ERP\Accounting\Article($article);
-            $ArticleList->addArticle($Clone);
-        }
-
-        $PriceFactors = $ArticleList->getPriceFactors();
-        $Currency = $this->getCurrency();
-
-        /* @var $PriceFactor QUI\ERP\Accounting\PriceFactors\Factor */
-        foreach ($PriceFactors as $PriceFactor) {
-            $PriceFactor->setNettoSum($PriceFactor->getNettoSum() * -1);
-            $PriceFactor->setSum($PriceFactor->getSum() * -1);
-            $PriceFactor->setValue($PriceFactor->getValue() * -1);
-
-            $PriceFactor->setNettoSumFormatted($Currency->format($PriceFactor->getNettoSum()));
-            $PriceFactor->setSumFormatted($Currency->format($PriceFactor->getSum()));
-            $PriceFactor->setValueText($Currency->format($PriceFactor->getValue()));
         }
 
         $Copy->addHistory(
@@ -1191,60 +1196,64 @@ class Invoice extends QUI\QDOM implements ErpEntityInterface, ErpTransactionsInt
         $Copy = $this->copy(QUI::getUsers()->getSystemUser(), $globalProcessId);
         $articles = $Copy->getArticles()->getArticles();
 
-        // change all prices
-        $ArticleList = $Copy->getArticles();
-        $ArticleList->clear();
-        $ArticleList->setCurrency($this->getCurrency());
+        if ($Copy->getArticles()->getCalculationMode() === CalculationMode::MANUAL) {
+            $Copy->getArticles()->negate();
+        } else {
+            // change all prices
+            $ArticleList = $Copy->getArticles();
+            $ArticleList->clear();
+            $ArticleList->setCurrency($this->getCurrency());
 
-        $priceKeyList = [
-            'price',
-            'basisPrice',
-            'nettoPriceNotRounded',
-            'sum',
-            'nettoSum',
-            'nettoSubSum',
-            'nettoPrice',
-            'nettoBasisPrice',
-            'unitPrice',
-        ];
+            $priceKeyList = [
+                'price',
+                'basisPrice',
+                'nettoPriceNotRounded',
+                'sum',
+                'nettoSum',
+                'nettoSubSum',
+                'nettoPrice',
+                'nettoBasisPrice',
+                'unitPrice',
+            ];
 
-        foreach ($articles as $Article) {
-            $article = $Article->toArray();
+            foreach ($articles as $Article) {
+                $article = $Article->toArray();
 
-            foreach ($priceKeyList as $priceKey) {
-                if (isset($article[$priceKey])) {
-                    $article[$priceKey] = $article[$priceKey] * -1;
-                }
-            }
-
-            if (isset($article['calculated'])) {
                 foreach ($priceKeyList as $priceKey) {
-                    if (isset($article['calculated'][$priceKey])) {
-                        $article['calculated'][$priceKey] = $article['calculated'][$priceKey] * -1;
+                    if (isset($article[$priceKey])) {
+                        $article[$priceKey] = $article[$priceKey] * -1;
                     }
                 }
+
+                if (isset($article['calculated'])) {
+                    foreach ($priceKeyList as $priceKey) {
+                        if (isset($article['calculated'][$priceKey])) {
+                            $article['calculated'][$priceKey] = $article['calculated'][$priceKey] * -1;
+                        }
+                    }
+                }
+
+                if (isset($article['calculated']['vatArray'])) {
+                    $article['calculated']['vatArray']['sum'] = $article['calculated']['vatArray']['sum'] * -1;
+                }
+
+                $Clone = new QUI\ERP\Accounting\Article($article);
+                $ArticleList->addArticle($Clone);
             }
 
-            if (isset($article['calculated']['vatArray'])) {
-                $article['calculated']['vatArray']['sum'] = $article['calculated']['vatArray']['sum'] * -1;
+            $PriceFactors = $ArticleList->getPriceFactors();
+            $Currency = $this->getCurrency();
+
+            /* @var $PriceFactor QUI\ERP\Accounting\PriceFactors\Factor */
+            foreach ($PriceFactors as $PriceFactor) {
+                $PriceFactor->setNettoSum($PriceFactor->getNettoSum() * -1);
+                $PriceFactor->setSum($PriceFactor->getSum() * -1);
+                $PriceFactor->setValue($PriceFactor->getValue() * -1);
+
+                $PriceFactor->setNettoSumFormatted($Currency->format($PriceFactor->getNettoSum()));
+                $PriceFactor->setSumFormatted($Currency->format($PriceFactor->getSum()));
+                $PriceFactor->setValueText($Currency->format($PriceFactor->getValue()));
             }
-
-            $Clone = new QUI\ERP\Accounting\Article($article);
-            $ArticleList->addArticle($Clone);
-        }
-
-        $PriceFactors = $ArticleList->getPriceFactors();
-        $Currency = $this->getCurrency();
-
-        /* @var $PriceFactor QUI\ERP\Accounting\PriceFactors\Factor */
-        foreach ($PriceFactors as $PriceFactor) {
-            $PriceFactor->setNettoSum($PriceFactor->getNettoSum() * -1);
-            $PriceFactor->setSum($PriceFactor->getSum() * -1);
-            $PriceFactor->setValue($PriceFactor->getValue() * -1);
-
-            $PriceFactor->setNettoSumFormatted($Currency->format($PriceFactor->getNettoSum()));
-            $PriceFactor->setSumFormatted($Currency->format($PriceFactor->getSum()));
-            $PriceFactor->setValueText($Currency->format($PriceFactor->getValue()));
         }
 
         $Copy->addHistory(
