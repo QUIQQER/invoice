@@ -24,6 +24,18 @@ class ManualCalculationSnapshotTest extends SqliteIntegrationTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        if (QUI::getPackageManager()->isInstalled('quiqqer/offers')) {
+            $this->prepareOffers();
+        }
+
+        // Use the base class's SQLite or CI connection and discard all test fixtures afterwards.
+        $this->connection->beginTransaction();
+        $this->transactionStarted = true;
+    }
+
+    private function prepareOffers(): void
+    {
         QUI\Update::importDatabase(OPT_DIR . 'quiqqer/offers/database.xml');
         QUI\Update::importPermissions(OPT_DIR . 'quiqqer/offers/permissions.xml', 'quiqqer/offers');
         $Package = QUI::getPackage('quiqqer/offers');
@@ -37,10 +49,6 @@ class ManualCalculationSnapshotTest extends SqliteIntegrationTestCase
         (new ReflectionProperty($Package, 'configPath'))->setValue($Package, $path);
         (new ReflectionProperty($Package, 'Config'))->setValue($Package, null);
         QUI\ERP\Accounting\Offers\Settings::getInstance()->set('offers', 'sendMailAtCreation', false);
-
-        // Use the base class's SQLite or CI connection and discard all test fixtures afterwards.
-        $this->connection->beginTransaction();
-        $this->transactionStarted = true;
     }
 
     protected function tearDown(): void
@@ -141,6 +149,7 @@ class ManualCalculationSnapshotTest extends SqliteIntegrationTestCase
 
     public function testOfferSaveReloadPostCopyAndInvoiceTransitionPreserveTheManualSnapshot(): void
     {
+        $this->requireOffers();
         $SystemUser = QUI::getUsers()->getSystemUser();
         $InvoiceDraft = $this->invoiceDraft();
         $Draft = QUI\ERP\Accounting\Offers\Factory::getInstance()->createOffer($SystemUser);
@@ -167,8 +176,15 @@ class ManualCalculationSnapshotTest extends SqliteIntegrationTestCase
         self::assertSame(0.9876, $Invoice->getArticles()->getPriceFactors()->getFactor(0)->getNettoSum());
     }
 
-    public function testManualPriceDisplaySurvivesCustomerDefaultsInBothDocumentConventions(): void
+    #[DataProvider('draftClasses')]
+    public function testManualPriceDisplaySurvivesCustomerDefaultsInBothDocumentConventions(string $class): void
     {
+        $isOffer = $class === OfferTemporary::class;
+
+        if ($isOffer) {
+            $this->requireOffers();
+        }
+
         $SystemUser = QUI::getUsers()->getSystemUser();
 
         foreach ([true, false] as $isNetto) {
@@ -176,85 +192,96 @@ class ManualCalculationSnapshotTest extends SqliteIntegrationTestCase
             $snapshot = $this->snapshot();
             $snapshot['calculations']['isNetto'] = $isNetto;
             $snapshot['articles'][0]['calculated']['isNetto'] = $isNetto;
-            $InvoiceDraft->importArticles($snapshot);
-            $InvoiceDraft->save($SystemUser);
-            $ReloadedInvoice = Handler::getInstance()->getTemporaryInvoice($InvoiceDraft->getUUID());
-            self::assertSame($isNetto ? 0 : 1, $ReloadedInvoice->getAttribute('isbrutto'));
-            $Posted = $ReloadedInvoice->post($SystemUser);
-            self::assertSame($isNetto ? 0 : 1, (int)$Posted->getAttribute('isbrutto'));
-            self::assertSame($isNetto, $Posted->getArticles()->getCalculations()['isNetto']);
-
-            $OfferDraft = QUI\ERP\Accounting\Offers\Factory::getInstance()->createOffer($SystemUser);
-            $OfferDraft->setCustomer($InvoiceDraft->getCustomer());
-            $OfferDraft->setAttribute('customer_address', $InvoiceDraft->getAttribute('invoice_address'));
-            $OfferDraft->setAttribute('payment_method', -1);
-            $OfferDraft->importArticles($snapshot);
-            $OfferDraft->save($SystemUser);
-            $ReloadedOffer = QUI\ERP\Accounting\Offers\Handler::getInstance()->getTemporaryOffer(
-                $OfferDraft->getUUID()
-            );
-            self::assertSame($isNetto ? 1 : 2, (int)$ReloadedOffer->getAttribute('isbrutto'));
-            $PostedOffer = $ReloadedOffer->createOffer($SystemUser);
-            self::assertSame($isNetto ? 1 : 2, (int)$PostedOffer->getAttribute('isbrutto'));
-            self::assertSame($isNetto, $PostedOffer->getArticles()->getCalculations()['isNetto']);
+            if ($isOffer) {
+                $OfferDraft = QUI\ERP\Accounting\Offers\Factory::getInstance()->createOffer($SystemUser);
+                $OfferDraft->setCustomer($InvoiceDraft->getCustomer());
+                $OfferDraft->setAttribute('customer_address', $InvoiceDraft->getAttribute('invoice_address'));
+                $OfferDraft->setAttribute('payment_method', -1);
+                $OfferDraft->importArticles($snapshot);
+                $OfferDraft->save($SystemUser);
+                $ReloadedOffer = QUI\ERP\Accounting\Offers\Handler::getInstance()->getTemporaryOffer(
+                    $OfferDraft->getUUID()
+                );
+                self::assertSame($isNetto ? 1 : 2, (int)$ReloadedOffer->getAttribute('isbrutto'));
+                $PostedOffer = $ReloadedOffer->createOffer($SystemUser);
+                self::assertSame($isNetto ? 1 : 2, (int)$PostedOffer->getAttribute('isbrutto'));
+                self::assertSame($isNetto, $PostedOffer->getArticles()->getCalculations()['isNetto']);
+            } else {
+                $InvoiceDraft->importArticles($snapshot);
+                $InvoiceDraft->save($SystemUser);
+                $ReloadedInvoice = Handler::getInstance()->getTemporaryInvoice($InvoiceDraft->getUUID());
+                self::assertSame($isNetto ? 0 : 1, $ReloadedInvoice->getAttribute('isbrutto'));
+                $Posted = $ReloadedInvoice->post($SystemUser);
+                self::assertSame($isNetto ? 0 : 1, (int)$Posted->getAttribute('isbrutto'));
+                self::assertSame($isNetto, $Posted->getArticles()->getCalculations()['isNetto']);
+            }
         }
     }
 
-    public function testSaveEndpointsKeepSnapshotFactorsAndCalcEndpointsRespectThePolicy(): void
+    public static function modules(): iterable
     {
+        yield 'invoice' => ['invoice'];
+        yield 'offers' => ['offers'];
+    }
+
+    #[DataProvider('modules')]
+    public function testSaveEndpointsKeepSnapshotFactorsAndCalcEndpointsRespectThePolicy(string $module): void
+    {
+        if ($module === 'offers') {
+            $this->requireOffers();
+        }
+
         $Callables = new ReflectionProperty(QUI\Ajax::class, 'callables');
         $Permissions = new ReflectionProperty(QUI\Ajax::class, 'permissions');
         $previousCallables = $Callables->getValue();
         $previousPermissions = $Permissions->getValue();
 
         try {
-            foreach (['invoice', 'offers'] as $module) {
-                $InvoiceDraft = $this->invoiceDraft();
-                $Draft = $InvoiceDraft;
+            $InvoiceDraft = $this->invoiceDraft();
+            $Draft = $InvoiceDraft;
 
-                if ($module === 'offers') {
-                    $Draft = QUI\ERP\Accounting\Offers\Factory::getInstance()->createOffer(
-                        QUI::getUsers()->getSystemUser()
-                    );
-                    $Draft->setCustomer($InvoiceDraft->getCustomer());
-                    $Draft->setAttribute('customer_address', $InvoiceDraft->getAttribute('invoice_address'));
-                    $Draft->setAttribute('payment_method', -1);
-                }
-
-                $prefix = $module === 'invoice' ? 'invoices' : 'offers';
-                $root = OPT_DIR . 'quiqqer/' . $module . '/ajax/' . $prefix . '/temporary/';
-                require $root . 'save.php';
-                require $root . 'calc.php';
-                $registered = QUI\Ajax::getRegisteredCallables();
-                $name = 'package_quiqqer_' . $module . '_ajax_' . $prefix . '_temporary_';
-                $save = $registered[$name . 'save']['callable'];
-                $calc = $registered[$name . 'calc']['callable'];
-                $payload = [
-                    'customer_id' => $Draft->getAttribute('customer_id'),
-                    'invoice_address_id' => $InvoiceDraft->getAttribute('invoice_address_id'),
-                    'invoice_address' => $InvoiceDraft->getAttribute('invoice_address'),
-                    'customer_address' => $InvoiceDraft->getAttribute('invoice_address'),
-                    'articles' => $this->snapshot(),
-                    'priceFactors' => [],
-                    'currency' => 'EUR'
-                ];
-                $result = $save($Draft->getUUID(), json_encode($payload));
-                self::assertIsArray($result);
-                self::assertSame('manual', $result['articles']['calculationMode']);
-                self::assertSame(9.99012345, $result['articles']['calculations']['sum']);
-                self::assertCount(1, $result['articles']['priceFactors']);
-                self::assertSame(0.9876, $result['articles']['priceFactors'][0]['nettoSum']);
-                $manual = $calc(json_encode($this->snapshot()), '{}');
-                self::assertSame(9.99012345, $manual['sum']);
-                $automatic = $this->snapshot();
-                unset($automatic['calculationMode']);
-                $automatic['calculations']['sum'] = 99999;
-                $automatic['articles'][0]['calculated']['sum'] = 99999;
-                $user = '{"country":"DE","isCompany":true}';
-                $legacy = $calc(json_encode($automatic['articles']), $user);
-                $wrapped = $calc(json_encode($automatic), $user);
-                self::assertSame($legacy, $wrapped);
+            if ($module === 'offers') {
+                $Draft = QUI\ERP\Accounting\Offers\Factory::getInstance()->createOffer(
+                    QUI::getUsers()->getSystemUser()
+                );
+                $Draft->setCustomer($InvoiceDraft->getCustomer());
+                $Draft->setAttribute('customer_address', $InvoiceDraft->getAttribute('invoice_address'));
+                $Draft->setAttribute('payment_method', -1);
             }
+
+            $prefix = $module === 'invoice' ? 'invoices' : 'offers';
+            $root = OPT_DIR . 'quiqqer/' . $module . '/ajax/' . $prefix . '/temporary/';
+            require $root . 'save.php';
+            require $root . 'calc.php';
+            $registered = QUI\Ajax::getRegisteredCallables();
+            $name = 'package_quiqqer_' . $module . '_ajax_' . $prefix . '_temporary_';
+            $save = $registered[$name . 'save']['callable'];
+            $calc = $registered[$name . 'calc']['callable'];
+            $payload = [
+                'customer_id' => $Draft->getAttribute('customer_id'),
+                'invoice_address_id' => $InvoiceDraft->getAttribute('invoice_address_id'),
+                'invoice_address' => $InvoiceDraft->getAttribute('invoice_address'),
+                'customer_address' => $InvoiceDraft->getAttribute('invoice_address'),
+                'articles' => $this->snapshot(),
+                'priceFactors' => [],
+                'currency' => 'EUR'
+            ];
+            $result = $save($Draft->getUUID(), json_encode($payload));
+            self::assertIsArray($result);
+            self::assertSame('manual', $result['articles']['calculationMode']);
+            self::assertSame(9.99012345, $result['articles']['calculations']['sum']);
+            self::assertCount(1, $result['articles']['priceFactors']);
+            self::assertSame(0.9876, $result['articles']['priceFactors'][0]['nettoSum']);
+            $manual = $calc(json_encode($this->snapshot()), '{}');
+            self::assertSame(9.99012345, $manual['sum']);
+            $automatic = $this->snapshot();
+            unset($automatic['calculationMode']);
+            $automatic['calculations']['sum'] = 99999;
+            $automatic['articles'][0]['calculated']['sum'] = 99999;
+            $user = '{"country":"DE","isCompany":true}';
+            $legacy = $calc(json_encode($automatic['articles']), $user);
+            $wrapped = $calc(json_encode($automatic), $user);
+            self::assertSame($legacy, $wrapped);
         } finally {
             $Callables->setValue(null, $previousCallables);
             $Permissions->setValue(null, $previousPermissions);
@@ -290,10 +317,21 @@ class ManualCalculationSnapshotTest extends SqliteIntegrationTestCase
 
     private function draft(string $class): InvoiceTemporary|OfferTemporary
     {
+        if ($class === OfferTemporary::class) {
+            $this->requireOffers();
+        }
+
         $Draft = $this->getMockBuilder($class)->disableOriginalConstructor()->onlyMethods(['getCurrency'])->getMock();
         $Draft->method('getCurrency')->willReturn(QUI\ERP\Defaults::getCurrency());
         (new ReflectionProperty($Draft, 'Articles'))->setValue($Draft, new ArticleList());
         return $Draft;
+    }
+
+    private function requireOffers(): void
+    {
+        if (!QUI::getPackageManager()->isInstalled('quiqqer/offers')) {
+            self::markTestSkipped('The optional quiqqer/offers package is required for offer integration tests.');
+        }
     }
 
     /** @return array<string, mixed> */
