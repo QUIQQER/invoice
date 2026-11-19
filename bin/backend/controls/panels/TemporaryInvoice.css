@@ -1,6 +1,64 @@
 /** Data
  ========================================== */
 
+.quiqqer-invoice-category-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+.quiqqer-invoice-category-layout > .container {
+    flex: 1 1 0;
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
+    padding: 20px;
+    width: 100%;
+}
+
+.quiqqer-invoice-category-layout > .container::after {
+    clear: both;
+    content: '';
+    display: block;
+}
+
+.quiqqer-invoice-category-summary {
+    flex: 0 0 auto;
+    position: relative;
+}
+
+.quiqqer-invoice-category-actions {
+    --_background: var(--quiqqer-invoice-actions-background, var(--qui-colors-white));
+    --_shadow: var(--quiqqer-invoice-actions-shadow, color-mix(in srgb, var(--qui-colors-gray-900) 18%, transparent));
+
+    align-items: center;
+    background: var(--_background);
+    box-shadow: 0 -4px 10px var(--_shadow);
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+    min-height: 60px;
+    padding: 10px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.quiqqer-invoice-category-actions[hidden] {
+    display: none;
+}
+
+.quiqqer-invoice-category-actions > [data-name="previous-category"] {
+    margin-inline-end: auto;
+}
+
+.quiqqer-invoice-category-actions > [data-name="next-category"] > .fa-angle-right {
+    margin-inline-start: 8px;
+}
+
 .quiqqer-invoice-backend-temporaryInvoice-data-addressExtra {
     height: 30px;
 }
